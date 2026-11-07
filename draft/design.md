@@ -1,81 +1,162 @@
-# Arah Desain — Albana Speech Academy
+# Albana Speech Academy · Spesifikasi desain
 
-Rancangan untuk [brief](Brief.md). Audiens utama: mahasiswa sampai profesional muda. Tujuan utama: calon peserta cepat memahami kelas, menemukan jadwal, lalu mendaftar. Arah visualnya **simple, minimalist, clean, dan mudah dipakai**.
+Dokumen ini menjadi acuan visual dan interaksi untuk Figma dan Stitch. [Konten Home](home-content.md) menetapkan naskah Indonesia, urutan baca, dan syarat editorial untuk materi peserta. Ketentuan program mengikuti [brief](Brief.md) dan [model data](database.md).
 
-## Arah dan kata kunci
+## 1. Arah visual
 
-- **Identitas:** logo Albana Speech Academy yang diberikan klien memakai biru pada latar putih. Sampel dari gambar raster memberi perkiraan biru gelap #245A9A dan biru terang #376CB0; cocokkan lagi dengan file logo asli sebelum produksi.
-- **Referensi konten saja:** [Akademi Creator](https://akademicreator.com/) membantu mengingat jenis informasi yang perlu dijelaskan, seperti manfaat, program, pengajar, bukti kegiatan, dan cara bergabung. Desain, susunan halaman, warna, tipografi, dan interaksinya tidak dijadikan acuan.
-- **Kata kunci audiens:** percaya diri, komunikasi efektif, latihan nyata, perkembangan karier, relevan untuk kuliah dan kerja.
-- **Kata kunci visual:** spacious editorial, Swiss typography, large headline, generous whitespace, focused portrait, blue-and-white, mobile-first.
-- **Gaya yang dipilih:** editorial minimalis dengan tipografi besar, satu foto utama, bidang putih yang luas, dan sedikit elemen per bagian. Biru logo dipakai sebagai aksen dan tombol utama.
-- **Referensi portofolio:** ambil hierarki judul berukuran besar, potret trainer yang menonjol, dan jarak lega antara judul, foto, dan informasi pendukung. Gunakan foto Alan yang disetujui; jangan meniru nama, angka, atau klaim pada contoh.
-- **Referensi tampilan laptop:** ambil bidang putih lapang, navigasi sederhana, headline sebagai fokus, dan satu aksen visual kecil. Komposisi ini menjadi acuan halaman web langsung, tanpa bingkai laptop atau latar ungu.
+Terjemahkan komposisi halaman krem pada referensi FYLLA menjadi halaman akademi. Pertahankan masthead kecil, judul geometris, foto candid di kanan, garis pembagi tipis, dan indeks editorial. Warna abu-abu di luar lembar adalah bingkai presentasi. Identitas, aktivitas, dan orang yang ditampilkan berasal dari ASA.
 
-## Arsitektur konten dan alur
+Hero menampilkan nama akademi, deskripsi kelas, CTA jadwal, dan akses ke video pengenalan. Potret kecil mengenalkan pendirinya. Alokasikan ruang lebih besar kepada ucapan peserta atau hasil kerja yang dapat dilihat. Foto galeri memberi konteks tentang proses belajar. Pakai aset dan atribusi asli dengan izin publikasi.
 
-1. Header: logo; menu **Program, Jadwal, Tentang, Artikel**; tombol utama **Daftar Kelas**. Metode, dokumentasi, trainer, dan lokasi tetap mudah ditemukan di beranda, halaman Tentang, atau footer. Pada ponsel, menu ringkas dan tombol daftar tetap jelas.
-2. Hero: manfaat kelas dan foto asli Alan/kegiatan; satu CTA utama **Daftar Kelas** menuju pemilihan jadwal, dengan tautan sekunder ke metode.
-3. Jadwal terdekat dan program aktif: tanggal, tempat, harga, serta status hanya ketika data sudah disetujui. Kartu program menuju detail kelas.
-4. Metode Pengajaran: bagaimana peserta belajar dan berlatih; jangan memakai angka persentase yang belum dikonfirmasi.
-5. Dokumentasi dan testimoni: foto/video kegiatan serta kutipan nyata dengan izin; setiap foto diberi konteks.
-6. Trainer: profil Alan, kredensial terverifikasi, dan foto nyata.
-7. Lokasi: alamat terverifikasi, petunjuk singkat, tautan peta.
-8. Artikel: cuplikan artikel terbit dan halaman baca.
-9. Pendaftaran dan pembayaran: pilih batch → isi formulir → lihat langkah pembayaran manual → admin memverifikasi. Kebijakan penjadwalan ulang dan tanpa pengembalian dana terlihat sebelum kirim.
+## 2. Grid dan ruang
 
-Kelompok konten mengikuti kebutuhan di brief dan dapat menjadi bagian beranda atau halaman tersendiri sesuai panjang materi. Menu jangan memaksakan sembilan item setara; pendaftaran menjadi satu aksi utama. Bila jadwal atau artikel belum tersedia, tampilkan keadaan kosong yang jujur dan kontak admin, tanpa tanggal, harga, testimoni, atau klaim rekaan.
+Satuan grid dalam CSS px. Terapkan `box-sizing: border-box`. Satu pembungkus untuk header, main, dan footer. Lebar luar maksimum 1440 px, terpusat. Padding termasuk dalam lebar itu. Latar kertas mengisi viewport. Garis horizontal membentang sepanjang **lebar isi**.
 
-## Panduan layout
+| Properti | Ponsel 320–767 | Tablet 768–1023 | Desktop ≥1024 |
+|---|---:|---:|---:|
+| Kolom sama lebar | 4 | 8 | 12 |
+| Padding pembungkus per sisi | 16 pada 320–359, lainnya 20 | 32 | 48 |
+| Gutter | 12 | 20 | 24 |
+| Padding blok hero per sisi atas/bawah | 32 | 40 | 48 |
+| Padding blok seksi reguler per sisi atas/bawah | 32 | 40 | 48 |
+| Padding blok baris bukti | 16 | 20 | 24 |
+| Gap antargrup dalam seksi | 24 | 24 | 32 |
+| Tinggi minimum masthead | 64 | 72 | 80 |
 
-- **Grid:** lebar konten maksimal 1200 px, 12 kolom dan gutter 24 px pada desktop ≥1024 px; 8 kolom dan gutter 20 px pada tablet 768–1023 px; satu kolom dan margin 20 px pada ponsel <768 px. Pada 320 px gunakan margin 16 px.
-- **Hero desktop:** judul dan CTA di kiri sekitar 6 kolom; satu potret Alan atau foto kegiatan di kanan sekitar 5 kolom, dengan ruang kosong di antaranya. Gunakan satu kalimat pendukung pendek dan tombol **Daftar Kelas**. Judul singkat maksimal 2–3 baris; wajah, teks, dan tombol tidak saling menutupi. Pada ponsel tampilkan judul, penjelasan, CTA, lalu foto.
-- **Bagian konten:** satu gagasan utama per bagian. Letakkan judul di kiri dan teks atau satu foto di sebelahnya; batasi lebar paragraf sekitar 65 karakter. Beri ruang kosong yang jelas di antara kelompok.
-- **Program dan jadwal:** tampilkan sebagai daftar rapi dengan garis pemisah tipis. Setiap baris memuat nama program atau batch, tanggal dan lokasi yang tersedia, serta tautan daftar yang jelas; sertakan harga jika telah disetujui. Gunakan kartu hanya bila perlu untuk membedakan pilihan.
-- **Ritme:** jarak antarbagian 120 px desktop, 88 px tablet, 64 px ponsel; jarak judul ke isi 24–32 px. Batasi ornamen, label, dan foto agar tidak bersaing dengan informasi utama.
+Pada frame 1440, isi 1344 px, satu kolom 90 px, kolom 7 mulai di x=732. Pada 390, isi 350 px. Gunakan CSS Grid dengan `repeat(n,minmax(0,1fr))`, item `min-width:0`; gutter Figma identik. Semua seksi memakai garis atas 1 px; hero memakai garis bawah masthead sebagai batas atasnya. Pertemuan dua seksi hanya menggambar satu garis.
 
-## Sistem visual
+Skala ruang 4, 8, 12, 16, 20, 24, 32, 40, 48, 64 px. Caption berjarak 8 dari foto, judul ke paragraf 16, paragraf ke aksi 24. Reset margin bawaan heading, list, figure, dan paragraf. Tinggi seksi mengikuti isi. Maksimum lebar paragraf 60ch, teks pembuka hero 42ch. Item membungkus bila teks diperbesar. Garis vertikal pembagi berada di tengah gutter dan berakhir di batas isi seksi.
 
-| Elemen | Spesifikasi | Alasan |
-| --- | --- | --- |
-| Font | Plus Jakarta Sans untuk judul, isi, dan tombol; fallback system sans-serif | Modern, mudah dibaca, dan konsisten. |
-| Biru utama | #245A9A | Berasal dari sampel logo; tombol utama dan tautan penting. Putih di atasnya memiliki kontras sekitar 6,99:1. |
-| Biru terang | #376CB0 | Aksen ikon dan garis; putih di atasnya sekitar 5,34:1. Hindari teks kecil biru terang di latar biru pucat. |
-| Teks utama | #16283D | Kontras tinggi untuk paragraf. |
-| Teks sekunder | #52667C | Informasi pendukung; kontras sekitar 5,91:1 pada putih. |
-| Latar | #FFFFFF dan #F7F9FC bergantian | Memisahkan bagian tanpa terlalu banyak kartu. |
-| Garis | #D7E1EC | Batas input/kartu; gunakan label, jangan mengandalkan garis saja. |
-| Biru pucat | #E8F1FA | Bidang informasi ringan; teks tetap memakai biru utama/gelap. |
-| Status | Teks + ikon, warna status yang diuji kontras saat implementasi | Status pendaftaran/pembayaran tidak disampaikan melalui warna saja. |
+## 3. Tipografi
 
-- **Tipografi:** Plus Jakarta Sans; H1 desktop 72 px/1,05 dan ponsel 38 px/1,12, H2 44/30 px, H3 24/20 px, isi 16 px/1,6 dan teks bantu 14 px/1,5. Judul 700, tombol dan label 600, isi 400; judul rata kiri dan paragraf maksimal sekitar 65 karakter per baris. Gunakan huruf kapital biasa untuk keterbacaan.
-- **Penerapan warna:** gunakan putih sebagai latar utama, #F7F9FC untuk pemisah bagian, dan #E8F1FA secukupnya pada bidang informasi pendukung. Gunakan #245A9A pada CTA utama dan tautan; #376CB0 sebagai aksen kecil. Teks utama tetap #16283D. Jangan menaruh teks kecil putih di atas foto tanpa bidang gelap yang teruji kontrasnya.
-- **Ruang dan bentuk:** gunakan skala 8, 16, 24, 32, 48, 64 px di dalam komponen. Garis tipis dan bayangan lembut hanya untuk membedakan bidang.
-- **Tombol:** satu tombol solid biru utama per area keputusan; tombol sekunder berupa tautan/outline. Tinggi sentuh minimal 44 px, focus ring terlihat, label berupa tindakan jelas.
-- **Foto dan video:** utamakan dokumentasi asli kelas dan Alan, pencahayaan alami, peserta sedang berlatih. Rasio 4:3 atau 3:2 untuk dokumentasi. Video memakai thumbnail jelas dan kendali putar; jangan autoplay bersuara.
-- **Detail visual:** gunakan garis pemisah 1 px, tombol sederhana, dan maksimal satu aksen biru kecil pada area hero. Foto dapat memakai latar putih atau potongan bersih bila tersedia; jaga keterbacaan tanpa teks di atas wajah.
-- **Gerak:** transisi hover/fokus singkat 150–220 ms. Hormati prefers-reduced-motion.
+**DM Sans** untuk judul, isi, navigasi, dan tombol. Bentuk huruf lebar dan bobot sedang menjaga judul tetap dekat dengan masthead editorial pada referensi. **IBM Plex Mono** untuk tanggal, waktu, harga, label kredensial, dan caption pendek. Digit sejajar memudahkan perbandingan batch. Fallback masing-masing `Arial, sans-serif` dan `ui-monospace, monospace`. Sediakan WOFF2 berlisensi, tampilkan fallback selama font dimuat. Gunakan root 100%, basis konversi 16 px. Ukuran implementasi dalam rem.
 
-## Perilaku dan pemeriksaan
+| Peran | Desktop px/rem | Tablet px/rem | Ponsel px/rem | Weight | Line-height | Tracking |
+|---|---|---|---|---:|---:|---:|
+| H1 | 80/5 | 56/3.5 | 44/2.75 | 500 | 1.04 | −0.045em |
+| H2 | 48/3 | 40/2.5 | 32/2 | 500 | 1.10 | −0.035em |
+| H3 | 28/1.75 | 26/1.625 | 24/1.5 | 500 | 1.20 | −0.02em |
+| H4 | 22/1.375 | 22/1.375 | 20/1.25 | 600 | 1.30 | −0.01em |
+| H5 | 18/1.125 | 18/1.125 | 18/1.125 | 600 | 1.40 | 0 |
+| H6 | 16/1 | 16/1 | 16/1 | 600 | 1.40 | 0 |
+| Lead | 20/1.25 | 18/1.125 | 18/1.125 | 400 | 1.50 | 0 |
+| Body | 16/1 | 16/1 | 16/1 | 400 | 1.55 | 0 |
+| Navigasi, tombol | 14/0.875 | 14/0.875 | 14/0.875 | 600 | 1.40 | 0 |
+| Label, caption mono | 12/0.75 | 12/0.75 | 12/0.75 | 500 | 1.50 | +0.04em |
+| Tanggal, waktu, harga mono | 14/0.875 | 14/0.875 | 14/0.875 | 400 | 1.50 | 0 |
 
-- Ponsel mulai dari 320 px: satu kolom, navigasi dapat dibuka dengan keyboard, kartu jadwal tersusun vertikal, formulir satu kolom, tanpa gulir horizontal.
-- Desktop sekitar 1440 px: hero dua kolom, daftar program dalam baris yang lega, dan dokumentasi dengan satu foto utama. Teks tetap terbaca saat zoom.
-- Form: label tetap terlihat, contoh format hanya sebagai bantuan, pesan kesalahan dekat kolom, indikator sedang mengirim, hasil sukses yang menyatakan tindak lanjut admin, dan jalan keluar jika pengiriman gagal.
-- CMS: admin melihat draft/terbit dan data pembayaran dengan label status yang jelas. Media tanpa izin tidak boleh terbit.
-- Uji saat implementasi: kontras teks minimal 4,5:1, kontrol keyboard dan fokus, alt text foto bermakna, ukuran target sentuh, tampilan 320/390/1440 px, serta keadaan kosong, gagal, dan berhasil.
+Satu H1, H2 per seksi, H3 untuk subtopik. H4–H6 tersedia bila hierarki memerlukannya. Judul dan tombol memakai kapitalisasi kalimat. Kapital penuh khusus label pendek seperti “PENGALAMAN”. H1 membungkus alami; sasaran 2–3 baris pada 1440. Izinkan baris tambahan pada 320 atau zoom.
 
-## Prompt untuk Stitch
+## 4. Warna dan kontras
 
-Unggah logo resmi dan kedua gambar referensi visual sebagai aset, lalu gunakan prompt berikut di [stitch.google](https://stitch.google/). Ganti konten contoh dengan materi yang disetujui klien sebelum publikasi.
+Gunakan nama token ini sebagai variables Figma dan custom properties CSS (`--color-primary`, dst.). Rasio berikut dihitung dari luminans relatif sRGB, berurutan pada Background / Surface.
 
-~~~text
-Design a high-fidelity responsive website concept for Albana Speech Academy, an Indonesian public speaking training academy for university students and young professionals. Use the uploaded official logo exactly as provided. The interface language is Indonesian.
+| Token | HEX | Penggunaan | Rasio |
+|---|---|---|---|
+| Primary | #1C1B19 | Isi tombol utama dan wordmark teks | 16.81 / 14.64 |
+| Secondary | #55514B | Deskripsi, caption dan metadata | 7.70 / 6.70 |
+| Background | #FFFCF6 | Kertas utama, teks pada tombol gelap | 16.81 pada Primary |
+| Surface | #F1ECE4 | Panel menu, bidang sementara media, hover baris | 14.64 dengan Text |
+| Text | #1C1B19 | Judul dan isi utama | 16.81 / 14.64 |
+| Accent | #245A9A | Fokus keyboard, tautan dalam paragraf, aksen logo resmi | 6.83 / 5.94 |
+| Rule | #C9C2B8 | Garis pembagi dekoratif | Dekorasi |
+| Control | #817B73 | Batas kontrol yang diperlukan untuk mengenali tombol | 4.09 / 3.56 |
+| Hover / Pressed | #393631 / #10100F | Isi tombol utama saat interaksi | Teks Background 11.75 / 18.59 |
 
-Create desktop 1440px and mobile 390px views of the homepage, plus a mobile registration flow screen. The primary task is to understand an available class and register. Include the content requested by the client: documentation, teaching method, programs, class schedule, trainer, location, registration, manual payment, and articles. Show one main "Daftar Kelas" CTA, authentic trainer/class photography, concise program and schedule cards, and clear next steps. Use Akademi Creator only to check content topics; do not use it as a reference for visual design, section order, layout, typography, colors, interactions, branding, metrics, or copy.
+Target minimum 4.5:1 untuk seluruh teks aktif, 3:1 untuk batas kontrol dan indikator fokus terhadap latar yang bersebelahan. Gunakan underline pada tautan dalam paragraf. Status selalu memiliki kata yang dapat dibaca. Letakkan caption di bawah foto, pada bidang kertas.
 
-Style: spacious Swiss editorial minimalism for young professionals, based on the two uploaded visual references. Use a large typographic headline, one authentic portrait of Alan or class photo, simple navigation, a single primary action, and generous uninterrupted white space. Present the composition as an actual website, without a laptop frame. Use Plus Jakarta Sans: H1 72px desktop / 38px mobile, concise body copy and a clear reading order. Use white as the dominant background, logo blue #245A9A for the primary CTA, #376CB0 as a restrained accent, text #16283D and secondary text #52667C. Use a centered 1200px maximum grid: on desktop place headline and CTA on the left and one portrait on the right with open space between them; on mobile stack headline, copy, CTA, then portrait. Separate sections with generous whitespace: 120px desktop and 64px mobile. Use simple rows and subtle dividers for programs and schedules. Keep one main idea per section and avoid crowded card grids, decorative overlays, invented metrics, testimonials, urgency, or prices.
+## 5. Komposisi per seksi
 
-The registration screen should show batch choice, clearly labeled fields, visible manual-payment steps, reschedule/no-refund policy, consent notice, and one primary submit action. Include loading, field-error, success, and unavailable-batch states. If real dates, prices, testimonials, or articles are missing, show honest empty states rather than fabricated content. Keep touch targets at least 44px, maintain readable contrast and visible keyboard focus, and avoid horizontal overflow at 320px.
-~~~
+Gunakan urutan DOM yang sama dengan urutan berikut. Salin naskah publik dari dokumen konten.
 
-**Batas rancangan:** warna masih perkiraan dari gambar raster; foto, isi artikel, rincian kelas, dan syarat penjadwalan ulang menunggu klien. Belum ada layar yang dirender atau diuji dengan pengguna.
+| Seksi | Desktop | Tablet dan ponsel |
+|---|---|---|
+| Masthead | Wordmark kiri, maksimum 176 × 32 px; menu dan aksi jadwal rata kanan, gap 24 px. Fallback wordmark teks DM Sans 600, 16 px. Header mengikuti gulir. | Di bawah 1024 gunakan disclosure “Menu”. Panel terbuka mendorong konten ke bawah. |
+| Hero | Di kolom 1–6, susun H1 “Albana Speech Academy”, deskripsi, lalu CTA “Lihat jadwal” ke #jadwal. Sejajarkan thumbnail lingkaran Ø 240 px di awal kolom 7–12, ikon putar di tengah dan label “Tonton video pengenalan” di bawah. | Tablet 4+4, diameter 176 px. Ponsel susun judul, deskripsi, CTA, lalu thumbnail Ø 128 px dengan gap 24 px setelah CTA. Tanpa video terbit, hilangkan kontrol video. |
+| Founder · #alan | Tepat sesudah hero. Satu baris dengan potret 80 × 100 px, gap 16, lalu nama (H2 bergaya H4), peran, dan maksimal satu kalimat reputasi. Padding blok 20 px. Tautan profil opsional bergaya teks. | Tablet sama. Ponsel potret 64 × 80 px di kiri, teks fleksibel di kanan; teks membungkus. Bila foto belum berizin, mulai teks dari tepi kiri. |
+| Dokumentasi · #dokumentasi | Judul di 1–4, foto atau cuplikan utama 16:10 di 5–12. Hingga dua caption pendamping. Letakkan satu karya atau kutipan peserta dengan atribusi di akhir urutan dokumentasi. | Tablet 2+6. Ponsel urutkan media, caption, lalu hasil latihan. Tanpa media, gunakan bukti terbit saja. Tanpa materi terbit, hilangkan seksi dan tautan. |
+| Cara mengajar · #cara-belajar | H2 dan pengantar di 1–4. Tiga tahap satu latihan dalam daftar berurutan di 5–12. | Tablet 2+6. Ponsel pertahankan urutan latihan, masukan, dan pengulangan. |
+| Program · #program | Judul dan ringkasan di 1–4, modul program terbit di 5–12. | Tablet 3+5. Ponsel modul mengikuti ringkasan. |
+| Jadwal kelas · #jadwal | Judul di 1–4, batch per program di 5–12. Dahulukan pertemuan terdekat yang bisa didaftari. Satu aksi daftar per batch. | Tablet 3+5. Ponsel aksi mengikuti status. Anchor tetap tersedia ketika jadwal kosong. |
+| Tempat kelas · #tempat | Nama batch dan ruang di 1–4, alamat, petunjuk dan tautan peta di 5–12. Tautkan tiap batch ke lokasi terkait. | Tablet 3+5. Ponsel urutkan nama, alamat, petunjuk, peta. Sembunyikan lokasi yang belum terverifikasi beserta tautannya. |
+| Cara daftar · #cara-daftar | Judul di 1–4, langkah bernomor di 5–12. | Tablet 2+6. Ponsel tampilkan langkah setelah pengantar. |
+| Cara bayar · #cara-bayar | Judul di 1–4, petunjuk pembayaran manual dan kebijakan di 5–12. Kebijakan selalu terbaca. | Tablet 2+6. Ponsel susun proses verifikasi lalu kebijakan. |
+| Artikel · #artikel | Judul dan deskripsi di 1–4, hingga tiga tulisan di 5–12 menurut tanggal terbit terbaru. Judul tertaut dan satu pengantar per tulisan. | Tablet 2+6. Ponsel satu daftar, diikuti tautan ke arsip. Hilangkan seksi dan navigasinya bila kosong. |
+| CTA dan footer | Judul CTA kiri, tombol kanan. Footer dua grup rata ujung dengan garis atas dan latar kertas. | Ponsel susun vertikal, gap 24 px sebelum aksi. Footer hanya menampilkan tujuan yang tersedia. |
+
+Format data memakai tanggal Indonesia lengkap, waktu WIB, dan rupiah tanpa desimal. Tombol jadwal menuju #jadwal. Menu mengarah ke #dokumentasi, #cara-belajar, #program, dan #artikel. Tombol daftar pada batch membawa pilihan batch ke formulir. Video menunggu aktivasi pengguna, menyediakan teks pendamping untuk isi lisan dan tautan sumber yang valid jika pemutar gagal.
+
+## 6. Komponen dan interaksi
+
+| Komponen | Anatomi dan ukuran | Default, hover, aktif, fokus |
+|---|---|---|
+| Button/Primary | Inline-flex, min-height 44, padding 12 × 20 (vertikal × horizontal), gap 8, radius 4, tanpa shadow | Primary + teks Background. Hover Hover, saat ditekan Pressed. Focus-visible outline Accent 2 px offset 3. |
+| Button/Secondary | Geometri Primary, latar Background, border Control 1 px, teks Text | Hover Surface, aktif border Primary. Fokus sama. Pakai untuk “Coba lagi”. |
+| Link/Nav | Area sentuh min 44 × 44, padding horizontal 8, baseline tengah | Teks Text, hover underline offset 4, aktif warna Accent. Fokus sama. Link isi selalu bergaris bawah. |
+| Card/Batch | Artikel datar, radius 0, elevation 0 (`box-shadow:none`), border-top Rule 1, padding 24 px 0 | Baris statis. Fokus, hover, dan aktivasi hanya pada tautan tindakan. |
+| Hero/Video | Thumbnail dan label membentuk satu button. Ikon putar 48 px di atas bidang Primary. Jika video tersedia tanpa poster, gunakan bidang Surface dengan ikon yang sama. | Klik, Enter atau Space membuka dialog “Video pengenalan Albana Speech Academy” dengan pemutar 16:9, kontrol dan takarir. Jaga fokus di dialog. Tombol “Tutup” atau Escape menghentikan video dan mengembalikan fokus ke pemicu. |
+| Card/Media | Figure radius 0, foto radius 6 px, elevation 0, caption di luar gambar | Foto statis tetap sama saat disorot. Thumbnail video punya tombol play 48 × 48 di bidang Primary. |
+| Menu | Tombol 44 px, panel lebar penuh Surface, padding 16, tautan vertikal min-height 44 | Disclosure inline dengan aria-expanded dan aria-controls. Enter/Space membuka. Escape menutup dan mengembalikan fokus ke Menu. Pilih anchor menutup panel dan memindahkan fokus ke tujuan. |
+
+Aksi navigasi menggunakan anchor beralamat, aksi lokal menggunakan button. Selama retry data, tombol menampilkan “Memuat…” dan menahan klik berulang, status diumumkan dengan aria-live polite. Tombol disabled memakai Surface dan teks Secondary. Fokus tetap dapat dikenali pada semua kontrol aktif. Transisi warna/border 150 ms ease-out, tanpa perpindahan posisi. Pada prefers-reduced-motion gunakan durasi 0. Tautan pertama saat Tab adalah “Lewati ke konten” menuju main.
+
+## 7. Data, keadaan dan media
+
+| Keadaan | Tampilan dan tujuan |
+|---|---|
+| Program terbit dan batch menerima peserta | Baris “Pendaftaran dibuka”. “Daftar kelas ini” membuka formulir dengan batch terpilih. Periksa ulang ketersediaan saat formulir dibuka dan dikirim. |
+| Batch ditutup, tenggat lewat, atau penuh terkonfirmasi | Tampilkan alasan aktual “Pendaftaran ditutup” atau “Kelas penuh”. Tawarkan “Lihat jadwal lain” hanya bila ada batch lain. |
+| Draf, arsip, dibatalkan | Keluarkan dari daftar pilihan publik. Harga kosong tidak boleh diformat sebagai Rp0. Tampilkan angka kursi hanya bila perhitungannya disepakati. |
+| Jadwal kosong | #jadwal tetap ada. “Jadwal kelas berikutnya belum tersedia.” Hero dan header tetap mengantar ke informasi jadwal. CTA penutup “Tanyakan jadwal” menuju WhatsApp resmi jika tersedia. Tanpa kontak terverifikasi, tiadakan CTA penutup. |
+| Gagal memuat jadwal | Pertahankan judul, tampilkan “Jadwal belum bisa dimuat.” dan tombol “Coba lagi”. Setelah berhasil, ganti pesan dengan daftar atau keadaan kosong. |
+| Data sedang dimuat | Pertahankan anchor dan ruang satu baris 96 px, teks “Memuat jadwal…”. Jika data sudah tersedia saat render awal, tampilkan langsung. |
+| Foto, kutipan atau karya belum berizin | Preview internal memakai slot beranotasi. Publik menjalankan fallback per seksi. Jika file gagal dimuat, lepaskan slot yang gagal tanpa menutup teks atau aksi. |
+| Formulir berhasil dikirim | Konfirmasi penerimaan dan langkah pembayaran manual. Status peserta dikonfirmasi setelah admin memverifikasi pembayaran. Jika batch berubah, arahkan kembali ke pilihan jadwal. |
+
+Gunakan program PUBLISHED, batch OPEN yang memenuhi syarat pendaftaran, lokasi terbit, dan media dengan izin tercatat. Status diambil dari data pada waktu kunjungan. Alamat, harga, kuota, nomor admin, fasilitas, dan ketentuan rinci reschedule menunggu data final. Simpan draf historis batch November (7, 14, 21, 28 November 2026 pukul 15.00–18.00 WIB) sebagai referensi konten internal. Isi jadwal publik berasal dari CMS.
+
+| Aset | Ekspor sasaran | Pengolahan dan alt |
+|---|---|---|
+| Poster video pengenalan | WebP 720 × 720, varian lebar 256/480/720 | Ambil frame asli video. Crop 1:1 dengan radius 50%, pertahankan wajah dalam area lingkaran. Alt kosong karena tombol memiliki label terlihat. |
+| Potret Alan | 960 × 1200, WebP, varian lebar 320/480/960 | Pusatkan wajah dengan focal point aset. Alt “Alan Albana” untuk potret tunggal. |
+| Dokumentasi utama / pendamping | 1440 × 900 / 900 × 600, WebP | Caption di luar foto. Gunakan alt untuk detail visual relevan yang belum terdapat pada caption. |
+
+Set aspect-ratio sebelum unduh, gunakan object-fit:cover dan srcset/sizes sesuai lebar slot. Foto hero dimuat segera, foto di bawah layar memakai lazy loading. Logo resmi mempertahankan warna dan proporsi asli.
+
+## 8. Prompt bersama untuk Figma dan Stitch
+
+Tempel prompt yang sama di kedua alat. Sertakan kedua dokumen Markdown, gambar referensi, dan aset ASA yang sudah tersedia.
+
+```text
+Create the responsive Home page for Albana Speech Academy (ASA), an Indonesian public speaking academy for young executives. A visitor should understand what they will practise, see credible evidence from learners, compare schedules, and choose an available class. Use design.md for all visual and interaction decisions and home-content.md for the exact Indonesian interface copy. Keep the same information order, labels, states, and visual proportions in Figma and Stitch.
+
+Art direction. Use the inner page of the supplied FYLLA reference: warm paper, ink typography, compact masthead, a circular video still opposite the academy name, fine rules, an open two-column index, and a featured documentary image. Use ASA's own wordmark and real approved assets. Exclude the grey presentation surround and the reference agency's identity. Keep photography in natural colour. Set body and headings in DM Sans, metadata in IBM Plex Mono. Bind colours to the specification: paper #FFFCF6, surface #F1ECE4, ink #1C1B19, secondary #55514B, focus #245A9A. Use the published type scale, including H1 at 80/56/44 px across desktop/tablet/phone. Keep copy and captions off the photos.
+
+Layout. Use a centred outer wrapper capped at 1440 px. At 1024 px and up use 12 columns, 48 px side padding, 24 px gutters. From 768 to 1023 use 8 columns, 32 px padding, 20 px gutters. Below 768 use 4 columns, 20 px padding and 12 px gutters; reduce padding to 16 px below 360. Use auto-height sections, single 1 px rules, flat schedule rows, 6 px photo corners and 4 px button corners. Produce review views at 1440, 834 and 390; check reflow at 320 and at 200% text zoom.
+
+Composition, in reading order:
+1. Compact masthead with the ASA identity, published section links and “Lihat jadwal”. Below 1024 use an inline disclosure menu.
+2. Set the only H1 to “Albana Speech Academy”. Place the supplied Indonesian description directly below it and the primary “Lihat jadwal” link underneath. Use a circular introduction-video thumbnail opposite the text (240 px desktop, 176 px tablet, 128 px phone). Stack it below the CTA on phones. Centre the play icon and place the visible label “Tonton video pengenalan” below the circle. Both activate one accessible button that opens a labelled video dialog. Closing the dialog stops playback and restores focus. Hide the trigger until a video is published.
+3. Immediately after the hero, add a small founder byline. Use Alan's approved 4:5 portrait, his name, “Founder Albana Speech Academy”, and at most one approved sentence about his radio experience. Keep the portrait at 80 px wide on desktop/tablet and 64 px on phones. A published profile can have a quiet text link. Keep this treatment visibly smaller than the participant evidence.
+4. Show classroom documentation as a short sequence: a participant proposes a venue, the audience asks a question, and the participant tries a clearer opening. This sequence is mock content. Match public captions to approved footage. End the section with one approved participant work sample or attributed testimonial. If only a testimonial exists, show it on its own. If no evidence exists, omit the section and its link.
+5. Explain the teaching method in three ordered steps using the same speaking exercise. Follow with the published program and modules. Give schedules a distinct section with dates, WIB time, price, availability and registration action. Then show verified venue details for the relevant batch with directions and an available map link.
+6. Explain registration and manual payment in successive sections. Make clear that the form is received first and enrolment is confirmed after payment verification. Display the rescheduling and refund policy.
+7. Add up to three latest articles published by Alan through the CMS. Use linked titles and excerpts. Keep drafts private and collapse the section when empty. End with the schedule CTA and footer.
+
+Interactions and handoff. Keep #jadwal available even when schedules are empty. Include the empty, loading, failed/retry, closed and full states defined in design.md. Only expose actions with valid destinations. Honour reduced motion, visible keyboard focus, 44 px targets and contextual alternative text. Missing media must collapse cleanly in public views. Keep review-only annotations outside the page. In Figma, express this layout as editable Auto Layout frames, variables, text styles and component variants with prototype anchors. In Stitch, express the same composition as semantic responsive components and CSS tokens; use supplied data bindings and destinations. Demonstrate the same responsive menu, article links and schedule interactions in either output.
+```
+
+## 9. Kriteria penerimaan handoff
+
+| Pemeriksaan | Syarat lulus |
+|---|---|
+| Hierarki | Pada desktop, nama akademi mendominasi hero, diikuti deskripsi dan CTA jadwal. Thumbnail lingkaran membuka video pengenalan. Seksi berikutnya mempertemukan nama, wajah, dan bio Alan. Cerita peserta atau karya terdokumentasi menjadi bukti utama akademi. |
+| Grid | Di 1440, masthead, judul hero dan judul seksi dimulai di x=48. Tepi kiri thumbnail hero di x=732. Di 320, lebar isi 288 px. |
+| Konten panjang | Nama program dua baris, daftar empat tanggal, fallback font, dan zoom 200% tidak memotong teks, tombol atau fokus. Tidak ada scroll horizontal halaman. |
+| Interaksi | Dengan keyboard, buka dan tutup menu, pindah ke jadwal, buka artikel terbit, pilih batch yang tersedia. Urutan fokus mengikuti urutan baca. |
+| Data | Uji satu batch tersedia, penuh, tenggat lewat, data kosong, dan kegagalan lalu retry. Tiap pilihan menghasilkan aksi sesuai tabel. |
+| Kepercayaan | Cek izin, sumber karya, keutuhan kutipan dan atribusi sebelum publikasi. Uji penghapusan seluruh media atau bukti opsional, termasuk tautan nav. |
+| Kontras | Pasangan token pada tabel memenuhi target tertulis. Uji outline pada semua surface dan state ketika frame atau build tersedia. |
+| Uji tugas | Minta calon peserta menemukan nama trainer, jadwal, harga, serta langkah setelah mengirim formulir dari ponsel. Catat bagian yang membuatnya berhenti atau salah memilih. |
+
+**Status verifikasi:** struktur, rumus grid, rasio kontras, dan sumber aturan pendaftaran diperiksa pada spesifikasi. Hasil render Figma/Stitch, navigasi keyboard, reflow aktual, dan uji dengan peserta menunggu eksekusi desain.

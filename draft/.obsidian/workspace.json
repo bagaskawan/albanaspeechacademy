@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "design.md",
+                "file": "home-content.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "design"
+              "title": "home-content"
             }
           }
         ],
@@ -214,13 +214,15 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false
+      "bases:Create new base": false,
+      "codex-panel:Open panel": false
     }
   },
   "active": "e29c26032fa3e685",
   "lastOpenFiles": [
-    "Brief.md",
     "design.md",
+    "home-content.md",
+    "Brief.md",
     "database.md",
     "tech.md",
     "Result Brief.md",
