@@ -1,0 +1,124 @@
+import React from "react";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import AcaraListClient from "./AcaraListClient";
+
+export const dynamic = "force-dynamic";
+
+export default async function AcaraPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  // Verify that the user is an admin
+  const { data: member } = await supabase
+    .from("members")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!member || member.role !== "admin") {
+    redirect("/myprofile");
+  }
+
+  // Fetch events along with their attendance records and gallery albums in parallel
+  const [{ data: rawEvents }, { data: rawGalleries }, paginationLimit] = await Promise.all([
+    supabase
+      .from("events")
+      .select(`
+        id,
+        title,
+        description,
+        event_type,
+        event_date,
+        start_time,
+        end_time,
+        location,
+        capacity,
+        is_published,
+        created_at,
+        attendances (
+          id,
+          is_present,
+          members (
+            full_name,
+            avatar_url
+          )
+        )
+      `)
+      .order("event_date", { ascending: false }),
+    supabase
+      .from("gallery_albums")
+      .select("id, hero_image_url, album_link, is_published, description, event_id, title"),
+    (async () => {
+      const { getPaginationLimitSettingAction } = await import("@/lib/actions/settings-actions");
+      return getPaginationLimitSettingAction();
+    })(),
+  ]);
+
+  const events = rawEvents || [];
+  const galleries = rawGalleries || [];
+
+  const galleryByEventId = new Map<string, any>(
+    galleries.filter((g: any) => g.event_id).map((g: any) => [g.event_id, g])
+  );
+  const galleryByTitle = new Map<string, any>(
+    galleries.map((g: any) => [g.title?.toLowerCase().trim(), g])
+  );
+
+  // Format events for client consumption
+  const formattedEvents = events.map((e: any) => {
+    const presentList = (e.attendances || []).filter((a: any) => a.is_present);
+    const presentCount = presentList.length;
+    const totalRegistered = (e.attendances || []).length;
+    
+    const attendees = presentList
+      .filter((a: any) => a.members)
+      .map((a: any) => ({
+        name: a.members?.full_name || "Peserta",
+        avatar: a.members?.avatar_url || null,
+      }))
+      .slice(0, 4);
+
+    const galleryMatch =
+      galleryByEventId.get(e.id) ||
+      galleryByTitle.get(e.title?.toLowerCase().trim()) ||
+      null;
+
+    const formattedGallery = galleryMatch
+      ? {
+          id: galleryMatch.id,
+          hero_image_url: galleryMatch.hero_image_url || null,
+          album_link: galleryMatch.album_link || null,
+          is_published: galleryMatch.is_published ?? false,
+          description: galleryMatch.description || null,
+        }
+      : null;
+
+    return {
+      id: e.id,
+      title: e.title,
+      description: e.description || "",
+      event_type: e.event_type || "lainnya",
+      event_date: e.event_date,
+      start_time: e.start_time || "",
+      end_time: e.end_time || "",
+      location: e.location || "",
+      capacity: e.capacity || 0,
+      is_published: e.is_published ?? false,
+      created_at: e.created_at,
+      present_count: presentCount,
+      total_registered: totalRegistered,
+      attendees,
+      gallery: formattedGallery,
+    };
+  });
+
+  return <AcaraListClient initialEvents={formattedEvents} paginationLimit={paginationLimit} />;
+}

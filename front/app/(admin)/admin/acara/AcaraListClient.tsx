@@ -1,0 +1,1089 @@
+"use client";
+
+import React, { useState, useMemo, useRef, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+
+import {
+  Calendar,
+  MapPin,
+  Users,
+  ChevronDown,
+  ChevronUp,
+  Search,
+  Plus,
+  Trash2,
+  Eye,
+  ArrowUpDown,
+  SlidersHorizontal,
+  Check,
+  MoreVertical,
+  RotateCcw,
+  Sparkles,
+  ArrowLeft,
+  Pencil,
+  ImageIcon
+} from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
+import { DeleteConfirmDialog } from "@/components/ui/DeleteConfirmDialog";
+import { ModalConfirmation } from "@/components/ui/Modal-Confirmation";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import AdminPagination from "@/components/admin/AdminPagination";
+import { EventGalleryModal } from "@/components/admin/EventGalleryModal";
+
+interface AttendeeItem {
+  name: string;
+  avatar: string | null;
+}
+
+interface EventGalleryItem {
+  id?: string;
+  hero_image_url: string | null;
+  album_link: string | null;
+  is_published: boolean;
+  description: string | null;
+}
+
+interface EventItem {
+  id: string;
+  title: string;
+  description: string;
+  event_type: string;
+  event_date: string;
+  start_time: string;
+  end_time: string;
+  location: string;
+  capacity: number;
+  is_published: boolean;
+  created_at: string;
+  present_count: number;
+  total_registered: number;
+  attendees?: AttendeeItem[];
+  gallery?: EventGalleryItem | null;
+}
+
+interface AcaraListClientProps {
+  initialEvents: EventItem[];
+  paginationLimit?: number;
+}
+
+const EVENT_TYPE_MAP: Record<string, { label: string; dotColor: string }> = {
+  open_mic: { label: "Open Mic", dotColor: "bg-amber-500" },
+  speech_practice: { label: "Speech Practice", dotColor: "bg-blue-500" },
+  mc_practice: { label: "MC Practice", dotColor: "bg-purple-500" },
+  networking: { label: "Networking", dotColor: "bg-emerald-500" },
+  content_class: { label: "Content Class", dotColor: "bg-rose-500" },
+  mentoring: { label: "Mentoring", dotColor: "bg-indigo-500" },
+  sharing_session: { label: "Sharing Session", dotColor: "bg-sky-500" },
+  workshop: { label: "Workshop", dotColor: "bg-orange-500" },
+  voice_over: { label: "Voice Over", dotColor: "bg-teal-500" },
+  level_up: { label: "Level Up", dotColor: "bg-violet-500" },
+  branding_class: { label: "Branding Class", dotColor: "bg-pink-500" },
+  lainnya: { label: "Acara Komunitas", dotColor: "bg-cyan-500" },
+};
+
+const getEventTypeInfo = (typeKey: string) => {
+  if (EVENT_TYPE_MAP[typeKey]) return EVENT_TYPE_MAP[typeKey];
+  const label = typeKey
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return { label, dotColor: "bg-cyan-500" };
+};
+
+export default function AcaraListClient({
+  initialEvents,
+  paginationLimit = 10,
+}: AcaraListClientProps) {
+  const [events, setEvents] = useState<EventItem[]>(initialEvents);
+  const [eventToDelete, setEventToDelete] = useState<EventItem | null>(null);
+  const [selectedGalleryEvent, setSelectedGalleryEvent] = useState<EventItem | null>(null);
+  const [publishModal, setPublishModal] = useState<{
+    isOpen: boolean;
+    eventId: string;
+    nextStatus: boolean;
+    title: string;
+    isLoading?: boolean;
+  }>({
+    isOpen: false,
+    eventId: "",
+    nextStatus: false,
+    title: "",
+    isLoading: false,
+  });
+
+
+  // Search & Filter State
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "attendees">("newest");
+
+  // Collapsible Section State
+  const [isUpcomingOpen, setIsUpcomingOpen] = useState(true);
+  const [isPastOpen, setIsPastOpen] = useState(true);
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    });
+  };
+
+  const formatTime = (timeStr: string) => {
+    if (!timeStr) return "";
+    return timeStr.slice(0, 5);
+  };
+
+  // Re-fetch events
+  const refreshEvents = async () => {
+    try {
+      const supabase = createClient();
+      const { data: rawEvents } = await supabase
+        .from("events")
+        .select(`
+          id,
+          title,
+          description,
+          event_type,
+          event_date,
+          start_time,
+          end_time,
+          location,
+          capacity,
+          is_published,
+          created_at,
+          attendances (
+            id,
+            is_present,
+            members (
+              full_name,
+              avatar_url
+            )
+          )
+        `)
+        .order("event_date", { ascending: false });
+
+      if (rawEvents) {
+        const formatted = rawEvents.map((e: any) => {
+          const presentList = (e.attendances || []).filter((a: any) => a.is_present);
+          const presentCount = presentList.length;
+          const totalRegistered = (e.attendances || []).length;
+          const attendees = presentList
+            .filter((a: any) => a.members)
+            .map((a: any) => ({
+              name: a.members?.full_name || "Peserta",
+              avatar: a.members?.avatar_url || null,
+            }))
+            .slice(0, 4);
+
+          return {
+            id: e.id,
+            title: e.title,
+            description: e.description || "",
+            event_type: e.event_type || "lainnya",
+            event_date: e.event_date,
+            start_time: e.start_time || "",
+            end_time: e.end_time || "",
+            location: e.location || "",
+            capacity: e.capacity || 0,
+            is_published: e.is_published ?? false,
+            created_at: e.created_at,
+            present_count: presentCount,
+            total_registered: totalRegistered,
+            attendees,
+          };
+        });
+        setEvents(formatted);
+      }
+    } catch (err) {
+      console.error("Gagal menyegarkan acara:", err);
+    }
+  };
+
+  // Toggle Is Published (Modal Popup Konfirmasi)
+  const handleTogglePublish = (eventId: string, currentStatus: boolean, title: string) => {
+    setPublishModal({
+      isOpen: true,
+      eventId,
+      nextStatus: !currentStatus,
+      title,
+      isLoading: false,
+    });
+  };
+
+  const handleConfirmTogglePublish = async () => {
+    if (!publishModal.eventId) return;
+    setPublishModal(prev => ({ ...prev, isLoading: true }));
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("events")
+        .update({ is_published: publishModal.nextStatus })
+        .eq("id", publishModal.eventId);
+
+      if (error) {
+        toast.error("Gagal mengubah status: " + error.message);
+      } else {
+        toast.success(
+          `Status "${publishModal.title}" berhasil diubah menjadi ${publishModal.nextStatus ? "Published" : "Draft"
+          }!`
+        );
+        setEvents(prev =>
+          prev.map(e =>
+            e.id === publishModal.eventId
+              ? { ...e, is_published: publishModal.nextStatus }
+              : e
+          )
+        );
+        setPublishModal(prev => ({ ...prev, isOpen: false }));
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Terjadi kesalahan: " + (err.message || err));
+    } finally {
+      setPublishModal(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
+
+  // Handle Confirm Delete Event
+  const handleConfirmDelete = async () => {
+    if (!eventToDelete) return;
+    const evt = eventToDelete;
+    setEventToDelete(null);
+
+    try {
+      const supabase = createClient();
+
+      // Delete attendances first
+      await supabase
+        .from("attendances")
+        .delete()
+        .eq("event_id", evt.id);
+
+      const { error } = await supabase
+        .from("events")
+        .delete()
+        .eq("id", evt.id);
+
+      if (error) throw new Error(error.message);
+
+      toast.success("Acara berhasil dihapus secara permanen!");
+      await refreshEvents();
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Gagal menghapus acara: " + err.message);
+    }
+  };
+
+  // Filtered & Sorted dataset
+  const filteredEvents = useMemo(() => {
+    return events
+      .filter((e) => {
+        const matchesSearch =
+          e.title.toLowerCase().includes(search.toLowerCase()) ||
+          e.location.toLowerCase().includes(search.toLowerCase());
+
+        const matchesType =
+          typeFilter === "all" || e.event_type === typeFilter;
+
+        const matchesStatus =
+          statusFilter === "all" ||
+          (statusFilter === "published" && e.is_published) ||
+          (statusFilter === "draft" && !e.is_published);
+
+        return matchesSearch && matchesType && matchesStatus;
+      })
+      .sort((a, b) => {
+        if (sortBy === "attendees") {
+          return b.present_count - a.present_count;
+        }
+        const timeA = new Date(a.event_date).getTime();
+        const timeB = new Date(b.event_date).getTime();
+        if (sortBy === "oldest") {
+          return timeA - timeB;
+        }
+        return timeB - timeA;
+      });
+  }, [events, search, typeFilter, statusFilter, sortBy]);
+
+  // Filters & Pagination
+  const limit = paginationLimit && paginationLimit > 0 ? paginationLimit : 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, typeFilter, statusFilter, sortBy]);
+
+  // Pagination calculation
+  const totalPages = Math.max(1, Math.ceil(filteredEvents.length / limit));
+  const startIndex = (currentPage - 1) * limit;
+  const endIndex = Math.min(filteredEvents.length, startIndex + limit);
+  const paginatedEvents = useMemo(() => {
+    return filteredEvents.slice(startIndex, endIndex);
+  }, [filteredEvents, startIndex, endIndex]);
+
+  // Group events into Upcoming and Past (from paginated set for current page view)
+  const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
+
+  const paginatedUpcomingEvents = useMemo(() => {
+    return paginatedEvents.filter((e) => e.event_date >= todayStr);
+  }, [paginatedEvents, todayStr]);
+
+  const paginatedPastEvents = useMemo(() => {
+    return paginatedEvents.filter((e) => e.event_date < todayStr);
+  }, [paginatedEvents, todayStr]);
+
+  return (
+    <div className="space-y-6 pb-28">
+      {/* Top Header */}
+
+
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border-default/60">
+        <div>
+          <span className="text-[9px] uppercase tracking-[0.25em] font-bold text-text-muted block">
+            [ KOMUNITAS ]
+          </span>
+          <h1 className="text-2xl font-bold tracking-tight text-text-primary mt-0.5">
+            Kelola Acara & Event
+          </h1>
+        </div>
+
+        {/* Desktop Quick Search & Add Button */}
+        <div className="flex items-center gap-3">
+          <div className="relative w-full sm:w-64">
+            <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-text-muted">
+              <Search className="w-3.5 h-3.5" />
+            </span>
+            <input
+              type="text"
+              aria-label="Cari acara atau venue"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari acara atau venue..."
+              className="bg-bg-well/70 border border-border-default rounded-full h-9 pl-9 pr-3 text-xs w-full text-text-primary placeholder:text-text-muted focus:outline-none focus:border-text-primary transition-colors"
+            />
+          </div>
+
+          <Link
+            href="/admin/acara/create"
+            className="hidden sm:inline-flex items-center gap-1.5 h-9 px-4 text-xs font-bold text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-yellow-100 dark:text-zinc-900 dark:hover:bg-yellow-200 rounded-full transition-all shadow-xs cursor-pointer tracking-wider shrink-0"
+          >
+            <Plus size={14} />
+            <span>Buat Acara</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Active Filter Chips Bar */}
+      {(typeFilter !== "all" || statusFilter !== "all" || search) && (
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          <span className="text-[11px] text-text-muted font-medium mr-1">Filter Aktif:</span>
+          {search && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] bg-bg-well border border-border-default text-text-primary">
+              Cari: "{search}"
+              <button onClick={() => setSearch("")} className="hover:text-red-500 ml-1">×</button>
+            </span>
+          )}
+          {typeFilter !== "all" && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] bg-bg-well border border-border-default text-text-primary">
+              Tipe: {EVENT_TYPE_MAP[typeFilter]?.label || typeFilter}
+              <button onClick={() => setTypeFilter("all")} className="hover:text-red-500 ml-1">×</button>
+            </span>
+          )}
+          {statusFilter !== "all" && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] bg-bg-well border border-border-default text-text-primary">
+              Status: {statusFilter.toUpperCase()}
+              <button onClick={() => setStatusFilter("all")} className="hover:text-red-500 ml-1">×</button>
+            </span>
+          )}
+          <button
+            onClick={() => {
+              setSearch("");
+              setTypeFilter("all");
+              setStatusFilter("all");
+            }}
+            className="text-[11px] text-text-muted hover:text-text-primary underline ml-1 cursor-pointer"
+          >
+            Reset Semua
+          </button>
+        </div>
+      )}
+
+      {/* ═══ 1. DESKTOP VIEW: BOXED TABLE (hidden on mobile, visible on md/lg) ═══ */}
+      <div className="hidden md:block space-y-4">
+        {/* Desktop Filter Toolbar */}
+        <div className="flex items-center gap-4 py-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-text-secondary shrink-0">Tipe:</span>
+            <div className="w-44">
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger aria-label="Filter tipe acara" className="h-9 rounded-xl px-3 py-1.5 text-xs font-medium bg-bg-well border-border-default">
+                  <SelectValue placeholder="Semua Tipe" />
+                </SelectTrigger>
+                <SelectContent className="bg-bg-card border-border-default">
+                  <SelectItem value="all">Semua Tipe</SelectItem>
+                  <SelectItem value="open_mic">Open Mic</SelectItem>
+                  <SelectItem value="speech_practice">Speech Practice</SelectItem>
+                  <SelectItem value="mc_practice">MC Practice</SelectItem>
+                  <SelectItem value="networking">Networking</SelectItem>
+                  <SelectItem value="content_class">Content Class</SelectItem>
+                  <SelectItem value="mentoring">Mentoring</SelectItem>
+                  <SelectItem value="lainnya">Lainnya</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-text-secondary shrink-0">Status:</span>
+            <div className="w-36">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger aria-label="Filter status acara" className="h-9 rounded-xl px-3 py-1.5 text-xs font-medium bg-bg-well border-border-default">
+                  <SelectValue placeholder="Semua Status" />
+                </SelectTrigger>
+                <SelectContent className="bg-bg-card border-border-default">
+                  <SelectItem value="all">Semua Status</SelectItem>
+                  <SelectItem value="published">Published</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-text-secondary shrink-0">Urutan:</span>
+            <div className="w-44">
+              <Select value={sortBy} onValueChange={(val) => setSortBy(val as any)}>
+                <SelectTrigger aria-label="Urutkan acara" className="h-9 rounded-xl px-3 py-1.5 text-xs font-medium bg-bg-well border-border-default">
+                  <SelectValue placeholder="Urutkan" />
+                </SelectTrigger>
+                <SelectContent className="bg-bg-card border-border-default">
+                  <SelectItem value="newest">Tanggal Terbaru</SelectItem>
+                  <SelectItem value="oldest">Tanggal Terlama</SelectItem>
+                  <SelectItem value="attendees">Peserta Terbanyak</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
+
+        {/* Desktop Table Container */}
+        <div className="bg-bg-card border border-border-default rounded-2xl overflow-hidden shadow-xs">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="text-zinc-650 dark:text-zinc-400 font-semibold border-b border-border-default bg-bg-well/50">
+                <th className="py-3.5 px-5 border-r border-border-default/60">Judul Acara</th>
+                <th className="py-3.5 px-5 border-r border-border-default/60">Tipe</th>
+                <th className="py-3.5 px-5 border-r border-border-default/60">Tanggal</th>
+                <th className="py-3.5 px-5 border-r border-border-default/60">Waktu</th>
+                <th className="py-3.5 px-5 border-r border-border-default/60">Lokasi / Venue</th>
+                <th className="py-3.5 px-5 border-r border-border-default/60">Jumlah Peserta</th>
+                <th className="py-3.5 px-5 border-r border-border-default/60">Status Publish</th>
+                <th className="py-3.5 px-5 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border-default/40">
+              {paginatedEvents.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="p-8 text-center text-text-muted font-medium">
+                    Tidak ada data jadwal acara ditemukan.
+                  </td>
+                </tr>
+              ) : (
+                paginatedEvents.map((evt) => {
+                  const typeInfo = getEventTypeInfo(evt.event_type);
+                  return (
+                    <tr key={evt.id} className="hover:bg-bg-well/40 transition-colors">
+                      <td className="py-3.5 px-5 font-bold text-text-primary border-r border-border-default/40">
+                        <Link href={`/admin/acara/${evt.id}`} className="hover:underline">
+                          {evt.title}
+                        </Link>
+                      </td>
+                      <td className="py-3.5 px-5 text-text-secondary border-r border-border-default/40 font-medium">
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className={`w-2 h-2 rounded-full ${typeInfo.dotColor}`}></span>
+                          {typeInfo.label}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-5 text-text-secondary border-r border-border-default/40 font-mono">
+                        {formatDate(evt.event_date)}
+                      </td>
+                      <td className="py-3.5 px-5 text-text-secondary border-r border-border-default/40 font-mono">
+                        {formatTime(evt.start_time)}{evt.end_time ? ` - ${formatTime(evt.end_time)}` : " - Selesai"} WIB
+                      </td>
+                      <td className="py-3.5 px-5 text-text-secondary border-r border-border-default/40 max-w-[180px] truncate" title={evt.location}>
+                        {evt.location}
+                      </td>
+                      <td className="py-3.5 px-5 text-text-secondary border-r border-border-default/40">
+                        <div className="flex items-center justify-center gap-1.5 font-mono">
+                          <span className="font-bold text-text-primary">{evt.present_count}</span>
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-5 text-text-secondary border-r border-border-default/40">
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePublish(evt.id, evt.is_published, evt.title)}
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase transition-colors cursor-pointer ${evt.is_published
+                            ? "bg-emerald-500/15 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25"
+                            : "bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-300"
+                            }`}
+                        >
+                          {evt.is_published ? "Published" : "Draft"}
+                        </button>
+                      </td>
+                      <td className="py-3.5 px-5">
+                        <div className="flex items-center justify-center gap-2">
+                          <Link
+                            href={`/admin/acara/${evt.id}`}
+                            className="p-1.5 text-text-secondary hover:text-text-primary hover:bg-bg-well border border-border-default/60 rounded-lg transition-colors"
+                            title="Lihat Detail Acara"
+                          >
+                            <Eye size={14} />
+                          </Link>
+                          <Link
+                            href={`/admin/acara/${evt.id}/edit`}
+                            className="p-1.5 text-text-secondary hover:text-text-primary hover:bg-bg-well border border-border-default/60 rounded-lg transition-colors"
+                            title="Edit Acara"
+                          >
+                            <Pencil size={14} />
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedGalleryEvent(evt)}
+                            className="p-1.5 text-text-secondary hover:text-text-primary hover:bg-bg-well border border-border-default/60 rounded-lg transition-colors cursor-pointer relative"
+                            title={evt.gallery?.hero_image_url || evt.gallery?.album_link ? "Lihat/Edit Galeri Kegiatan" : "Tambah Galeri Kegiatan"}
+                          >
+                            <ImageIcon size={14} className={evt.gallery?.hero_image_url || evt.gallery?.album_link ? "text-amber-600 dark:text-amber-400" : ""} />
+                            {evt.gallery?.is_published && (
+                              <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEventToDelete(evt)}
+                            className="p-1.5 text-red-600 hover:text-red-700 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg cursor-pointer transition-colors"
+                            title="Hapus Acara"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+        <AdminPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredEvents.length}
+          startIndex={startIndex}
+          endIndex={endIndex}
+          limit={limit}
+          itemLabel="acara"
+          onPageChange={setCurrentPage}
+        />
+      </div>
+
+      {/* ═══ 2. MOBILE VIEW: MODERN CARDS (visible on mobile, hidden on md/lg) ═══ */}
+      <div className="block md:hidden space-y-6">
+        {paginatedEvents.length === 0 ? (
+          <div className="p-12 text-center bg-bg-card border border-border-default/70 rounded-3xl space-y-3">
+            <Calendar className="w-10 h-10 text-text-muted mx-auto stroke-1" />
+            <p className="text-sm font-semibold text-text-primary">Tidak ada acara ditemukan</p>
+            <p className="text-xs text-text-muted max-w-sm mx-auto">
+              Coba sesuaikan kata kunci pencarian atau ubah filter untuk menemukan acara yang Anda cari.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {/* Section 1: Acara Mendatang / Top Priority */}
+            {paginatedUpcomingEvents.length > 0 && (
+              <div className="space-y-3">
+                {/* Section Header */}
+                <button
+                  type="button"
+                  onClick={() => setIsUpcomingOpen(!isUpcomingOpen)}
+                  className="w-full flex items-center justify-between group cursor-pointer text-left select-none"
+                >
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-sm sm:text-base font-bold text-text-primary tracking-tight">
+                      Acara Mendatang
+                    </h2>
+                    <span className="text-[11px] font-mono text-text-muted px-2 py-0.5 rounded-full bg-bg-well border border-border-default/50 font-medium">
+                      {paginatedUpcomingEvents.length} Acara
+                    </span>
+                  </div>
+                  <div className="p-1 rounded-full text-text-muted group-hover:text-text-primary transition-colors">
+                    {isUpcomingOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </div>
+                </button>
+
+                {/* Cards Grid */}
+                {isUpcomingOpen && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
+                    {paginatedUpcomingEvents.map((evt) => (
+                      <EventCard
+                        key={evt.id}
+                        event={evt}
+                        formatDate={formatDate}
+                        formatTime={formatTime}
+                        onTogglePublish={handleTogglePublish}
+                        onDelete={setEventToDelete}
+                        onOpenGallery={setSelectedGalleryEvent}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Section 2: Riwayat Acara / Due Today or Past */}
+            {paginatedPastEvents.length > 0 && (
+              <div className="space-y-3">
+                {/* Section Header */}
+                <button
+                  type="button"
+                  onClick={() => setIsPastOpen(!isPastOpen)}
+                  className="w-full flex items-center justify-between group cursor-pointer text-left select-none"
+                >
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-sm sm:text-base font-bold text-text-primary tracking-tight">
+                      Riwayat Acara Selesai
+                    </h2>
+                    <span className="text-[11px] font-mono text-text-muted px-2 py-0.5 rounded-full bg-bg-well border border-border-default/50 font-medium">
+                      {paginatedPastEvents.length} Acara
+                    </span>
+                  </div>
+                </button>
+
+                {/* Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
+                  {paginatedPastEvents.map((evt) => (
+                    <EventCard
+                      key={evt.id}
+                      event={evt}
+                      formatDate={formatDate}
+                      formatTime={formatTime}
+                      onTogglePublish={handleTogglePublish}
+                      onDelete={setEventToDelete}
+                      onOpenGallery={setSelectedGalleryEvent}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+            <AdminPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={filteredEvents.length}
+              startIndex={startIndex}
+              endIndex={endIndex}
+              limit={limit}
+              itemLabel="acara"
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* ═══ FLOATING BOTTOM CONTROLS (Compact Proportional Dock) ═══ */}
+      <div className="md:hidden fixed bottom-6 inset-x-0 z-30 pointer-events-none flex justify-center px-4">
+        <div className="pointer-events-auto bg-zinc-900/95 dark:bg-[#18181b]/95 backdrop-blur-xl border border-white/10 shadow-2xl rounded-full px-3 py-1.5 flex items-center gap-2 text-white">
+          {/* 1. Sort Button (Popover) */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className={`w-9 h-9 rounded-full flex items-center justify-center text-zinc-400 hover:text-white active:scale-95 transition-all cursor-pointer ${sortBy !== "newest" ? "text-white bg-zinc-800" : ""
+                  }`}
+                title="Urutkan Acara"
+              >
+                <ArrowUpDown className="w-4 h-4" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              side="top"
+              align="center"
+              className="w-52 p-2.5 rounded-3xl shadow-2xl bg-white dark:bg-[#18181b] border border-border-default/80 text-text-primary space-y-1 mb-2 z-50"
+            >
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-text-muted px-2.5 py-1 block border-b border-border-default/50 mb-1">
+                Urutkan Berdasarkan
+              </span>
+              <button
+                type="button"
+                onClick={() => setSortBy("newest")}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left cursor-pointer ${sortBy === "newest"
+                  ? "bg-bg-well text-text-primary font-bold"
+                  : "text-text-secondary hover:bg-bg-well hover:text-text-primary"
+                  }`}
+              >
+                <span>Tanggal Terbaru</span>
+                {sortBy === "newest" && <Check className="w-3.5 h-3.5 text-text-primary" />}
+              </button>
+              <button
+                type="button"
+                onClick={() => setSortBy("oldest")}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left cursor-pointer ${sortBy === "oldest"
+                  ? "bg-bg-well text-text-primary font-bold"
+                  : "text-text-secondary hover:bg-bg-well hover:text-text-primary"
+                  }`}
+              >
+                <span>Tanggal Terlama</span>
+                {sortBy === "oldest" && <Check className="w-3.5 h-3.5 text-text-primary" />}
+              </button>
+              <button
+                type="button"
+                onClick={() => setSortBy("attendees")}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left cursor-pointer ${sortBy === "attendees"
+                  ? "bg-bg-well text-text-primary font-bold"
+                  : "text-text-secondary hover:bg-bg-well hover:text-text-primary"
+                  }`}
+              >
+                <span>Peserta Terbanyak</span>
+                {sortBy === "attendees" && <Check className="w-3.5 h-3.5 text-text-primary" />}
+              </button>
+            </PopoverContent>
+          </Popover>
+
+          {/* 2. Filter Button (Popover with Direct Selectable Chips) */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className={`w-9 h-9 rounded-full flex items-center justify-center text-zinc-400 hover:text-white active:scale-95 transition-all cursor-pointer relative ${typeFilter !== "all" || statusFilter !== "all" ? "text-white bg-zinc-800" : ""
+                  }`}
+                title="Filter Acara"
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                {(typeFilter !== "all" || statusFilter !== "all") && (
+                  <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#BAFF6A]"></span>
+                )}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              side="top"
+              align="center"
+              className="w-72 p-4 rounded-3xl shadow-2xl bg-white dark:bg-[#18181b] border border-border-default/80 text-text-primary space-y-3.5 mb-2 z-50"
+            >
+              <div className="flex items-center justify-between border-b border-border-default/50 pb-2">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-text-muted block">
+                  Filter Acara
+                </span>
+                {(typeFilter !== "all" || statusFilter !== "all") && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTypeFilter("all");
+                      setStatusFilter("all");
+                    }}
+                    className="text-[10px] text-text-muted hover:text-red-500 underline cursor-pointer"
+                  >
+                    Reset Filter
+                  </button>
+                )}
+              </div>
+
+              {/* Filter Tipe Acara */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-text-secondary block">
+                  Tipe Acara
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { id: "all", label: "Semua Tipe" },
+                    { id: "open_mic", label: "Open Mic" },
+                    { id: "speech_practice", label: "Speech Practice" },
+                    { id: "mc_practice", label: "MC Practice" },
+                    { id: "networking", label: "Networking" },
+                    { id: "content_class", label: "Content Class" },
+                    { id: "mentoring", label: "Mentoring" },
+                    { id: "lainnya", label: "Lainnya" },
+                  ].map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setTypeFilter(t.id)}
+                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${typeFilter === t.id
+                        ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
+                        : "bg-bg-well text-text-secondary hover:text-text-primary border border-border-default/60"
+                        }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Filter Status Publish */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-text-secondary block">
+                  Status Publish
+                </label>
+                <div className="flex gap-1.5">
+                  {[
+                    { id: "all", label: "Semua" },
+                    { id: "published", label: "Published" },
+                    { id: "draft", label: "Draft" },
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setStatusFilter(s.id)}
+                      className={`flex-1 py-1 px-2 rounded-full text-[11px] font-semibold text-center transition-all cursor-pointer ${statusFilter === s.id
+                        ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
+                        : "bg-bg-well text-text-secondary hover:text-text-primary border border-border-default/60"
+                        }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* 3. Right Action Button: Buat Acara (Proportional pill matching monochrome design system) */}
+          <Link
+            href="/admin/acara/create"
+            className="h-9 px-4 rounded-full bg-white text-zinc-900 dark:bg-white dark:text-zinc-900 hover:bg-zinc-100 flex items-center gap-1.5 text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
+            title="Tambah Acara Baru"
+          >
+            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <span>Tambah</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        isOpen={!!eventToDelete}
+        onOpenChange={(open) => !open && setEventToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        title="Hapus Acara"
+        description={`Apakah Anda yakin ingin menghapus acara "${eventToDelete?.title}"? Seluruh data absensi peserta untuk acara ini juga akan dihapus secara permanen.`}
+      />
+
+      {/* Publish Status Confirmation Modal Popup */}
+      <ModalConfirmation
+        isOpen={publishModal.isOpen}
+        onClose={() =>
+          !publishModal.isLoading &&
+          setPublishModal(prev => ({ ...prev, isOpen: false }))
+        }
+        title={publishModal.nextStatus ? "Publikasikan Acara" : "Kembalikan ke Draft"}
+        description={
+          <span>
+            Apakah Anda yakin ingin mengubah status acara{" "}
+            <span className="font-bold text-text-primary">"{publishModal.title}"</span>{" "}
+            menjadi{" "}
+            <span
+              className={`font-bold ${publishModal.nextStatus ? "text-emerald-600" : "text-amber-600"
+                }`}
+            >
+              {publishModal.nextStatus
+                ? "Published (Tampil di Web Publik)"
+                : "Draft (Disembunyikan)"}
+            </span>?
+          </span>
+        }
+        confirmText={publishModal.nextStatus ? "Publikasikan" : "Set Draft"}
+        type={publishModal.nextStatus ? "verify" : "default"}
+        isLoading={publishModal.isLoading}
+        onConfirm={handleConfirmTogglePublish}
+      />
+
+      {/* Event Gallery Modal */}
+      {selectedGalleryEvent && (
+        <EventGalleryModal
+          isOpen={Boolean(selectedGalleryEvent)}
+          onClose={() => setSelectedGalleryEvent(null)}
+          event={selectedGalleryEvent}
+          initialGallery={selectedGalleryEvent.gallery}
+          onSaved={(updated) => {
+            setEvents((prev) =>
+              prev.map((item) =>
+                item.id === selectedGalleryEvent.id
+                  ? { ...item, gallery: updated as any }
+                  : item
+              )
+            );
+            setSelectedGalleryEvent((prev) =>
+              prev ? { ...prev, gallery: updated as any } : null
+            );
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+
+/**
+ * Komponen Card Acara (Diselaraskan persis dengan estetika referensi)
+ */
+function EventCard({
+  event,
+  formatDate,
+  formatTime,
+  onTogglePublish,
+  onDelete,
+  onOpenGallery,
+}: {
+  event: EventItem;
+  formatDate: (str: string) => string;
+  formatTime: (str: string) => string;
+  onTogglePublish: (id: string, current: boolean, title: string) => void;
+  onDelete: (evt: EventItem) => void;
+  onOpenGallery: (evt: EventItem) => void;
+}) {
+  const router = useRouter();
+  const typeInfo = getEventTypeInfo(event.event_type);
+
+  return (
+    <div
+      onClick={() => router.push(`/admin/acara/${event.id}`)}
+      className="bg-white dark:bg-[#121212] border border-border-default/70 hover:border-zinc-300 dark:hover:border-zinc-700 rounded-3xl p-4 sm:p-5 transition-all shadow-xs hover:shadow-md flex flex-col justify-between group relative cursor-pointer active:scale-[0.99]"
+    >
+
+
+      {/* 1. Baris Atas: Badge Status & Tipe Acara */}
+      <div className="flex items-center justify-between gap-2">
+        {/* Status Badge (Pill) */}
+        <div>
+          {event.is_published ? (
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide bg-[#d9f99d] text-[#365314] dark:bg-lime-950/60 dark:text-lime-300 border border-[#bef264]/60">
+              Published
+            </span>
+          ) : (
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-medium tracking-wide bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
+              Draft
+            </span>
+          )}
+        </div>
+
+        {/* Event Type Dot Indicator (Persis seperti • Google Meet pada referensi) */}
+        <div className="flex items-center gap-1.5">
+          <span className={`w-2 h-2 rounded-full ${typeInfo.dotColor} shrink-0`}></span>
+          <span className="text-xs font-semibold text-text-primary tracking-tight">
+            {typeInfo.label}
+          </span>
+        </div>
+      </div>
+
+      {/* 2. Bagian Tengah: Judul Acara & Jam Pelaksanaan */}
+      <div className="my-3">
+        <h3 className="text-base sm:text-lg font-bold text-text-primary group-hover:text-amber-600 dark:group-hover:text-yellow-400 transition-colors tracking-tight leading-snug">
+          {event.title}
+        </h3>
+        <p className="text-xs text-text-muted mt-1 font-mono font-medium">
+          {formatTime(event.start_time)}{event.end_time ? ` - ${formatTime(event.end_time)}` : " - Selesai"} WIB
+        </p>
+      </div>
+
+      {/* 3. Baris Bawah: Tanggal, Lokasi, dan Avatar Stack Kehadiran */}
+      <div className="pt-3 border-t border-border-default/40 flex items-end justify-between gap-3">
+        {/* Sisi Kiri: Tanggal & Lokasi Venue */}
+        <div className="min-w-0 space-y-0.5">
+          <p className="text-xs font-semibold text-text-secondary">
+            Tanggal: {formatDate(event.event_date)}
+          </p>
+          <p className="text-[11px] text-text-muted flex items-center gap-1 truncate max-w-[180px] sm:max-w-[220px]">
+            <MapPin className="w-3 h-3 shrink-0" />
+            <span className="truncate">{event.location}</span>
+          </p>
+        </div>
+
+        {/* Sisi Kanan: Overlapping Avatars & Menu Aksi Cepat */}
+        <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+          {/* Stack Avatar Peserta (Sesuai Referensi Gambar) */}
+          <div className="flex -space-x-2 overflow-hidden items-center">
+            {event.attendees && event.attendees.length > 0 ? (
+              event.attendees.slice(0, 3).map((att, idx) =>
+                att.avatar ? (
+                  <img
+                    key={idx}
+                    src={att.avatar}
+                    alt={att.name}
+                    title={att.name}
+                    className="inline-block h-7 w-7 rounded-full ring-2 ring-white dark:ring-[#121212] object-cover"
+                  />
+                ) : (
+                  <div
+                    key={idx}
+                    title={att.name}
+                    className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-zinc-200 dark:bg-zinc-800 text-[10px] font-bold text-text-secondary ring-2 ring-white dark:ring-[#121212]"
+                  >
+                    {att.name ? att.name.charAt(0).toUpperCase() : "P"}
+                  </div>
+                )
+              )
+            ) : null}
+          </div>
+
+          {/* Quick Actions Dropdown */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                onClick={(e) => e.stopPropagation()}
+                className="p-1.5 rounded-full hover:bg-bg-well text-text-muted hover:text-text-primary transition-colors cursor-pointer"
+                title="Aksi Lainnya"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="end"
+              onClick={(e) => e.stopPropagation()}
+              className="w-44 p-1.5 rounded-xl shadow-lg space-y-0.5"
+            >
+              <Link
+                href={`/admin/acara/${event.id}`}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-text-secondary hover:text-text-primary hover:bg-bg-well transition-colors"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Lihat Detail</span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => onOpenGallery(event)}
+                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-text-secondary hover:text-text-primary hover:bg-bg-well transition-colors text-left cursor-pointer"
+              >
+                <ImageIcon className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span>Update Galeri</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onTogglePublish(event.id, event.is_published, event.title)}
+                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-text-secondary hover:text-text-primary hover:bg-bg-well transition-colors text-left"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>{event.is_published ? "Set ke Draft" : "Publikasikan"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onDelete(event)}
+                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-red-600 hover:bg-red-500/10 transition-colors text-left"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Hapus Acara</span>
+              </button>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+    </div>
+  );
+}
+

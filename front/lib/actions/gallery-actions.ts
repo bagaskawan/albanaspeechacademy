@@ -1,0 +1,370 @@
+"use server";
+
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { checkPermission } from "@/lib/check-permission";
+import { syncDualOperation } from "@/lib/supabase/dual-sync";
+import { revalidatePath } from "next/cache";
+
+export async function saveGalleryAlbumAction(
+  data: {
+    event_id?: string | null;
+    title: string;
+    slug?: string;
+    category: string;
+    event_date: string;
+    hero_image_url?: string | null;
+    album_link?: string | null;
+    description?: string | null;
+    is_published?: boolean;
+    display_order?: number;
+  },
+  id?: string
+) {
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+      },
+    }
+  );
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session) return { success: false, error: "Tidak diotorisasi" };
+
+  const permissionType = id ? "edit" : "create";
+  const hasAccess = await checkPermission("galeri", permissionType);
+  if (!hasAccess) {
+    return {
+      success: false,
+      error: `Akses ditolak: Anda tidak memiliki izin untuk ${id ? "mengedit" : "menambah"} galeri.`,
+    };
+  }
+
+  let targetId = id;
+  if (!targetId && data.event_id) {
+    try {
+      const { data: existingByEvent } = await supabase
+        .from("gallery_albums")
+        .select("id")
+        .eq("event_id", data.event_id)
+        .maybeSingle();
+      if (existingByEvent?.id) {
+        targetId = existingByEvent.id;
+      }
+    } catch {
+      // event_id column might not be present yet
+    }
+  }
+
+  if (!targetId && data.title) {
+    try {
+      const { data: existingByTitle } = await supabase
+        .from("gallery_albums")
+        .select("id")
+        .ilike("title", data.title.trim())
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (existingByTitle?.id) {
+        targetId = existingByTitle.id;
+      }
+    } catch {
+      // continue
+    }
+  }
+
+  const baseSlug =
+    data.slug?.trim() ||
+    data.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+  // Jika edit, pastikan slug tidak bentrok dengan album lain
+  const generatedSlug = targetId ? `${baseSlug}-${targetId.slice(0, 6)}` : baseSlug;
+
+  const payload: Record<string, any> = {
+    title: data.title.trim(),
+    slug: generatedSlug,
+    category: data.category || "lainnya",
+    event_date: data.event_date,
+    hero_image_url: data.hero_image_url || null,
+    album_link: data.album_link?.trim() || null,
+    description: data.description?.trim() || null,
+    is_published: data.is_published ?? true,
+    display_order: data.display_order ?? 0,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (data.event_id) {
+    payload.event_id = data.event_id;
+  }
+
+  const { error } = await syncDualOperation(async (client) => {
+    if (targetId) {
+      let { error: err } = await client
+        .from("gallery_albums")
+        .update(payload)
+        .eq("id", targetId);
+
+      // 1. Fallback jika kolom event_id belum ada di database
+      if (
+        err &&
+        (err.message?.includes("event_id") ||
+          err.code === "PGRST204" ||
+          err.code === "42703")
+      ) {
+        const { event_id, ...fallbackPayload } = payload;
+        const res = await client
+          .from("gallery_albums")
+          .update(fallbackPayload)
+          .eq("id", targetId);
+        err = res.error;
+      }
+
+      // 2. Fallback jika ada konflik slug unik
+      if (err && err.code === "23505") {
+        const randomSuffix = Math.random().toString(36).substring(2, 6);
+        const retryPayload = {
+          ...payload,
+          slug: `${baseSlug}-${randomSuffix}`,
+        };
+        const res = await client
+          .from("gallery_albums")
+          .update(retryPayload)
+          .eq("id", targetId);
+        err = res.error;
+      }
+
+      if (err) throw err;
+    } else {
+      let { error: err } = await client
+        .from("gallery_albums")
+        .insert([payload]);
+
+      // 1. Fallback jika kolom event_id belum ada di database
+      if (
+        err &&
+        (err.message?.includes("event_id") ||
+          err.code === "PGRST204" ||
+          err.code === "42703")
+      ) {
+        const { event_id, ...fallbackPayload } = payload;
+        const res = await client
+          .from("gallery_albums")
+          .insert([fallbackPayload]);
+        err = res.error;
+      }
+
+      // 2. Fallback jika slug unik bentrok
+      if (err && err.code === "23505") {
+        const randomSuffix = Math.random().toString(36).substring(2, 6);
+        const retryPayload = {
+          ...payload,
+          slug: `${baseSlug}-${randomSuffix}`,
+        };
+        const res = await client
+          .from("gallery_albums")
+          .insert([retryPayload]);
+        err = res.error;
+      }
+
+      if (err) throw err;
+    }
+    return true;
+  });
+
+  if (error) {
+    const errorMsg =
+      typeof error === "string"
+        ? error
+        : (error as any)?.message || JSON.stringify(error);
+    return { success: false, error: errorMsg };
+  }
+
+  // Log admin activity
+  try {
+    const { logAdminActivity } = await import("@/lib/actions/log-actions");
+    await logAdminActivity({
+      adminId: session.user.id,
+      action: id ? "UPDATE" : "CREATE",
+      module: "Galeri",
+      targetId: id || null,
+      description: `${id ? "Memperbarui" : "Membuat"} album galeri: "${data.title}"`,
+      oldData: null,
+      newData: payload,
+    });
+  } catch (logErr) {
+    console.warn("Notice: Gagal mencatat log galeri:", logErr);
+  }
+
+  revalidatePath("/admin/galeri");
+  revalidatePath("/galeri");
+  return { success: true };
+}
+
+export async function deleteGalleryAlbumAction(id: string) {
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+      },
+    }
+  );
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session) return { success: false, error: "Tidak diotorisasi" };
+
+  const hasAccess = await checkPermission("galeri", "delete");
+  if (!hasAccess) {
+    return {
+      success: false,
+      error: "Akses ditolak: Anda tidak memiliki izin untuk menghapus album galeri.",
+    };
+  }
+
+  // Get album info before delete
+  const { data: albumToDelete } = await supabase
+    .from("gallery_albums")
+    .select("id, title")
+    .eq("id", id)
+    .maybeSingle();
+
+  const { error } = await syncDualOperation(async (client) => {
+    const { error: err } = await client
+      .from("gallery_albums")
+      .delete()
+      .eq("id", id);
+    if (err) throw err;
+    return true;
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  // Log admin activity
+  try {
+    const { logAdminActivity } = await import("@/lib/actions/log-actions");
+    await logAdminActivity({
+      adminId: session.user.id,
+      action: "DELETE",
+      module: "Galeri",
+      targetId: id,
+      description: `Menghapus album galeri: "${albumToDelete?.title || id}"`,
+      oldData: albumToDelete,
+      newData: null,
+    });
+  } catch (logErr) {
+    console.warn("Notice: Gagal mencatat log delete galeri:", logErr);
+  }
+
+  revalidatePath("/admin/galeri");
+  revalidatePath("/galeri");
+  return { success: true };
+}
+
+export async function deleteMultipleGalleryAlbumsAction(ids: string[]) {
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+      },
+    }
+  );
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session) return { success: false, error: "Tidak diotorisasi" };
+
+  const hasAccess = await checkPermission("galeri", "delete");
+  if (!hasAccess) {
+    return {
+      success: false,
+      error: "Akses ditolak: Anda tidak memiliki izin untuk menghapus album galeri.",
+    };
+  }
+
+  const { error } = await syncDualOperation(async (client) => {
+    const { error: err } = await client
+      .from("gallery_albums")
+      .delete()
+      .in("id", ids);
+    if (err) throw err;
+    return true;
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath("/admin/galeri");
+  revalidatePath("/galeri");
+  return { success: true };
+}
+
+export async function toggleGalleryAlbumPublishedAction(id: string, currentStatus: boolean) {
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+      },
+    }
+  );
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session) return { success: false, error: "Tidak diotorisasi" };
+
+  const hasAccess = await checkPermission("galeri", "edit");
+  if (!hasAccess) {
+    return {
+      success: false,
+      error: "Akses ditolak: Anda tidak memiliki izin untuk mengubah status publikasi galeri.",
+    };
+  }
+
+  const { error } = await syncDualOperation(async (client) => {
+    const { error: err } = await client
+      .from("gallery_albums")
+      .update({ is_published: !currentStatus })
+      .eq("id", id);
+    if (err) throw err;
+    return true;
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath("/admin/galeri");
+  revalidatePath("/galeri");
+  return { success: true };
+}

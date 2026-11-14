@@ -1,0 +1,1373 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Font Families */
+  --font-montserrat: 'Montserrat', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --font-plus-jakarta: 'Plus Jakarta Sans', sans-serif;
+  --font-playfair: 'Playfair Display', serif;
+
+  /* Admin CMS Theme Variables (Ecomora Style) */
+  --bg-page: #F2F4F7;
+  --bg-card: #FFFFFF;
+  --bg-well: #F5F5F5;
+  --bg-sidebar: #FFFFFF;
+  --text-primary: #111111;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+  --border-default: #E5E7EB;
+  --accent-green: #BAFF6A;
+  --accent-red: #FF6B6B;
+
+  /* Shadcn Semantic Tokens (Light Mode) */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Web Akademi Layout & Spacing Variables */
+  --masthead-height: clamp(4.5rem, 7.8vw, 9rem);
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --radius-action: 0;
+  --radius-media: 0;
+  --duration-fast: 150ms;
+  --duration-reveal: 480ms;
+  --duration-phrase: 480ms;
+  --duration-count: 900ms;
+  --content-padding: 3rem;
+  --grid-columns: 12;
+  --grid-gutter: 1.5rem;
+}
+
+.dark {
+  /* Shadcn Semantic Tokens (Dark Mode) */
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+
+  /* Admin CMS Theme Variables - Dark Mode */
+  --bg-page: #0F1117;
+  --bg-card: #1A1D27;
+  --bg-well: #22263A;
+  --bg-sidebar: #1C1C1F;
+  --text-primary: #F0F0F0;
+  --text-secondary: #8B8FA8;
+  --text-muted: #55596E;
+  --border-default: #2A2E42;
+  --accent-green: #A3E85A;
+  --accent-red: #FF5252;
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@theme inline {
+  /* Typography */
+  --font-sans: var(--font-montserrat), "Montserrat", var(--font-plus-jakarta), "Plus Jakarta Sans", var(--font-inter), "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-desc: var(--font-plus-jakarta), "Plus Jakarta Sans", var(--font-inter), "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-inter), "Inter", var(--font-plus-jakarta), "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-title: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-playfair), "Playfair Display", ui-serif, Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, monospace;
+  --font-heading: var(--font-sans);
+  --font-admin-display: var(--font-plus-jakarta), "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+
+  /* Shadcn Semantic Colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Web Akademi Dedicated Colors */
+  --color-canvas: #fff;
+  --color-surface: #e6edf4;
+  --color-hero-panel: #d5e7ff;
+  --color-hero-title: #2c4467;
+  --color-hero-button: #295b9f;
+  --color-ink: #15171b;
+  --color-academy-muted: #525a66;
+  --color-accent-strong: #24486a;
+  --color-highlight: #cbd9e7;
+  --color-highlight-strong: #2f5c86;
+  --color-rule: #dde2e9;
+  --color-control: #7c8695;
+  --color-hover: #24486a;
+  --color-button: #2f5c86;
+  --color-pressed: #1a3350;
+  --color-danger: #b42318;
+  --color-panel: #cbd9e7;
+  --color-panel-soft: #e6edf4;
+  --color-sage: #a7b7a9;
+  --color-sand: #e6d9c4;
+  --color-clay: #c58a78;
+  --color-sun: #e7c75d;
+  --radius-control: 0;
+  --radius-card: 0;
+  --radius-panel: 0;
+
+  /* Admin CMS Custom Colors */
+  --color-bg-page: var(--bg-page);
+  --color-bg-card: var(--bg-card);
+  --color-bg-well: var(--bg-well);
+  --color-bg-sidebar: var(--bg-sidebar);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border-default: var(--border-default);
+  --color-accent-green: var(--accent-green);
+  --color-accent-red: var(--accent-red);
+  --color-zinc-250: #dedede;
+  --color-zinc-750: #333338;
+  --radius-admin-card: 1rem;
+  --radius-admin-panel: 1.25rem;
+
+  /* Admin CMS Radius Tokens */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--masthead-height) + var(--space-4));
+    @apply font-sans;
+  }
+
+  body {
+    margin: 0;
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+    overflow-wrap: break-word;
+    text-rendering: optimizeLegibility;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    margin: 0;
+  }
+
+  button,
+  a {
+    font: inherit;
+    color: inherit;
+  }
+
+  p,
+  ol,
+  ul,
+  figure,
+  blockquote {
+    margin: 0;
+  }
+
+  ol,
+  ul {
+    padding: 0;
+  }
+
+  ::selection {
+    background: var(--color-highlight);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-button);
+    outline-offset: 3px;
+  }
+}
+
+/* Lenis smooth scroll helper classes & native scrollbar hiding */
+html,
+body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* Web Akademi Muted & Accent Text Color Resolution (Non-colliding with Shadcn) */
+.text-muted {
+  color: #525a66;
+}
+
+.dark .text-muted {
+  color: #9ca3af;
+}
+
+.text-accent {
+  color: #2f5c86;
+}
+
+.hover\:text-accent:hover {
+  color: #2f5c86;
+}
+
+.bg-accent {
+  background-color: #2f5c86;
+}
+
+/* Stabilo (Highlighter Pen) Effect Class with multiline clone support */
+.highlight-stabilo {
+  background-image: linear-gradient(180deg, transparent 58%, #d5e7ff 58%, #d5e7ff 92%, transparent 92%);
+  background-size: 0% 100%;
+  background-repeat: no-repeat;
+  background-position: left center;
+  padding: 0 3px;
+  display: inline;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  border-radius: 2px;
+  animation: draw-stabilo 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.2s;
+}
+
+.dark .highlight-stabilo {
+  background-image: linear-gradient(180deg, transparent 58%, rgba(116, 135, 87, 0.45) 58%, rgba(116, 135, 87, 0.45) 92%, transparent 92%);
+  animation: draw-stabilo-dark 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.2s;
+}
+
+.highlight-stabilo-nav {
+  animation-delay: 0s !important;
+}
+
+/* Hero pen uses the hero panel blue instead of the default yellow. */
+.hero-details .highlight-stabilo {
+  background-image: linear-gradient(180deg, transparent 58%, var(--color-hero-panel) 58%, var(--color-hero-panel) 92%, transparent 92%);
+}
+
+/* Global & Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 9999px;
+  transition: background-color 0.3s ease;
+}
+
+:hover::-webkit-scrollbar-thumb,
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(140, 140, 140, 0.35);
+}
+
+.dark :hover::-webkit-scrollbar-thumb,
+.dark .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.custom-scrollbar:hover {
+  scrollbar-color: rgba(140, 140, 140, 0.35) transparent;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Web Akademi Layout Components */
+@layer components {
+  .site-wrapper {
+    width: min(100%, 90rem);
+    margin-inline: auto;
+    padding-inline: var(--content-padding);
+  }
+
+  .site-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+    column-gap: var(--grid-gutter);
+  }
+
+  .eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: 0.1em;
+    color: var(--color-academy-muted);
+    text-transform: uppercase;
+  }
+
+  .sub-title-program {
+    font-family: var(--font-display);
+    font-size: 0.5rem;
+    line-height: 1.5;
+    color: var(--color-academy-muted);
+  }
+
+  .card {
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-panel);
+    background: var(--color-card);
+  }
+
+  .section {
+    --section-padding: 2.5rem;
+    padding-block: var(--section-padding);
+    scroll-margin-top: calc(-1 * var(--section-padding));
+  }
+
+  .contact-section {
+    --section-padding: 4rem;
+    scroll-margin-top: calc(-1 * var(--section-padding));
+  }
+
+  .reveal-item {
+    opacity: 0;
+    transform: translateY(1rem);
+    transition:
+      opacity var(--duration-reveal) ease-out,
+      transform var(--duration-reveal) ease-out;
+    transition-delay: calc(var(--reveal-index, 0) * 80ms);
+  }
+
+  .reveal-in .reveal-item {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal-item {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  .method-measure {
+    transform-origin: left;
+  }
+
+  .is-count-armed .method-measure {
+    transform: scaleX(0);
+  }
+
+  .button-primary,
+  .button-secondary,
+  .button-highlight {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: var(--radius-control);
+    padding: 0.75rem 1.375rem;
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+    transition:
+      background-color var(--duration-fast) ease-out,
+      color var(--duration-fast) ease-out,
+      border-color var(--duration-fast) ease-out;
+  }
+
+  .button-primary {
+    background: var(--color-button);
+    color: var(--color-canvas);
+  }
+
+  .button-primary:hover {
+    background: var(--color-hover);
+  }
+
+  .button-primary:active {
+    background: var(--color-pressed);
+  }
+
+  .button-secondary {
+    border: 1px solid var(--color-control);
+    background: var(--color-card);
+    color: var(--color-ink);
+  }
+
+  .button-secondary:hover {
+    background: var(--color-surface);
+  }
+
+  .button-secondary:active {
+    border-color: var(--color-ink);
+  }
+
+  .button-highlight {
+    background: var(--color-highlight);
+    color: var(--color-ink);
+  }
+
+  .button-highlight:hover {
+    background: var(--color-highlight-strong);
+    color: var(--color-canvas);
+  }
+
+  .button-highlight:active {
+    background: var(--color-highlight-strong);
+    color: var(--color-canvas);
+  }
+
+  .nav-link {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    border-radius: var(--radius-control);
+    padding-inline: 0.75rem;
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    text-decoration: none;
+    transition: background-color var(--duration-fast) ease-out;
+  }
+
+  .nav-link:hover {
+    background: var(--color-card);
+  }
+
+  /* Hero Section */
+  .hero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    min-height: calc(100svh - var(--masthead-height));
+    padding: clamp(3rem, 6vw, 6rem) var(--content-padding);
+    background: var(--color-card);
+    text-align: center;
+  }
+
+  .hero::before,
+  .hero::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    background: var(--color-hero-panel);
+  }
+
+  .hero::before {
+    inset: auto auto 0 0;
+    width: 22%;
+    height: 20%;
+  }
+
+  .hero::after {
+    inset: 0 0 auto auto;
+    width: 5.8%;
+    height: 17%;
+  }
+
+  .hero-title {
+    color: var(--color-hero-title);
+    font: 900 clamp(3rem, 7.35vw, 9rem)/.99 var(--font-display);
+    text-transform: uppercase;
+  }
+
+  .hero-title span {
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  .hero-emphasis {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .hero-emphasis::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: auto 0 0.04em;
+    height: 0.13em;
+    background: var(--color-hero-panel);
+    transform-origin: left;
+  }
+
+  .hero-details {
+    display: grid;
+    justify-items: center;
+    gap: clamp(1.5rem, 2.6vw, 2.5rem);
+    max-width: 44rem;
+    margin-top: clamp(1.5rem, 3vw, 3rem);
+  }
+
+  .hero-details p {
+    max-width: 40rem;
+    color: #27272a;
+    line-height: 1.6;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .75rem;
+  }
+
+  .hero-actions a {
+    text-transform: uppercase;
+    padding-inline: clamp(.75rem, 1.65vw, 2rem);
+  }
+
+  .hero-actions a:first-child {
+    background-color: var(--color-hero-button);
+    color: var(--color-card);
+  }
+
+  .hero-actions a:last-child {
+    border-color: var(--color-hero-button);
+    color: var(--color-hero-button);
+  }
+
+  .hero-actions a:any-link:hover {
+    background: var(--color-accent-strong);
+    color: var(--color-card);
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: .75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    justify-items: center;
+    gap: .35rem;
+    min-width: 44px;
+    min-height: 44px;
+    color: var(--color-hero-button);
+    font: 700 .75rem/1.4 var(--font-display);
+    letter-spacing: .22em;
+    text-transform: uppercase;
+  }
+
+  .text-text-muted {
+    color: var(--color-text-muted);
+  }
+
+  /* Admin Surface Tokens and Controls */
+  .admin-shell,
+  .admin-shell :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-admin-display);
+  }
+
+  .admin-field {
+    width: 100%;
+    height: 2.5rem;
+    border: 1px solid var(--color-admin-rule);
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--color-admin-well) 50%, transparent);
+    padding-inline: 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-admin-ink);
+    transition: border-color 100ms ease;
+  }
+
+  .admin-field::placeholder {
+    color: var(--color-admin-faint);
+  }
+
+  .admin-field:focus {
+    outline: none;
+    border-color: var(--color-admin-ink);
+  }
+
+  .admin-field:focus-visible {
+    outline: 2px solid var(--color-admin-ink);
+    outline-offset: 2px;
+  }
+
+  .admin-field:disabled {
+    background: var(--color-admin-page);
+    color: var(--color-admin-muted);
+  }
+
+  textarea.admin-field {
+    height: auto;
+    min-height: 6rem;
+    padding: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .admin-label {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-admin-muted);
+  }
+
+  .admin-mark {
+    display: inline;
+    border-radius: 2px;
+    padding: 0 3px;
+    background-image: linear-gradient(180deg,
+        transparent 58%,
+        var(--color-admin-mark) 58%,
+        var(--color-admin-mark) 92%,
+        transparent 92%);
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: 100% 100%;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .admin-mark {
+      background-size: 0% 100%;
+      animation: draw-stabilo 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+    }
+  }
+
+  .admin-btn {
+    display: inline-flex;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    border-radius: 0.75rem;
+    padding-inline: 1rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+    transition: background-color 100ms ease, border-color 100ms ease;
+  }
+
+  .admin-btn:active {
+    transform: scale(0.98);
+  }
+
+  .admin-btn:not(:disabled) {
+    cursor: pointer;
+  }
+
+  .admin-btn:focus-visible {
+    outline: 2px solid var(--color-admin-ink);
+    outline-offset: 2px;
+  }
+
+  .admin-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .admin-btn-primary {
+    background: var(--color-admin-ink);
+    color: #fff;
+  }
+
+  .admin-btn-primary:hover {
+    background: #27272a;
+  }
+
+  .admin-btn-secondary {
+    border: 1px solid var(--color-admin-rule);
+    background: var(--color-admin-card);
+    color: var(--color-admin-ink);
+  }
+
+  .admin-btn-secondary:hover {
+    background: var(--color-admin-well);
+  }
+
+  .admin-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.75rem;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+
+  .admin-badge-positive {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .admin-badge-neutral {
+    background: #f3f4f6;
+    color: #4b5563;
+  }
+
+  .admin-badge-negative {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+}
+
+/* Keyframe Animations */
+@keyframes title-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.42em);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes draw-stabilo {
+  to {
+    background-size: 100% 100%;
+  }
+}
+
+@keyframes draw-stabilo-dark {
+  to {
+    background-size: 100% 100%;
+    color: inherit;
+  }
+}
+
+@keyframes draw-measure {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.1rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hero-panel-in {
+  from {
+    opacity: 0;
+    transform: scale(0.65);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hero-cue-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0.9rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes scroll-cue {
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  55% {
+    transform: translateY(6px);
+    opacity: 0.25;
+  }
+}
+
+/* Shadcn UI Dialog & Animate Classes Mapping */
+.animate-in {
+  animation-duration: 200ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: forwards;
+}
+
+.animate-out {
+  animation-duration: 150ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: forwards;
+}
+
+[data-state="open"].fade-in-0,
+.animate-in.fade-in-0 {
+  animation-name: shadcn-fade-in;
+}
+
+[data-state="closed"].fade-out-0,
+.animate-out.fade-out-0 {
+  animation-name: shadcn-fade-out;
+}
+
+[data-state="closed"].zoom-out-95,
+.animate-out.zoom-out-95 {
+  animation-name: shadcn-zoom-out;
+}
+
+@keyframes shadcn-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shadcn-fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes shadcn-zoom-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shadcn-zoom-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  to {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-zoom-in {
+  from {
+    transform: translate(-50%, -48%) scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-zoom-out {
+  from {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  to {
+    transform: translate(-50%, -48%) scale(0.95);
+    opacity: 0;
+  }
+}
+
+.animate-dialog-in {
+  animation: dialog-zoom-in 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-dialog-out {
+  animation: dialog-zoom-out 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Radix UI Dialog Scroll Lock & Pointer Events Override for Lenis */
+html[style*="pointer-events: none"],
+body[style*="pointer-events: none"] {
+  pointer-events: auto !important;
+}
+
+body[style*="overflow: hidden"] {
+  overflow: auto !important;
+}
+
+/* Hardware-Accelerated Tab Slide & Progress Animations */
+@keyframes tab-slide-from-right {
+  from {
+    opacity: 0;
+    transform: translate3d(20px, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes tab-slide-from-left {
+  from {
+    opacity: 0;
+    transform: translate3d(-20px, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-tab-slide-right {
+  animation: tab-slide-from-right 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+.animate-tab-slide-left {
+  animation: tab-slide-from-left 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-progress {
+  animation: progress 3s linear forwards;
+}
+
+/* Motion Preferences */
+@media screen and (prefers-reduced-motion: no-preference) {
+  .hero-title span {
+    animation: title-rise var(--duration-phrase) cubic-bezier(0.16, 0.84, 0.28, 1) backwards;
+  }
+
+  .hero-title span:nth-child(1) {
+    animation-delay: 0ms;
+  }
+
+  .hero-title span:nth-child(2) {
+    animation-delay: 90ms;
+  }
+
+  .hero-title span:nth-child(3) {
+    animation-delay: 180ms;
+  }
+
+  .hero-emphasis::after {
+    animation: draw-measure var(--duration-phrase) ease-out 260ms backwards;
+  }
+
+  .hero::before,
+  .hero::after {
+    animation: hero-panel-in 620ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  }
+
+  .hero::after {
+    animation-delay: 90ms;
+  }
+
+  .hero::before {
+    animation-delay: 180ms;
+  }
+
+  .hero-details p,
+  .hero-actions a,
+  [aria-label="Kanal akademi"]>a {
+    animation: hero-rise var(--duration-reveal) cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  }
+
+  .hero-details p {
+    animation-delay: 320ms;
+  }
+
+  .hero-actions a:first-child {
+    animation-delay: 420ms;
+  }
+
+  .hero-actions a:last-child {
+    animation-delay: 500ms;
+  }
+
+  [aria-label="Kanal akademi"]>a:nth-child(1) {
+    animation-delay: 240ms;
+  }
+
+  [aria-label="Kanal akademi"]>a:nth-child(2) {
+    animation-delay: 310ms;
+  }
+
+  [aria-label="Kanal akademi"]>a:nth-child(3) {
+    animation-delay: 380ms;
+  }
+
+  .hero-scroll {
+    animation: hero-cue-in var(--duration-reveal) cubic-bezier(0.2, 0.7, 0.2, 1) 600ms backwards;
+  }
+
+  .hero-scroll svg path {
+    animation: scroll-cue 1.9s ease-in-out 1.2s infinite;
+  }
+
+  .is-counted .method-measure {
+    animation: draw-measure var(--duration-count) linear both;
+  }
+}
+
+/* Responsive Grid and Content Breakpoints */
+@media (max-width: 63.9375rem) {
+  :root {
+    --content-padding: 2rem;
+    --grid-columns: 8;
+    --grid-gutter: 1.25rem;
+  }
+}
+
+@media (max-width: 47.9375rem) {
+  :root {
+    --content-padding: 1.25rem;
+    --grid-columns: 4;
+    --grid-gutter: 0.75rem;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  .hero {
+    padding: 3rem var(--content-padding) 5rem;
+  }
+
+  .hero::before {
+    width: 52%;
+    height: 7rem;
+  }
+
+  .hero::after {
+    width: 6%;
+    height: 3rem;
+  }
+
+  .hero-title {
+    /* Keeps the phone scale continuous with the 768px rule (3rem → 3.5rem). */
+    font-size: clamp(3rem, 16vw, 3.5rem);
+  }
+
+  .hero-details {
+    margin-top: 1.25rem;
+    gap: 1.25rem;
+  }
+
+  .hero-details p {
+    max-width: 36em;
+    font-size: 0.75rem;
+  }
+
+  .hero-scroll {
+    bottom: 0.65rem;
+  }
+}
+
+@media (max-width: 22.4375rem) {
+  :root {
+    --content-padding: 1rem;
+  }
+}
+
+@media (min-width: 48rem) {
+  .section {
+    --section-padding: 3rem;
+  }
+
+  .contact-section {
+    --section-padding: 5rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .section {
+    --section-padding: 4rem;
+  }
+
+  .contact-section {
+    --section-padding: 6rem;
+  }
+}
+
+/*
+ * Admin shell tokens: the admin design system uses Albana action blue #2F5C86.
+ * Scoped to the admin subtree so the public site keeps its own palette.
+ * body:has() also covers Radix portals (dialogs, selects) rendered under <body>.
+ */
+.admin-shell,
+body:has(.admin-shell) {
+  --primary: #1a1a1a;
+  --primary-foreground: #ffffff;
+  --ring: #2f5c86;
+  --color-primary: #2f5c86;
+  --color-primary-foreground: #ffffff;
+  --color-ring: #2f5c86;
+}
+
+.dark .admin-shell,
+.dark body:has(.admin-shell) {
+  --primary: #d5e7ff;
+  --primary-foreground: #111111;
+  --ring: #d5e7ff;
+  --color-primary: #d5e7ff;
+  --color-primary-foreground: #111111;
+  --color-ring: #d5e7ff;
+}
+
+/*
+ * Admin dialog/step entrance kept to the design-system window (120–160 ms).
+ * Only opacity + translateY(4px) animate; reduced motion shows the end state.
+ */
+@keyframes admin-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-dialog-motion[data-state="open"] {
+  animation: admin-pop-in 140ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .admin-dialog-motion[data-state="open"] {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+/* BlockNote editor is scoped to the article writing area. */
+.article-editor .bn-container {
+  background: transparent;
+  padding-inline: 0;
+}
+
+.article-editor .bn-editor {
+  max-width: 100%;
+  padding-inline: 0;
+  background: transparent;
+}
+
+/* The first line of the article is the title. */
+.article-editor .bn-block-group > .bn-block-outer:first-child .bn-inline-content {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary, inherit);
+}
+
+.article-editor .bn-block-group > .bn-block-outer:first-child .bn-block-content {
+  padding-block: 0.25rem 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .article-editor .bn-container {
+    padding-inline: 0;
+  }
+
+  .article-editor .bn-block-group > .bn-block-outer:first-child .bn-inline-content {
+    font-size: 1.5rem;
+  }
+}

@@ -1,0 +1,273 @@
+"use client";
+
+import React, { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import { Sun, Moon, Menu, X, LogOut, User } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { performCompleteSignOut } from "@/lib/utils/auth-client";
+import { useRouter, usePathname } from "next/navigation";
+
+import ProfileSidebar from "@/app/myprofile/components/ProfileSidebar";
+import { MemberProfile } from "@/lib/types/member";
+
+export default function Header() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [memberProfile, setMemberProfile] = useState<MemberProfile | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Close mobile menu when pathname changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    setMounted(true);
+
+    // Initialize theme from HTML class list or localStorage
+    const isDark = document.documentElement.classList.contains("dark");
+    setTheme(isDark ? "dark" : "light");
+
+    // Scroll listener
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+
+    // Supabase Auth session check
+    const supabase = createClient();
+    const fetchSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        const { data: memberData } = await supabase
+          .from("members")
+          .select("*, interests:member_interests(*)")
+          .eq("id", session.user.id)
+          .single();
+        if (memberData) {
+          setMemberProfile(memberData as MemberProfile);
+        }
+      }
+    };
+    fetchSession();
+
+    // Listen for auth change
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+      setUser(session?.user ?? null);
+      if (!session?.user) {
+        setMemberProfile(null);
+      }
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    localStorage.setItem("theme", nextTheme);
+    if (nextTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      setUser(null);
+      await performCompleteSignOut("/login");
+    } catch (error) {
+      console.error("Gagal keluar:", error);
+    }
+  };
+
+  const navLinks = [
+    { label: "Cerita Kami", href: "/tentang" },
+    { label: "Galeri", href: "/galeri" },
+    { label: "Kolaborasi", href: "/kolaborasi" },
+  ];
+
+  /**
+   * Smooth-scroll to an anchor target using the global Lenis instance.
+   * Closes the mobile menu first if open, then scrolls after a brief delay
+   * so the layout has time to reflow.
+   */
+  const handleSmoothScroll = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
+      e.preventDefault();
+      const wasMenuOpen = isMobileMenuOpen;
+      if (wasMenuOpen) setIsMobileMenuOpen(false);
+
+      const scrollToTarget = () => {
+        const el = document.querySelector(hash);
+        if (!el) return;
+
+        if (window.__lenis) {
+          window.__lenis.scrollTo(el as HTMLElement, {
+            offset: -90,
+            duration: 1.8,
+            easing: (t: number) => 1 - Math.pow(1 - t, 4),
+          });
+        } else {
+          el.scrollIntoView({ behavior: "smooth" });
+        }
+
+        window.history.pushState(null, "", hash);
+      };
+
+      // If mobile menu was open, give it time to close before scrolling
+      if (wasMenuOpen) {
+        setTimeout(scrollToTarget, 150);
+      } else {
+        scrollToTarget();
+      }
+    },
+    [isMobileMenuOpen]
+  );
+
+  return (
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${isScrolled
+          ? "bg-white/95 dark:bg-[#2c2c2c]/95 backdrop-blur-md py-4 border-[#2c2c2c] dark:border-white"
+          : "bg-white dark:bg-[#2c2c2c] py-6 border-[#2c2c2c]/10 dark:border-white/10"
+          }`}
+      >
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+          {/* Brand Logo */}
+          <Link href="/" className="flex items-center group" onClick={() => setIsMobileMenuOpen(false)}>
+            <img src="/logo-dark.png" alt="Logo" className="h-16 w-auto dark:block hidden" />
+            <img src="/logo-light.png" alt="Logo" className="h-16 w-auto dark:hidden" />
+          </Link>
+
+          {/* Central Nav Links (Desktop) */}
+          <nav className="hidden md:flex items-center gap-10">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className={`font-sans text-xs uppercase tracking-[0.2em] font-bold transition-all duration-200 ${isActive
+                    ? "bg-[#ffe78a] text-black dark:bg-[#0762bd] dark:text-white px-3 py-1.5"
+                    : "text-[#2c2c2c]/60 hover:text-[#2c2c2c] dark:text-white/60 dark:hover:text-white px-3 py-1.5"
+                    }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Right Side Controls (Desktop) */}
+          <div className="hidden md:flex items-center gap-6">
+            {mounted ? (
+              <button
+                onClick={toggleTheme}
+                className="text-[#2c2c2c]/60 hover:text-[#2c2c2c] dark:text-white/60 dark:hover:text-white transition-colors cursor-pointer"
+                title={theme === "dark" ? "Mode Terang" : "Mode Gelap"}
+              >
+                {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+              </button>
+            ) : null}
+            {user ? (
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/myprofile"
+                  className="font-sans text-xs uppercase tracking-[0.2em] text-[#2c2c2c]/60 hover:text-[#2c2c2c] dark:text-white/60 dark:hover:text-white transition-colors duration-200 font-bold"
+                >
+                  Profil Saya
+                </Link>
+              </div>
+            ) : (
+              <div className="flex items-center gap-5">
+                <Link
+                  href="/login"
+                  className="w-full bg-[#2c2c2c] text-white dark:bg-white dark:text-[#2c2c2c] text-center text-xs uppercase tracking-[0.2em] font-bold py-3.5 px-6 border border-[#2c2c2c] dark:border-white transition-all duration-300"
+                >
+                  Masuk
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile menu trigger */}
+          <div className="flex items-center gap-4 md:hidden">
+            {mounted && (
+              <button
+                onClick={toggleTheme}
+                className="text-[#2c2c2c]/60 dark:text-white/60"
+              >
+                {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+              </button>
+            )}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="text-[#2c2c2c] dark:text-white cursor-pointer"
+            >
+              {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-40 bg-white dark:bg-[#2c2c2c] md:hidden flex flex-col justify-between pt-28 pb-10 px-8 overflow-y-auto">
+          <nav className="flex flex-col items-center justify-center gap-6 my-auto text-center w-full max-w-sm mx-auto">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`w-full text-center text-lg font-bold tracking-[0.2em] uppercase py-3.5 px-6 transition-all duration-200 ${isActive
+                    ? "bg-[#ffe78a] text-black dark:bg-[#0762bd] dark:text-white"
+                    : "text-[#2c2c2c]/80 hover:text-[#2c2c2c] dark:text-white/80 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/50"
+                    }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Mobile Auth / CTA Controls */}
+          <div className="flex flex-col items-center gap-4 w-full max-w-sm mx-auto pt-6 border-t border-[#2c2c2c]/10 dark:border-white/10">
+            {user ? (
+              <>
+                <Link
+                  href="/myprofile"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full text-center text-xs uppercase tracking-[0.2em] font-bold py-3.5 px-6 border border-[#2c2c2c] dark:border-white text-[#2c2c2c] dark:text-white hover:bg-[#2c2c2c] hover:text-white dark:hover:bg-white dark:hover:text-[#2c2c2c] transition-all duration-300"
+                >
+                  Profil Saya
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full text-center text-xs uppercase tracking-[0.2em] font-bold py-3.5 px-6 border border-[#2c2c2c] dark:border-white text-[#2c2c2c] dark:text-white hover:bg-[#2c2c2c] hover:text-white dark:hover:bg-white dark:hover:text-[#2c2c2c] transition-all duration-300"
+                >
+                  Masuk
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

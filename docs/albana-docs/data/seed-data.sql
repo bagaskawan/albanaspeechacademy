@@ -1,0 +1,323 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.members (
+  id uuid NOT NULL,
+  full_name text NOT NULL,
+  stage_name text NOT NULL,
+  whatsapp_number text NOT NULL UNIQUE,
+  email text UNIQUE,
+  occupation text NOT NULL,
+  referral_source text,
+  qr_token uuid DEFAULT uuid_generate_v4() UNIQUE,
+  role text DEFAULT 'member'::text,
+  membership_tier text NOT NULL DEFAULT 'free'::text CHECK (membership_tier = ANY (ARRAY['free'::text, 'regular'::text, 'priority'::text, 'membership'::text, 'mvp'::text, 'admin'::text, 'new_member'::text])),
+  package_id uuid,
+  payment_status text DEFAULT 'pending'::text,
+  payment_order_id text,
+  username text UNIQUE,
+  used_voucher_code character varying,
+  final_price integer DEFAULT 49000,
+  description text,
+  my_referral_code text UNIQUE,
+  referred_by_member_id uuid,
+  joined_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  community text DEFAULT 'panggung_kreator'::text,
+  tier_changed_at timestamp with time zone,
+  tier_changed_by uuid,
+  tier_note text,
+  city text,
+  portfolio_url text,
+  avatar_url text,
+  subscribed_newsletter boolean NOT NULL DEFAULT true,
+  newsletter_subscribed_at timestamp with time zone DEFAULT now(),
+  profile_completed_at timestamp with time zone,
+  affiliate_code text UNIQUE,
+  referred_by uuid,
+  commission_balance numeric NOT NULL DEFAULT 0,
+  temporary_password text,
+  birth_date date,
+  address text,
+  social_media jsonb DEFAULT '{}'::jsonb,
+  username_changes_count integer NOT NULL DEFAULT 0,
+  last_username_change timestamp with time zone,
+  CONSTRAINT members_pkey PRIMARY KEY (id),
+  CONSTRAINT members_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id),
+  CONSTRAINT members_referred_by_member_id_fkey FOREIGN KEY (referred_by_member_id) REFERENCES public.members(id),
+  CONSTRAINT members_package_id_fkey FOREIGN KEY (package_id) REFERENCES public.packages(id),
+  CONSTRAINT members_referred_by_fkey FOREIGN KEY (referred_by) REFERENCES public.members(id)
+);
+CREATE TABLE public.packages (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  subtitle text,
+  price text NOT NULL,
+  original_price text,
+  is_highlighted boolean DEFAULT false,
+  benefits jsonb NOT NULL DEFAULT '[]'::jsonb,
+  cta_text text NOT NULL,
+  order_index integer DEFAULT 0,
+  is_default boolean NOT NULL DEFAULT false,
+  tier text NOT NULL DEFAULT 'regular'::text CHECK (tier = ANY (ARRAY['regular'::text, 'mvp'::text, 'private'::text])),
+  is_published boolean NOT NULL DEFAULT true,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
+  CONSTRAINT packages_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.vouchers (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  code character varying NOT NULL UNIQUE,
+  discount_type character varying NOT NULL DEFAULT 'nominal'::character varying,
+  discount_value numeric NOT NULL,
+  max_uses integer DEFAULT 0,
+  current_uses integer DEFAULT 0,
+  expires_at timestamp with time zone,
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT vouchers_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.landing_sections (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  section_type text NOT NULL,
+  site text NOT NULL DEFAULT 'akademi'::text CHECK (site = ANY (ARRAY['akademi'::text, 'komunitas'::text])),
+  content jsonb NOT NULL DEFAULT '{}'::jsonb,
+  is_visible boolean DEFAULT true,
+  section_order integer NOT NULL DEFAULT 0,
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT landing_sections_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.transactions (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  member_id uuid NOT NULL,
+  package_id uuid,
+  voucher_id uuid,
+  referral_code text,
+  referred_by_id uuid,
+  order_id text NOT NULL UNIQUE,
+  status text NOT NULL DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'paid'::text, 'failed'::text, 'expired'::text, 'refunded'::text])),
+  gross_amount integer NOT NULL,
+  final_amount integer NOT NULL,
+  discount_amount integer NOT NULL DEFAULT 0,
+  unique_code integer NOT NULL DEFAULT 0,
+  payment_method text,
+  paid_at timestamp with time zone,
+  expired_at timestamp with time zone,
+  metadata jsonb DEFAULT '{}'::jsonb,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  affiliate_code_used text,
+  commission_earned numeric NOT NULL DEFAULT 0,
+  referral_credit_used numeric NOT NULL DEFAULT 0,
+  CONSTRAINT transactions_pkey PRIMARY KEY (id),
+  CONSTRAINT transactions_member_id_fkey FOREIGN KEY (member_id) REFERENCES public.members(id),
+  CONSTRAINT transactions_package_id_fkey FOREIGN KEY (package_id) REFERENCES public.packages(id),
+  CONSTRAINT transactions_voucher_id_fkey FOREIGN KEY (voucher_id) REFERENCES public.vouchers(id),
+  CONSTRAINT transactions_referred_by_id_fkey FOREIGN KEY (referred_by_id) REFERENCES public.members(id)
+);
+CREATE TABLE public.referral_codes (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  code text NOT NULL UNIQUE,
+  owner_member_id uuid NOT NULL,
+  description text,
+  is_active boolean NOT NULL DEFAULT true,
+  usage_count integer NOT NULL DEFAULT 0,
+  total_revenue integer NOT NULL DEFAULT 0,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  max_usage integer NOT NULL DEFAULT 0,
+  default_reward numeric NOT NULL DEFAULT 0,
+  CONSTRAINT referral_codes_pkey PRIMARY KEY (id),
+  CONSTRAINT referral_codes_owner_member_id_fkey FOREIGN KEY (owner_member_id) REFERENCES public.members(id)
+);
+CREATE TABLE public.partners (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  type text NOT NULL CHECK (type = ANY (ARRAY['kafe'::text, 'kampus'::text, 'brand'::text, 'media'::text, 'sponsor'::text, 'lainnya'::text])),
+  logo_url text,
+  website_url text,
+  instagram_url text,
+  contact_person text,
+  contact_wa text,
+  description text,
+  partnership_since date,
+  is_active boolean DEFAULT true,
+  is_featured boolean DEFAULT false,
+  order_index integer DEFAULT 0,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT partners_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.team_members (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  full_name text NOT NULL,
+  role_title text NOT NULL,
+  bio text,
+  photo_url text,
+  instagram_url text,
+  linkedin_url text,
+  is_founder boolean DEFAULT false,
+  is_published boolean DEFAULT true,
+  order_index integer DEFAULT 0,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT team_members_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.gallery_items (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  title text,
+  description text,
+  photo_url text NOT NULL,
+  event_id uuid,
+  category text DEFAULT 'kegiatan'::text CHECK (category = ANY (ARRAY['kegiatan'::text, 'open_mic'::text, 'sharing_session'::text, 'networking'::text, 'behind_scene'::text, 'lainnya'::text])),
+  taken_at date,
+  is_featured boolean DEFAULT false,
+  is_published boolean DEFAULT true,
+  order_index integer DEFAULT 0,
+  uploaded_by uuid,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT gallery_items_pkey PRIMARY KEY (id),
+  CONSTRAINT gallery_items_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.events(id),
+  CONSTRAINT gallery_items_uploaded_by_fkey FOREIGN KEY (uploaded_by) REFERENCES public.members(id)
+);
+CREATE TABLE public.wa_group_assignments (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  member_id uuid NOT NULL,
+  group_key text NOT NULL CHECK (group_key = ANY (ARRAY['btb'::text, 'general'::text, 'priority'::text, 'membership'::text])),
+  group_name text NOT NULL,
+  wa_group_link text,
+  assigned_by uuid,
+  assigned_at timestamp with time zone NOT NULL DEFAULT now(),
+  notes text,
+  CONSTRAINT wa_group_assignments_pkey PRIMARY KEY (id),
+  CONSTRAINT wa_group_assignments_member_id_fkey FOREIGN KEY (member_id) REFERENCES public.members(id),
+  CONSTRAINT wa_group_assignments_assigned_by_fkey FOREIGN KEY (assigned_by) REFERENCES public.members(id)
+);
+CREATE TABLE public.media_library (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  file_name text NOT NULL,
+  file_url text NOT NULL,
+  file_type text NOT NULL CHECK (file_type = ANY (ARRAY['image'::text, 'video'::text, 'document'::text])),
+  mime_type text,
+  file_size_kb integer,
+  width integer,
+  height integer,
+  alt_text text,
+  tags jsonb DEFAULT '[]'::jsonb,
+  uploaded_by uuid,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT media_library_pkey PRIMARY KEY (id),
+  CONSTRAINT media_library_uploaded_by_fkey FOREIGN KEY (uploaded_by) REFERENCES public.members(id)
+);
+CREATE TABLE public.testimonials (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  member_id uuid,
+  display_name text NOT NULL,
+  photo_url text,
+  role_label text,
+  quote text NOT NULL,
+  result_highlight text,
+  site text NOT NULL DEFAULT 'komunitas'::text CHECK (site = ANY (ARRAY['komunitas'::text, 'akademi'::text])),
+  is_featured boolean DEFAULT false,
+  is_published boolean DEFAULT false,
+  order_index integer DEFAULT 0,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT testimonials_pkey PRIMARY KEY (id),
+  CONSTRAINT testimonials_member_id_fkey FOREIGN KEY (member_id) REFERENCES public.members(id)
+);
+CREATE TABLE public.admin_activity_logs (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  admin_id uuid NOT NULL,
+  action text NOT NULL,
+  module text,
+  target_id uuid,
+  description text,
+  old_data jsonb,
+  new_data jsonb,
+  ip_address text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT admin_activity_logs_pkey PRIMARY KEY (id),
+  CONSTRAINT admin_activity_logs_admin_id_fkey FOREIGN KEY (admin_id) REFERENCES public.members(id)
+);
+CREATE TABLE public.gallery_albums (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  slug text NOT NULL UNIQUE,
+  category text NOT NULL DEFAULT 'open-mic'::text,
+  event_date date NOT NULL,
+  hero_image_url text,
+  album_link text,
+  description text,
+  is_published boolean DEFAULT false,
+  display_order integer DEFAULT 0,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  event_id uuid,
+  CONSTRAINT gallery_albums_pkey PRIMARY KEY (id),
+  CONSTRAINT gallery_albums_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.events(id)
+);
+CREATE TABLE public.privilege_groups (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL UNIQUE,
+  sort_order integer NOT NULL DEFAULT 0,
+  created_at timestamp with time zone DEFAULT now(),
+  slug text UNIQUE,
+  icon text,
+  status text DEFAULT 'active'::text CHECK (status = ANY (ARRAY['active'::text, 'inactive'::text])),
+  CONSTRAINT privilege_groups_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.privilege_items (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  group_id uuid,
+  name text NOT NULL,
+  href text NOT NULL,
+  icon_name text NOT NULL,
+  slug text NOT NULL,
+  sort_order integer NOT NULL DEFAULT 0,
+  created_at timestamp with time zone DEFAULT now(),
+  status text DEFAULT 'active'::text CHECK (status = ANY (ARRAY['active'::text, 'inactive'::text])),
+  available_actions ARRAY NOT NULL DEFAULT '{}'::uuid[],
+  CONSTRAINT privilege_items_pkey PRIMARY KEY (id),
+  CONSTRAINT privilege_items_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.privilege_groups(id)
+);
+CREATE TABLE public.privilege_actions (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  slug text NOT NULL UNIQUE,
+  sort_order integer NOT NULL DEFAULT 0,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT privilege_actions_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.admin_roles (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  member_id uuid NOT NULL UNIQUE,
+  label text,
+  color text NOT NULL DEFAULT 'slate'::text,
+  status text NOT NULL DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'active'::text, 'revoked'::text])),
+  approved_by uuid,
+  approved_at timestamp with time zone,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  color_code text,
+  is_super_admin boolean DEFAULT false,
+  CONSTRAINT admin_roles_pkey PRIMARY KEY (id),
+  CONSTRAINT admin_roles_member_id_fkey FOREIGN KEY (member_id) REFERENCES public.members(id),
+  CONSTRAINT admin_roles_approved_by_fkey FOREIGN KEY (approved_by) REFERENCES public.members(id)
+);
+CREATE TABLE public.admin_role_permissions (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  admin_role_id uuid NOT NULL,
+  privilege_item_id uuid NOT NULL,
+  action_id uuid NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT admin_role_permissions_pkey PRIMARY KEY (id),
+  CONSTRAINT admin_role_permissions_admin_role_id_fkey FOREIGN KEY (admin_role_id) REFERENCES public.admin_roles(id),
+  CONSTRAINT admin_role_permissions_privilege_item_id_fkey FOREIGN KEY (privilege_item_id) REFERENCES public.privilege_items(id),
+  CONSTRAINT admin_role_permissions_action_id_fkey FOREIGN KEY (action_id) REFERENCES public.privilege_actions(id)
+);
+CREATE TABLE public.system_settings (
+  key text NOT NULL,
+  value text NOT NULL,
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT system_settings_pkey PRIMARY KEY (key)
+);

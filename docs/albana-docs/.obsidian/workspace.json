@@ -1,0 +1,240 @@
+{
+  "main": {
+    "id": "330d851823f7ebf6",
+    "type": "split",
+    "children": [
+      {
+        "id": "cf1ae5984bbdffa5",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "be150c2372e38cef",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "README.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "README"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "82f090f7e586bbcc",
+    "type": "split",
+    "children": [
+      {
+        "id": "0b0cc2bc46fda2cc",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7b58173e6b2db33d",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "6ba290a5572ad49e",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "98e5703f2756ccee",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 451.5
+  },
+  "right": {
+    "id": "145e679712a020c9",
+    "type": "split",
+    "children": [
+      {
+        "id": "db2fe0788048294d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "96bb33d7e77a4027",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "superpowers/specs/2026-11-10-admin-restructure-design.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "d6b455752b26a6dd",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "superpowers/specs/2026-11-10-admin-restructure-design.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "10af72670be9d3dd",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "4980596ad8bbd483",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "70e391157d3c6647",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "superpowers/specs/2026-11-10-admin-restructure-design.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "be150c2372e38cef",
+  "lastOpenFiles": [
+    "implementation-plan/2026-11-11-admin-program-batch-artikel-dan-register.md",
+    "archive/plans/assets/2026-11-11-step-2-after/batch-list.png",
+    "archive/plans/assets/2026-11-11-step-2-after/batch-dialog.png",
+    "archive/plans/assets/2026-11-11-step-2-baseline/trainer.png",
+    "archive/plans/assets/2026-11-11-step-2-baseline/program.png",
+    "archive/plans/assets/2026-11-11-step-2-baseline/pendaftar.png",
+    "archive/plans/assets/2026-11-11-step-2-baseline/galeri.png",
+    "archive/plans/assets/2026-11-11-step-2-baseline/batch.png",
+    "archive/plans/assets/2026-11-11-step-2-baseline/artikel.png",
+    "archive/plans/assets/2026-11-11-step-2-after",
+    "archive/plans/assets/2026-11-11-step-2-baseline",
+    "archive/plans/legacy-step-05-hostinger-migration.md",
+    "archive/plans/legacy-step-04-payment-participants.md",
+    "archive/plans/legacy-step-03-cms-content.md",
+    "archive/plans/legacy-step-02-registration-form.md",
+    "archive/plans/legacy-step-01b-program-detail.md",
+    "archive/plans/legacy-step-01-landing-page.md",
+    "archive/plans/legacy-implementation-index.md",
+    "archive/plans/assets",
+    "archive/plans/2026-11-11-step-2-admin-inventory.md",
+    "archive/plans/2026-11-11-step-1-data-contract-audit.md",
+    "archive/plans/2026-11-11-admin-program-batch-article-registration.md",
+    "archive/plans",
+    "archive/design-backup/README.md",
+    "archive/design-backup/classic-layout.tsx",
+    "archive/design-backup/classic-globals.css",
+    "archive/design-backup/classic-design.md",
+    "archive/design-backup",
+    "README.md",
+    "project/website-revision-specification.md",
+    "project/cleanup-candidates.md",
+    "project/2026-11-13-release-audit.md",
+    "plans/2026-11-13-website-revision-implementation-plan.md",
+    "plans/2026-11-13-status-and-next-steps.md",
+    "plans/2026-11-13-staged-llm-prompt-strategy.md",
+    "plans",
+    "design/admin-design-system.md",
+    "content/home-page-content.md",
+    "content/academy-proposal.md",
+    "content",
+    "archive/legacy/user-flow.md",
+    "archive/legacy/technical-plan.md",
+    "archive/legacy/result-brief.md",
+    "archive/legacy",
+    "implementation-plan/assets/2026-11-11-step-2-after/batch-dialog.png",
+    "implementation-plan/assets/2026-11-11-step-2-after/batch-list.png"
+  ]
+}
