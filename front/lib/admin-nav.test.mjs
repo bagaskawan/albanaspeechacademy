@@ -1,0 +1,39 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { adminNavGroups, resolveAdminNav } from "./admin-nav.ts";
+
+test("five pill groups in fixed order", () => {
+  assert.deepEqual(adminNavGroups.map((group) => group.label), ["Dashboard", "Pendaftaran", "Kelas", "Konten", "Pengaturan"]);
+});
+
+test("/admin is Dashboard with no active module", () => {
+  const nav = resolveAdminNav("/admin");
+  assert.equal(nav.group.id, "dashboard");
+  assert.equal(nav.module, undefined);
+});
+
+test("nested module route resolves group and module", () => {
+  const nav = resolveAdminNav("/admin/program/speaker-training/edit");
+  assert.equal(nav.group.id, "kelas");
+  assert.equal(nav.module?.href, "/admin/program");
+});
+
+test("tagihan belongs to Pendaftaran, not the dashboard shortcut", () => {
+  const nav = resolveAdminNav("/admin/tagihan");
+  assert.equal(nav.group.id, "pendaftaran");
+  assert.equal(nav.module?.label, "Tagihan");
+});
+
+test("prefix match respects path segments", () => {
+  assert.equal(resolveAdminNav("/admin/programs-old").module, undefined);
+  assert.equal(resolveAdminNav("/admin/profil-akademi").group.id, "pengaturan");
+});
+
+test("unknown admin route falls back to Dashboard", () => {
+  assert.equal(resolveAdminNav("/admin/denied").group.id, "dashboard");
+});
+
+test("every module href is unique across groups", () => {
+  const hrefs = adminNavGroups.flatMap((group) => group.modules.map((item) => item.href));
+  assert.equal(new Set(hrefs).size, hrefs.length);
+});
