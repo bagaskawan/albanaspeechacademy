@@ -45,3 +45,11 @@ test("isDetail only below a module's list page", () => {
   assert.equal(resolveAdminNav("/admin/artikel/baru").isDetail, true);
   assert.equal(resolveAdminNav("/admin/denied").isDetail, false);
 });
+
+test("every module has a one-line description and Dashboard has no shortcuts", () => {
+  for (const group of adminNavGroups) {
+    assert.equal("shortcuts" in group, false);
+    for (const item of group.modules) assert.ok(item.description && !item.description.includes("\n"), item.href);
+  }
+  assert.ok(adminNavGroups[0].description);
+});

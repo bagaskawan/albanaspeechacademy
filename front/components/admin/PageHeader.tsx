@@ -15,7 +15,8 @@ const noopSubscribe = () => () => {};
 /** Shell-level header (admin-ui-patterns §3.3): breadcrumb Grup ⟶ Modul, title, round-button slot. */
 export function PageHeader({ group, module, isDetail, pathname }: { group: AdminNavGroup; module?: AdminNavModule; isDetail: boolean; pathname: string }) {
   const title = module?.label ?? group.label;
-  return <div className="order-1 mb-8 flex flex-wrap items-end justify-between gap-4 lg:col-start-2 lg:row-start-1">
+  const description = isDetail ? null : (module?.description ?? group.description);
+  return <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
     {/* Keyed remount fades the new title in at once; no exit wait between modules. */}
     <m.div
         key={pathname}
@@ -42,7 +43,8 @@ export function PageHeader({ group, module, isDetail, pathname }: { group: Admin
             </>}
           </ol>
         </nav>
-        <h1 className="mt-2 text-[32px] font-normal leading-[1.1] tracking-[-0.02em] md:text-[44px]">{title}</h1>
+        <h1 className="mt-2 text-[32px] font-normal leading-[1.1] tracking-[-0.02em] md:text-[40px]">{title}</h1>
+        {description && <p className="mt-2 max-w-[68ch] text-[15px] leading-[1.5] text-admin-text-secondary">{description}</p>}
         </div>
       </m.div>
     <div id={ACTIONS_ID} className="flex items-center gap-3 empty:hidden" />
