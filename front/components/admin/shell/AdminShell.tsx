@@ -50,6 +50,8 @@ type ShellProps = { children: React.ReactNode; pendingInvoices: number; account:
 export function AdminShell({ children, pendingInvoices, account, role }: ShellProps) {
   const pathname = usePathname();
   const nav = resolveAdminNav(pathname);
+  // Settings is a focused full-width screen with its own header and a home button (no sidebar).
+  const standalone = pathname === "/admin/settings" || pathname.startsWith("/admin/settings/");
   const [drawerOpen, setDrawerOpen] = useState(false);
   // null = follow the breakpoint (compact 1024–1279, full ≥ 1280); read after hydration.
   const [compact, setCompact] = useState<boolean | null>(null);
@@ -110,13 +112,13 @@ export function AdminShell({ children, pendingInvoices, account, role }: ShellPr
 
       <div className="lg:flex">
         {/* §3.2 Sidebar: navigation only, sticky under the 72 px header. */}
-        <aside className="sticky top-[72px] hidden h-[calc(100vh-72px)] shrink-0 p-3 lg:block">
+        {!standalone && <aside className="sticky top-[72px] hidden h-[calc(100vh-72px)] shrink-0 p-3 lg:block">
           <SidebarPanel {...sidebarProps} mode={compact === null ? "auto" : compact ? "compact" : "full"} layoutGroup="sidebar" onToggleCompact={toggleCompact} />
-        </aside>
+        </aside>}
 
         <div className="min-w-0 flex-1 px-[var(--admin-gutter)] pb-10 pt-6 lg:pt-8">
           <div className="mx-auto max-w-[1440px]">
-            <PageHeader group={nav.group} module={nav.module} isDetail={nav.isDetail} pathname={pathname} />
+            {!standalone && <PageHeader group={nav.group} module={nav.module} isDetail={nav.isDetail} pathname={pathname} />}
             <main id="admin-main" className="min-w-0">{children}</main>
           </div>
         </div>

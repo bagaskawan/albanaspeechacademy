@@ -41,6 +41,11 @@ export function PageHeader({ group, module, isDetail, pathname }: { group: Admin
   </div>;
 }
 
+/** The slot AdminPageActions portals into; pages with their own header (settings) render it themselves. */
+export function PageActionsSlot({ className = "flex items-center gap-3 empty:hidden" }: { className?: string }) {
+  return <div id={ACTIONS_ID} className={className} />;
+}
+
 /** Modules render their Saring · Cari · Aksi utama buttons through this into the header slot. */
 export function AdminPageActions({ children }: { children: React.ReactNode }) {
   const target = useSyncExternalStore(noopSubscribe, () => document.getElementById(ACTIONS_ID), () => null);
