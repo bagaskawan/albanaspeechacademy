@@ -4,6 +4,7 @@ import { FilePlus2 } from "lucide-react";
 import { requireAdminMember } from "@/lib/server/admin-guard";
 import { DataTable, StatusChip } from "@/components/admin/ui/data-table";
 import { TableToolbar } from "@/components/admin/ui/table-toolbar";
+import { EmptyState } from "@/components/admin/ui/empty-state";
 import { RowActions } from "@/components/admin/ui/row-actions";
 import { deleteArticleAction } from "@/lib/actions/article-actions";
 import { ilikePattern } from "@/lib/ilike";
@@ -44,7 +45,9 @@ export default async function ArtikelPage({ searchParams }: { searchParams: Prom
       )}
 
       {!error && !data?.length && (
-        <p className="rounded-[var(--admin-radius-card)] bg-admin-surface p-8 text-center text-[15px] text-admin-text-secondary">{q || status ? "Tidak ada artikel yang cocok dengan pencarian atau saringan." : "Belum ada artikel."}</p>
+        q || status
+          ? <EmptyState searching title="Tidak ada artikel yang cocok" description="Ubah kata kunci atau saringan." />
+          : <EmptyState title="Belum ada artikel" description="Tulis artikel pertama; artikel tampil di situs setelah diterbitkan." />
       )}
 
       {!!data?.length && (

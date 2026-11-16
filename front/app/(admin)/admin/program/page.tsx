@@ -1,9 +1,10 @@
 import React from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+
 import { requireAdminMember } from "@/lib/server/admin-guard";
 import ProgramRowActions from "@/components/admin/ProgramRowActions";
 import { TableToolbar } from "@/components/admin/ui/table-toolbar";
+import { EmptyState } from "@/components/admin/ui/empty-state";
 import { ilikePattern } from "@/lib/ilike";
 import { DataTable } from "@/components/admin/ui/data-table";
 
@@ -33,7 +34,7 @@ export default async function ProgramPage({ searchParams }: { searchParams: Prom
       <TableToolbar search={{ placeholder: "Cari program…" }} exportModule="program" create={{ label: "Tambah program", href: "/admin/program/create" }} />
 
       {rows.length === 0
-        ? <p className="rounded-[var(--admin-radius-card)] bg-admin-surface p-8 text-center text-[15px] text-admin-text-secondary">{q ? "Tidak ada program yang cocok dengan pencarian." : "Belum ada program. Tambahkan program lalu isi detailnya."}</p>
+        ? (q ? <EmptyState searching title="Tidak ada program yang cocok" description="Coba kata kunci lain." /> : <EmptyState title="Belum ada program" description="Tambahkan program, lalu isi harga dan materinya." />)
         : <DataTable caption="Program" stackOnMobile>
           <thead>
             <tr>

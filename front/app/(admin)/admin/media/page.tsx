@@ -2,16 +2,22 @@ import { requireAdminMember } from "@/lib/server/admin-guard";
 import { academyBillingClient } from "@/lib/server/academy-billing";
 import { AlbanaMediaUpload } from "./AlbanaMediaUpload";
 import { addYoutube, saveMediaSettings, setMediaPublished } from "./actions";
+import { TableToolbar } from "@/components/admin/ui/table-toolbar";
+import { EmptyState } from "@/components/admin/ui/empty-state";
+import { ilikePattern } from "@/lib/ilike";
 
 export const dynamic = "force-dynamic";
 
-export default async function MediaPage() {
+export default async function MediaPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   await requireAdminMember();
+  const { q } = await searchParams;
   const client = academyBillingClient();
   const [programsResult, batchesResult, mediaResult, settingsResult] = await Promise.all([
     client.from("programs").select("slug,title").order("title"),
     client.from("batches").select("slug,title").order("title"),
-    client.from("media_assets").select("id,provider,kind,object_key,alt_text,program_slug,batch_slug,published,created_at").order("created_at", { ascending: false }).limit(100),
+    (q
+      ? client.from("media_assets").select("id,provider,kind,object_key,alt_text,program_slug,batch_slug,published,created_at").or(`alt_text.ilike.${ilikePattern(q)},object_key.ilike.${ilikePattern(q)},program_slug.ilike.${ilikePattern(q)}`)
+      : client.from("media_assets").select("id,provider,kind,object_key,alt_text,program_slug,batch_slug,published,created_at")).order("created_at", { ascending: false }).limit(100),
     client.from("system_settings").select("key,value").in("key", ["albana_media_min_image_width", "albana_media_min_image_height", "albana_media_min_video_short_side"]),
   ]);
   if (programsResult.error || batchesResult.error || mediaResult.error || settingsResult.error) throw new Error("Pustaka media belum bisa dimuat.");
@@ -20,6 +26,7 @@ export default async function MediaPage() {
   const media = mediaResult.data ?? [];
   const settings = Object.fromEntries((settingsResult.data ?? []).map((item) => [item.key, item.value]));
   return <div className="max-w-5xl space-y-8">
+    <TableToolbar search={{ placeholder: "Cari keterangan atau program…" }} />
     <div className="grid gap-6 lg:grid-cols-2">
       <AlbanaMediaUpload programs={programs} batches={batches} />
       <form action={addYoutube} className="grid content-start gap-4 rounded-xl border border-rule bg-card p-5">
@@ -40,7 +47,9 @@ export default async function MediaPage() {
       <button type="submit" className="button-secondary justify-self-start sm:col-span-3">Simpan batas resolusi</button>
     </form>
     <section aria-labelledby="media-list-title"><h2 id="media-list-title" className="text-xl font-semibold">Aset tersimpan</h2>
-      {!media.length ? <p className="mt-4 text-sm text-muted">Belum ada media Albana.</p> : <div className="mt-4 grid gap-3">
+      {!media.length ? <div className="mt-4">{q
+        ? <EmptyState searching title="Tidak ada media yang cocok" description="Coba keterangan atau program lain." />
+        : <EmptyState title="Belum ada media" description="Unggah foto atau tambahkan video YouTube di atas." />}</div> : <div className="mt-4 grid gap-3">
         {media.map((asset) => <article key={asset.id} className="flex flex-wrap items-center justify-between gap-3 border border-rule bg-card p-4">
           <div><p className="font-semibold">#{asset.id} · {asset.kind === "image" ? "Gambar" : "Video"} · {asset.program_slug ?? "Tanpa program"}</p>
             <p className="mt-1 break-all text-sm text-muted">{asset.alt_text || asset.object_key}</p>

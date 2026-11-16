@@ -22,6 +22,7 @@ import { DatePicker } from "@/components/ui/DatePicker";
 import { TimePicker } from "@/components/ui/TimePicker";
 import { TableToolbar, matchesQuery, type ToolbarFilter } from "@/components/admin/ui/table-toolbar";
 import { RowActions, useIsAdminSuper } from "@/components/admin/ui/row-actions";
+import { EmptyState } from "@/components/admin/ui/empty-state";
 import { useSearchParams } from "next/navigation";
 import { DataTable } from "@/components/admin/ui/data-table";
 
@@ -284,6 +285,10 @@ export default function CmsCollectionClient({
     (!groupField || String(row[groupField.name]) === activeGroup)
     && matchesQuery(row[displayField], query)
     && filters.every((filter) => !params.get(filter.param) || String(row[filter.param]) === params.get(filter.param)));
+  const searching = Boolean(query) || filters.some((filter) => params.get(filter.param));
+  const emptyState = searching
+    ? <EmptyState searching title="Tidak ada data yang cocok" description="Ubah kata kunci atau saringan." />
+    : <EmptyState title={emptyText} />;
 
   const openCreate = () => {
     setEditingRow(null);
@@ -988,11 +993,7 @@ export default function CmsCollectionClient({
       )}
 
       {bento ? (
-        visibleRows.length === 0 ? (
-          <div className="bg-bg-card border border-border-default border-dashed rounded-2xl p-10 text-center">
-            <p className="text-xs font-semibold text-text-muted">{emptyText}</p>
-          </div>
-        ) : (
+        visibleRows.length === 0 ? emptyState : (
           <div className="columns-2 gap-3 sm:columns-3 lg:columns-4">
             {visibleRows.map((row) => {
               const imageField = tableFields.find((field) => field.type === "gallery");
@@ -1043,7 +1044,8 @@ export default function CmsCollectionClient({
         )
       ) : (
         <>
-      <div className="hidden md:block"><DataTable caption={title}>
+      {visibleRows.length === 0 && emptyState}
+      <div className={visibleRows.length === 0 ? "hidden" : "hidden md:block"}><DataTable caption={title}>
             <thead>
               <tr>
                 {tableFields.map((field) => (
@@ -1058,13 +1060,6 @@ export default function CmsCollectionClient({
               </tr>
             </thead>
             <tbody>
-              {visibleRows.length === 0 && (
-                <tr>
-                  <td colSpan={tableFields.length + (activeField ? 2 : 1)} className="text-center text-admin-text-secondary">
-                    {emptyText}
-                  </td>
-                </tr>
-              )}
               {visibleRows.map((row) => (
                 <tr key={String(row[primaryKey])}>
                   {tableFields.map((field) => (
@@ -1099,11 +1094,7 @@ export default function CmsCollectionClient({
             </tbody>
           </DataTable></div>
 
-      {visibleRows.length === 0 ? (
-        <div className="md:hidden bg-bg-card border border-border-default border-dashed rounded-2xl p-10 text-center">
-          <p className="font-desc p-8 text-xs text-center text-text-muted">{emptyText}</p>
-        </div>
-      ) : (
+      {visibleRows.length === 0 ? null : (
         <div className="md:hidden grid grid-cols-1 gap-4">
           {visibleRows.map((row) => (
             <Card

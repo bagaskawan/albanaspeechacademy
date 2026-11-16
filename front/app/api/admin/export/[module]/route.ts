@@ -39,8 +39,9 @@ async function load(module: ExportModule, params: URLSearchParams): Promise<Load
   switch (module) {
     case "pendaftar":
       return {
-        rows: await run(db.from("academy_registrations")
-          .select("received_at,full_name,email,whatsapp,offer_title,primary_batch_slug,payment_method,answers,academy_invoices(status,total_idr,created_at)")
+        rows: await run((q
+          ? db.from("academy_registrations").select("received_at,full_name,email,whatsapp,offer_title,primary_batch_slug,payment_method,answers,academy_invoices(status,total_idr,created_at)").or(`full_name.ilike.${ilikePattern(q)},email.ilike.${ilikePattern(q)}`)
+          : db.from("academy_registrations").select("received_at,full_name,email,whatsapp,offer_title,primary_batch_slug,payment_method,answers,academy_invoices(status,total_idr,created_at)"))
           .order("received_at", { ascending: false }).limit(limit)),
         columns: [
           { header: "Masuk (WIB)", value: (row) => wibDateTime(row.received_at as string) },

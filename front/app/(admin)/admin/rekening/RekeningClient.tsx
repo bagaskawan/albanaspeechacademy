@@ -3,7 +3,9 @@
 import { useState, useTransition } from "react";
 import { saveBankAccount, activateBankAccount, deleteBankAccount } from "./actions";
 import { DataTable, StatusChip } from "@/components/admin/ui/data-table";
-import { TableToolbar } from "@/components/admin/ui/table-toolbar";
+import { TableToolbar, matchesQuery } from "@/components/admin/ui/table-toolbar";
+import { EmptyState } from "@/components/admin/ui/empty-state";
+import { useSearchParams } from "next/navigation";
 import { RowActions, rowPillClass } from "@/components/admin/ui/row-actions";
 import { FormDialog } from "@/components/admin/ui/form/FormDialog";
 import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
@@ -89,10 +91,12 @@ export default function RekeningClient({ accounts }: RekeningClientProps) {
   }
 
   const activeAccount = accounts.find((a) => a.active);
+  const query = useSearchParams().get("q") ?? "";
+  const visibleAccounts = accounts.filter((acc) => matchesQuery(`${acc.bank} ${acc.account_number} ${acc.holder}`, query));
 
   return (
     <div className="space-y-6">
-      <TableToolbar create={{ label: "Tambah rekening", onClick: openCreateModal }} />
+      <TableToolbar search={{ placeholder: "Cari bank, nomor, atau nama…" }} create={{ label: "Tambah rekening", onClick: openCreateModal }} />
 
       {/* Messages */}
       {errorMessage && (
@@ -139,10 +143,9 @@ export default function RekeningClient({ accounts }: RekeningClientProps) {
       {/* Table of all accounts */}
       <div>
 
-        {accounts.length === 0 ? (
-          <div className="rounded-[var(--admin-radius-card)] bg-admin-surface p-8 text-center text-[15px] text-admin-text-secondary">
-            Belum ada data rekening. Pilih <strong className="font-medium text-admin-ink">Tambah rekening</strong> untuk menambahkan.
-          </div>
+        {visibleAccounts.length === 0 ? (query
+          ? <EmptyState searching title="Tidak ada rekening yang cocok" description="Coba bank, nomor, atau nama lain." />
+          : <EmptyState title="Belum ada rekening" description="Tambahkan rekening tujuan transfer agar pendaftaran bisa menerbitkan tagihan." />
         ) : (
           <DataTable caption="Rekening pembayaran" stackOnMobile>
               <thead>
@@ -155,7 +158,7 @@ export default function RekeningClient({ accounts }: RekeningClientProps) {
                 </tr>
               </thead>
               <tbody>
-                {accounts.map((acc) => (
+                {visibleAccounts.map((acc) => (
                   <tr key={acc.id}>
                     <td data-label="Bank" className="font-medium">{acc.bank}</td>
                     <td data-label="Nomor rekening" className="font-mono tabular-nums">{acc.account_number}</td>

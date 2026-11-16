@@ -93,6 +93,25 @@ Plus Jakarta Sans untuk seluruh admin (revisi 16 November 2026, sebelumnya Poppi
 
 Judul memakai bobot **ringan** (400) dan ukuran besar — kontras datang dari skala, bukan ketebalan. Hindari 700 ke atas.
 
+**Skala ponsel** (revisi 16 November 2026, diukur di 390 px). Ruang sempit menurunkan judul, tetapi tidak menurunkan teks isi:
+
+| Peran | < 640 px | 640–767 px | ≥ 768 px |
+| --- | --- | --- | --- |
+| Judul halaman | 24 | 28 | 40 |
+| Deskripsi halaman | 14 | 14 | 14 |
+| Judul modal / lembar bawah | 18 | 20 | 20 |
+| Judul panel (Pengaturan) | 18 | 18 | 20 |
+| Angka statistik | 32 | 40 | 48 |
+| Judul kartu daftar | 15 | 15 | — (tabel) |
+| Isi, sel, nilai | 14 | 14 | 14 |
+| Label field, label kolom kartu | 13 | 13 | 13 |
+| Chip | 12 | 12 | 12 |
+| **Input, textarea, select, kolom cari** | **16** | **16** | 14–15 |
+
+- Input tidak pernah di bawah 16 px pada < 768 px: iOS Safari memperbesar halaman saat field di bawah 16 px difokuskan.
+- Teks isi tidak turun di bawah 13 px; paragraf deskripsi minimal 14 px.
+- Judul halaman muat dalam satu baris di 390 px untuk nama modul yang ada.
+
 **Angka bertingkat.** Untuk angka display, bagian setelah pemisah ribuan terakhir memakai `--text-faint`: `Rp1.300.`**`137`** → `Rp1.300.` hitam, `137` abu. Pada tagihan, bagian abu itu kebetulan adalah kode unik, sehingga mata langsung menemukannya. Nilai lengkap tetap satu node teks dengan `aria-label` berisi angka utuh.
 
 ### 2.3 Bentuk dan ruang
@@ -209,6 +228,20 @@ Draf dan artikel terbit. Hanya artikel terbit tampil publik.   ← deskripsi 15,
 | 1024–1279 px | Sama | Ringkas 80 px: hanya ikon, judul grup menjadi garis pemisah, tooltip di kanan. Tombol ⟷ melebarkan. Pilihan diingat (`admin-nav-compact`). | Grid 8 kolom |
 | 768–1023 px | ☰ + logo; tema; avatar + username | Laci dari kiri (300 px, latar gelap 30%); tutup dengan Escape, ketuk di luar, atau setelah memilih item | 1–2 kolom |
 | < 768 px | ☰ + logo; tema; avatar saja | Laci | 1 kolom; judul 32 px |
+
+### 3.5 Halaman Pengaturan (`/admin/settings`)
+
+Dibuka dari menu akun → **Pengaturan**. Layar fokus tanpa sidebar navigasi; header tetap ada.
+
+| Unsur | Aturan |
+| --- | --- |
+| Kepala | Tombol bulat ← (kembali ke Dashboard), judul, deskripsi; kanan: slot aksi tab aktif + tombol **Simpan perubahan** (nonaktif abu sampai ada perubahan; disembunyikan di < 768 px) |
+| Tab | Daftar vertikal di kiri (≥ 1024 px): ikon bulat, judul, subjudul; tab aktif kartu putih dengan ikon hitam. < 1024 px: baris horizontal yang dapat digeser. **Pindah tab tidak memuat ulang halaman**; URL ikut `?tab=` lewat `history.replaceState` |
+| Panel | Kartu putih dengan kepala ikon + judul. Semua panel tetap terpasang agar isian yang belum disimpan bertahan saat pindah tab; titik oranye di tab yang punya perubahan |
+| Gulir | ≥ 1024 px: halaman setinggi layar; **hanya isi panel** yang bergulir |
+| Simpan | Form melapor lewat `useSettingsForm` (dirty, save, reset). Ada perubahan → bilah hitam mengambang di bawah: "Perubahan belum disimpan" · **Buang** · **Simpan perubahan**. Simpan menyimpan semua form yang berubah, lalu toast |
+
+Form di panel memakai gaya §7 (kartu putih, field pil abu). Rekening tidak ikut bilah simpan karena tambah/ubah tersimpan lewat modalnya sendiri.
 
 ## 4. Gerak
 
@@ -634,7 +667,23 @@ Primitif: `table.tsx`, `AdminPagination.tsx`, `badge.tsx`, `dropdown-menu.tsx`, 
 
 Kartu program memuat ikon berbingkai, nama 22/500, angka display (jumlah pendaftar batch aktif), kapsul chip (status batch, harga), dan tombol bulat ↗.
 
-< 768 px: setiap baris tabel menjadi kartu `--admin-surface` radius 20 px bertumpuk, jarak 8 px. Kolom pertama menjadi judul kartu, kolom lain menjadi pasangan label–nilai 13/15, aksi di pojok kanan atas.
+< 768 px: setiap baris tabel menjadi **kartu ringkas** `--admin-surface` radius 20 px, jarak antarkartu 8 px:
+
+```text
+╭──────────────────────────────────────────╮
+│ Mengenal Public Speaking         (✎) (🗑) │  ← kolom pertama 15/500 + baris kedua 13; aksi kanan atas
+│ Ringkasan artikel terbit…                │
+│ ──────────────────────────────────────── │  ← garis --admin-line
+│ Status                          • Terbit │  ← satu baris per kolom: label 13 kiri, nilai 14 kanan
+│ Terbit                5 Nov 2026, 10.00  │
+│ Diperbarui           11 Nov 2026, 14.05  │
+╰──────────────────────────────────────────╯
+```
+
+- Label dan nilai berada dalam **satu baris** (label kiri, nilai rata kanan), bukan label di atas nilai; ini memangkas tinggi kartu sekitar 45%.
+- Label selalu memakai huruf admin, meski nilainya mono (nomor rekening).
+- Kolom yang dapat dibuka (judul) tetap tautan; aksi memakai `RowActions` yang sama dengan desktop.
+- Diterapkan otomatis oleh `DataTable stackOnMobile`; setiap `<td>` selain kolom pertama dan kolom aksi wajib memberi `data-label`.
 
 ### 8.2 Bilah alat dan aksi per tabel
 
@@ -642,10 +691,12 @@ Setiap modul daftar memakai satu templat bilah alat di kepala halaman (§3.3), u
 
 | Tombol | Bentuk | Perilaku |
 | --- | --- | --- |
-| **Cari** | Kolom pil 280 px berikon ⌕ (≥ 1024 px); tombol bulat yang melebar di layar lebih kecil | Saring di klien/server setelah jeda 250 ms; `?q=` di URL; Escape mengosongkan |
+| **Cari** | Kolom pil 280 px berikon ⌕ di desktop; di < 768 px mengisi sisa lebar baris. Kelas `admin-search`: abu, tepi 1 px `--admin-line-strong`, ikon 44 px dari kiri | Saring di klien/server setelah jeda 250 ms; `?q=` di URL; Escape mengosongkan. **Ada di setiap halaman daftar**, termasuk Pendaftar, Tagihan, Rekening, dan Media |
 | **Saring** | Tombol bulat ⚲ dengan lencana jumlah saringan aktif | Membuka popover berisi pilihan modul (program, batch, status); tersimpan di URL |
 | **Ekspor** | Pil bergaris (`--admin-line-strong`, teks `--admin-ink`) berikon ⇩ + "Ekspor" | Mengunduh CSV dari data **yang sedang tersaring** (§8.7) |
-| **Tambah** | Pil hitam berikon + dan label modul ("Tambah program", "Tulis artikel", "Unggah media") | Membuka formulir: dialog untuk data ringkas, halaman T2 untuk data panjang |
+| **Tambah** | Pil hitam berikon + dan label modul ("Tambah program", "Tulis artikel", "Unggah media"). **< 768 px: FAB** bulat 56 px di kanan bawah (20 px dari kanan, ≥ 24 px dari bawah, mengikuti area aman), berbayang | Membuka formulir: dialog untuk data ringkas, halaman T2 untuk data panjang |
+
+Di < 768 px bilah alat adalah **satu baris**: kolom cari lentur, lalu tombol bulat Saring dan Ekspor 48 px. Tambah keluar dari baris itu sebagai FAB. Halaman memberi ruang bawah 112 px agar kartu terakhir tidak tertutup FAB.
 
 **Aksi baris (templat)** — kolom terakhir setiap tabel:
 
@@ -661,8 +712,8 @@ Bila lebih dari dua ikon + satu aksi khusus, sisanya masuk menu ⋯.
 
 | Modul | Cari | Saring | Ekspor | Tambah | Ubah | Hapus | Aksi khusus |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Pendaftar | — | — | ✓ | — | — | — | — |
-| Tagihan | — | — | ✓ | — | — | — | Verifikasi · Tolak (alur tagihan, §11) |
+| Pendaftar | ✓ | — | ✓ | — | — | — | — |
+| Tagihan | ✓ | — | ✓ | — | — | — | Verifikasi · Tolak (alur tagihan, §11) |
 | Program | ✓ | — | ✓ | ✓ Tambah program | ✓ halaman | ✓ | Tambah batch |
 | Batch | ✓ | Program, status pendaftaran | ✓ | ✓ Tambah batch | ✓ dialog | ✓ | Buka/tutup pendaftaran |
 | Trainer | ✓ | — | ✓ | ✓ Tambah trainer | ✓ dialog | ✓ | — |
@@ -671,9 +722,9 @@ Bila lebih dari dua ikon + satu aksi khusus, sisanya masuk menu ⋯.
 | Galeri | ✓ | — | — | ✓ Tambah gambar | ✓ dialog | ✓ | — |
 | Testimoni | ✓ | Draf / Terbit | ✓ | ✓ Tambah testimoni | ✓ dialog | ✓ | Terbitkan / Tarik |
 | Partner | ✓ | — | ✓ | ✓ Tambah partner | ✓ dialog | ✓ | Terbitkan / Tarik |
-| Rekening | — | — | — | ✓ Tambah rekening | ✓ dialog | ✓ | Aktifkan |
+| Rekening | ✓ | — | — | ✓ Tambah rekening | ✓ dialog | ✓ | Aktifkan |
 
-- **Menu Pendaftaran** (Pendaftar dan Tagihan) hanya punya tombol **Ekspor** di bilah alat. Pendaftaran berasal dari formulir publik, sehingga tidak ditambah, diubah, atau dihapus dari CMS. Pembatalan lewat status tagihan `cancelled`. Baris Pendaftar tetap dapat dibuka untuk membaca detail jawaban (rencana 2.1), dan Tagihan tetap memakai Verifikasi/Tolak di barisnya.
+- **Menu Pendaftaran** (Pendaftar dan Tagihan) hanya punya tombol **Ekspor** di bilah alat, ditambah kolom **Cari** (input, bukan tombol aksi). Pendaftaran berasal dari formulir publik, sehingga tidak ditambah, diubah, atau dihapus dari CMS. Pembatalan lewat status tagihan `cancelled`. Baris Pendaftar tetap dapat dibuka untuk membaca detail jawaban (rencana 2.1), dan Tagihan tetap memakai Verifikasi/Tolak di barisnya.
 - Media dan Galeri tidak diekspor karena isinya berkas. Rekening tidak diekspor karena datanya sensitif.
 - Kontak dan Profil akademi adalah formulir (T2), bukan tabel.
 
@@ -804,25 +855,27 @@ Bentuk mengikuti kartu dan pil: **semua blok berujung bulat**.
 
 ### 9.3 Kosong
 
+Komponen `EmptyState` (`components/admin/ui/empty-state.tsx`) dipakai **setiap** daftar yang kosong, menggantikan tabel dan kartu:
+
 ```text
-╭────────────────────────────────────────────╮
+╭ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ╮   ← tepi putus-putus --admin-line-strong, radius 32 px
 │                                            │
-│                   ◯ ✦                      │   ← ikon berbingkai 64 px
-│          Belum ada testimoni               │   ← 22/500
-│   Tambahkan kutipan peserta yang sudah     │
-│         memberi izin tampil.               │
+│                    (□)                     │   ← ikon 24 px dalam bulatan --admin-surface 56 px
+│             Belum ada artikel              │   ← 16/500 --admin-ink
+│    Tulis artikel pertama; artikel tampil   │   ← 14 --admin-text-secondary, maks 40ch
+│      di situs setelah diterbitkan.         │
 │                                            │
-│           [■ + Tambah testimoni]           │
-╰────────────────────────────────────────────╯
+╰ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ╯
 ```
 
-| Jenis | Naskah | Aksi |
-| --- | --- | --- |
-| Belum ada data | “Belum ada …” + satu kalimat guna | Aksi utama modul (pil hitam) |
-| Hasil saring kosong | “Tidak ada yang cocok dengan ‘…’ ” | **Hapus saringan** (pil putih) |
-| Menunggu prasyarat | Kartu **kuning**: “Tambahkan rekening aktif agar pendaftaran dapat diterima.” | Tombol bulat hitam → modul prasyarat |
+- **Di tengah**, baik horizontal maupun vertikal, dalam area setinggi `min(420px, 55dvh)`. Tidak menempel di kiri atas.
+- Bilah alat (Cari, Saring, Tambah) tetap tampil di atasnya, sehingga aksi utama tidak perlu diulang di dalam kotak.
 
-Ikon masuk `scale 0.8→1` `--ease-spring` 320 ms; teks fade 200 ms.
+| Jenis | Ikon | Naskah |
+| --- | --- | --- |
+| Belum ada data | Kotak masuk | Judul "Belum ada {data}" + satu kalimat cara mengisinya |
+| Hasil cari/saring kosong (`searching`) | Kaca pembesar silang | "Tidak ada {data} yang cocok" + "Coba kata kunci lain" / "Ubah kata kunci atau saringan" |
+| Menunggu prasyarat | — | Banner di atas daftar, mis. "Tambahkan rekening aktif agar pendaftaran dapat diterima." |
 
 ### 9.4 Galat
 

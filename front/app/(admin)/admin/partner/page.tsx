@@ -3,6 +3,7 @@ import { requireAdminMember } from "@/lib/server/admin-guard";
 import { academyBillingClient } from "@/lib/server/academy-billing";
 import { DataTable, StatusChip } from "@/components/admin/ui/data-table";
 import { TableToolbar } from "@/components/admin/ui/table-toolbar";
+import { EmptyState } from "@/components/admin/ui/empty-state";
 import { RowActions, rowPillClass } from "@/components/admin/ui/row-actions";
 import { ilikePattern } from "@/lib/ilike";
 import { deletePartner, savePartner, togglePartner } from "./actions";
@@ -39,7 +40,7 @@ export default async function PartnerPage({ searchParams }: { searchParams: Prom
     </form>}
 
     {!data?.length
-      ? <p className="rounded-[var(--admin-radius-card)] bg-admin-surface p-8 text-center text-[15px] text-admin-text-secondary">{q ? "Tidak ada partner yang cocok dengan pencarian." : "Belum ada partner."}</p>
+      ? (q ? <EmptyState searching title="Tidak ada partner yang cocok" description="Coba nama lain." /> : <EmptyState title="Belum ada partner" description="Tambahkan instansi yang pernah dilatih Albana." />)
       : <DataTable caption="Partner" stackOnMobile>
         <thead><tr>
           <th scope="col">Partner</th>
