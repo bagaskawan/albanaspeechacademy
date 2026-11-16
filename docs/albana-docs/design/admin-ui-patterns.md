@@ -401,9 +401,9 @@ Konfirmasi (hapus, verifikasi) selalu modal konfirmasi, bukan form.
 
 | Ukuran | Lebar | Pakai |
 | --- | --- | --- |
-| `sm` | 440 px | Konfirmasi; form 1–2 field |
-| `md` | 560 px | Form 3–6 field — **bawaan** |
-| `lg` | 720 px | Form 3–6 field yang punya pasangan field berdampingan panjang, atau satu unggah gambar dengan pratinjau |
+| `sm` | 440 px | Konfirmasi; form 1–2 field. **Satu kolom.** |
+| `md` | 560 px | Form 3–6 field — **bawaan**. **Satu kolom.** |
+| `lg` | 720 px | Form 3–6 field dengan pasangan yang dibaca bersama (mis. tipe + nilai diskon), atau satu unggah gambar dengan pratinjau. Boleh dua kolom. |
 
 **Lebar halaman form**: kartu form `max-w-[760px]` untuk form satu kolom, `max-w-[960px]` bila ada bagian dua kolom. Kartu rata kiri di area konten, tidak dipusatkan.
 
@@ -411,7 +411,7 @@ Contoh pemetaan modul saat ini:
 
 | Form | Field | Wadah |
 | --- | --- | --- |
-| Rekening (bank, nomor, atas nama) | 3 | Modal `md` |
+| Rekening (bank, nomor, atas nama) | 3 | Modal `md`, satu kolom |
 | Partner (nama, logo, urutan) | 3 | Modal `md` |
 | Trainer (nama, keahlian, foto, bio) | 4 | Modal `lg` (ada unggah foto) |
 | Testimoni | 5 | Modal `md` |
@@ -524,7 +524,7 @@ Ruang pesan galat dicadangkan (min-height 20 px). Placeholder hanya contoh forma
 
 ### 7.2a Lebar field dan kolom ganda
 
-Form memakai grid `FieldGrid`: satu kolom di ponsel, **dua kolom mulai 640 px** (modal) atau 768 px (halaman). Setiap field memilih lebarnya:
+Form memakai grid `FieldGrid`. **Modal `sm` dan `md` selalu satu kolom** (`columns={1}`): lebarnya terlalu sempit untuk dua field berdampingan. Dua kolom hanya untuk modal `lg` (mulai 640 px) dan halaman form (mulai 768 px). Setiap field memilih lebarnya:
 
 | Lebar | Pakai |
 | --- | --- |

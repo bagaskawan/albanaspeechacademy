@@ -8,9 +8,12 @@ const spans = {
   md: { full: "md:col-span-2", half: "", narrow: "md:col-span-2" },
 } as const;
 
-/** One column on phones; two from 640 px (`sm`, modals) or 768 px (`md`, pages). */
-export function FieldGrid({ breakpoint = "sm", children }: { breakpoint?: keyof typeof columns; children: React.ReactNode }) {
-  return <div data-breakpoint={breakpoint} className={`admin-field-grid grid gap-x-4 gap-y-5 ${columns[breakpoint]}`}>{children}</div>;
+/**
+ * `columns={1}`: always one column (modal sm/md). `columns={2}`: two from 640 px (`sm`, modal lg)
+ * or 768 px (`md`, pages).
+ */
+export function FieldGrid({ columns: count = 2, breakpoint = "sm", children }: { columns?: 1 | 2; breakpoint?: keyof typeof columns; children: React.ReactNode }) {
+  return <div className={`grid gap-x-4 gap-y-5 ${count === 2 ? columns[breakpoint] : ""}`}>{children}</div>;
 }
 
 export function Field({ label, htmlFor, required = false, hint, error, span = "full", breakpoint = "sm", children }: {
