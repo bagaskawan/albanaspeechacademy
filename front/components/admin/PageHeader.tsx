@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, m } from "motion/react";
 import { MoveRight } from "lucide-react";
@@ -9,6 +9,7 @@ import type { AdminNavGroup, AdminNavModule } from "@/lib/admin-nav";
 import { ease, transition } from "@/lib/motion/tokens";
 
 const ACTIONS_ID = "admin-page-actions";
+const noopSubscribe = () => () => {};
 
 /** Shell-level header (admin-ui-patterns §3.3): breadcrumb Grup ⟶ Modul, title, round-button slot. */
 export function PageHeader({ group, module, pathname }: { group: AdminNavGroup; module?: AdminNavModule; pathname: string }) {
@@ -40,7 +41,6 @@ export function PageHeader({ group, module, pathname }: { group: AdminNavGroup; 
 
 /** Modules render their Saring · Cari · Aksi utama buttons through this into the header slot. */
 export function AdminPageActions({ children }: { children: React.ReactNode }) {
-  const [target, setTarget] = useState<HTMLElement | null>(null);
-  useEffect(() => setTarget(document.getElementById(ACTIONS_ID)), []);
+  const target = useSyncExternalStore(noopSubscribe, () => document.getElementById(ACTIONS_ID), () => null);
   return target ? createPortal(children, target) : null;
 }
