@@ -11,6 +11,7 @@ import {
   LogOut, Menu, Newspaper, Phone, Quote, ReceiptText, UserRound, Users, type LucideIcon,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { PageHeader } from "@/components/admin/PageHeader";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -97,6 +98,7 @@ export function AdminShell({ children, pendingInvoices, email }: ShellProps) {
       </m.header>
 
       <div className="grid grid-cols-1 gap-x-8 pb-10 lg:grid-cols-[56px_minmax(0,1fr)]">
+        <PageHeader group={nav.group} module={nav.module} pathname={pathname} />
         <Rail group={nav.group} activeHref={nav.module?.href ?? (pathname === "/admin" ? "/admin" : undefined)} />
         <main id="admin-main" className="order-3 min-w-0 lg:col-start-2 lg:row-start-2">{children}</main>
       </div>
