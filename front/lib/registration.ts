@@ -1,3 +1,5 @@
+import { wibMs } from "./program-batch.ts";
+
 export type BatchSession = {
   sequence: number;
   dateLabel: string;
@@ -72,7 +74,7 @@ function firstSessionStart(batch: Record<string, unknown>): number {
         : null,
     )
     .filter((value): value is string => typeof value === "string")
-    .map((value) => Date.parse(value))
+    .map((value) => wibMs(value))
     .filter((value) => Number.isFinite(value));
   return starts.length ? Math.min(...starts) : Number.POSITIVE_INFINITY;
 }
