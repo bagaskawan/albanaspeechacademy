@@ -132,13 +132,13 @@
 
 @theme inline {
   /* Typography */
-  --font-sans: var(--font-montserrat), "Montserrat", var(--font-plus-jakarta), "Plus Jakarta Sans", var(--font-inter), "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-desc: var(--font-plus-jakarta), "Plus Jakarta Sans", var(--font-inter), "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-display: var(--font-inter), "Inter", var(--font-plus-jakarta), "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-title: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-desc: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-plus-jakarta), "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-title: var(--font-plus-jakarta), "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-playfair), "Playfair Display", ui-serif, Georgia, serif;
   --font-mono: ui-monospace, SFMono-Regular, monospace;
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-display);
   --font-admin-display: var(--font-plus-jakarta), "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
 
   /* Shadcn Semantic Colors */
@@ -214,6 +214,30 @@
   --color-accent-red: var(--accent-red);
   --color-zinc-250: #dedede;
   --color-zinc-750: #333338;
+  --color-admin-canvas: var(--admin-canvas);
+  --color-admin-surface: var(--admin-surface);
+  --color-admin-surface-muted: var(--admin-surface-muted);
+  --color-admin-ink: var(--admin-ink);
+  --color-admin-ink-soft: var(--admin-ink-soft);
+  --color-admin-on-ink: var(--admin-on-ink);
+  --color-admin-text-secondary: var(--admin-text-secondary);
+  --color-admin-text-faint: var(--admin-text-faint);
+  --color-admin-line: var(--admin-line);
+  --color-admin-line-strong: var(--admin-line-strong);
+  --color-admin-accent: var(--admin-accent);
+  --color-admin-accent-ink: var(--admin-accent-ink);
+  --color-admin-success-bg: var(--admin-success-bg);
+  --color-admin-success-ink: var(--admin-success-ink);
+  --color-admin-danger: var(--admin-danger);
+  --color-admin-danger-bg: var(--admin-danger-bg);
+  --color-admin-online: var(--admin-online);
+  --color-admin-rule: var(--admin-line);
+  --color-admin-well: var(--admin-surface-muted);
+  --color-admin-faint: var(--admin-text-faint);
+  --color-admin-page: var(--admin-canvas);
+  --color-admin-muted: var(--admin-text-secondary);
+  --color-admin-mark: var(--admin-accent);
+  --color-admin-card: var(--admin-surface);
   --radius-admin-card: 1rem;
   --radius-admin-panel: 1.25rem;
 
@@ -1276,28 +1300,110 @@ body[style*="overflow: hidden"] {
 }
 
 /*
- * Admin shell tokens: the admin design system uses Albana action blue #2F5C86.
+ * Admin shell tokens — Monochrome Soft (docs/albana-docs/design/admin-ui-patterns.md §2, §4.1).
  * Scoped to the admin subtree so the public site keeps its own palette.
  * body:has() also covers Radix portals (dialogs, selects) rendered under <body>.
+ * New tokens carry an --admin- prefix because shadcn already owns --accent, --border, --card.
  */
 .admin-shell,
 body:has(.admin-shell) {
-  --primary: #1a1a1a;
-  --primary-foreground: #ffffff;
-  --ring: #2f5c86;
-  --color-primary: #2f5c86;
-  --color-primary-foreground: #ffffff;
-  --color-ring: #2f5c86;
+  --admin-canvas: #efefef;
+  --admin-surface: #ffffff;
+  --admin-surface-muted: #f5f5f5;
+  --admin-ink: #0b0b0b;
+  --admin-ink-soft: #2a2a2a;
+  --admin-on-ink: #ffffff;
+  --admin-text-secondary: #5c5c5c;
+  --admin-text-faint: #8f8f8f;
+  --admin-line: #e3e3e3;
+  --admin-line-strong: #c9c9c9;
+  --admin-accent: #ede84a;
+  --admin-accent-ink: #0b0b0b;
+  --admin-success-bg: #d3e5cf;
+  --admin-success-ink: #1f3d1a;
+  --admin-danger: #c2410c;
+  --admin-danger-bg: #fbe5da;
+  --admin-online: #22a35a;
+
+  --admin-radius-card: 32px;
+  --admin-radius-card-inner: 24px;
+  --admin-radius-textarea: 20px;
+  --admin-space-card: 28px;
+  --admin-gap-card: 20px;
+  --admin-gap-section: 32px;
+  --admin-gutter: 40px;
+  --admin-shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.10);
+  --admin-shadow-overlay: 0 32px 80px rgba(0, 0, 0, 0.18);
+  --admin-pattern-empty: repeating-linear-gradient(-45deg, var(--admin-line-strong) 0 6px, transparent 6px 14px);
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1); /* sedikit memantul, hanya pil & tombol bulat */
+  --dur-press: 90ms;
+  --dur-hover: 140ms;
+  --dur-micro: 180ms;
+  --dur-pop: 220ms;
+  --dur-overlay: 280ms;
+  --dur-exit: 180ms;
+
+  /* Legacy admin + shadcn names point at the new tokens so existing modules follow. */
+  --bg-page: var(--admin-canvas);
+  --bg-card: var(--admin-surface);
+  --bg-well: var(--admin-surface-muted);
+  --bg-sidebar: var(--admin-surface);
+  --text-primary: var(--admin-ink);
+  --text-secondary: var(--admin-text-secondary);
+  --text-muted: var(--admin-text-secondary);
+  --border-default: var(--admin-line);
+  --background: var(--admin-canvas);
+  --foreground: var(--admin-ink);
+  --card: var(--admin-surface);
+  --card-foreground: var(--admin-ink);
+  --popover: var(--admin-surface);
+  --popover-foreground: var(--admin-ink);
+  --muted: var(--admin-surface-muted);
+  --muted-foreground: var(--admin-text-secondary);
+  --input: var(--admin-line);
+  --border: var(--admin-line);
+  --primary: var(--admin-ink);
+  --primary-foreground: var(--admin-on-ink);
+  --ring: var(--admin-ink);
+  --color-primary: var(--admin-ink);
+  --color-primary-foreground: var(--admin-on-ink);
+  --color-ring: var(--admin-ink);
+  --font-admin-display: var(--font-admin), ui-sans-serif, system-ui, sans-serif;
 }
 
 .dark .admin-shell,
 .dark body:has(.admin-shell) {
-  --primary: #d5e7ff;
-  --primary-foreground: #111111;
-  --ring: #d5e7ff;
-  --color-primary: #d5e7ff;
-  --color-primary-foreground: #111111;
-  --color-ring: #d5e7ff;
+  --admin-canvas: #0e0e0e;
+  --admin-surface: #1a1a1a;
+  --admin-surface-muted: #242424;
+  --admin-ink: #f5f5f5;
+  --admin-ink-soft: #d9d9d9;
+  --admin-on-ink: #0b0b0b;
+  --admin-text-secondary: #a8a8a8;
+  --admin-text-faint: #6e6e6e;
+  --admin-line: #2e2e2e;
+  --admin-line-strong: #3d3d3d;
+  --admin-success-bg: #22331f;
+  --admin-success-ink: #bfe0b8;
+  --admin-danger: #fb8a5a;
+  --admin-danger-bg: #3a1e12;
+  --admin-online: #4ade80;
+}
+
+.admin-shell,
+body:has(.admin-shell) {
+  background: var(--admin-canvas);
+  color: var(--admin-ink);
+  font-family: var(--font-admin-display);
+}
+
+.admin-pattern-empty { background: var(--admin-pattern-empty); }
+
+@media (max-width: 767px) {
+  .admin-shell { --admin-space-card: 20px; --admin-gutter: 16px; }
 }
 
 /*
@@ -1370,4 +1476,125 @@ body:has(.admin-shell) {
   .article-editor .bn-block-group > .bn-block-outer:first-child .bn-inline-content {
     font-size: 1.5rem;
   }
+}
+
+/* Albana landing: editorial copy paired with a clearly labeled preview image. */
+.academy-home-hero {
+  min-height: min(48rem, calc(100svh - var(--masthead-height)));
+  justify-items: stretch;
+  padding-block: clamp(3.5rem, 7vw, 6rem) 4.5rem;
+  text-align: left;
+  background: var(--color-canvas);
+}
+
+.academy-home-hero::before,
+.academy-home-hero::after { display: none; }
+
+.academy-hero-layout {
+  display: grid;
+  width: min(100%, 80rem);
+  margin-inline: auto;
+  gap: clamp(2rem, 4vw, 4rem);
+  align-items: center;
+}
+
+.academy-home-hero .hero-title {
+  max-width: 10ch;
+  font-size: clamp(2.75rem, 5.5vw, 5.5rem);
+  line-height: 1.02;
+  color: #10243f;
+}
+
+.academy-home-hero .hero-emphasis::after { background: #dcebfa; }
+
+.academy-home-hero .hero-details {
+  justify-items: start;
+  max-width: 35rem;
+  margin-top: 1.75rem;
+  gap: 1.5rem;
+}
+
+.academy-home-hero .hero-details > p:first-child {
+  max-width: 33rem;
+  color: #425a73;
+  font-size: clamp(1rem, 1.4vw, 1.2rem);
+  line-height: 1.65;
+}
+
+.academy-home-hero .hero-actions { justify-content: start; }
+.academy-home-hero .hero-actions a { text-transform: none; }
+.academy-home-hero .hero-actions a:first-child { background: #26599a; }
+.academy-home-hero .hero-actions a:last-child { border-color: #26599a; color: #26599a; }
+.academy-home-hero .hero-actions a:last-child:hover { color: #fff; }
+.academy-home-hero .academy-hero-focus { margin: 0; color: #566b81; font-size: .875rem; }
+
+.academy-hero-media { min-width: 0; margin: 0; }
+.academy-hero-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #edf4fb;
+}
+.academy-hero-media figcaption { margin-top: .75rem; color: #566b81; font-size: .75rem; line-height: 1.4; }
+.academy-home-hero .hero-scroll { left: var(--content-padding); transform: none; }
+
+.dark .academy-home-hero { background: #10243f; }
+.dark .academy-home-hero .hero-title { color: #f4f8fc; }
+.dark .academy-home-hero .hero-details > p:first-child,
+.dark .academy-home-hero .academy-hero-focus,
+.dark .academy-hero-media figcaption { color: #b8cbe0; }
+.dark .academy-home-hero .hero-actions a:last-child { border-color: #dcebfa; color: #dcebfa; }
+.dark .academy-home-hero :is(.hero-scroll, nav[aria-label="Kanal akademi"] a) { color: #dcebfa; }
+
+.admin-shell :is(h1, h2, h3, h4, h5, h6) { font-family: var(--font-admin-display); }
+.admin-shell :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select, [role="combobox"]) {
+  min-height: 2.75rem;
+  border: 1px solid var(--border-default);
+  border-radius: .75rem;
+  background: var(--bg-well);
+  padding: .65rem .875rem;
+  color: var(--text-primary);
+  font-family: var(--font-admin-display);
+  font-size: .875rem;
+}
+.admin-shell :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select, [role="combobox"]):focus-visible {
+  outline: 2px solid var(--admin-ink);
+  outline-offset: 2px;
+  border-color: var(--admin-ink);
+}
+.admin-shell :is(input, textarea, select, [role="combobox"])[aria-invalid="true"] { border-color: var(--color-danger); }
+.admin-shell div.border-b:has(> input),
+.admin-shell div.border-b:has(> textarea) { border-bottom: 0; }
+
+#form-pendaftaran .eyebrow {
+  font-family: var(--font-sans);
+  font-size: .875rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+#form-pendaftaran :is(input:not([type="radio"]):not([type="checkbox"]), textarea):focus-visible {
+  outline: 2px solid #26599a;
+  outline-offset: 2px;
+}
+
+@media (min-width: 64rem) {
+  .academy-hero-layout { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+  .academy-home-hero { padding-inline: max(var(--content-padding), calc((100vw - 80rem) / 2)); }
+}
+
+@media (max-width: 63.9375rem) {
+  .academy-home-hero { min-height: 0; }
+  .academy-home-hero .hero-scroll { display: none; }
+}
+
+@media (min-width: 48rem) and (max-width: 63.9375rem) {
+  .academy-hero-layout { grid-template-columns: minmax(0, 9fr) minmax(0, 11fr); }
+}
+
+@media (max-width: 47.9375rem) {
+  .academy-home-hero { padding: 2.5rem var(--content-padding) 3.5rem; }
+  .academy-home-hero .hero-title { font-size: clamp(2.75rem, 12vw, 4rem); }
+  .academy-hero-layout { grid-template-columns: minmax(0, 1fr); }
+  .academy-home-hero .hero-actions { gap: .75rem; }
 }
