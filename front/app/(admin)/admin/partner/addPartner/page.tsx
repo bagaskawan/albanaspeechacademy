@@ -1,6 +1,5 @@
 import React from "react";
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import AddPartnerClient from "./AddPartnerClient";
 
 export const dynamic = "force-dynamic";
@@ -13,26 +12,6 @@ export default async function AddPartnerPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const id = params.id;
   const supabase = await createClient();
-
-  // Check session
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  // Verify role
-  const { data: member } = await supabase
-    .from("members")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (!member || member.role !== "admin") {
-    redirect("/myprofile");
-  }
 
   let initialPartner = null;
   if (id) {

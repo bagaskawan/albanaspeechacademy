@@ -101,9 +101,9 @@ Periksa sisa dengan:
 grep -rnE 'from\("(members|privilege_[a-z]+|admin_roles|admin_role_permissions|registrations|payments|intake_key|sessions|contact_details|trainer_contacts|gallery_albums|landing_sections|vouchers|transactions|referral_codes|partners|team_members|wa_group_assignments|media_library|admin_activity_logs)"\)|get_email_by_username|receive_registration' front/app front/lib front/components
 ```
 
-- [ ] Perintah di atas hanya menemukan berkas rute warisan yang dihapus di Fase 6
-- [ ] Login username dan email berhasil; akun bukan admin ditolak
-- [ ] `/admin/pendaftar`, `/admin/galeri/addGallery`, `/admin/partner/addPartner` terbuka tanpa galat
+- [x] Perintah di atas hanya menemukan berkas rute warisan yang dihapus di Fase 6
+- [x] Login username dan email berhasil; akun bukan admin ditolak
+- [x] `/admin/pendaftar`, `/admin/galeri/addGallery`, `/admin/partner/addPartner` terbuka tanpa galat
 
 ### 1.3 Layar Rekening · P0 · ⟶ butuh 1.1
 

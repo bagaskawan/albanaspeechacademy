@@ -1,11 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Eye, ExternalLink, MessageCircle, Search, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import { createClient } from "@/lib/supabase/client";
+import { Eye, ExternalLink, MessageCircle, Search } from "lucide-react";
 import { Modal, ModalSection } from "@/components/ui/Modal";
-import { DeleteConfirmDialog } from "@/components/ui/DeleteConfirmDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Registration = {
@@ -91,10 +88,8 @@ const formatWhatsapp = (value: unknown) => {
 };
 
 export default function PendaftarClient({ initialRows }: { initialRows: Registration[] }) {
-  const [rows, setRows] = useState(initialRows);
+  const [rows] = useState(initialRows);
   const [detailRow, setDetailRow] = useState<Registration | null>(null);
-  const [deleteRow, setDeleteRow] = useState<Registration | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [search, setSearch] = useState("");
   const [programFilter, setProgramFilter] = useState("all");
   const [batchFilter, setBatchFilter] = useState("all");
@@ -118,24 +113,6 @@ export default function PendaftarClient({ initialRows }: { initialRows: Registra
     const matchesBatch = batchFilter === "all" || row.batches?.title === batchFilter;
     return matchesSearch && matchesProgram && matchesBatch;
   });
-
-  const handleDelete = async () => {
-    if (!deleteRow || isDeleting) return;
-    setIsDeleting(true);
-    try {
-      const supabase = createClient();
-      const { error } = await supabase.from("registrations").delete().eq("id", deleteRow.id);
-      if (error) throw error;
-      setRows((prev) => prev.filter((row) => row.id !== deleteRow.id));
-      toast.success("Pendaftar dihapus.");
-      if (detailRow?.id === deleteRow.id) setDetailRow(null);
-      setDeleteRow(null);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Gagal menghapus pendaftar.");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
 
   return (
     <div className="w-full space-y-5">
@@ -248,13 +225,6 @@ export default function PendaftarClient({ initialRows }: { initialRows: Registra
                             >
                               <Eye size={14} />
                             </button>
-                            <button
-                              onClick={() => setDeleteRow(row)}
-                              className="p-1.5 rounded-full border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 transition-colors cursor-pointer"
-                              title="Hapus"
-                            >
-                              <Trash2 size={14} />
-                            </button>
                           </div>
                         </td>
                       </tr>
@@ -319,12 +289,6 @@ export default function PendaftarClient({ initialRows }: { initialRows: Registra
                     >
                       <MessageCircle size={13} /> WhatsApp
                     </a>
-                    <button
-                      onClick={() => setDeleteRow(row)}
-                      className="ml-auto h-8 px-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-[11px] font-semibold text-red-600 dark:text-red-400 hover:bg-red-500/20 flex items-center gap-1.5 whitespace-nowrap shrink-0 transition-colors cursor-pointer"
-                    >
-                      <Trash2 size={13} /> Hapus
-                    </button>
                   </div>
                 </div>
               );
@@ -426,19 +390,6 @@ export default function PendaftarClient({ initialRows }: { initialRows: Registra
           </div>
         )}
       </Modal>
-
-      <DeleteConfirmDialog
-        isOpen={!!deleteRow}
-        onOpenChange={(open) => { if (!open) setDeleteRow(null); }}
-        title="Hapus Pendaftar"
-        description={
-          deleteRow
-            ? `Hapus pendaftar "${deleteRow.full_name}"? Tindakan ini permanen.`
-            : ""
-        }
-        confirmLabel={isDeleting ? "Menghapus..." : "Hapus"}
-        onConfirm={() => { void handleDelete(); }}
-      />
     </div>
   );
 }

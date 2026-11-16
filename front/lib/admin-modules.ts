@@ -37,14 +37,13 @@ export function isSettingsTable(table: CmsTable) {
 }
 
 export function adminModuleHref(adminModule: AdminModule) {
-  // Kontak dan rekening berbagi satu halaman bertab.
-  return isSettingsTable(adminModule.table) ? "/admin/pengaturan" : `/admin/${adminModule.slug}`;
+  return `/admin/${adminModule.slug}`;
 }
 
 export const adminSettingsMenu = {
   label: "Pengaturan",
   description: "Kanal kontak publik dan rekening untuk tindak lanjut pembayaran.",
-  href: "/admin/pengaturan",
+  href: "/admin/kontak",
 };
 
 export const adminSidebarMenu = {
