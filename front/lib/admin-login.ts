@@ -26,3 +26,12 @@ export function parseAdminCredentials(input: unknown): AdminCredentials | null {
   }
   return { identifier: normalizedIdentifier, password };
 }
+
+/** Maps the admin username (SUPABASE_ADMIN_USERNAME) to its Supabase Auth email; emails pass through. */
+export function resolveAdminEmail(identifier: string, env: { username?: string; email?: string }): string | null {
+  const name = identifier.trim().toLowerCase();
+  if (name.includes("@")) return name;
+  const username = env.username?.trim().toLowerCase();
+  const email = env.email?.trim().toLowerCase();
+  return username && email && name === username ? email : null;
+}

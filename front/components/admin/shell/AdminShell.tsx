@@ -28,9 +28,9 @@ const icons: Record<AdminNavIcon, LucideIcon> = {
 
 const roundButton = "inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-admin-surface text-admin-ink transition-colors duration-[var(--dur-hover)] hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink";
 
-type ShellProps = { children: React.ReactNode; pendingInvoices: number; email: string | null };
+type ShellProps = { children: React.ReactNode; pendingInvoices: number; account: string | null };
 
-export function AdminShell({ children, pendingInvoices, email }: ShellProps) {
+export function AdminShell({ children, pendingInvoices, account }: ShellProps) {
   const pathname = usePathname();
   const nav = resolveAdminNav(pathname);
   const hidden = useTopbarHidden();
@@ -87,10 +87,10 @@ export function AdminShell({ children, pendingInvoices, email }: ShellProps) {
           <ThemeToggle className={roundButton} />
           <DropdownMenu>
             <DropdownMenuTrigger aria-label="Menu akun" className={roundButton}>
-              <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full bg-admin-ink text-[15px] font-medium uppercase text-admin-on-ink">{email?.[0] ?? "A"}</span>
+              <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full bg-admin-ink text-[15px] font-medium uppercase text-admin-on-ink">{account?.[0] ?? "A"}</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-56 rounded-[20px] border-admin-line bg-admin-surface p-2 shadow-[var(--admin-shadow-pop)]">
-              {email && <><DropdownMenuLabel className="truncate text-[13px] font-normal text-admin-text-secondary">{email}</DropdownMenuLabel><DropdownMenuSeparator /></>}
+              {account && <><DropdownMenuLabel className="truncate text-[13px] font-normal text-admin-text-secondary">{account}</DropdownMenuLabel><DropdownMenuSeparator /></>}
               <DropdownMenuItem onSelect={signOut}><LogOut aria-hidden="true" size={16} strokeWidth={1.5} /> Keluar</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
