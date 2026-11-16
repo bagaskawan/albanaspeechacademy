@@ -71,7 +71,7 @@ export default function ProfilAkademiClient({ initialProfile }: ProfilAkademiCli
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-admin-line bg-admin-surface p-6 sm:p-8 shadow-sm">
+      <form onSubmit={handleSubmit} className="space-y-6 admin-form-plain rounded-2xl border border-admin-line-strong bg-admin-canvas p-6 sm:p-8">
         <div>
           <label htmlFor="academy-name" className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">
             Nama Akademi

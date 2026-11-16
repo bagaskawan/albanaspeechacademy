@@ -67,7 +67,7 @@ export function SettingsTabs({ tabs, panels, initialTab }: { tabs: SettingsTab[]
           {/* Module actions (e.g. Tambah rekening) belong to their tab only. */}
           <div className={activeId === "rekening" ? "" : "hidden"}><PageActionsSlot /></div>
           <button type="button" onClick={() => void saveAll()} disabled={!dirty || saving}
-            className={`inline-flex h-12 items-center gap-2 rounded-full bg-admin-ink px-5 text-[15px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft disabled:cursor-not-allowed disabled:bg-admin-surface-muted disabled:text-admin-text-secondary ${focusRing}`}>
+            className={`inline-flex h-12 items-center gap-2 rounded-full bg-admin-ink px-5 text-[15px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft max-md:hidden disabled:cursor-not-allowed disabled:bg-admin-surface-muted disabled:text-admin-text-secondary ${focusRing}`}>
             {saving ? <Loader2 aria-hidden="true" size={18} className="animate-spin" /> : <Save aria-hidden="true" size={18} strokeWidth={1.5} />}
             Simpan perubahan
           </button>
