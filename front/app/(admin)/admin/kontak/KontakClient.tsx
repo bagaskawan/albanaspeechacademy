@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { saveContacts } from "./actions";
+import { useSettingsForm } from "@/components/admin/settings/settings-forms";
 
 export type ContactRow = { kind: string; value: string };
 
@@ -31,25 +32,40 @@ export default function KontakClient({ initialContacts }: KontakClientProps) {
   const [email, setEmail] = useState(contactMap.email || "");
   const [instagram, setInstagram] = useState(contactMap.instagram || "");
   const [address, setAddress] = useState(contactMap.address || "");
+  // Last saved values: the settings page compares against them to show its unsaved-changes bar.
+  const [saved, setSaved] = useState({ whatsapp, email, instagram, address });
+  const dirty = whatsapp !== saved.whatsapp || email !== saved.email || instagram !== saved.instagram || address !== saved.address;
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function save() {
     setStatusMessage(null);
-
     const formData = new FormData();
     formData.set("whatsapp", whatsapp);
     formData.set("email", email);
     formData.set("instagram", instagram);
     formData.set("address", address);
+    const res = await saveContacts(formData);
+    if (!res.success) {
+      setStatusMessage({ type: "error", text: res.error || "Gagal menyimpan kontak." });
+      return false;
+    }
+    setSaved({ whatsapp, email, instagram, address });
+    setStatusMessage({ type: "success", text: "Kanal kontak berhasil diperbarui dan langsung aktif di situs." });
+    return true;
+  }
 
-    startTransition(async () => {
-      const res = await saveContacts(formData);
-      if (!res.success) {
-        setStatusMessage({ type: "error", text: res.error || "Gagal menyimpan kontak." });
-      } else {
-        setStatusMessage({ type: "success", text: "Kanal kontak berhasil diperbarui dan langsung aktif di situs." });
-      }
-    });
+  function reset() {
+    setWhatsapp(saved.whatsapp);
+    setEmail(saved.email);
+    setInstagram(saved.instagram);
+    setAddress(saved.address);
+    setStatusMessage(null);
+  }
+
+  const inSettings = useSettingsForm("kontak", { dirty, save, reset });
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    startTransition(async () => { await save(); });
   }
 
   return (
@@ -126,7 +142,7 @@ export default function KontakClient({ initialContacts }: KontakClientProps) {
           />
         </div>
 
-        <div className="flex items-center justify-end border-t border-admin-line pt-5">
+        {!inSettings && <div className="flex items-center justify-end border-t border-admin-line pt-5">
           <button
             type="submit"
             disabled={isPending}
@@ -134,7 +150,7 @@ export default function KontakClient({ initialContacts }: KontakClientProps) {
           >
             {isPending ? "Menyimpan..." : "Simpan Perubahan Kontak"}
           </button>
-        </div>
+        </div>}
       </form>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { saveAcademyProfile } from "./actions";
+import { useSettingsForm } from "@/components/admin/settings/settings-forms";
 
 export type AcademyProfile = {
   id: number;
@@ -21,24 +22,38 @@ export default function ProfilAkademiClient({ initialProfile }: ProfilAkademiCli
   const [name, setName] = useState(initialProfile.name || "Albana Speech Academy");
   const [teachingMethod, setTeachingMethod] = useState(initialProfile.teaching_method || "");
   const [reschedulePolicy, setReschedulePolicy] = useState(initialProfile.reschedule_policy || "");
+  // Last saved values: the settings page compares against them to show its unsaved-changes bar.
+  const [saved, setSaved] = useState({ name, teachingMethod, reschedulePolicy });
+  const dirty = name !== saved.name || teachingMethod !== saved.teachingMethod || reschedulePolicy !== saved.reschedulePolicy;
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function save() {
     setStatusMessage(null);
-
     const formData = new FormData();
     formData.set("name", name);
     formData.set("teaching_method", teachingMethod);
     formData.set("reschedule_policy", reschedulePolicy);
+    const res = await saveAcademyProfile(formData);
+    if (!res.success) {
+      setStatusMessage({ type: "error", text: res.error || "Gagal menyimpan profil akademi." });
+      return false;
+    }
+    setSaved({ name, teachingMethod, reschedulePolicy });
+    setStatusMessage({ type: "success", text: "Profil akademi berhasil diperbarui dan langsung aktif di situs." });
+    return true;
+  }
 
-    startTransition(async () => {
-      const res = await saveAcademyProfile(formData);
-      if (!res.success) {
-        setStatusMessage({ type: "error", text: res.error || "Gagal menyimpan profil akademi." });
-      } else {
-        setStatusMessage({ type: "success", text: "Profil akademi berhasil diperbarui dan langsung aktif di situs." });
-      }
-    });
+  function reset() {
+    setName(saved.name);
+    setTeachingMethod(saved.teachingMethod);
+    setReschedulePolicy(saved.reschedulePolicy);
+    setStatusMessage(null);
+  }
+
+  const inSettings = useSettingsForm("profil", { dirty, save, reset });
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    startTransition(async () => { await save(); });
   }
 
   return (
@@ -106,7 +121,7 @@ export default function ProfilAkademiClient({ initialProfile }: ProfilAkademiCli
           </p>
         </div>
 
-        <div className="flex items-center justify-end border-t border-admin-line pt-5">
+        {!inSettings && <div className="flex items-center justify-end border-t border-admin-line pt-5">
           <button
             type="submit"
             disabled={isPending}
@@ -114,7 +129,7 @@ export default function ProfilAkademiClient({ initialProfile }: ProfilAkademiCli
           >
             {isPending ? "Menyimpan..." : "Simpan Profil Akademi"}
           </button>
-        </div>
+        </div>}
       </form>
     </div>
   );
