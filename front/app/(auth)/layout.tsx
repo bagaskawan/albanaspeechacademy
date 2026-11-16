@@ -1,9 +1,5 @@
-import React from "react";
+import { AdminShellRoot } from "@/components/admin/AdminShellRoot";
 
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return <>{children}</>;
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return <AdminShellRoot>{children}</AdminShellRoot>;
 }
