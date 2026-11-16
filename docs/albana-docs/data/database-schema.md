@@ -65,7 +65,12 @@ Diagram hanya menampilkan relasi inti Albana. `trainers` sengaja tidak berelasi 
 | `original_price_idr` | int8 | Harga coret, opsional. |
 | `description` | text | Opsional. |
 | `materials` | jsonb | Larik materi; bawaan `[]`. |
+| `dp_percent` | int2 | 1–99; `NULL` berarti tanpa pilihan DP. |
+| `form_kind` | text | `series` \| `exclusive` \| `bnsp`; menentukan pertanyaan formulir. Tidak dapat diubah dari CMS. |
+| `fee_details` | text | Opsional, satu paragraf. |
 | `form_prior_experience`, `form_goal`, `form_challenge` | text | Naskah pertanyaan formulir per program. |
+
+Program adalah **satu-satunya sumber** harga, DP, jenis formulir, dan rincian biaya. Daftarnya tetap: Series, Speaker, Sertifikasi BNSP, dan Inhouse; CMS tidak menambah atau menghapus program.
 
 Tidak ada kolom `published`: **semua program terbaca publik**. Program tanpa batch tampil tanpa tombol daftar.
 
@@ -77,13 +82,9 @@ Tidak ada kolom `published`: **semua program terbaca publik**. Program tanpa bat
 | `program_slug` | text | Wajib. Ikut berubah bila slug program diubah (trigger). |
 | `title` | text | Wajib. |
 | `sessions` | jsonb | Wajib; divalidasi `valid_session_schedule()`. |
-| `registration_open` | bool | Bawaan `false`. |
-| `is_active` | bool | Bawaan `false`; **maksimal satu aktif per program**. |
-| `venue`, `address` | text | Opsional. |
-| `price_idr`, `normal_price_idr` | int8 | Opsional, ≥ 0. Mengganti harga program bila terisi. |
-| `fee_details` | text | Opsional. |
-| `form_kind` | text | `series` \| `exclusive` \| `bnsp`. |
-| `dp_percent` | int2 | 1–99; `NULL` berarti tanpa pilihan DP. |
+| `registration_open` | bool | Bawaan `false`. Sakelar tunggal di CMS. |
+| `is_active` | bool | Disamakan dengan `registration_open` oleh trigger `batches_single_open`; membuka satu batch menutup batch lain pada program yang sama. |
+| `venue`, `address`, `price_idr`, `normal_price_idr`, `fee_details`, `form_kind`, `dp_percent` | — | **Tidak lagi diisi dari CMS dan tidak lagi dibaca.** Harga, DP, jenis formulir, dan rincian biaya ada di `programs`; alamat dari `contact_channels` (`kind = 'address'`). Dihapus pada migrasi terpisah setelah data lama dipetakan. |
 
 ### `trainers` — PK `slug`
 
@@ -161,7 +162,7 @@ Penghitung `attempts` per sumber per jendela waktu untuk pembatasan laju.
 
 ### `gallery` — PK `id` (int8)
 
-`title` (opsional), `image_url` (wajib, harus `https://`), `consent_at` (bawaan `now()`). Tanpa kolom terbit: semua baris tampil publik. Editor CMS generik di kode memakai nama `asset_url`, `alt_text`, `caption`, `sort_order`, dan `published`; **jangan hapus atau ganti kolom `image_url` berdasarkan form itu**. Selaraskan form dengan skema dan pembaca publik terlebih dahulu.
+`title` (opsional), `image_url` (wajib, harus `https://`), `consent_at` (bawaan lama `now()`, bukan bukti izin), `consent_verified_at` (wajib diisi lewat konfirmasi admin sebelum tampil publik). Kebijakan baca publik hanya menampilkan baris dengan `consent_verified_at` terisi; dua baris lama tetap tersimpan tetapi tersembunyi sampai izinnya diverifikasi. Editor CMS memakai `image_url`, `title`, dan konfirmasi izin.
 
 ### `media_assets` — PK `id` (int8)
 
@@ -171,8 +172,8 @@ Penghitung `attempts` per sumber per jendela waktu untuk pembatasan laju.
 | `kind` | text | `image` \| `video`. |
 | `object_key` | text | Unik bersama `provider`. |
 | `alt_text` | text | |
-| `consent_at` | timestamptz | |
-| `published` | bool | Bawaan `false`. |
+| `consent_at` | timestamptz | Wajib terisi sebelum `published=true`. |
+| `published` | bool | Bawaan `false`; baca publik hanya saat terbit dan ada izin. |
 | `program_slug`, `batch_slug` | text | FK opsional; menentukan halaman tempat aset tampil. |
 | `created_at` | timestamptz | |
 

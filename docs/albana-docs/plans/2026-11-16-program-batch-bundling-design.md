@@ -1,6 +1,6 @@
 # Rancangan — Program tetap, Batch ringkas, dan tawaran paket di akhir formulir
 
-**Tanggal:** 16 November 2026 · **Status:** menunggu persetujuan pemilik · **Belum diterapkan di kode**
+**Tanggal:** 16 November 2026 · **Status:** disetujui pemilik 17 November 2026 · **diterapkan** ([rencana kerja](2026-11-17-program-batch-bundling-implementation-plan.md))
 
 Menggantikan rancangan radio bundling per program di [rancangan CMS Program, Batch, dan Bundling](../registration/cms-program-batch-bundling.md) (dokumen itu sudah direvisi mengikuti rancangan ini).
 

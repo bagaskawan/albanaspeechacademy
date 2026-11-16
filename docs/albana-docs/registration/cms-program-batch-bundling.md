@@ -1,6 +1,6 @@
 # CMS Program, Batch, dan tawaran paket
 
-**Status:** direvisi 16 November 2026 mengikuti [rancangan Program tetap, Batch ringkas, dan tawaran paket](../plans/2026-11-16-program-batch-bundling-design.md). Rancangan itu **menunggu persetujuan pemilik dan belum diterapkan di kode**. Kode saat ini masih memakai radio bundling per Program dan form Batch 10 isian. Acuan alur peserta ada di [kontrak pendaftaran](registration-contract.md).
+**Status:** berlaku sejak 17 November 2026, mengikuti [rancangan Program tetap, Batch ringkas, dan tawaran paket](../plans/2026-11-16-program-batch-bundling-design.md) yang sudah **diterapkan di kode**. Acuan alur peserta ada di [kontrak pendaftaran](registration-contract.md).
 
 ## Ringkasan perubahan
 

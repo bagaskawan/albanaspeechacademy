@@ -714,8 +714,7 @@ Bila lebih dari dua ikon + satu aksi khusus, sisanya masuk menu ⋯.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Pendaftar | ✓ | — | ✓ | — | — | — | — |
 | Tagihan | ✓ | — | ✓ | — | — | — | Verifikasi · Tolak (alur tagihan, §11) |
-| Program | ✓ | — | ✓ | ✓ Tambah program | ✓ halaman | ✓ | Tambah batch |
-| Batch | ✓ | Program, status pendaftaran | ✓ | ✓ Tambah batch | ✓ dialog | ✓ | Buka/tutup pendaftaran |
+| Program & Batch | — | — | — | — (empat program tetap) | ✓ halaman (program) · ✓ dialog (batch, paket) | ✓ batch | Tambah batch · Buka pendaftaran |
 | Trainer | ✓ | — | ✓ | ✓ Tambah trainer | ✓ dialog | ✓ | — |
 | Artikel | ✓ | Draf / Terbit | ✓ | ✓ Tulis artikel | ✓ halaman | ✓ | — |
 | Media | ✓ | Program, status | — | ✓ Unggah media | ✓ dialog | ✓ | Terbitkan / Tarik |

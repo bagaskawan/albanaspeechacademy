@@ -692,7 +692,7 @@ Di `components/admin/ui/`, memakai primitif `components/ui/*`:
 | 4.2.1 | Tagihan | T1 + T3 + konfirmasi | `academy_invoices`, `academy_registrations`, `bank_accounts` |
 | 4.2.2 | Pendaftar | T1 + T3 | `academy_registrations`, `academy_registration_items` |
 | 4.2.3 | Dashboard | Statistik (3.11) | `academy_invoices`, `academy_registrations`, `academy_registration_items`, `batches`, `programs` |
-| 4.2.4 | Program & Batch (satu layar, + tawaran paket) | [Rancangan Program tetap, Batch ringkas, dan tawaran paket](2026-11-16-program-batch-bundling-design.md) — menunggu persetujuan | `programs`, `batches`, `bundle_offers` |
+| 4.2.4 | ✅ Program & Batch (satu layar, + tawaran paket) | [Rancangan](2026-11-16-program-batch-bundling-design.md) + [rencana kerja](2026-11-17-program-batch-bundling-implementation-plan.md) — selesai 17 November 2026 | `programs`, `batches`, `bundle_offers` |
 | 4.2.5 | (digabung ke 4.2.4; `/admin/batch` dialihkan ke `/admin/program`) | — | — |
 | 4.2.6 | Trainer | T1 kartu + Dialog M | `trainers` |
 | 4.2.7 | Artikel | T1 + T2 editor | `articles` |
