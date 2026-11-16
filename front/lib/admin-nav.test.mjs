@@ -37,3 +37,11 @@ test("every module href is unique across groups", () => {
   const hrefs = adminNavGroups.flatMap((group) => group.modules.map((item) => item.href));
   assert.equal(new Set(hrefs).size, hrefs.length);
 });
+
+test("isDetail only below a module's list page", () => {
+  assert.equal(resolveAdminNav("/admin").isDetail, false);
+  assert.equal(resolveAdminNav("/admin/program").isDetail, false);
+  assert.equal(resolveAdminNav("/admin/program/speaker-training/edit").isDetail, true);
+  assert.equal(resolveAdminNav("/admin/artikel/baru").isDetail, true);
+  assert.equal(resolveAdminNav("/admin/denied").isDetail, false);
+});

@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 import { AnimatePresence, m, stagger, useMotionValueEvent, useScroll } from "motion/react";
 import { Dialog } from "radix-ui";
 import {
-  ArrowLeft, BookOpen, Building2, CalendarRange, Film, Handshake, Images, Landmark, LayoutDashboard,
+  BookOpen, Building2, CalendarRange, Film, Handshake, Images, Landmark, LayoutDashboard,
   LogOut, Menu, Newspaper, Phone, Quote, ReceiptText, UserRound, Users, type LucideIcon,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
@@ -98,7 +98,7 @@ export function AdminShell({ children, pendingInvoices, account }: ShellProps) {
       </m.header>
 
       <div className="grid grid-cols-1 gap-x-8 pb-10 lg:grid-cols-[56px_minmax(0,1fr)]">
-        <PageHeader group={nav.group} module={nav.module} pathname={pathname} />
+        <PageHeader group={nav.group} module={nav.module} isDetail={nav.isDetail} pathname={pathname} />
         <Rail group={nav.group} activeHref={nav.module?.href ?? (pathname === "/admin" ? "/admin" : undefined)} />
         <main id="admin-main" className="order-3 min-w-0 lg:col-start-2 lg:row-start-2">{children}</main>
       </div>
@@ -144,11 +144,9 @@ const railItem = {
 };
 
 function Rail({ group, activeHref }: { group: AdminNavGroup; activeHref?: string }) {
-  const router = useRouter();
   const items = group.shortcuts ?? group.modules;
   return <nav aria-label={`Modul ${group.label}`} className="order-2 mb-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mb-0">
     <div className="relative flex gap-3 overflow-x-auto pb-1 lg:sticky lg:top-6 lg:flex-col lg:overflow-visible lg:pb-0">
-      <RailButton label="Kembali" onClick={() => router.back()}><ArrowLeft aria-hidden="true" size={22} strokeWidth={1.5} /></RailButton>
       <AnimatePresence mode="popLayout" initial={false}>
         <m.ul key={group.id} className="flex gap-3 lg:flex-col" variants={railList} initial="hide" animate="show" exit="hide">
           {items.map((item) => {

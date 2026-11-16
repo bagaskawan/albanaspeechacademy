@@ -63,10 +63,10 @@ export const adminNavGroups: AdminNavGroup[] = [
 
 const isWithin = (pathname: string, href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
-export function resolveAdminNav(pathname: string): { group: AdminNavGroup; module?: AdminNavModule } {
+export function resolveAdminNav(pathname: string): { group: AdminNavGroup; module?: AdminNavModule; isDetail: boolean } {
   for (const group of adminNavGroups) {
     const found = group.modules.find((item) => isWithin(pathname, item.href));
-    if (found) return { group, module: found };
+    if (found) return { group, module: found, isDetail: pathname !== found.href };
   }
-  return { group: adminNavGroups[0] };
+  return { group: adminNavGroups[0], isDetail: false };
 }
