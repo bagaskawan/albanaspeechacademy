@@ -1605,7 +1605,14 @@ body:has(.admin-shell) {
 /* White forms (settings): white fields with a visible hairline; more specific than the rule above. */
 .admin-shell .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select) {
   background: var(--admin-canvas);
-  border-color: var(--admin-line-strong);
+  border: 1px solid var(--admin-line-strong);
+  transition: border-color var(--dur-hover) ease, box-shadow var(--dur-hover) ease;
+}
+/* Thinner focus than the 2 px outline elsewhere: 1 px ink border + a soft 3 px halo (still clearly visible). */
+.admin-shell .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select):focus-visible {
+  outline: none;
+  border-color: var(--admin-ink);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-ink) 12%, transparent);
 }
 
 /* Admin page enter (3.10): opacity only so nothing reflows. */
