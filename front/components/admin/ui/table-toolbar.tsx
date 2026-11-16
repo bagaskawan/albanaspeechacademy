@@ -65,8 +65,9 @@ export function TableToolbar({ search, filters = [], exportModule, create }: {
   }
 
   const activeFilters = filters.filter((filter) => params.get(filter.param)).length;
-  const createClass = `inline-flex h-12 shrink-0 items-center gap-2 rounded-full bg-admin-ink px-5 text-[15px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft max-md:size-12 max-md:justify-center max-md:px-0 ${focusRing}`;
-  const createContent = create && <>{create.icon ?? <Plus aria-hidden="true" size={18} strokeWidth={1.5} />}<span className="max-md:sr-only">{create.label}</span></>;
+  // < 768 px the create action is a floating button bottom-right (thumb reach), above the safe area.
+  const createClass = `inline-flex h-12 shrink-0 items-center gap-2 rounded-full bg-admin-ink px-5 text-[15px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft max-md:fixed max-md:bottom-[max(24px,env(safe-area-inset-bottom))] max-md:right-5 max-md:z-40 max-md:size-14 max-md:justify-center max-md:px-0 max-md:shadow-[var(--admin-shadow-overlay)] ${focusRing}`;
+  const createContent = create && <>{create.icon ?? <Plus aria-hidden="true" size={20} strokeWidth={1.75} />}<span className="max-md:sr-only">{create.label}</span></>;
 
   return <AdminPageActions>
     <div className="flex flex-wrap items-center gap-2">
