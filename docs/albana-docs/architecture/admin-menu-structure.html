@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Struktur menu backend · Albana Speech Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#fff;color:#10243f;font-family:Inter,system-ui,sans-serif;padding:40px 24px}main{max-width:1320px;margin:auto}.eyebrow{font:700 11px 'Plus Jakarta Sans',sans-serif;letter-spacing:.18em;color:#26599a;text-transform:uppercase;margin:0 0 10px}h1{font:800 clamp(28px,3vw,42px)/1.15 'Plus Jakarta Sans',sans-serif;letter-spacing:-.035em;margin:0 0 12px}.intro{max-width:75ch;color:#425a73;line-height:1.6;margin:0 0 28px}.diagram-container{width:100%;overflow-x:auto;border-top:1px solid #d8e4f0;border-bottom:1px solid #d8e4f0}svg{display:block;width:100%;min-width:1280px}svg text{font-family:Inter,system-ui,sans-serif}.group-title{font:700 18px 'Plus Jakarta Sans',sans-serif;fill:#10243f}.item{font:500 14px Inter,sans-serif;fill:#425a73}.label{font:700 10px 'Plus Jakarta Sans',sans-serif;letter-spacing:.12em;fill:#26599a}.edge{fill:none;stroke:#7895b8;stroke-width:1.5}.note{font:500 12px Inter,sans-serif;fill:#425a73}footer{font-size:13px;line-height:1.6;color:#566b81;margin-top:18px}@media print{body{padding:12px}.diagram-container{overflow:visible}svg{min-width:0}}
+  </style>
+</head>
+<body><main>
+  <p class="eyebrow">04 / Navigasi pengelola</p><h1>Menu backend yang disarankan</h1>
+  <p class="intro">Dashboard menampilkan pekerjaan yang perlu ditindaklanjuti. Empat kelompok di sidebar mengikuti ritme operasional, kelas, konten, dan pengaturan. Ini rancangan menu, bukan daftar fitur yang semuanya sudah selesai.</p>
+  <div class="diagram-container">
+  <svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="admin-menu-structure-title admin-menu-structure-desc">
+    <title id="admin-menu-structure-title">Struktur menu backend Albana</title>
+    <desc id="admin-menu-structure-desc">Dashboard Albana memimpin empat kelompok menu: Operasional, Kelas dan Penawaran, Konten Website, serta Pengaturan.</desc>
+    <rect width="1280" height="720" fill="#fff"/>
+    <path class="edge" d="M640 152 V236 M170 236 H1070 M170 236 V300 M470 236 V300 M770 236 V300 M1070 236 V300"/>
+
+    <rect x="500" y="80" width="280" height="72" rx="8" fill="#26599a"/>
+    <text x="640" y="112" text-anchor="middle" style="font:700 20px 'Plus Jakarta Sans',sans-serif;fill:#fff">Dashboard Albana</text>
+    <text x="640" y="134" text-anchor="middle" style="font:500 12px Inter,sans-serif;fill:#e7f2ff">Pekerjaan yang menunggu tindakan</text>
+
+    <rect x="40" y="300" width="260" height="256" rx="8" fill="#f4f8fc" stroke="#d8e4f0"/>
+    <text x="60" y="330" class="label">01 / HARIAN</text><text x="60" y="366" class="group-title">Operasional</text>
+    <line x1="60" y1="386" x2="280" y2="386" stroke="#d8e4f0"/>
+    <text x="60" y="420" class="item">Pendaftar Albana</text>
+    <text x="60" y="454" class="item">Tagihan &amp; pembayaran</text>
+    <text x="60" y="514" class="note">Cek bukti WhatsApp sebelum</text><text x="60" y="532" class="note">verifikasi pembayaran.</text>
+
+    <rect x="340" y="300" width="260" height="256" rx="8" fill="#f4f8fc" stroke="#d8e4f0"/>
+    <text x="360" y="330" class="label">02 / PENAWARAN</text><text x="360" y="366" class="group-title">Kelas &amp; penawaran</text>
+    <line x1="360" y1="386" x2="580" y2="386" stroke="#d8e4f0"/>
+    <text x="360" y="420" class="item">Program</text><text x="360" y="454" class="item">Batch &amp; jadwal</text>
+    <text x="360" y="488" class="item">Bundling</text><text x="360" y="522" class="item">Trainer</text>
+
+    <rect x="640" y="300" width="260" height="256" rx="8" fill="#f4f8fc" stroke="#d8e4f0"/>
+    <text x="660" y="330" class="label">03 / PUBLIKASI</text><text x="660" y="366" class="group-title">Konten website</text>
+    <line x1="660" y1="386" x2="880" y2="386" stroke="#d8e4f0"/>
+    <text x="660" y="418" class="item">Profil akademi · Artikel</text>
+    <text x="660" y="452" class="item">Media &amp; dokumentasi</text>
+    <text x="660" y="486" class="item">Testimoni · Partner</text>
+    <text x="660" y="530" class="note">Galeri dan media: dua tampilan,</text><text x="660" y="546" class="note">satu label navigasi.</text>
+
+    <rect x="940" y="300" width="260" height="256" rx="8" fill="#f4f8fc" stroke="#d8e4f0"/>
+    <text x="960" y="330" class="label">04 / KONFIGURASI</text><text x="960" y="366" class="group-title">Pengaturan</text>
+    <line x1="960" y1="386" x2="1180" y2="386" stroke="#d8e4f0"/>
+    <text x="960" y="420" class="item">Kontak publik</text>
+    <text x="960" y="454" class="item">Rekening pembayaran</text>
+    <text x="960" y="488" class="item">Akun &amp; hak akses</text>
+    <text x="960" y="530" class="note">Pisahkan data publik dan</text><text x="960" y="546" class="note">rekening privat.</text>
+
+    <line x1="40" y1="620" x2="1240" y2="620" stroke="#d8e4f0"/>
+    <text x="40" y="652" class="note">PRIORITAS</text>
+    <text x="136" y="652" class="note">Samakan sumber data Pendaftar dan Tagihan Albana; audit rute Pengaturan sebelum masuk sidebar baru.</text>
+  </svg></div>
+  <footer>Profil saya, tema, dan keluar berada di topbar/menu akun. Media hero tetap statis untuk sementara. Lihat <a href="README.md">status tiap menu dan urutan setup</a>.</footer>
+</main></body></html>

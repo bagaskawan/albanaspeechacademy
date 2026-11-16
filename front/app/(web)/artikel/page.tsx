@@ -2,7 +2,6 @@ import Link from "next/link";
 import { listPublicArticles } from "@/lib/server/public-articles";
 
 export const metadata = { title: "Artikel | Albana Speech Academy" };
-export const instant = false;
 
 function formatPublishedAt(value: string) {
   const date = new Date(value);

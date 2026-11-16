@@ -9,7 +9,6 @@ import { readProgramDetail } from "@/lib/server/program-showcase";
 import { academyRequest } from "@/lib/server/academy-api";
 import { contactHref, readPublishedContacts } from "@/lib/server/public-contacts";
 
-export const instant = false;
 
 async function ProgramContent({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

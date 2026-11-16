@@ -3,6 +3,11 @@ import { academyRequest } from "@/lib/server/academy-api";
 import { DocumentationGallery, type DocumentationItem } from "./documentation-gallery";
 import { SectionIntro } from "./section-intro";
 
+const previewGallery: DocumentationItem[] = [
+  { id: -1, image_url: "/images/preview/suasana-kelas.jpg", title: "Contoh visual suasana kelas" },
+  { id: -2, image_url: "/images/preview/latihan-mc.jpg", title: "Contoh visual latihan MC" },
+];
+
 export async function DocumentationSection() {
   let gallery: DocumentationItem[] = [];
   try {
@@ -12,19 +17,15 @@ export async function DocumentationSection() {
 
   return (
     <section id="dokumentasi" className="section" aria-labelledby="dokumentasi-title">
-      <Container className="max-w-5xl">
+      <Container className="max-w-7xl">
         <SectionIntro
-          description=""
+          description={gallery.length ? "Lihat suasana latihan, praktik, dan umpan balik dari kegiatan yang telah dipublikasikan." : "Media di bawah adalah contoh tata letak; dokumentasi kelas Albana akan menggantikannya setelah dipilih untuk tayang."}
           eyebrow="Gambaran kelas"
           title="Kenali ritme latihan lewat gambaran berikut"
           titleId="dokumentasi-title"
         />
 
-        {gallery.length ? (
-          <DocumentationGallery items={gallery} />
-        ) : (
-          <p className="mt-8 leading-[1.6] text-muted">Belum ada dokumentasi yang dipublikasikan.</p>
-        )}
+        <DocumentationGallery items={gallery.length ? gallery : previewGallery} preview={!gallery.length} />
       </Container>
     </section>
   );

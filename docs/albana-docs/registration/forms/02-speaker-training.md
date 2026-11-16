@@ -2,12 +2,16 @@
 
 ## ALBANA SPEECH ACADEMY
 
+**Tahap:** Formulir lanjutan setelah [tahap awal, tujuan belajar, dan pilihan program](00-tahap-awal.md). Pilihan pada tahap awal: **Pelatihan Basic to Advance Public Speaking**.
+
 **Program:** Pelatihan Basic to Advance Eksklusif – ASA Batch 9
 
 **Keterangan:**  
 Formulir pendaftaran peserta Pelatihan Basic to Advance Eksklusif yang diselenggarakan oleh Albana Speech Academy.
 
 **Catatan:** Pertanyaan bertanda (*) wajib diisi.
+
+> Nominal, rekening, dan unggahan bukti di bawah ditranskripsikan dari contoh Google Forms. Untuk pendaftaran situs, ikuti [kontrak pendaftaran](../registration-contract.md); data batch dan kanal pembayaran yang berlaku perlu dikonfirmasi pengelola.
 
 ---
 
@@ -146,6 +150,15 @@ _Silakan pilih akun sosial media yang Anda miliki._
 
 ## D. INVESTASI PROGRAM & KONFIRMASI KEHADIRAN
 
+### Peninjauan paket sebelum checkout (tambahan alur)
+
+Setelah pertanyaan peserta terisi dan sebelum biaya serta metode pembayaran ditetapkan, tampilkan pilihan berikut **hanya jika** CMS memiliki penawaran bundling aktif yang mencakup program ini dan kedua batch dapat didaftari. Pilihan pada [tahap awal](00-tahap-awal.md) menjadi pilihan awal, tetapi peserta boleh mengubahnya di sini.
+
+- **Tetap Pelatihan Basic to Advance Public Speaking saja.** Peserta mengikuti pelatihan Speaker tanpa mengambil uji kompetensi sertifikasi BNSP.
+- **Ambil Paket Bundling Pelatihan dan Sertifikasi BNSP.** Peserta mengambil pelatihan Speaker dan uji kompetensi sertifikasi dalam satu paket. Bundling bukan jaminan lulus sertifikasi.
+
+Di samping tiap pilihan, tampilkan penjelasan bundling dari CMS, isi paket, batch dan jadwal masing-masing kegiatan, persyaratan sertifikasi yang berlaku, serta biaya final dari katalog aktif. Tampilkan selisih biaya jika keduanya tersedia. Setelah peserta memilih, perbarui ringkasan biaya, nominal DP atau lunas, dan nama paket pada checkout. Minta peserta meninjau ringkasan itu sebelum **Kirim pendaftaran**. Tanpa penawaran valid, lanjutkan pelatihan biasa. Harga contoh di bawah tidak menentukan harga bundling yang berlaku.
+
 ### 17. Informasi Biaya Pelatihan
 
 **Program:** Basic to Advance Eksklusif – ASA Batch 9
@@ -162,7 +175,7 @@ Pembayaran dapat ditransfer ke rekening berikut:
 
 **Nomor Rekening:** 4497062020
 
-**Atas Nama:** ASA Athene CV
+**Atas Nama pada gambar:** ASA Albana CV
 
 **Catatan Penting:**
 
@@ -205,4 +218,4 @@ Untuk konfirmasi pembayaran atau informasi lebih lanjut, silakan menghubungi pih
 
 **AKHIR FORMULIR PENDAFTARAN**
 
-Pastikan seluruh pertanyaan wajib telah diisi dan bukti pembayaran telah diunggah sebelum mengirimkan formulir.
+Pastikan seluruh pertanyaan bertanda (*) terisi sebelum mengirimkan formulir. Unggahan bukti pembayaran pada gambar tidak bertanda wajib.

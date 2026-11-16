@@ -6,7 +6,7 @@ import { ContactSection } from "./contact-section";
 import { DocumentationSection } from "./documentation-section";
 import { HeroSection } from "./hero-section";
 import { LearningMethodSection } from "./learning-method-section";
-import { ProgramSection } from "./program-section";
+import { PracticePreviewSection } from "./practice-preview-section";
 import { ProgramShowcaseSection } from "./program-showcase-section";
 import { TestimonialSection } from "./testimonial-section";
 import { TrainerSection } from "./trainer-section";
@@ -20,9 +20,9 @@ export function HomePage() {
         <SectionReveal />
         <HeroSection />
         <ProgramShowcaseSection />
-        <ProgramSection />
-        <AlanIntroSection />
+        <PracticePreviewSection />
         <LearningMethodSection />
+        <AlanIntroSection />
         <TrainerSection />
         <DocumentationSection />
         <TestimonialSection />

@@ -12,7 +12,7 @@ export type DocumentationItem = {
  * Natural image ratio keeps portrait photos tall and landscape photos wide,
  * so the masonry columns show each photo in its own orientation.
  */
-export function DocumentationGallery({ items }: { items: DocumentationItem[] }) {
+export function DocumentationGallery({ items, preview = false }: { items: DocumentationItem[]; preview?: boolean }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [selected, setSelected] = useState<DocumentationItem | null>(null);
@@ -26,9 +26,10 @@ export function DocumentationGallery({ items }: { items: DocumentationItem[] }) 
 
   return (
     <>
-      <ul className="mt-8 columns-2 gap-4 sm:columns-3 lg:columns-4">
+      {preview ? <p className="mt-8 text-sm font-semibold text-muted">Contoh visual — bukan dokumentasi kelas Albana</p> : null}
+      <ul className="mt-4 columns-1 gap-4 sm:columns-2 lg:columns-3">
         {items.map((item) => {
-          const label = item.title ?? "Dokumentasi kelas Albana";
+          const label = `${item.title ?? "Dokumentasi kelas Albana"}${preview ? "; bukan dokumentasi kelas Albana" : ""}`;
           return (
             <li key={item.id} className="mb-4 break-inside-avoid">
               <figure className="overflow-hidden rounded-card border border-rule bg-card">
@@ -91,7 +92,7 @@ export function DocumentationGallery({ items }: { items: DocumentationItem[] }) 
               <div className="border-t border-rule p-4 md:p-5">
                 <h3 className="flex items-center gap-2 font-semibold">
                   <span aria-hidden="true" className="size-1.5 shrink-0 bg-accent" />
-                  {selected.title}
+                  {preview ? `${selected.title} — bukan dokumentasi kelas Albana` : selected.title}
                 </h3>
               </div>
             ) : null}

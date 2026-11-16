@@ -2,12 +2,16 @@
 
 ## ALBANA SPEECH ACADEMY
 
+**Tahap:** Formulir lanjutan setelah [tahap awal, tujuan belajar, dan pilihan program](00-tahap-awal.md). Pilihan pada tahap awal: **Pelatihan Public Speaking Series**.
+
 **Program:** Pelatihan Public Speaking Series – ASA Batch 9
 
 **Keterangan:**  
 Formulir pendaftaran peserta Pelatihan Public Speaking Series yang diselenggarakan oleh Albana Speech Academy.
 
 **Catatan:** Pertanyaan bertanda (*) wajib diisi.
+
+> Nominal, rekening, dan unggahan bukti di bawah ditranskripsikan dari contoh Google Forms. Untuk pendaftaran situs, ikuti [kontrak pendaftaran](../registration-contract.md); data batch dan kanal pembayaran yang berlaku perlu dikonfirmasi pengelola.
 
 ---
 
@@ -146,6 +150,10 @@ _Silakan pilih akun sosial media yang Anda miliki._
 
 ## D. INVESTASI PROGRAM & KONFIRMASI KEHADIRAN
 
+### Peninjauan paket sebelum checkout (tambahan alur)
+
+Saat ini belum ada bundling untuk Public Speaking Series yang terdokumentasi. Lanjutkan sebagai pendaftaran Series biasa. Jika kelak CMS mengaktifkan bundling yang mencakup Series dan kedua batch dapat didaftari, tampilkan pilihan tetap Series saja atau ambil bundling beserta isi, jadwal, persyaratan, dan harga finalnya sebelum metode pembayaran. Perubahan pilihan memperbarui ringkasan checkout; tanpa penawaran yang valid, jangan tampilkan pilihan bundling.
+
 ### 17. Informasi Biaya Pelatihan
 
 **Program:** Public Speaking Series – ASA Batch 9
@@ -160,7 +168,7 @@ Pembayaran dapat ditransfer ke rekening berikut:
 
 **Nomor Rekening:** 4497062020
 
-**Atas Nama:** ASA Athene CV
+**Atas Nama pada gambar:** ASA Albana CV
 
 **Catatan Penting:**
 
@@ -203,4 +211,4 @@ Untuk konfirmasi pembayaran atau informasi lebih lanjut, silakan menghubungi pih
 
 **AKHIR FORMULIR PENDAFTARAN**
 
-Pastikan seluruh pertanyaan wajib telah diisi dan bukti pembayaran telah diunggah sebelum mengirimkan formulir.
+Pastikan seluruh pertanyaan bertanda (*) terisi sebelum mengirimkan formulir. Unggahan bukti pembayaran pada gambar tidak bertanda wajib.

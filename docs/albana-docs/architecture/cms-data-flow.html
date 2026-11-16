@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alur input CMS · Albana Speech Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#fff;color:#10243f;font-family:Inter,system-ui,sans-serif;padding:40px 24px}main{max-width:1320px;margin:auto}.eyebrow{font:700 11px 'Plus Jakarta Sans',sans-serif;letter-spacing:.18em;color:#26599a;text-transform:uppercase;margin:0 0 10px}h1{font:800 clamp(28px,3vw,42px)/1.15 'Plus Jakarta Sans',sans-serif;letter-spacing:-.035em;margin:0 0 12px}.intro{max-width:75ch;color:#425a73;line-height:1.6;margin:0 0 28px}.diagram-container{width:100%;overflow-x:auto;border-top:1px solid #d8e4f0;border-bottom:1px solid #d8e4f0}svg{display:block;width:100%;min-width:1280px}svg text{font-family:Inter,system-ui,sans-serif}.node-name{font:700 16px 'Plus Jakarta Sans',sans-serif;fill:#10243f}.node-sub{font:400 12px Inter,sans-serif;fill:#425a73}.lane{font:700 12px 'Plus Jakarta Sans',sans-serif;letter-spacing:.14em;fill:#26599a}.edge{fill:none;stroke:#7895b8;stroke-width:1.5;marker-end:url(#cms-arrow)}.edge-link{fill:none;stroke:#26599a;stroke-width:1.8;marker-end:url(#cms-arrow-link)}.note{font:500 12px Inter,sans-serif;fill:#425a73}footer{font-size:13px;line-height:1.6;color:#566b81;margin-top:18px}@media print{body{padding:12px}.diagram-container{overflow:visible}svg{min-width:0}}
+  </style>
+</head>
+<body><main>
+  <p class="eyebrow">02 / Alur data CMS</p><h1>Dari input admin ke halaman publik</h1>
+  <p class="intro">Konten katalog dan media memakai dua jalur tulis yang berbeda. Keduanya bertemu pada keputusan terbit sebelum konten dibaca pengunjung.</p>
+  <div class="diagram-container">
+  <svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="cms-data-flow-title cms-data-flow-desc">
+    <title id="cms-data-flow-title">Alur input konten dan media Albana</title>
+    <desc id="cms-data-flow-desc">Form CMS menulis katalog melalui Supabase client dan RLS; unggahan media melewati API server, lalu status terbit menentukan bacaan publik.</desc>
+    <defs>
+      <marker id="cms-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#7895b8"/></marker>
+      <marker id="cms-arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#26599a"/></marker>
+    </defs>
+    <rect width="1280" height="720" fill="#fff"/>
+    <rect x="24" y="176" width="1232" height="164" fill="#f4f8fc"/>
+    <rect x="24" y="384" width="1232" height="164" fill="#fff" stroke="#d8e4f0"/>
+    <text x="40" y="160" class="lane">KONTEN KATALOG</text><text x="40" y="368" class="lane">MEDIA PROGRAM</text>
+
+    <path class="edge" d="M220 260 H288"/><path class="edge" d="M468 260 H536"/><path class="edge" d="M716 260 H784"/>
+    <path class="edge-link" d="M964 260 H1032"/>
+    <path class="edge" d="M220 468 H288"/><path class="edge" d="M468 468 H536"/>
+    <path class="edge-link" d="M716 468 H752 Q760 468 760 460 V324 Q760 316 768 316 H864 Q872 316 872 308 V300"/>
+
+    <rect x="40" y="220" width="180" height="80" rx="6" fill="#fff" stroke="#7895b8"/>
+    <text x="56" y="248" class="node-name">Form admin</text><text x="56" y="270" class="node-sub">Program · batch</text><text x="56" y="288" class="node-sub">artikel · galeri</text>
+    <rect x="288" y="220" width="180" height="80" rx="6" fill="#fff" stroke="#d8e4f0"/>
+    <text x="304" y="248" class="node-name">Supabase client</text><text x="304" y="270" class="node-sub">Sesi Auth admin</text><text x="304" y="288" class="node-sub">insert / update</text>
+    <rect x="536" y="220" width="180" height="80" rx="6" fill="#fff" stroke="#d8e4f0"/>
+    <text x="552" y="248" class="node-name">RLS &amp; tabel</text><text x="552" y="270" class="node-sub">Kontrol akses DB</text><text x="552" y="288" class="node-sub">data draf/terbit</text>
+    <rect x="784" y="220" width="180" height="80" rx="6" fill="#edf4fb" stroke="#26599a" stroke-width="2"/>
+    <text x="800" y="248" class="node-name">Status terbit</text><text x="800" y="270" class="node-sub">Konten + media</text><text x="800" y="288" class="node-sub">sesuai jenis aset</text>
+    <rect x="1032" y="220" width="180" height="80" rx="6" fill="#fff" stroke="#d8e4f0"/>
+    <text x="1048" y="248" class="node-name">Baca publik</text><text x="1048" y="270" class="node-sub">Server Components</text><text x="1048" y="288" class="node-sub">halaman terbit</text>
+
+    <rect x="40" y="428" width="180" height="80" rx="6" fill="#fff" stroke="#7895b8"/>
+    <text x="56" y="456" class="node-name">Unggah admin</text><text x="56" y="478" class="node-sub">Gambar / MP4</text><text x="56" y="496" class="node-sub">per program/batch</text>
+    <rect x="288" y="428" width="180" height="80" rx="6" fill="#fff" stroke="#d8e4f0"/>
+    <text x="304" y="456" class="node-name">API + guard</text><text x="304" y="478" class="node-sub">Tipe · ukuran · resolusi</text><text x="304" y="496" class="node-sub">Sharp untuk gambar</text>
+    <rect x="536" y="428" width="180" height="80" rx="6" fill="#fff" stroke="#d8e4f0"/>
+    <text x="552" y="456" class="node-name">Storage + meta</text><text x="552" y="478" class="node-sub">Bucket privat</text><text x="552" y="496" class="node-sub">media_assets: draf</text>
+
+    <line x1="40" y1="608" x2="1240" y2="608" stroke="#d8e4f0"/>
+    <text x="40" y="640" class="note">CATATAN</text><text x="140" y="640" class="note">Media diterbitkan lewat aksi admin; konten lain dapat ditulis langsung lewat client dengan RLS. Hero dummy tetap statis.</text>
+  </svg></div>
+  <footer>URL YouTube masuk lewat Server Action tersendiri, bukan API unggah berkas. Tabel, guard, dan batasan tiap menu dijelaskan di <a href="README.md">panduan arsitektur</a>.</footer>
+</main></body></html>

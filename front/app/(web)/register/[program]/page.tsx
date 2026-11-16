@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import { RegisterPage } from "@/components/register/register-page";
 import { readProgramRegistration } from "@/lib/server/registration-batch";
 
-export const instant = false;
 
 export const metadata: Metadata = {
   title: "Daftar kelas · Albana Speech Academy",

@@ -10,15 +10,16 @@ import { ease } from "@/lib/motion/tokens";
 
 const ACTIONS_ID = "admin-page-actions";
 const TITLE_ID = "admin-page-title";
-const noopSubscribe = () => () => {};
+const noopSubscribe = () => () => { };
 
 /** Shell-level header (admin-ui-patterns §3.3): breadcrumb Grup ⟶ Modul, title, round-button slot. */
 export function PageHeader({ group, module, isDetail, pathname }: { group: AdminNavGroup; module?: AdminNavModule; isDetail: boolean; pathname: string }) {
   const title = module?.label ?? group.label;
   const description = isDetail ? null : (module?.description ?? group.description);
-  return <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-    {/* Keyed remount fades the new title in at once; no exit wait between modules. */}
-    <m.div
+  return <div className="mb-8">
+    <div className="flex flex-wrap items-end justify-between gap-4">
+      {/* Keyed remount fades the new title in at once; no exit wait between modules. */}
+      <m.div
         key={pathname}
         className="flex min-w-0 items-end gap-4"
         initial={{ opacity: 0, y: 6 }}
@@ -27,27 +28,16 @@ export function PageHeader({ group, module, isDetail, pathname }: { group: Admin
         {isDetail && module && <Link
           href={module.href}
           aria-label={`Kembali ke ${module.label}`}
-          className="mb-1 inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-admin-surface text-admin-ink transition-colors hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
+          className="mb-3 inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-admin-surface text-admin-ink transition-colors hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
         ><ArrowLeft aria-hidden="true" size={22} strokeWidth={1.5} /></Link>}
         <div className="min-w-0">
-        <nav aria-label="Breadcrumb">
-          <ol className="flex items-center gap-2 text-[14px] leading-[1.4] text-admin-text-secondary">
-            <li><Link href={group.href} className="hover:text-admin-ink">{group.label}</Link></li>
-            {module && <>
-              <li aria-hidden="true"><MoveRight size={16} strokeWidth={1.5} /></li>
-              <li><Link href={module.href} aria-current={isDetail ? undefined : "page"} className="hover:text-admin-ink">{module.label}</Link></li>
-            </>}
-            {isDetail && <>
-              <li aria-hidden="true"><MoveRight size={16} strokeWidth={1.5} /></li>
-              <li aria-current="page" className="truncate"><span id={TITLE_ID} data-fallback="Detail" className="empty:before:content-[attr(data-fallback)]" /></li>
-            </>}
-          </ol>
-        </nav>
-        <h1 className="mt-2 text-[32px] font-normal leading-[1.1] tracking-[-0.02em] md:text-[40px]">{title}</h1>
-        {description && <p className="mt-2 max-w-[68ch] text-[15px] leading-[1.5] text-admin-text-secondary">{description}</p>}
+          <h1 className="mt-2 text-[28px]  font-black leading-[1.1] tracking-[-0.02em] md:text-[40px]">{title}</h1>
+          {description && <p className="mt-2 max-w-[68ch] text-[12px] leading-[1.5] text-admin-text-secondary">{description}</p>}
         </div>
       </m.div>
-    <div id={ACTIONS_ID} className="flex items-center gap-3 empty:hidden" />
+      <div id={ACTIONS_ID} className="flex items-center gap-3 empty:hidden" />
+    </div>
+    <hr className="mt-6 border-admin-line" />
   </div>;
 }
 

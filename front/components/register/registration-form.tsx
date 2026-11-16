@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { RegistrationStepFields } from "@/components/register/registration-steps";
 import type { RegistrationBatch } from "@/lib/registration";
+import type { BundleChoice } from "@/lib/server/bundle-offer";
 import { registrationFailure, type RegistrationBanner } from "@/lib/registration-feedback";
 import {
   REGISTRATION_STEPS,
@@ -18,19 +19,29 @@ import {
 
 type SubmitState = "idle" | "submitting" | "success";
 
-export function RegistrationForm({ batch, offer }: { batch: RegistrationBatch; offer?: { slug: string; secondaryBatchSlug: string } | null }) {
+export function RegistrationForm({ batch, offer, bundleChoice, selectedOffer, onSelectOffer }: {
+  batch: RegistrationBatch;
+  offer?: { slug: string; secondaryBatchSlug: string } | null;
+  bundleChoice?: BundleChoice | null;
+  selectedOffer?: "single" | "bundle";
+  onSelectOffer?: (value: "single" | "bundle") => void;
+}) {
   const copy = registrationFormCopy(batch);
   const [values, setValues] = useState<RegistrationValues>(emptyRegistrationValues);
   const [errors, setErrors] = useState<RegistrationErrors>({});
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [banner, setBanner] = useState<RegistrationBanner | null>(null);
   const [step, setStep] = useState(0);
-  const [isStale, setIsStale] = useState(false);
+  const [staleKey, setStaleKey] = useState<string | null>(null);
+  const choiceKey = `${offer?.slug ?? "single"}:${batch.priceIdr}`;
+  const isStale = staleKey === choiceKey;
   const headingRef = useRef<HTMLHeadingElement>(null);
   const focusFieldRef = useRef<keyof RegistrationValues | null>(null);
   const didMount = useRef(false);
   const submittingRef = useRef(false);
   const idempotencyKey = useRef<string | null>(null);
+
+  useEffect(() => { idempotencyKey.current = null; }, [batch.priceIdr, offer?.slug]);
 
   useEffect(() => {
     if (!didMount.current) {
@@ -119,7 +130,7 @@ export function RegistrationForm({ batch, offer }: { batch: RegistrationBatch; o
         return;
       }
       setSubmitState("idle");
-      setIsStale(response.status === 409);
+      if (response.status === 409) setStaleKey(choiceKey);
       if (response.status === 409) idempotencyKey.current = null;
       setBanner(registrationFailure(response.status, message));
     } catch {
@@ -163,6 +174,17 @@ export function RegistrationForm({ batch, offer }: { batch: RegistrationBatch; o
       ) : null}
 
       <div className="mt-8 grid gap-6">
+        {isLastStep && bundleChoice && onSelectOffer ? <fieldset className="border border-rule p-5">
+          <legend className="px-2 font-semibold">Tinjau pilihan sebelum membayar</legend>
+          <p className="mb-4 text-sm text-muted">Pilihan awal dapat diubah sebelum pendaftaran dikirim.</p>
+          <div className="grid gap-3">
+            <label className="flex min-h-11 items-center gap-3"><input type="radio" name="final-offer" checked={selectedOffer === "single"} onChange={() => onSelectOffer("single")} />Tetap program biasa</label>
+            <label className="flex min-h-11 items-center gap-3"><input type="radio" name="final-offer" checked={selectedOffer === "bundle"} onChange={() => onSelectOffer("bundle")} />
+              <span><strong>{bundleChoice.title}</strong> · {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(bundleChoice.priceIdr)}
+                {bundleChoice.description ? <span className="block text-sm text-muted">{bundleChoice.description}</span> : null}</span>
+            </label>
+          </div>
+        </fieldset> : null}
         <RegistrationStepFields
           stepId={currentStep.id}
           values={values}

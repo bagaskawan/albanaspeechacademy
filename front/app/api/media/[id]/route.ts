@@ -14,8 +14,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     const session = await createClient();
     const { data: { user } } = await session.auth.getUser();
     if (!user) return new Response(null, { status: 404 });
-    const { data: member } = await session.from("members").select("role").eq("id", user.id).maybeSingle();
-    if (member?.role !== "admin") return new Response(null, { status: 404 });
+    const { data: admin } = await session.from("admin_users").select("user_id").eq("user_id", user.id).maybeSingle();
+    if (!admin) return new Response(null, { status: 404 });
   }
   const { data, error: signError } = await storage.storage.from("academy-media").createSignedUrl(asset.object_key, 60);
   if (signError || !data?.signedUrl) return new Response(null, { status: 503 });

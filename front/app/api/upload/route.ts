@@ -26,8 +26,8 @@ export async function POST(request: Request) {
   const session = await createClient();
   const { data: { user } } = await session.auth.getUser();
   if (!user) return json({ error: "Masuk sebagai admin terlebih dahulu." }, 401);
-  const { data: member } = await session.from("members").select("role").eq("id", user.id).maybeSingle();
-  if (member?.role !== "admin") return json({ error: "Akses admin diperlukan." }, 403);
+  const { data: admin } = await session.from("admin_users").select("user_id").eq("user_id", user.id).maybeSingle();
+  if (!admin) return json({ error: "Akses admin diperlukan." }, 403);
 
   let form: FormData;
   try { form = await request.formData(); }

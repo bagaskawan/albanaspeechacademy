@@ -12,7 +12,7 @@
 * Menyediakan fitur pengubah tema secara dinamis antara **Dark Mode** dan **Light Mode**.
 
 ### 2. Hero Section
-* Menampilkan **Logo** sebagai elemen utama *personal branding* klien.
+* Menampilkan **Logo** sebagai elemen utama *personal branding* klien - Sesuaikan ukuran dan layouting.
 * Tata letak dibuat *UI/UX friendly* dengan proporsi yang seimbang (dilengkapi *tagline* singkat dan tombol ajakan/CTA utama).
 
 ### 3. Urutan Tata Letak Halaman (User Journey)
@@ -28,22 +28,26 @@ Alur halaman dimulai dari **Pengenalan Program** terlebih dahulu, lalu disusun s
 | **6** | Harga & Jadwal | *"Berapa biayanya dan kapan kelas dimulai?"* |
 | **7** | Cara Pendaftaran | *"Bagaimana cara ikut kelasnya?"* |
 
-### 4. Struktur Halaman Program
-Setiap program wajib memuat tiga komponen utama: **Detail Program**, **Foto Acara/Batch**, dan **Video Promosi/Testimoni** yang meyakinkan.
+### 4. Struktur Halaman Program Training
+- Setiap program wajib memuat tiga komponen utama: **Detail Program**, **Foto Acara/Batch**, dan **Video Promosi/Testimoni** yang meyakinkan.
+- Secara Makro terbagi menjadi
+	1. **Public Training** terdiri:
+		  * **Public Speaking Series**
+		  * **Public Speaking for Speaker** *(dapat menawarkan bundling dengan Sertifikasi jika diaktifkan di CMS)*
+		  * **Sertifikasi** *(dapat menawarkan bundling dengan Speaker jika diaktifkan di CMS)*
+	2. **Inhouse Training** *(Alur bersifat private call / konsultasi langsung untuk klien swasta & korporat)*:
+		- Menampilkan **Dokumentasi Kegiatan**
+		- Daftar **Our Partner**.
 
-* **Public Training** *(Alur berbasis formulir pendaftaran)*:
-  * **Series**
-  * **Speaker** *(menyediakan opsi bundling dengan program Sertifikasi)*
-  * **Sertifikasi** *(menyediakan opsi bundling dengan program Speaker)*
-* **Inhouse Training** *(Alur bersifat private call / konsultasi langsung untuk klien swasta & korporat)*:
-  * Menampilkan **Dokumentasi Kegiatan** dan daftar **Our Partner**.
+Opsi bundling di Program bergantung pada radio Ya/Tidak dan penawaran aktif di CMS. Untuk saat ini penempatannya per program; rancangan penempatan per batch dan input batch yang lebih singkat ada di [rancangan CMS Program, Batch, dan Bundling](../registration/cms-program-batch-bundling.md). Series belum memiliki bundling saat ini.
 
 ### 5. Alur Pendaftaran & Konfirmasi Pembayaran (Public Training)
 1. Pengunjung mengisi formulir pendaftaran langsung di website hingga selesai.
+   * Sebelum checkout, pengunjung dapat meninjau ulang pilihan program biasa atau bundling jika CMS menawarkan bundling untuk program tersebut. Rincian dan total mengikuti pilihan terakhir.
 2. Setelah data berhasil disimpan ke sistem, pengunjung diarahkan ke halaman **Konfirmasi Pendaftaran & Pembayaran Manual** dengan tata letak dua kolom:
    * **Kolom Kiri:**
      * Notifikasi status pendaftaran berhasil diproses.
-     * Rincian tagihan: Nama Program/Bundling, Subtotal, **Kode Unik**, dan **Total Transfer**.
+     * Rincian tagihan: Nama Program/Bundling - Batch, Subtotal, **Kode Unik**, dan **Total Transfer**.
      * Panduan 3 langkah pembayaran manual.
      * Tombol CTA **"Kirim Bukti Transfer ke WhatsApp"** yang mengarah ke WhatsApp Admin.
    * **Kolom Kanan:**

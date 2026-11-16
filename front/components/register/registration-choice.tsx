@@ -27,13 +27,13 @@ export function RegistrationChoice({ batch, bundle }: { batch: RegistrationBatch
         </label>
         <label className={`flex min-h-24 cursor-pointer gap-3 border p-4 ${selected === "bundle" ? "border-accent" : "border-rule"}`}>
           <input type="radio" name="offer" value="bundle" checked={selected === "bundle"} onChange={() => setSelected("bundle")} />
-          <span><strong className="block">{bundle.title}</strong><span className="text-sm">{rupiah(bundle.priceIdr)} · dua batch, satu tagihan</span></span>
+          <span><strong className="block">{bundle.title}</strong><span className="text-sm">{rupiah(bundle.priceIdr)} · dua batch, satu tagihan</span>{bundle.description ? <span className="mt-1 block text-sm text-muted">{bundle.description}</span> : null}</span>
         </label>
       </div>
     </fieldset> : null}
     <RegistrationOverview batch={choice} />
-    <RegistrationForm key={selected} batch={choice} offer={selected === "bundle" && bundle ? {
+    <RegistrationForm batch={choice} offer={selected === "bundle" && bundle ? {
       slug: bundle.slug, secondaryBatchSlug: bundle.secondary.batchSlug,
-    } : null} />
+    } : null} bundleChoice={bundle} selectedOffer={selected} onSelectOffer={setSelected} />
   </>;
 }

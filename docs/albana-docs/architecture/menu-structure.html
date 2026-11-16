@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Struktur menu · Albana Speech Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box} body{margin:0;background:#fff;color:#10243f;font-family:Inter,system-ui,sans-serif;padding:40px 24px}main{max-width:1320px;margin:auto}p.eyebrow{font:700 11px 'Plus Jakarta Sans',sans-serif;letter-spacing:.18em;color:#26599a;text-transform:uppercase;margin:0 0 10px}h1{font:800 clamp(28px,3vw,42px)/1.15 'Plus Jakarta Sans',sans-serif;letter-spacing:-.035em;margin:0 0 12px}p.intro{max-width:72ch;color:#425a73;line-height:1.6;margin:0 0 28px}.diagram-container{width:100%;overflow-x:auto;border-top:1px solid #d8e4f0;border-bottom:1px solid #d8e4f0}svg{display:block;width:100%;min-width:1280px}svg text{font-family:Inter,system-ui,sans-serif}.node-name{font:700 17px 'Plus Jakarta Sans',sans-serif;fill:#10243f}.node-sub{font:400 12px Inter,sans-serif;fill:#425a73}.tag{font:700 10px 'Plus Jakarta Sans',sans-serif;letter-spacing:.12em;fill:#26599a}.edge{fill:none;stroke:#7895b8;stroke-width:1.5}.note{font:500 12px Inter,sans-serif;fill:#425a73}footer{font-size:13px;line-height:1.6;color:#566b81;margin-top:18px}@media print{body{padding:12px}.diagram-container{overflow:visible}svg{min-width:0}}
+  </style>
+</head>
+<body><main>
+  <p class="eyebrow">01 / Peta navigasi</p>
+  <h1>Struktur menu Albana</h1>
+  <p class="intro">Kelompok yang disarankan untuk situs publik dan CMS. Diagram merangkum fungsi; tabel status dan rute yang lebih rinci ada di <a href="README.md">panduan arsitektur</a>.</p>
+  <div class="diagram-container">
+  <svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="menu-structure-title menu-structure-desc">
+    <title id="menu-structure-title">Struktur menu Albana Speech Academy</title>
+    <desc id="menu-structure-desc">Satu situs terbagi menjadi kanal publik dan CMS, lalu menjadi tiga kelompok menu untuk masing-masing kanal.</desc>
+    <rect width="1280" height="720" fill="#ffffff"/>
+    <path class="edge" d="M600 144 V180 Q600 188 592 188 H348 Q340 188 340 196 V228"/>
+    <path class="edge" d="M680 144 V180 Q680 188 688 188 H932 Q940 188 940 196 V228"/>
+    <path class="edge" d="M340 310 V388 M136 388 H544 M136 388 V460 M340 388 V460 M544 388 V460"/>
+    <path class="edge" d="M940 310 V388 M736 388 H1144 M736 388 V460 M940 388 V460 M1144 388 V460"/>
+
+    <rect x="500" y="72" width="280" height="72" rx="6" fill="#26599a"/>
+    <text x="640" y="104" text-anchor="middle" style="font:700 19px 'Plus Jakarta Sans',sans-serif;fill:#fff">Albana Speech Academy</text>
+    <text x="640" y="126" text-anchor="middle" style="font:500 12px Inter,sans-serif;fill:#e7f2ff">Satu situs · dua area kerja</text>
+
+    <rect x="188" y="228" width="304" height="82" rx="6" fill="#edf4fb" stroke="#7895b8"/>
+    <text x="208" y="253" class="tag">PUBLIK</text><text x="208" y="281" class="node-name">Calon peserta &amp; organisasi</text>
+    <rect x="788" y="228" width="304" height="82" rx="6" fill="#edf4fb" stroke="#7895b8"/>
+    <text x="808" y="253" class="tag">CMS</text><text x="808" y="281" class="node-name">Pengelola Albana</text>
+
+    <rect x="40" y="460" width="192" height="86" rx="6" fill="#fff" stroke="#d8e4f0"/>
+    <text x="56" y="489" class="node-name">Beranda</text><text x="56" y="512" class="node-sub">Bukti · cara belajar</text><text x="56" y="530" class="node-sub">trainer · kontak</text>
+    <rect x="244" y="460" width="192" height="86" rx="6" fill="#fff" stroke="#d8e4f0"/>
+    <text x="260" y="489" class="node-name">Program</text><text x="260" y="512" class="node-sub">Detail · jadwal</text><text x="260" y="530" class="node-sub">pendaftaran</text>
+    <rect x="448" y="460" width="192" height="86" rx="6" fill="#fff" stroke="#d8e4f0"/>
+    <text x="464" y="489" class="node-name">Bacaan</text><text x="464" y="512" class="node-sub">Artikel terbit</text><text x="464" y="530" class="node-sub">&amp; konfirmasi</text>
+    <rect x="640" y="460" width="192" height="86" rx="6" fill="#fff" stroke="#d8e4f0"/>
+    <text x="656" y="489" class="node-name">Pendaftaran</text><text x="656" y="512" class="node-sub">Pendaftar · tagihan</text><text x="656" y="530" class="node-sub">tindak lanjut</text>
+    <rect x="844" y="460" width="192" height="86" rx="6" fill="#fff" stroke="#d8e4f0"/>
+    <text x="860" y="489" class="node-name">Katalog</text><text x="860" y="512" class="node-sub">Program · bundling</text><text x="860" y="530" class="node-sub">batch · trainer</text>
+    <rect x="1048" y="460" width="192" height="86" rx="6" fill="#fff" stroke="#d8e4f0"/>
+    <text x="1064" y="489" class="node-name">Publikasi</text><text x="1064" y="512" class="node-sub">Artikel · galeri · media</text><text x="1064" y="530" class="node-sub">partner · testimoni</text>
+
+    <line x1="40" y1="616" x2="1240" y2="616" stroke="#d8e4f0"/>
+    <text x="40" y="648" class="note">CATATAN</text>
+    <text x="140" y="648" class="note">Pendaftar lama belum membaca tabel Albana baru. Artikel belum muncul di header. Menu pengaturan Albana masih usulan.</text>
+  </svg></div>
+  <footer>Garis menunjukkan pengelompokan informasi, bukan izin akses. Rute aktual dan selisih implementasi tercatat di <a href="README.md">panduan</a>.</footer>
+</main></body></html>

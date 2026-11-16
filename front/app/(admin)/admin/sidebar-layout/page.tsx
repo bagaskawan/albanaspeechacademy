@@ -1,10 +1,5 @@
-import React from "react";
-import SidebarLayoutClient from "./SidebarLayoutClient";
+import { notFound } from "next/navigation";
 
-export const metadata = {
-  title: "Sidebar Layout - Admin Panel",
-};
-
-export default function SidebarLayoutPage() {
-  return <SidebarLayoutClient />;
+export default function Page() {
+  notFound();
 }

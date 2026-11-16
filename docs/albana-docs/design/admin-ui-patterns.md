@@ -1,6 +1,6 @@
 # Pola UI admin — Monochrome Soft
 
-**Status:** rancangan, 16 November 2026. Belum diterapkan. Dokumen ini **menggantikan arah visual** [design system admin](admin-design-system.md) untuk CMS: gaya baru mengikuti gambar referensi yang disetujui pemilik — monokrom dengan aksen kuning, font Poppins, navigasi pil, tombol ikon bulat, dan kartu besar berbentuk lunak.
+**Status:** rancangan, 16 November 2026; revisi navigasi sidebar, kepala halaman, dan tabel pada tanggal yang sama. Belum diterapkan. Dokumen ini **menggantikan arah visual** [design system admin](admin-design-system.md) untuk CMS: gaya baru mengikuti gambar referensi yang disetujui pemilik — kanvas putih monokrom dengan nada lembut sebagai pelengkap, font Poppins, satu sidebar berisi item pil, tombol ikon bulat, dan kartu besar berbentuk lunak.
 
 | Urusan | Sumber |
 | --- | --- |
@@ -18,8 +18,8 @@ Tenang, padat informasi, dan terasa seperti alat kerja yang dirawat. Ruang abu m
 | Dari gambar | Diterapkan di CMS Albana |
 | --- | --- |
 | Kanvas abu muda di atas latar bertekstur | Kanvas `#EFEFEF` penuh layar; tanpa tekstur foto |
-| Navigasi atas berupa pil putih, aktif hitam | Pil modul utama di topbar; aktif hitam teks putih |
-| Rail kiri berisi tombol bulat putih, aktif hitam | Rail aksi konteks modul (bukan daftar menu panjang) |
+| Navigasi atas berupa pil putih, aktif hitam | Item sidebar berbentuk pil; aktif hitam teks putih. Header hanya berisi logo, tema, dan pengguna (§3.1) |
+| Rail kiri berisi tombol bulat putih, aktif hitam | Diganti satu sidebar berisi grup dan sub-menu (§3.1) |
 | Breadcrumb abu dengan ikon map dan panah panjang | Breadcrumb `Grup ⟶ Modul` |
 | Judul besar ringan | Judul halaman Poppins 400, 44–48 px |
 | Tombol ikon bulat di kanan judul | Saring, cari, tanggal, aksi utama |
@@ -102,7 +102,7 @@ Judul memakai bobot **ringan** (400) dan ukuran besar — kontras datang dari sk
 | Kartu | 32 px | Padding 28 px (ponsel 20 px) |
 | Kartu di dalam kartu (tumpukan) | 24 px | Padding 20 px |
 | Pil navigasi | 999 px | Tinggi 56 px, padding 0 28 px, ikon 18 px + jarak 10 px |
-| Tombol bulat besar (rail, aksi judul) | 50% | 56 px |
+| Tombol bulat besar (aksi judul) | 50% | 56 px |
 | Tombol bulat kecil (↗ pada kartu) | 50% | 44 px |
 | Tombol teks | 999 px | Tinggi 48 px, padding 0 24 px |
 | Input, kolom cari | 999 px (satu baris) / 20 px (textarea) | Tinggi 52 px |
@@ -133,65 +133,82 @@ Lucide (sudah terpasang), garis 1,5 px, ukuran 18 px di pil dan 22 px di tombol 
 
 ## 3. Kerangka aplikasi
 
+Revisi 16 November 2026:
+- **Navigasi** ada di satu sidebar berisi grup dan sub-menu, menggantikan pil grup di topbar dan rail ikon. Dua tingkat navigasi di dua tepi layar membuat kursor bolak-balik.
+- **Header tetap ada**, tetapi hanya untuk identitas dan akun: logo di kiri, tombol tema dan menu pengguna di kanan. Header tidak berisi menu.
+
+Gaya tetap sama: item berbentuk pil, aktif hitam, ikon garis, sudut lunak.
+
 ```text
-╭──────────────────────────────────────────────────────────────────────────────╮  kanvas #EFEFEF
-│  (⌗)   ⬤ Dashboard   ○ Pendaftaran   ○ Kelas   ○ Konten   ○ Pengaturan   ◐ (A)│  ← topbar 96px
-│                                                                              │
-│  (←)   ▢ Kelas  ⟶  ▢ Program                                                 │
-│        Program                                       (⚲) (⌕) (●+)            │  ← kepala halaman
-│                                                                              │
-│  (●)   ╭──────────────────────────────╮  ╭─────────────────────────────────╮ │
-│  (✎)   │  KARTU SOROTAN (hitam)       │  │  ◯ Kartu putih                  │ │
-│  (◫)   │                              │  │                                 │ │
-│  (⧉)   ╰──────────────────────────────╯  ╰─────────────────────────────────╯ │
-│  rail  ╭──────────────────────────────────────────────────────────────────╮  │
-│  aksi  │  Panel daftar                                                    │  │
-│        ╰──────────────────────────────────────────────────────────────────╯  │
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ (◉) Albana CMS                                                    (◐)  (A) ˅ │ ← header 72 px
 ╰──────────────────────────────────────────────────────────────────────────────╯
+╭──────────────╮
+│ ▣ Dashboard  │   Konten  ⟶  Artikel
+│              │   Artikel                 (⌕ Cari…) (⚲) (⇩ Ekspor) (● Tulis artikel)
+│ Pendaftaran ˅│   Draf dan artikel terbit. Hanya artikel terbit tampil publik.
+│   ○ Pendaftar│
+│   ○ Tagihan 3│   ┌───────────────────────────────────────────────────────────┐
+│ Kelas       ˅│   │ Judul                  Status    Terbit        Diperbarui   │ ← kepala tabel
+│   ○ Program  │   └───────────────────────────────────────────────────────────┘
+│   ○ Batch    │     Hallo semua            • Draf    —             11 Nov  (✎)(🗑)
+│ Konten      ˅│   ─────────────────────────────────────────────────────────────
+│   ● Artikel  │ ← item aktif: pil hitam, teks putih
+│   ○ Media    │
+╰──────────────╯
 ```
 
-### 3.1 Topbar — navigasi modul berbentuk pil
+### 3.1 Header
 
-- Kiri: tombol bulat 56 px berisi logo Albana (tautan ke Dashboard).
-- Tengah: lima pil **grup** — Dashboard · Pendaftaran · Kelas · Konten · Pengaturan. Pil aktif `--ink` berteks putih; pasif `--surface`. Jarak antarpil 12 px.
-- Kanan: tombol bulat tema, tombol bulat avatar (menu Profil, Keluar).
-- Lencana kuning 20 px di pojok pil **Pendaftaran** bila ada tagihan menunggu.
-- Topbar tidak lengket; ia ikut tergulir. Saat gulir naik, topbar muncul kembali (lihat §4).
-
-### 3.2 Rail kiri — modul di dalam grup
-
-Rail berisi tombol bulat 56 px, satu per **modul** dalam grup aktif, ditambah tombol ← kembali di atas. Modul aktif `--ink`, ikon putih. Tooltip berisi nama modul muncul saat hover/fokus di kanan tombol.
-
-| Grup (pil) | Modul (tombol rail) |
+| Unsur | Aturan |
 | --- | --- |
-| Dashboard | — (rail berisi pintasan: Tagihan menunggu, Batch aktif) |
+| Wadah | Tinggi 72 px, latar `--admin-canvas`, garis bawah 1 px `--admin-line`. Lengket di atas; tidak bersembunyi saat gulir. Lebar penuh, di atas sidebar dan konten. |
+| Kiri | Tombol bulat logo 44 px (latar `#0B0B0B`, logo putih) + "Albana CMS" 15/500. Tautan ke Dashboard. Di < 1024 px didahului tombol menu ☰ yang membuka laci sidebar. |
+| Kanan | Tombol bulat tema 44 px, lalu tombol pengguna: avatar 36 px + username 14 px + chevron, membuka menu (username, Keluar). Di < 768 px hanya avatar. |
+| Tidak boleh | Pil grup, tautan modul, breadcrumb, atau kolom cari global. |
+
+### 3.2 Sidebar
+
+| Unsur | Aturan |
+| --- | --- |
+| Wadah | Panel `--admin-surface` radius 32 px di bawah header, jarak 12 px dari tepi kiri dan bawah. Lebar 264 px. Lengket (`top` = tinggi header + 12 px); isi menu bergulir sendiri bila tidak muat. Tanpa logo, tema, dan akun (semuanya di header). |
+| Dashboard | Item tunggal di atas grup. |
+| Judul grup | 12/500 `--admin-text-secondary`, huruf biasa, tanpa kurung siku. Tombol yang membuka/menutup sub-menu, chevron 16 px di kanan, `aria-expanded`. |
+| Item sub-menu | Pil tinggi 44 px, padding 0 14 px, ikon 18 px + label 15/400, jarak 2 px antaritem. Hover `--admin-surface-muted`. |
+| Item aktif | Pil `--admin-ink`. **Ikon dan label** sama-sama `--admin-on-ink`, 500, dengan warna yang ditulis langsung pada label (tidak bergantung pada warisan) dan berada di atas pil (`position: relative; z-index: 1`). `aria-current="page"`. Kontras label ≥ 4,5:1 di kedua tema. |
+| Lencana | Di ujung kanan item **Tagihan**: jumlah tagihan menunggu, latar `--admin-peach-dot`, teks `#0B0B0B`. Bila grup Pendaftaran tertutup, lencana pindah ke judul grup. |
+| Buka/tutup grup | Grup yang memuat halaman aktif selalu terbuka. Grup lain mengingat keadaannya di `localStorage` (`admin-nav-open`). Bawaan: semua terbuka. |
+| Kaki | Hanya tombol ⟷ ringkas/lebarkan (≥ 1024 px). |
+
+| Grup | Modul |
+| --- | --- |
+| — | Dashboard |
 | Pendaftaran | Pendaftar · Tagihan |
 | Kelas | Program · Batch · Trainer |
 | Konten | Artikel · Media · Galeri · Testimoni · Partner |
-| Pengaturan | Profil akademi · Kontak · Rekening · Akun admin |
-
-Ini memisahkan dua tingkat navigasi secara visual: **pil = di mana saya**, **rail = bagian mana**. Sidebar 224 px lama tidak dipakai.
+| Pengaturan | Profil akademi · Kontak · Rekening |
 
 ### 3.3 Kepala halaman
 
 ```text
-▢ Kelas  ⟶  ▢ Program                              ← breadcrumb 14px, --text-secondary
-Program                         (⚲)  (⌕)  (●+)     ← judul 44px/400; tombol bulat 56px
+Konten  ⟶  Artikel                                  ← breadcrumb 14 px, --admin-text-secondary
+Artikel          (⌕ Cari…) (⚲) (⇩ Ekspor) (● Tulis artikel)   ← judul 40/400; bilah alat §8.2
+Draf dan artikel terbit. Hanya artikel terbit tampil publik.   ← deskripsi 15, satu baris
 ```
 
-- Tombol bulat kanan, urutan tetap: **Saring** (⚲) · **Cari** (⌕) · **Aksi utama** (hitam, ikon +).
-- Aksi utama berupa tombol bulat hitam; label teksnya muncul sebagai tooltip dan `aria-label` (“Tambah program”). Pada ≥ 1280 px boleh melebar menjadi pil hitam berlabel.
-- **Cari** saat ditekan melebar menjadi kolom pil 320 px di tempat (bukan dialog); Escape menutup.
-- Tidak ada eyebrow dalam kurung siku dan tidak ada garis pembagi di bawah judul.
+- Kepala halaman dirender **sekali oleh shell**. Modul **tidak** membuat judul, eyebrow, atau deskripsi sendiri; judul ganda seperti "ARTIKEL" di bawah judul halaman dihapus.
+- Deskripsi satu kalimat diambil dari daftar navigasi (`description` per modul). Halaman detail tidak menampilkan deskripsi.
+- Sisi kanan memuat **bilah alat tabel** (§8.2) untuk modul daftar: Cari · Saring · Ekspor · Tambah. Modul menentukan tombol yang tampil lewat matriks §8.2; urutan tetap.
+- Halaman detail: tombol bulat ← di kiri breadcrumb, menuju halaman daftar modul (§3.8 rencana).
 
 ### 3.4 Responsif
 
-| Lebar | Topbar | Rail | Konten |
+| Lebar | Header | Sidebar | Konten |
 | --- | --- | --- | --- |
-| ≥ 1280 px | Lima pil berlabel | Kiri, vertikal | Grid 12 kolom, kartu 2–3 per baris |
-| 1024–1279 px | Pil berlabel, padding 20 px | Kiri | Grid 8 kolom |
-| 768–1023 px | Pil hanya ikon kecuali aktif | Pindah ke bawah judul sebagai deret horizontal tombol bulat | 1–2 kartu per baris |
-| < 768 px | Logo + judul grup aktif + tombol menu; grup dibuka sebagai lembar bawah berisi pil | Deret horizontal dapat digulir di bawah judul | 1 kolom; judul 32 px |
+| ≥ 1280 px | Logo + nama; tema; avatar + username | Terbuka 264 px | Grid 12 kolom |
+| 1024–1279 px | Sama | Ringkas 80 px: hanya ikon, judul grup menjadi garis pemisah, tooltip di kanan. Tombol ⟷ melebarkan. Pilihan diingat (`admin-nav-compact`). | Grid 8 kolom |
+| 768–1023 px | ☰ + logo; tema; avatar + username | Laci dari kiri (300 px, latar gelap 30%); tutup dengan Escape, ketuk di luar, atau setelah memilih item | 1–2 kolom |
+| < 768 px | ☰ + logo; tema; avatar saja | Laci | 1 kolom; judul 32 px |
 
 ## 4. Gerak
 
@@ -221,14 +238,14 @@ Program                         (⚲)  (⌕)  (●+)     ← judul 44px/400; tom
 
 | Unsur | Gerak |
 | --- | --- |
-| **Pil aktif berpindah** | Bidang hitam pil **meluncur** dari pil lama ke pil baru (`transform: translateX` + lebar via `scaleX` pada pseudo-elemen), 320 ms `--ease-in-out`. Teks berubah warna saat bidang lewat di bawahnya. |
+| **Item aktif sidebar berpindah** | Pil hitam **meluncur** vertikal dari item lama ke item baru (`layoutId`), 280 ms `--ease-in-out`. Teks berubah warna saat pil lewat. |
 | **Tombol bulat ditekan** | `scale(0.92)` 90 ms → kembali dengan `--ease-spring` 220 ms. |
 | **Tombol bulat hover** | Ikon berputar/geser kecil sesuai maknanya: ↗ geser 2 px ke kanan atas; ← geser 2 px ke kiri; + berputar 90°. 180 ms. |
-| **Rail berganti grup** | Tombol lama keluar `opacity` + `scale 0.8` serentak 140 ms; tombol baru masuk satu per satu dari atas, `scale 0.8→1` + `opacity`, jeda 40 ms, `--ease-spring`. |
+| **Sub-menu buka/tutup** | Tinggi `0 ↔ auto` 200 ms `--ease-out` dengan `overflow: hidden`; chevron berputar 180°. Item tidak dianimasikan satu per satu. |
 | **Kartu sorotan bertumpuk** | Kartu depan bergeser ke kiri dan memudar; kartu belakang naik ke depan (`translateY(-12px) scale(0.96)→0 1`), 360 ms `--ease-out`. Titik indikator: titik aktif memanjang menjadi garis (`scaleX`). Usap horizontal di ponsel. |
 | **Angka display berubah** | Digit lama naik keluar, digit baru naik masuk per digit (masker `overflow: hidden`), 260 ms, jeda 30 ms antardigit dari kanan. Hanya saat nilai berubah karena tindakan, bukan saat memuat. |
-| **Topbar saat gulir** | Ikut tergulir ke atas; saat pengguna gulir naik ≥ 8 px, topbar turun kembali (`translateY(-100%)→0`) 240 ms. |
-| **Kepala halaman saat pindah modul** | Judul *crossfade* + `translateY(8px)→0` 220 ms; breadcrumb ikut. Shell tidak bergerak. |
+| **Laci sidebar (< 1024 px)** | `translateX(-100%)→0` 280 ms `--ease-out`; keluar 180 ms. Latar memudar. |
+| **Kepala halaman saat pindah modul** | Judul baru langsung memudar masuk + `translateY(6px)→0` 160 ms, **tanpa menunggu** judul lama keluar. Isi halaman memudar masuk 160 ms (`opacity` saja). Sidebar tidak bergerak. |
 | **Kartu masuk saat halaman dimuat** | Satu kali per kunjungan halaman: kartu `opacity` + `translateY(16px)→0` + `scale(0.98)→1`, 420 ms `--ease-out`, jeda 50 ms, maksimal 6 kartu. Kunjungan berikutnya dalam sesi yang sama: langsung tampil. |
 
 ### 4.3 Aturan
@@ -244,28 +261,27 @@ Program                         (⚲)  (⌕)  (●+)     ← judul 44px/400; tom
 ### T1 — Daftar
 
 ```text
-▢ Pendaftaran ⟶ ▢ Tagihan
-Tagihan                                                    (⚲) (⌕) (●↓)
+Pendaftaran ⟶ Tagihan
+Tagihan                                                (⚲) (⌕) (● Ekspor)
+Cocokkan bukti transfer dan nominal sebelum memverifikasi.
 
-╭─ kapsul saring (hitam) ──────────────────────────────────╮
-│ ( Semua 46 ) ( ◉ Menunggu 3 ) ( Terverifikasi 41 ) ( Ditolak 2 )  (↗) │
-╰──────────────────────────────────────────────────────────╯
+( Semua 46 )  • Menunggu 3   • Terverifikasi 41   • Ditolak 2          ← tab saring
 
-╭──────────────────────────────────────────────────────────────────────╮
-│  (A)  Rina Putri             Speaker · Batch 9     Rp260.137   [Menunggu] (↗) │
-│       0812…  · 2 jam lalu                                              │
-│  ────────────────────────────────────────────────────────────────────  │
-│  (B)  Budi Santoso           Series · Batch 9      Rp300.214   [Menunggu] (↗) │
-╰──────────────────────────────────────────────────────────────────────╯
-         Menampilkan 1–20 dari 46              ( ‹ )  ●───  ( › )
+┌──────────────────────────────────────────────────────────────────────────┐
+│ Peserta               Program – batch       Total        Status      Aksi │ ← kepala tabel
+└──────────────────────────────────────────────────────────────────────────┘
+  Rina Putri            Speaker – Batch 9     Rp260.137   • Menunggu     ⋯
+  rina@contoh.id · 2 jam lalu
+ ───────────────────────────────────────────────────────────────────────────
+  Budi Santoso          Series – Batch 9      Rp300.214   • Terverifikasi ⋯
+ ───────────────────────────────────────────────────────────────────────────
+Menampilkan 1–20 dari 46                                         ( ‹ ) ( › )
 ```
 
-- **Kapsul saring** (gaya kapsul hitam di gambar): wadah `--ink`, chip pasif `--ink-soft` teks putih, chip aktif `--surface` teks hitam, tombol ↗ kuning di ujung membuka saringan lanjutan.
-- Panel daftar satu kartu putih radius 32 px; baris dipisah garis `--line` yang tidak menyentuh tepi kartu (inset 28 px).
-- Kolom identitas: avatar bulat berisi inisial (`--surface-muted`) + nama 15/500 + meta 14 `--text-secondary`.
-- Status berupa chip: Menunggu = kuning; Terverifikasi / Terbit / Dibuka = mint; Ditolak = `--danger-bg`; Draf / Ditutup = `--surface-muted`.
-- Aksi baris: tombol bulat 44 px ↗ membuka detail; menu ⋯ untuk aksi lain.
-- Paginasi: dua tombol bulat dengan indikator titik-garis di tengah.
+- **Tab saring** (pola §2.1 aturan 5): tab aktif `--admin-surface-muted` dengan hitungan di lencana putih; tab pasif diawali titik nada sesuai makna.
+- **Tabel** mengikuti §8.3: kepala tabel berlatar abu dan bersudut, baris di atas kanvas dipisah satu garis tipis, tanpa garis vertikal dan tanpa kartu pembungkus.
+- Status berupa chip nada lembut dengan titik: Menunggu `peach`, Terverifikasi/Terbit/Dibuka `mint`, Ditolak/Dibatalkan `rose`, Draf/Ditutup abu.
+- Aksi baris: satu aksi utama sebagai tombol ikon bulat 36 px (mis. ✎ ubah) dengan tooltip, atau menu ⋯ bila aksinya lebih dari satu.
 
 ### T2 — Form halaman
 
@@ -468,7 +484,7 @@ Ruang pesan galat dicadangkan (min-height 20 px). Label tetap terlihat; placehol
 | --- | --- |
 | Rupiah | Pil dengan awalan “Rp” abu; pemisah ribuan saat mengetik; `inputMode="numeric"`; simpan integer |
 | Persen DP | Pil sempit 120 px dengan akhiran “%”; di sampingnya chip hasil: **= Rp300.000** |
-| Pilihan 2–4 (Bundling Ya/Tidak, jenis formulir) | **Pil segmen** dalam kapsul `--surface-muted`; pilihan aktif pil `--ink` yang meluncur (gerak sama dengan topbar) |
+| Pilihan 2–4 (Bundling Ya/Tidak, jenis formulir) | **Pil segmen** dalam kapsul `--surface-muted`; pilihan aktif pil `--ink` yang meluncur (gerak sama dengan item aktif sidebar) |
 | Pilihan > 4 | Select berbentuk pil; daftar di popover radius 24 px |
 | Ya/tidak berdampak | `switch` 52×32 px, aktif `--ink`; teks akibat di sampingnya |
 | Tanggal + jam sesi | Tiga pil berderet: tanggal · mulai · selesai, akhiran “WIB” |
@@ -533,33 +549,89 @@ Primitif: `table.tsx`, `AdminPagination.tsx`, `badge.tsx`, `dropdown-menu.tsx`, 
 
 | Bentuk | Bila |
 | --- | --- |
-| **Baris dalam satu kartu** (T1) | Data dibandingkan: Pendaftar, Tagihan, Batch, Artikel, Rekening |
+| **Tabel** (T1, §8.3) | Data dibandingkan per kolom: Pendaftar, Tagihan, Batch, Artikel, Rekening |
 | **Kartu besar** radius 32 px, 2–3 per baris | Program, Trainer, Partner, Testimoni |
 | **Grid media** radius 24 px, 4:3 | Media, Galeri |
 
-Kartu program meniru kartu putih di gambar: ikon berbingkai + nama 22/500, angka display (jumlah pendaftar batch aktif), kapsul chip (status batch, harga), tombol bulat ↗.
+Kartu program memuat ikon berbingkai, nama 22/500, angka display (jumlah pendaftar batch aktif), kapsul chip (status batch, harga), dan tombol bulat ↗.
 
-< 768 px: baris menjadi kartu radius 24 px bertumpuk, jarak 12 px.
+< 768 px: setiap baris tabel menjadi kartu `--admin-surface` radius 20 px bertumpuk, jarak 8 px. Kolom pertama menjadi judul kartu, kolom lain menjadi pasangan label–nilai 13/15, aksi di pojok kanan atas.
 
-### 8.2 Bilah alat
+### 8.2 Bilah alat dan aksi per tabel
 
-- **Kapsul saring hitam** (§5 T1) menggantikan tab. Chip aktif putih **meluncur** antarchip, 320 ms `--ease-in-out`.
-- Cari: tombol bulat yang melebar menjadi pil 320 px (`scaleX` dari kanan pada latar, lalu input memudar masuk), 260 ms. Menunggu 250 ms setelah ketikan terakhir.
-- Saringan tersimpan di URL (`?status=pending&q=…`).
+Setiap modul daftar memakai satu templat bilah alat di kepala halaman (§3.3), urutan tetap dari kiri ke kanan:
 
-### 8.3 Baris
+| Tombol | Bentuk | Perilaku |
+| --- | --- | --- |
+| **Cari** | Kolom pil 280 px berikon ⌕ (≥ 1024 px); tombol bulat yang melebar di layar lebih kecil | Saring di klien/server setelah jeda 250 ms; `?q=` di URL; Escape mengosongkan |
+| **Saring** | Tombol bulat ⚲ dengan lencana jumlah saringan aktif | Membuka popover berisi pilihan modul (program, batch, status); tersimpan di URL |
+| **Ekspor** | Pil bergaris (`--admin-line-strong`, teks `--admin-ink`) berikon ⇩ + "Ekspor" | Mengunduh CSV dari data **yang sedang tersaring** (§8.7) |
+| **Tambah** | Pil hitam berikon + dan label modul ("Tambah program", "Tulis artikel", "Unggah media") | Membuka formulir: dialog untuk data ringkas, halaman T2 untuk data panjang |
+
+**Aksi baris (templat)** — kolom terakhir setiap tabel:
+
+| Tombol | Bentuk | Perilaku |
+| --- | --- | --- |
+| **Ubah** | Tombol ikon bulat 36 px ✎ | Membuka dialog atau halaman ubah yang sama dengan Tambah, terisi data baris |
+| **Hapus** | Tombol ikon bulat 36 px 🗑 `--admin-danger` | Dialog konfirmasi berisi nama data, kalimat "Tindakan ini tidak dapat dibatalkan", tombol "Hapus" merah. Hanya tampil untuk `adminsuper` (RLS juga membatasi) |
+| Aksi khusus | Pil teks 13/500 di kiri ikon (mis. "Aktifkan", "Terbitkan") | Hanya bila modul memerlukannya |
+
+Bila lebih dari dua ikon + satu aksi khusus, sisanya masuk menu ⋯.
+
+**Matriks per modul**
+
+| Modul | Cari | Saring | Ekspor | Tambah | Ubah | Hapus | Aksi khusus |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Pendaftar | — | — | ✓ | — | — | — | — |
+| Tagihan | — | — | ✓ | — | — | — | Verifikasi · Tolak (alur tagihan, §11) |
+| Program | ✓ | — | ✓ | ✓ Tambah program | ✓ halaman | ✓ | Tambah batch |
+| Batch | ✓ | Program, status pendaftaran | ✓ | ✓ Tambah batch | ✓ dialog | ✓ | Buka/tutup pendaftaran |
+| Trainer | ✓ | — | ✓ | ✓ Tambah trainer | ✓ dialog | ✓ | — |
+| Artikel | ✓ | Draf / Terbit | ✓ | ✓ Tulis artikel | ✓ halaman | ✓ | — |
+| Media | ✓ | Program, status | — | ✓ Unggah media | ✓ dialog | ✓ | Terbitkan / Tarik |
+| Galeri | ✓ | — | — | ✓ Tambah gambar | ✓ dialog | ✓ | — |
+| Testimoni | ✓ | Draf / Terbit | ✓ | ✓ Tambah testimoni | ✓ dialog | ✓ | Terbitkan / Tarik |
+| Partner | ✓ | — | ✓ | ✓ Tambah partner | ✓ dialog | ✓ | Terbitkan / Tarik |
+| Rekening | — | — | — | ✓ Tambah rekening | ✓ dialog | ✓ | Aktifkan |
+
+- **Menu Pendaftaran** (Pendaftar dan Tagihan) hanya punya tombol **Ekspor** di bilah alat. Pendaftaran berasal dari formulir publik, sehingga tidak ditambah, diubah, atau dihapus dari CMS. Pembatalan lewat status tagihan `cancelled`. Baris Pendaftar tetap dapat dibuka untuk membaca detail jawaban (rencana 2.1), dan Tagihan tetap memakai Verifikasi/Tolak di barisnya.
+- Media dan Galeri tidak diekspor karena isinya berkas. Rekening tidak diekspor karena datanya sensitif.
+- Kontak dan Profil akademi adalah formulir (T2), bukan tabel.
+
+### 8.3 Tabel
+
+Satu komponen bersama (`components/admin/ui/data-table.tsx`) dipakai semua modul. Modul tidak menulis kelas tabel sendiri.
+
+**Tata letak**
 
 | Unsur | Aturan |
 | --- | --- |
-| Tinggi | 76 px |
-| Identitas | Avatar inisial bulat 40 px + nama 15/500 + meta 14 |
-| Angka | Rata kanan, `tabular-nums`; rupiah dengan tiga digit akhir `--text-faint` |
-| Kosong | “—” |
-| Tanggal | “16 Nov 2026, 14.32”; relatif untuk < 24 jam |
-| Status | Chip berkata (kuning / mint / jingga / abu) |
-| Aksi | Tombol bulat ↗ 44 px; menu ⋯ untuk lainnya |
-| Hover | Latar `--surface-muted` dengan radius 20 px di dalam kartu (inset 8 px), 140 ms; tombol ↗ berubah hitam |
-| Terpilih (panel terbuka) | Latar `--ink`, teks putih, chip tetap berwarna |
+| Wadah | Tanpa kartu, tanpa tepi luar, lebar penuh area konten. Gulir horizontal hanya di dalam wadah tabel bila kolom tidak muat. |
+| Kepala tabel | Latar `--admin-surface`, tinggi 48 px. Sel pertama radius kiri 16 px, sel terakhir radius kanan 16 px. Lengket di atas saat tabel digulir. |
+| Baris | Tinggi minimal 64 px (72 px bila ada baris kedua). Garis bawah 1 px `--admin-line`; baris terakhir tanpa garis. Tanpa garis vertikal, tanpa zebra. |
+| Padding sel | 0 16 px; sel pertama 20 px di kiri, sel terakhir 20 px di kanan. Teks rata tengah vertikal. |
+| Hover | Latar `--admin-surface` 140 ms. Baris yang dapat diklik memakai kursor penunjuk dan bisa dibuka dengan Enter. |
+| Terpilih | Latar `--admin-surface-muted`; kotak centang terisi hitam. |
+| Lebar kolom | Kolom identitas lentur (min 240 px). Kolom tetap: kotak centang 44, status 140, tanggal 168, angka 140, aksi 64. Teks panjang dipotong dengan elipsis dan `title` berisi teks penuh. |
+
+**Tipografi**
+
+| Unsur | Gaya |
+| --- | --- |
+| Judul kolom | 13/500 `--admin-text-secondary`, huruf biasa ("Diperbarui", bukan "DIPERBARUI"), tanpa jarak huruf tambahan |
+| Isi utama | 14/400 `--admin-ink`, tinggi baris 1.45 |
+| Identitas (kolom pertama) | Baris 1: 14/500 `--admin-ink`. Baris 2: 13/400 `--admin-text-secondary` (ringkasan, email, atau meta), satu baris terpotong |
+| Angka dan rupiah | 14/400 `tabular-nums`, rata kanan; judul kolomnya juga rata kanan. Rupiah memakai angka bertingkat §2.2 |
+| Tanggal | 14/400 `--admin-text-secondary`, format "11 Nov 2026, 14.55" WIB; < 24 jam menjadi relatif ("2 jam lalu") dengan `title` tanggal lengkap |
+| Nilai kosong | "—" `--admin-text-faint` |
+| Chip status | Tinggi 26 px, 12/500, huruf biasa ("Draf", "Terbit"), titik 6 px + teks, nada §2.1 |
+
+**Aksi**
+
+- Mengikuti templat aksi baris §8.2: ✎ Ubah lalu 🗑 Hapus, tombol ikon bulat 36 px tanpa latar (hover `--admin-surface-muted`; hapus `--admin-rose-soft`), ikon 18 px, `aria-label` berisi nama data ("Ubah Batch 9") + tooltip.
+- Kolom aksi rata kanan, tanpa judul kolom yang terlihat (judul "Aksi" hanya untuk pembaca layar).
+
+**Aksesibilitas**: `<table>` asli dengan `<th scope="col">`, `aria-sort` pada kolom yang dapat diurutkan, dan `<caption class="sr-only">` berisi nama modul.
 
 ### 8.4 Perubahan pada daftar
 
@@ -580,6 +652,18 @@ Kotak centang bulat 22 px. Saat ≥ 1 terpilih, **kapsul hitam mengambang** munc
 
 20 per halaman. Tombol bulat ‹ › dan indikator titik-garis (titik aktif memanjang). Teks “1–20 dari 46” di kiri.
 
+### 8.7 Ekspor CSV
+
+| Aturan | Isi |
+| --- | --- |
+| Rute | `GET /api/admin/export/[modul]` dengan parameter saringan yang sama dengan URL halaman (`q`, `status`, `program`, `batch`). Wajib `requireAdminMember()`; tanpa sesi admin → 401. |
+| Berkas | `albana-{modul}-{YYYY-MM-DD}.csv`, UTF-8 dengan BOM agar terbaca Excel, pemisah koma, baris pertama judul kolom berbahasa Indonesia. |
+| Kolom | Didefinisikan per modul di satu berkas (`lib/admin-export.ts`). Tanggal WIB "2026-11-16 14:32"; rupiah angka bulat tanpa titik. Pendaftar menyertakan jawaban formulir berpilihan dan jawaban bebas sebagai kolom terpisah. |
+| Keamanan | Sel yang diawali `=`, `+`, `-`, `@`, tab, atau CR diberi awalan `'` (mencegah injeksi rumus). Tidak ada token, kunci, atau `idempotency_key` dalam berkas. |
+| Batas | 5.000 baris per ekspor; bila lebih, tombol menampilkan pesan agar saringan dipersempit. |
+| Umpan balik | Tombol berubah "Menyiapkan…" dengan spinner; selesai = unduhan dimulai + toast "Ekspor siap". |
+
+
 ## 9. Memuat, kosong, galat
 
 ### 9.1 Pilihan indikator
@@ -587,7 +671,7 @@ Kotak centang bulat 22 px. Saat ≥ 1 terpilih, **kapsul hitam mengambang** munc
 | Tunggu | Indikator |
 | --- | --- |
 | < 300 ms | Tidak ada |
-| Navigasi | Pil topbar aktif berdenyut halus (`opacity 1↔0.7`, 900 ms) + skeleton konten |
+| Navigasi | Item sidebar yang dituju langsung aktif + skeleton konten |
 | Muat pertama | Skeleton berbentuk isi akhir |
 | Saring, cari, halaman | Isi lama diredupkan + garis progres kartu |
 | Aksi tombol | Tombol menyusut menjadi lingkaran + spinner |
@@ -615,7 +699,7 @@ Bentuk mengikuti kartu dan pil: **semua blok berujung bulat**.
 | Kartu sorotan | Skeleton `--ink-soft` di atas `--ink` |
 | Lebar teks | Bervariasi 35–85% |
 | Jumlah | 6 baris, 6 kartu, 8 sel media, 4 kartu dashboard |
-| Tidak di-skeleton | Topbar, rail, breadcrumb, judul halaman, tombol bulat kepala, kapsul saring |
+| Tidak di-skeleton | Sidebar, breadcrumb, judul halaman, tombol kepala, tab saring |
 | Tunda | Muncul setelah 300 ms; bila muncul, minimal 400 ms |
 | Aksesibilitas | Blok `aria-hidden`; wadah `aria-busy="true"` + teks tersembunyi |
 
@@ -696,7 +780,7 @@ Ikon masuk `scale 0.8→1` `--ease-spring` 320 ms; teks fade 200 ms.
 - Token di §2 dideklarasikan pada `.admin-shell` dan `.dark .admin-shell` di `app/globals.css`, menggantikan token admin biru yang ada di sana. Situs publik tidak terdampak.
 - Poppins dimuat sekali untuk route group `(admin)` dan `(auth)` — melalui `next/font/google` di layout server pembungkus, atau mekanisme Google Fonts yang sudah dipakai — dan dipasang sebagai `--font-admin` pada `.admin-shell`.
 - Komponen `components/ui/*` tetap dipakai; gaya admin diterapkan lewat scope, bukan salinan komponen.
-- Sidebar 224 px pada `app/(admin)/admin/layout.tsx` diganti topbar pil + rail; daftar grup dan modul tetap berupa konstanta di kode (tabel `privilege_*` sudah dihapus) dengan pemetaan grup di §3.2.
+- Kerangka: header logo/tema/pengguna (§3.1) dan satu sidebar navigasi (§3.2) di `components/admin/shell/AdminShell.tsx`; daftar grup dan modul berupa konstanta `lib/admin-nav.ts` (tabel `privilege_*` sudah dihapus).
 
 ## 13. Daftar periksa per layar
 

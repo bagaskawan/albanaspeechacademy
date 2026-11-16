@@ -1,5 +1,7 @@
 # Implementasi revisi website Albana
 
+> **Digantikan 16 November 2026** oleh [implementation plan redesign dan restrukturisasi](2026-11-16-redesign-restructure-implementation-plan.md). Migrasi Hostinger + MariaDB di bawah ditunda; lihat Fase 8 rencana baru.
+
 > **Untuk pelaksana:** kerjakan tugas berurutan; setiap perubahan perilaku memakai uji gagal → implementasi → uji lulus. Periksa [audit dan strategi](../project/2026-11-13-release-audit.md) serta [spesifikasi revisi](../project/website-revision-specification.md). Keputusan percakapan 13 November pada audit mengungguli rencana lama yang bertentangan.
 
 **Tujuan:** website Albana menampilkan tiga Public Training dan Inhouse, menerima pendaftaran/bundling dengan pembayaran manual yang dapat diverifikasi, mengelola media, lalu berjalan di Hostinger Unlimited + MariaDB setelah QA target stack.  

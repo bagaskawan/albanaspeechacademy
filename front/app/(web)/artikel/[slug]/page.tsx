@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { readPublicArticle } from "@/lib/server/public-articles";
 import { ArticleBody } from "@/components/article/article-body";
 
-export const instant = false;
 
 function formatPublishedAt(value: string) {
   const date = new Date(value);

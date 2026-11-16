@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import Image from "next/image";
 import { Container } from "@/components/layout/container";
 import { CountUp } from "@/components/ui/count-up";
 import { countDurationMs } from "@/lib/motion";
@@ -46,6 +47,12 @@ export async function LearningMethodSection() {
           titleId="cara-ngajar-title"
         />
 
+        <figure className="mt-8">
+          <div className="relative aspect-[16/9] overflow-hidden bg-card">
+            <Image src="/images/preview/umpan-balik-trainer.jpg" alt="Contoh visual sesi umpan balik trainer; bukan dokumentasi kelas Albana" fill sizes="(min-width: 1024px) 960px, 100vw" className="object-cover" />
+          </div>
+          <figcaption className="mt-2 text-xs text-muted">Contoh visual — bukan dokumentasi kelas Albana</figcaption>
+        </figure>
         {showBreakdown ? <ol className="mt-8 list-none border-t border-control">
           {learningApproaches.map((item) => (
             <li

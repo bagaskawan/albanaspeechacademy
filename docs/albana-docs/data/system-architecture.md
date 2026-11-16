@@ -1,5 +1,7 @@
 # Arsitektur sistem — Albana Speech Academy
 
+> **Digantikan 15 November 2026** oleh [arsitektur sistem terkini](../architecture/system-architecture.md). Dokumen ini dipertahankan sebagai riwayat rancangan MVP.
+
 **Untuk MVP**, ikuti [enam menu dan alur pendaftaran](../registration/registration-contract.md) serta [skema akademi](./albana-schema.sql). Peta rute dan modul di bawah merekam arsitektur dev sebelum penyederhanaan.
 
 **Status: 10 November 2026.** Dokumen ini memisahkan implementasi dev dari struktur tujuan. Bagian admin memakai satu folder rute bernama untuk setiap modul, seperti `admin/trainer/page.tsx` dan `admin/gallery/page.tsx`; keduanya sudah dibuat. Albana tetap **satu situs kelas** dengan CMS internal, tanpa subdomain komunitas, akun peserta, atau sistem membership.

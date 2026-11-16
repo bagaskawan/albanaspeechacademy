@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flowchart backend pendaftaran · Albana Speech Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#fff;color:#10243f;font-family:Inter,system-ui,sans-serif;padding:40px 24px}main{max-width:1320px;margin:auto}.eyebrow{font:700 11px 'Plus Jakarta Sans',sans-serif;letter-spacing:.18em;color:#26599a;text-transform:uppercase;margin:0 0 10px}h1{font:800 clamp(28px,3vw,42px)/1.15 'Plus Jakarta Sans',sans-serif;letter-spacing:-.035em;margin:0 0 12px}.intro{max-width:78ch;color:#425a73;line-height:1.6;margin:0 0 28px}.diagram-container{width:100%;overflow-x:auto;border-top:1px solid #d8e4f0;border-bottom:1px solid #d8e4f0}svg{display:block;width:100%;min-width:1280px}svg text{font-family:Inter,system-ui,sans-serif}.node-name{font:700 16px 'Plus Jakarta Sans',sans-serif;fill:#10243f}.node-sub{font:400 12px Inter,sans-serif;fill:#425a73}.edge{fill:none;stroke:#7895b8;stroke-width:1.5;marker-end:url(#registration-arrow)}.edge-focal{fill:none;stroke:#26599a;stroke-width:1.8;marker-end:url(#registration-arrow-blue)}.decision{fill:#fff;stroke:#7895b8;stroke-width:1.5}.branch{font:700 10px 'Plus Jakarta Sans',sans-serif;letter-spacing:.06em;fill:#425a73}.note{font:500 12px Inter,sans-serif;fill:#425a73}footer{font-size:13px;line-height:1.6;color:#566b81;margin-top:18px}@media print{body{padding:12px}.diagram-container{overflow:visible}svg{min-width:0}}
+  </style>
+</head>
+<body><main>
+  <p class="eyebrow">03 / Flowchart backend</p><h1>Pengiriman pendaftaran</h1>
+  <p class="intro">Route memeriksa kiriman; RPC memeriksa ulang penawaran dan menyimpan pendaftaran serta tagihan dalam satu transaksi. Pembayaran tetap dicocokkan admin secara manual.</p>
+  <div class="diagram-container">
+  <svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="registration-backend-flow-title registration-backend-flow-desc">
+    <title id="registration-backend-flow-title">Flowchart backend pendaftaran Albana</title>
+    <desc id="registration-backend-flow-desc">Kiriman JSON melewati validasi route dan pemeriksaan RPC, berakhir pada respons gagal atau pendaftaran serta tagihan transaksional dengan token tanda terima.</desc>
+    <defs>
+      <marker id="registration-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#7895b8"/></marker>
+      <marker id="registration-arrow-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#26599a"/></marker>
+    </defs>
+    <rect width="1280" height="720" fill="#fff"/>
+    <line x1="640" y1="112" x2="640" y2="156" class="edge"/>
+    <line x1="640" y1="220" x2="640" y2="248" class="edge"/>
+    <line x1="576" y1="288" x2="400" y2="288" class="edge"/>
+    <line x1="640" y1="328" x2="640" y2="370" class="edge"/>
+    <line x1="640" y1="438" x2="640" y2="466" class="edge"/>
+    <line x1="576" y1="506" x2="400" y2="506" class="edge"/>
+    <line x1="640" y1="546" x2="640" y2="584" class="edge-focal"/>
+    <line x1="770" y1="616" x2="900" y2="616" class="edge-focal"/>
+
+    <rect x="464" y="264" width="64" height="14" fill="#fff"/><text x="496" y="275" class="branch" text-anchor="middle">TIDAK</text>
+    <rect x="650" y="342" width="36" height="14" fill="#fff"/><text x="668" y="353" class="branch" text-anchor="middle">YA</text>
+    <rect x="464" y="482" width="64" height="14" fill="#fff"/><text x="496" y="493" class="branch" text-anchor="middle">TIDAK</text>
+    <rect x="650" y="554" width="36" height="14" fill="#fff"/><text x="668" y="565" class="branch" text-anchor="middle">YA</text>
+
+    <rect x="520" y="56" width="240" height="56" rx="20" fill="#edf4fb" stroke="#7895b8"/>
+    <text x="640" y="81" class="node-name" text-anchor="middle">POST /api/registrations</text><text x="640" y="100" class="node-sub" text-anchor="middle">JSON + kunci idempotensi</text>
+    <rect x="510" y="156" width="260" height="64" rx="6" fill="#fff" stroke="#d8e4f0"/>
+    <text x="640" y="182" class="node-name" text-anchor="middle">Validasi route</text><text x="640" y="202" class="node-sub" text-anchor="middle">Origin · ukuran · bentuk · consent</text>
+    <polygon points="640,248 704,288 640,328 576,288" class="decision"/>
+    <text x="640" y="284" class="node-name" text-anchor="middle">Valid?</text><text x="640" y="300" class="node-sub" text-anchor="middle">request</text>
+    <rect x="180" y="256" width="220" height="64" rx="20" fill="#fff" stroke="#d8e4f0"/>
+    <text x="290" y="282" class="node-name" text-anchor="middle">Tolak kiriman</text><text x="290" y="303" class="node-sub" text-anchor="middle">403 / 413 / 415 / 422</text>
+    <rect x="510" y="370" width="260" height="68" rx="6" fill="#fff" stroke="#d8e4f0"/>
+    <text x="640" y="396" class="node-name" text-anchor="middle">RPC penerimaan</text><text x="640" y="416" class="node-sub" text-anchor="middle">Limit · batch · harga · rekening</text>
+    <polygon points="640,466 704,506 640,546 576,506" class="decision"/>
+    <text x="640" y="502" class="node-name" text-anchor="middle">Siap?</text><text x="640" y="518" class="node-sub" text-anchor="middle">penawaran</text>
+    <rect x="180" y="474" width="220" height="64" rx="20" fill="#fff" stroke="#d8e4f0"/>
+    <text x="290" y="500" class="node-name" text-anchor="middle">Belum diterima</text><text x="290" y="521" class="node-sub" text-anchor="middle">409 / 429 / 503</text>
+    <rect x="510" y="584" width="260" height="64" rx="6" fill="#edf4fb" stroke="#26599a" stroke-width="2"/>
+    <text x="640" y="610" class="node-name" text-anchor="middle">Simpan atomik</text><text x="640" y="630" class="node-sub" text-anchor="middle">Baru: registrasi · tagihan</text>
+    <rect x="900" y="584" width="240" height="64" rx="20" fill="#fff" stroke="#26599a"/>
+    <text x="1020" y="610" class="node-name" text-anchor="middle">Tanda terima</text><text x="1020" y="630" class="node-sub" text-anchor="middle">Token + URL · HTTP 200</text>
+    <text x="40" y="692" class="note">Verifikasi bukti WhatsApp adalah tindakan admin berikutnya; formulir diterima ≠ pembayaran terverifikasi.</text>
+  </svg></div>
+  <footer>Hasil retry idempoten dapat kembali sebagai “received” tanpa baris baru. Lihat <a href="README.md">panduan arsitektur</a> untuk kode status dan tindak lanjut DP.</footer>
+</main></body></html>

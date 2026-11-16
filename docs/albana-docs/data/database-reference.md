@@ -1,5 +1,7 @@
 # Model data — Albana Speech Academy
 
+> **Digantikan 15 November 2026** oleh [skema database](database-schema.md) dan [kontrol akses](access-control.md), yang dibaca langsung dari proyek `clgjsekfnexmanjdxmqy`. Dokumen ini dipertahankan sebagai riwayat.
+
 **Acuan MVP per 10 November 2026** adalah [skema instalasi akademi](./albana-schema.sql) dan [kontrak formulir serta akses admin](../registration/registration-contract.md). Uraian berikut mendokumentasikan skema dev sebelumnya, termasuk tabel sesi, pembayaran, dan modul CMS lama.
 
 > **Status terverifikasi 11 November 2026:** proyek `clgjsekfnexmanjdxmqy` hanya berisi skema `data/albana-schema.sql` ditambah kolom aditif batch/artikel. Bentuk nyata tabel, constraint, RPC, dan izin ada di [audit kontrak data langkah 1](../archive/plans/2026-11-11-step-1-data-contract-audit.md). Uraian di bawah dipertahankan sebagai riwayat rancangan, bukan deskripsi database saat ini.

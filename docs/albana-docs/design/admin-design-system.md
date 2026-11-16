@@ -1,8 +1,10 @@
 # Design System: Albana Speech Academy — Admin CMS
 
+> **Arah visual digantikan 16 November 2026** oleh [Pola UI admin — Monochrome Soft](admin-ui-patterns.md): kanvas putih monokrom + nada lembut, font Poppins, satu sidebar dengan grup dan sub-menu, tabel berkepala abu, tombol ikon bulat, kartu radius 32 px. Bagian warna (§2), tipografi (§3), layout (§4), radius (§5), bayangan (§7), gerak (§10), dan token gelap (§11) di bawah tidak berlaku lagi untuk admin. Aturan perilaku tetap berlaku: status simpan (§6.5), bukti transfer WhatsApp (§6.7), Program & Batch (§6.8), editor artikel (§6.9), rekap pendaftar (§6.10), serta responsif dan aksesibilitas (§12).
+
 **Project ID:** albana-admin-01
-**Aesthetic Style:** Editorial Dashboard — *"Biru Albana, kertas, stabilo"*
-**Referensi Visual:** Ecomora Dashboard (struktur) · identitas Albana (warna dan tipografi)
+**Aesthetic Style:** Blue Soft UI — ruang kerja Albana yang tenang, ringan, dan jelas.
+**Referensi Visual:** Gambar dashboard terlampir untuk shell, pil filter, serta ritme kartu; gambar style guide untuk kelembutan permukaan. Isi, logo, dan warna contoh bukan aset Albana.
 **Menggantikan:** pedoman admin sebelumnya.
 **Rujukan alur:** [archive/legacy/user-flow.md](../archive/legacy/user-flow.md) · **Rujukan implementasi:** [rencana 11 November 2026](../archive/plans/2026-11-11-admin-program-batch-article-registration.md)
 
@@ -12,14 +14,14 @@
 
 Admin dipakai operator dan penulis, bukan pengunjung. Prinsipnya **"Data First, Decoration Never"**: operator harus langsung melihat apa yang perlu diisi, kapan pendaftaran dibuka, dan apakah perubahannya sudah tersimpan. Warna dipakai untuk tiga hal saja: aksi, status, dan satu aksen lembut per area. Bukan dekorasi tersebar.
 
-| Aspek | Web Komunitas | Admin CMS |
+| Aspek | Academy (publik) | Admin CMS |
 |---|---|---|
 | **Pengguna** | Publik / calon peserta | Internal / operator dan penulis |
 | **Mood** | Bold, editorial | Clean, hangat, data-driven |
 | **Navigasi** | Header publik | Topbar + sidebar desktop, drawer di ponsel |
-| **Warna** | Editorial + biru fungsional + stabilo kuning | Biru Albana untuk aksi + netral + stabilo + aksen pastel sage/sand/clay/sun |
-| **Corner** | Sharp (0px) | 16–20px pada kartu dan panel |
-| **Bayangan** | Tidak ada | Sangat tipis, hampir tak terlihat |
+| **Warna** | Biru-putih dengan stabilo biru pucat | Biru-putih dengan permukaan biru sangat muda; status punya warna semantik terbatas |
+| **Corner** | Siku pada kerangka editorial, kecil pada kontrol | 16px pada kartu dan 20px pada panel |
+| **Bayangan** | Tidak ada | Hanya pada lapisan terangkat (dropdown, dialog); lihat §7 |
 | **Tipografi angka** | — | Number display besar, tabular |
 
 > Kelompokkan pertanyaan menurut pekerjaan operator. Tempatkan ringkasan dan satu aksi utama di akhir tiap tahap.
@@ -28,13 +30,13 @@ Admin dipakai operator dan penulis, bukan pengunjung. Prinsipnya **"Data First, 
 
 ## 1. Visual Theme & Atmosphere
 
-- **Permukaan netral:** halaman `#F2F4F7`, kartu `#FFFFFF`, field `#F5F5F5`. Tidak ada bayangan dramatis.
-- **Aksi jelas:** tombol utama memakai biru Albana `#2F5C86` (hover `#24486A`), teks putih; ring fokus memakai biru yang sama. Biru ini diambil dari landing page (`--color-button`). Stabilo kuning hanya untuk satu frasa penekanan. Warna status tidak dipakai untuk tombol utama.
-- **Aksen lembut:** sage, sand, clay, sun, dan biru panel `#D5E7FF` menjadi latar chip, panel info, dan grafik. Tidak pernah menjadi warna teks di atas putih.
-- **Stabilo adalah identitas:** `.highlight-stabilo` yang sudah dipakai di nav admin dan halaman publik. Jangan membuat highlight kedua.
+- **Permukaan netral:** halaman `#F4F8FC`, kartu `#FFFFFF`, well/field `#EDF4FB`; bidang-bidang ini membentuk kedalaman bersama garis `#D8E4F0`.
+- **Aksi jelas:** tombol utama memakai biru logo `#26599A` (hover `#163E70`), teks putih; ring fokus memakai biru yang sama. Warna status tidak dipakai untuk tombol utama.
+- **Aksen lembut:** hanya turunan biru: `#DCEBFA`, `#EDF4FB`, dan putih. Warna status semantik dipakai seperlunya untuk sukses, peringatan, dan galat.
+- **Stabilo:** biru pucat `#DCEBFA`, hanya untuk satu frasa pada judul pengantar. Navigasi aktif memakai latar biru lembut dan tanda aktif, bukan stabilo kuning.
 - **Bukan AI slop:** tanpa indigo, ungu, gradient ungu-biru, glassmorphism, emoji sebagai ikon, hero di tengah, atau angka karangan. Satu aksen per area, sisanya netral; biru aksi konsisten dengan landing page.
-- **Number display:** angka statistik dan nominal memakai ukuran besar dengan weight 800–900 agar mudah dipindai.
-- **Shell:** topbar `h-18` (72px) memanjang penuh, sidebar `w-56` (224px) mulai di bawah topbar, konten `max-w-7xl` dengan padding 24–32px.
+- **Number display:** angka statistik dan nominal memakai Inter tabular 32–48px weight 700 agar mudah dipindai.
+- **Shell:** topbar 64–72px, sidebar 64px pada desktop lebar dengan label lewat tooltip atau dapat melebar 224px; konten maksimum 1280px dengan padding 24–32px. Di layar sempit, sidebar menjadi drawer.
 - **Kartu besar dan lembut:** radius 16px untuk kartu, 20px untuk panel.
 - **Minimal chrome:** setiap elemen harus punya fungsi informasi. Tidak ada ilustrasi dekoratif di area kerja.
 
@@ -46,52 +48,49 @@ Admin dipakai operator dan penulis, bukan pengunjung. Prinsipnya **"Data First, 
 
 | Nama | Token | Light | Dark |
 |---|---|---|---|
-| Page background | `--bg-page` | `#F2F4F7` | `#0F1117` |
-| Card surface | `--bg-card` | `#FFFFFF` | `#1A1D27` |
-| Search / toolbar well | `--bg-well` | `#F5F5F5` | `#22263A` |
-| Input form (style-line) | — | Transparan, mengikuti permukaan induk | Transparan |
-| Sidebar | `--bg-sidebar` | `#FFFFFF` | `#1C1C1F` |
-| Row hover | — | `#F8F9FA` | `#1F2333` |
-| Skeleton base | — | `#E9EBEF` | `#2A2E42` |
-| Disabled surface | `--bg-page` | `#F2F4F7` | `#0F1117` |
+| Page background | `--bg-page` | `#F4F8FC` | `#0D1B2D` |
+| Card surface | `--bg-card` | `#FFFFFF` | `#15263D` |
+| Search / toolbar well | `--bg-well` | `#EDF4FB` | `#1D3552` |
+| Input form Soft UI | `--bg-well` | `#EDF4FB` atau putih pada panel berwarna | `#1D3552` atau `#15263D` pada panel berwarna |
+| Sidebar | `--bg-sidebar` | `#FFFFFF` | `#10243F` |
+| Row hover | `--bg-page` | `#F4F8FC` | `#1D3552` |
+| Skeleton base | `--bg-well` | `#EDF4FB` | `#1D3552` |
+| Disabled surface | `--bg-page` | `#F4F8FC` | `#0D1B2D` |
 
 ### 2.2 Teks & Hierarki
 
 | Nama | Token | Light | Dark |
 |---|---|---|---|
-| Primary text | `--text-primary` | `#111111` | `#F0F0F0` |
-| Secondary text | `--text-secondary` | `#6B7280` | `#8B8FA8` |
-| Muted / placeholder | `--text-muted` | `#9CA3AF` | `#55596E` |
-| Divider / border | `--border-default` | `#E5E7EB` | `#2A2E42` |
+| Primary text | `--text-primary` | `#10243F` | `#F4F8FC` |
+| Secondary text | `--text-secondary` | `#425A73` | `#B8CBE0` |
+| Muted / placeholder | `--text-muted` | `#566B81` | `#9FB4CB` |
+| Divider / border | `--border-default` | `#D8E4F0` | `#2D4763` |
 
 ### 2.3 Warna Aksi, Fokus & Aksen Lembut
 
 | Peran | Light | Dark | Catatan |
 |---|---|---|---|
-| Aksi utama | `#2F5C86` teks putih | `#D5E7FF` teks `#111111` | `--color-button`; satu aksi utama per header/tahap |
-| Hover aksi utama | `#24486A` | `#E6EDF4` | `--color-hover`; transisi 100–120 ms |
-| Fokus | `#2F5C86`, ring 2px offset 2px | `#D5E7FF` | Kontras minimal 3:1 terhadap permukaan |
-| Tautan aksi | `#2F5C86` bergaris bawah | `#D5E7FF` | Bukan untuk dekorasi |
-| Stabilo | `#FFE78A` | `rgba(116,135,87,0.45)` | Satu frasa per judul; pakai `.highlight-stabilo` |
+| Aksi utama | `#26599A` teks putih | `#DCEBFA` teks `#10243F` | Satu aksi utama per header/tahap |
+| Hover aksi utama | `#163E70` | `#FFFFFF` | Transisi 100–160 ms |
+| Fokus | `#26599A`, ring 2px offset 2px | `#DCEBFA` | Kontras minimal 3:1 terhadap permukaan |
+| Tautan aksi | `#26599A` bergaris bawah | `#DCEBFA` | Bukan untuk dekorasi |
+| Stabilo | `#DCEBFA` | `#24486A` | Satu frasa per judul, dengan teks berkontras |
 
-Biru aksi berasal dari landing page: `--color-button` `#2F5C86`, hover `--color-hover` `#24486A`, pressed `--color-pressed` `#1A3350`. Jangan memakai indigo, purple, atau gradient.
+Biru aksi mengikuti [Academy Design System](academy-design-system.md): `#26599A`, hover `#163E70`. Nilai token CSS yang saat ini berbeda perlu diselaraskan pada tahap implementasi; spesifikasi ini tidak mengklaim CSS sudah berubah.
 
-Aksen lembut hanya latar, bukan warna teks:
+Aksen lembut hanya latar, bukan warna teks. Empat aksen pastel dari rancangan admin lama tidak menjadi identitas baru:
 
 | Aksen | Token | Pakai | Light | Dark |
 |---|---|---|---|---|
-| Blue panel | `--color-hero-panel` `#D5E7FF` | Panel info, ringkasan, latar highlight | 100% | `#22263A` |
-| Sage | `--color-sage` `#A7B7A9` | Program, badge katalog | 22% di atas putih | 26% di atas `--bg-card` |
-| Sand | `--color-sand` `#E6D9C4` | Batch, jadwal, draf | 26% | 22% |
-| Clay | `--color-clay` `#C58A78` | Penanda perhatian ringan | 18% | 20% |
-| Sun | `--color-sun` `#E7C75D` | Menunggu verifikasi | 22% | 18% |
-| Surface | `--color-surface` `#E6EDF4` | Panel info, skeleton | 100% | `#22263A` |
+| Blue panel | `#DCEBFA` | Panel info, ringkasan, highlight | 100% | `#24486A` |
+| Blue well | `#EDF4FB` | Pencarian, filter, panel tenang | 100% | `#1D3552` |
+| White | `#FFFFFF` | Kartu, dialog, tabel | 100% | `#15263D` |
 
-- Campuran memakai `color-mix(in srgb, var(--token) <persen>, white)` untuk tema terang dan `var(--bg-card)` untuk tema gelap.
+- Jika perlu tingkat antara, gunakan `color-mix()` dari token biru yang sama dan periksa kontras hasilnya.
 - Teks di atas aksen tetap `--text-primary`; jangan memakai aksen sebagai warna teks.
 - Maksimal satu aksen per area layar. Dua aksen hanya untuk membedakan dua status.
-- Tombol utama memakai biru aksi, bukan aksen lembut. Aksen tidak dipakai untuk badge galat/berhasil (§2.4).
-- Jangan menambah kelas `admin-*` baru: `--color-admin-*` belum didefinisikan di `globals.css`. Pakai token §2 atau `.highlight-stabilo` yang sudah ada.
+- Tombol utama memakai biru aksi, bukan aksen lembut. Badge galat/berhasil mengikuti warna status §2.4.
+- Saat implementasi, petakan token ini ke scope admin pada `globals.css` dan komponen bersama; jangan menganggap token desain ini sudah tersedia di kode.
 
 ### 2.4 Warna Status Operasional
 
@@ -100,7 +99,7 @@ Aksen lembut hanya latar, bukan warna teks:
 | Draf | “Belum dibuka”, “Draf” | `#374151 / #F3F4F6` | `#E5E7EB / #27272A` |
 | Aktif | “Sedang diedit”, “Aktif” | `#44503F / #EAF0E6` | `#D6E3D0 / #22301C` |
 | Berhasil | “Tersimpan”, “Terbit”, “Lunas” | `#166534 / #DCFCE7` | `#BBF7D0 / #14532D` |
-| Menunggu | “Menunggu verifikasi” | `#92400E / #FEF3C7` | `#FDE68A / #451A03` |
+| Menunggu | “Menunggu pembayaran” | `#92400E / #FEF3C7` | `#FDE68A / #451A03` |
 | Galat | “Jadwal bentrok”, “Gagal simpan” | `#991B1B / #FEE2E2` | `#FECACA / #450A0A` |
 
 - Sertakan kata, bukan hanya warna.
@@ -111,12 +110,12 @@ Aksen lembut hanya latar, bukan warna teks:
 
 | Elemen | Warna |
 |---|---|
-| Bar utama | `#2F5C86` (dark: `#D5E7FF`) |
-| Bar pembanding | sage 40% di atas kartu (dark: sage 30%) |
-| Segmen donut utama | `#2F5C86` (dark: `#D5E7FF`) |
-| Segmen donut lain | sand, sage, `--color-surface` |
-| Garis target | clay 60%, putus-putus |
-| Grid chart | `#F3F4F6` (dark: `#2A2E42`) |
+| Bar utama | `#26599A` (dark: `#DCEBFA`) |
+| Bar pembanding | `#8AB4DF` (dark: `#4A78A8`) |
+| Segmen donut utama | `#26599A` (dark: `#DCEBFA`) |
+| Segmen donut lain | `#8AB4DF`, `#BBD4ED`, `#EDF4FB`; label/legenda wajib |
+| Garis target | `#163E70`, putus-putus |
+| Grid chart | `#EDF4FB` (dark: `#2D4763`) |
 
 ---
 
@@ -124,25 +123,25 @@ Aksen lembut hanya latar, bukan warna teks:
 
 > **Tidak ada font serif di admin.** Seluruh antarmuka memakai sans-serif.
 
-- **Primary:** `"Montserrat"` lewat `--font-sans`; fallback `"Plus Jakarta Sans"`.
-- **Angka display:** `"Inter"` lewat `--font-display` dengan `tnum`.
+- **Judul halaman, judul kartu, navigasi, tombol:** `"Plus Jakarta Sans"`, bobot 600–700.
+- **Body, tabel, form, metadata:** `"Inter"`, bobot 400–600; bobot 700 hanya untuk angka display. Tabel bobot per kanal ada di [spesifikasi visual](visual-design.md).
 - **Fallback:** `ui-sans-serif, system-ui, -apple-system, sans-serif`.
 - **Tabular numbers:** Inter mendukung `font-feature-settings: "tnum"`; aktifkan pada semua tabel, nominal, dan statistik agar kolom angka sejajar.
-- **Label kontrol:** satu gaya untuk semua form — 11–12px uppercase, weight 700, tracking 0.14em, `--font-sans`. Jangan memakai `font-mono` untuk label atau nilai input; `SelectLine` saat ini memakai mono dan harus diselaraskan.
-- **Stabilo:** `.highlight-stabilo` untuk satu frasa pada judul atau eyebrow. Jangan untuk angka, label tabel, atau isi sel.
+- **Label kontrol:** Inter 13–14px, weight 600, kapitalisasi normal; uppercase kecil hanya untuk kelompok navigasi. Jangan memakai `font-mono` untuk label atau nilai input.
+- **Stabilo:** biru pucat `#DCEBFA` untuk satu frasa pada judul pengantar; jangan untuk angka, label tabel, atau isi sel. Jika kelas `.highlight-stabilo` yang ada masih kuning, ganti tokennya saat implementasi.
 
 | Level | Size | Weight | Warna |
 |---|---|---|---|
-| Display number | 38–56px | 800 | `--text-primary` |
-| Page title | 24–28px | 700 | `--text-primary` |
+| Display number | 32–48px, Inter tabular | 700 | `--text-primary` |
+| Page title | 24–32px, Plus Jakarta Sans | 700 | `--text-primary` |
 | Eyebrow | 10–11px, uppercase, tracking 0.16em | 700 | `--text-secondary` |
-| Section title | 16–18px | 600 | `--text-primary` |
+| Section title | 17–20px, Plus Jakarta Sans | 600–700 | `--text-primary` |
 | Section subtitle | 12px | 400 | `--text-muted` |
 | Card label | 13–14px | 500 | `--text-secondary` |
-| Body / table | 13px | 400–500 | `--text-primary` |
-| Table body meta | 13px | 400 | `#374151` |
+| Body / table | 14px, Inter | 400–500 | `--text-primary` |
+| Table body meta | 13px | 400 | `--text-secondary` |
 | Table header | 11–12px, uppercase, tracking 0.06em | 600 | `--text-secondary` |
-| Nav label | 12–13px | 600 | `#374151` |
+| Nav label | 12–13px | 600 | `--text-secondary` |
 | Nav label aktif | 12–13px | 700 | `--text-primary` |
 | Button / badge | 12–13px | 600–700 | Sesuai konteks |
 | Link action | 13px | 600 | `--color-button` |
@@ -151,13 +150,31 @@ Aksen lembut hanya latar, bukan warna teks:
 
 ## 4. Layout & Navigation
 
+### Penerjemahan gambar referensi ke CMS Albana
+
+Gambar dashboard terlampir menunjukkan panel besar berbingkai, rail ikon, header sederhana, filter status berbentuk pil, dan kartu putih berjarak rapat. Adaptasikan susunannya untuk tugas Albana: **status pendaftar / batch / konten yang perlu ditindak**. Nama merek, contoh offer, hijau mint, dan angka pada gambar tidak dipindahkan ke CMS.
+
+| Bagian | Aturan CMS |
+|---|---|
+| Bingkai aplikasi | Satu shell putih di atas halaman biru sangat muda; garis `1px #D8E4F0`, tanpa bayangan. Jangan menambah bingkai kedua di setiap modul. |
+| Rail/sidebar | Desktop lebar boleh ringkas 64px dengan ikon dan tooltip yang dapat diakses keyboard. Untuk menu panjang atau ukuran menengah, sidebar 224px berlabel lebih jelas. |
+| Header | Judul halaman dan breadcrumb kiri; aksi penting, notifikasi, profil kanan. Header tidak memuat banyak tombol setara. |
+| Filter | Tab/pil menampilkan status dan jumlah yang nyata; keadaan aktif memakai biru pucat dengan teks biru tua. |
+| Kartu daftar | Putih, radius 16px, border halus, padding 16–20px; metadata berkelompok; satu aksi primer per kartu. |
+| Kepadatan | Tiga kolom hanya bila label dan aksi tetap terbaca pada lebar kartu sekitar 300px; selain itu dua atau satu. Tabel digunakan untuk data yang perlu perbandingan kolom. |
+| Bayangan | Shell dan kartu memakai border, bukan bayangan. Bayangan hanya untuk dropdown, tooltip, dan dialog sesuai §7. |
+
+Soft UI di sini berarti permukaan tenang, tepi lembut, kedalaman tipis, dan keadaan yang terbaca. Jangan membuat kontrol neumorphic dengan kontras rendah atau bayangan cekung yang menyamarkan batas.
+
 ### 4.1 Shell
+
+Diagram di bawah menunjukkan hubungan area, bukan ukuran sidebar wajib; gunakan aturan responsif di atas untuk memilih rail ringkas atau sidebar berlabel.
 
 ```
 +----------------------------------------------------------------------+
 | TOPBAR h-18: logo | [ ADMIN ] / PROGRAM        tema  notifikasi  profil |
 +----------------+-----------------------------------------------------+
-| SIDEBAR w-56   |  Eyebrow                                           |
+| SIDEBAR        |  Eyebrow                                           |
 |                |  Judul halaman                    [Aksi utama]      |
 | PENDAFTARAN    |                                                     |
 |   Data Pendaftar|  Filter / pencarian                               |
@@ -168,17 +185,17 @@ Aksen lembut hanya latar, bukan warna teks:
 +----------------+-----------------------------------------------------+
 ```
 
-- Sidebar dan topbar tidak ikut di-scroll; area konten yang menggulir.
+- Sidebar dan topbar tetap terlihat saat konten panjang digulir; jangan membuat scroll bertingkat yang menjebak wheel atau keyboard.
 - Mobile: sidebar menjadi drawer dengan backdrop; tombol menu ada di topbar.
 - Padding konten 24–32px; ritme vertikal eyebrow → judul 4–8px, judul → filter 20px, filter → tabel 16px.
-- Halaman ringkasan memakai grid atas `1fr : 2fr : 1.5fr` (stat kecil : chart utama : donut) dan grid bawah `2fr : 1fr` (tabel : panel ringkas), gap 16–24px. Di bawah 1024px menjadi satu kolom.
+- Halaman ringkasan menempatkan metrik terpenting lebih dulu, lalu grafik dan daftar tindakan; grid 2–3 kolom hanya bila masing-masing panel tetap terbaca. Di bawah 1024px menjadi satu atau dua kolom sesuai isi.
 
 ### 4.2 Sidebar
 
 - Grup menu mengikuti `privilege_groups`; fallback awal: **PENDAFTARAN** (Data Pendaftar) dan **KATALOG** (Program, Batch, Trainer, Artikel, Gallery).
 - Grup label 10px uppercase, tracking 0.16em, warna `--text-muted`.
 - Item setinggi 40px, padding horizontal 16px, ikon 16–18px, label 12–13px.
-- Item aktif: garis kiri 3px `--text-primary` + `.highlight-stabilo` pada label, weight bold, `aria-current="page"`. Ini pola yang sudah dipakai shell sekarang.
+- Item aktif: latar `#DCEBFA`, teks `#163E70`, garis penanda biru 3px, weight 700, `aria-current="page"`. Saat sidebar ringkas, tampilkan nama item melalui tooltip saat hover/fokus.
 - Hover: latar `--bg-page`, warna teks `--text-primary`; tinggi baris tidak berubah.
 - Item yang tidak boleh dilihat peran tidak dirender, bukan hanya disembunyikan warnanya.
 
@@ -196,7 +213,7 @@ Aksen lembut hanya latar, bukan warna teks:
 
 ### 4.5 Filter & Search
 
-- Filter berbentuk pill dalam satu kontainer; tab aktif memakai latar status aktif, tab pasif transparan.
+- Filter berbentuk pill dalam satu kontainer; tab aktif memakai latar biru pucat `#DCEBFA` dengan teks `#163E70`, tab pasif transparan.
 - Search mengisi sisa lebar, tinggi 44px, radius pill, ikon kaca pembesar, latar `--bg-well`.
 - Select filter tinggi 44px, radius 12px.
 - Di bawah 768px semua bertumpuk; filter dapat di-scroll horizontal.
@@ -212,7 +229,7 @@ Aksen lembut hanya latar, bukan warna teks:
 | Topbar | 0px |
 | Tombol | 14px (`--radius-lg`) |
 | Search, filter, badge | 999px |
-| Input, textarea, select form (style-line) | 0px — garis bawah |
+| Input, textarea, select form Soft UI | 12px — bidang terisi dan batas terlihat |
 | Menu/dropdown form | 12px |
 | Avatar, tombol ikon | 50% |
 | Thumbnail | 8px |
@@ -235,30 +252,30 @@ Gunakan primitif yang sudah ada, jangan membuat tombol baru: `front/components/u
 - Desktop tinggi 32–36px (`default`/`lg`); di ponsel aksi utama minimal 44px area sentuh.
 - Tombol tidak memakai aksen pastel, gradient, atau indigo.
 
-### 6.2 Form Controls — Shadcn + style-line
+### 6.2 Form Controls — Soft UI admin
 
-Wadah dan menu memakai primitif Shadcn yang sudah terpasang (`dialog.tsx`, `select.tsx`, `popover.tsx`, `table.tsx`, `badge.tsx`, `sonner.tsx`). Seluruh field form memakai `front/components/ui/style-line/`; jangan memakai `input.tsx`/`textarea.tsx` kotak untuk form baru.
+Wadah, menu, dan kontrol memakai primitif yang sudah tersedia (`input.tsx`, `textarea.tsx`, `select.tsx`, `dialog.tsx`, `popover.tsx`, `sonner.tsx`) sesuai kebutuhan datanya. Terapkan gaya pada scope admin agar kontrol publik tetap bergaris bawah. Folder `front/components/ui/style-line/` adalah pola untuk formulir academy, bukan acuan visual baru untuk admin. Migrasi komponen lama dilakukan per halaman saat bagian itu dikerjakan, tanpa mengganti logika validasi atau bentuk data.
 
-| Data | Kontrol |
+| Data | Kontrol admin |
 |---|---|
-| Nama, angka, rupiah, jam | `InputLine` dengan `type`/`inputMode` yang sesuai |
-| Uraian | `TextareaLine` |
-| Pilihan tunggal / jamak | `SelectLine`, `MultiSelectLine`, `RadioGroupLine` |
-| Tanggal, telepon, kota | `DatePickerLine`, `PhoneNumberLine`, `CityInputLine` |
-| Boolean | Checkbox berlabel |
+| Nama, angka, rupiah, jam | Input terisi; gunakan `type` dan `inputMode` yang sesuai. |
+| Uraian | Textarea terisi dengan tinggi mengikuti kebutuhan. |
+| Pilihan tunggal / jamak | Select atau popover terisi; daftar pilihan berada pada permukaan putih/gelap dengan border. |
+| Tanggal, telepon, kota | Kontrol khusus yang tetap memakai bidang terisi dan radius 12px. |
+| Boolean | Checkbox berlabel dengan area klik yang memadai. |
 
-Semua kontrol memakai garis bawah (`border-b`), radius 0, latar transparan. Tinggi area sentuh minimal 44px di ponsel.
+Bidang field memakai `--bg-well` atau putih bila berada di panel berwarna, border `1px --border-default`, radius 12px, dan tinggi minimum 44px. Pada tema gelap gunakan padanan permukaan §2.1. Label, nilai, petunjuk, dan galat memakai Inter; judul grup dan tombol memakai Plus Jakarta Sans. Soft UI di sini berarti permukaan lembut dengan batas yang jelas, bukan efek cekung atau bayangan ganda.
 
 Anatomi satu field:
 
-1. Label tetap dan dapat diklik, terhubung lewat `id`/`htmlFor`. `InputLine` saat ini belum mengaitkannya — perbaiki di komponen, bukan per halaman.
+1. Label tetap dan dapat diklik, terhubung lewat `id`/`htmlFor`.
 2. Penanda wajib (`*`) dan petunjuk singkat bila perlu.
 3. Kontrol.
 4. Pesan galat **tepat di bawah kontrol**, terhubung lewat `aria-describedby`.
 
 Penempatan pesan:
 
-- **Galat spesifik field:** di bawah field yang salah, garis field menjadi `--destructive`; fokuskan field pertama yang salah.
+- **Galat spesifik field:** di bawah field yang salah, border field menjadi `--destructive`; fokuskan field pertama yang salah.
 - **Galat umum:** bila bukan milik satu field (simpan gagal, koneksi, konflik versi), satu banner **di bawah judul dan di atas field pertama** — bukan toast.
 - **Berhasil:** toast (`sonner`) — satu toast per aksi, bukan banner. Toast tidak dipakai untuk galat validasi.
 - Galat tidak pernah menghapus isian.
@@ -266,23 +283,23 @@ Penempatan pesan:
 Aturan:
 
 - `aria-invalid="true"` hanya saat field benar-benar galat.
-- Fokus terlihat: garis bawah biru 2px + ring 2px offset 2px; jangan `outline: none` tanpa pengganti.
+- Fokus terlihat: border biru dan ring 2px dengan offset 2px; jangan `outline: none` tanpa pengganti.
 - Tampilkan prefix “Rp” satu kali; simpan nilai sebagai integer.
 - Tanggal dan jam sesi memakai WIB secara eksplisit.
 - Di ponsel satu kolom. Di desktop pasangkan mulai/selesai sesi.
 - Pertahankan nilai saat validasi gagal.
 - Dialog yang dapat digulir: focus trap, Escape menutup, fokus kembali ke pemicu.
 - Kontrol khusus (consent, file, editor) tetap memakai label, help, error, dan fokus yang setara.
-- `SelectLine` memakai `font-mono`; ganti ke `--font-sans` agar sama dengan field lain.
+- Jika komponen lama `style-line` masih digunakan oleh halaman admin, pertahankan perilakunya sampai halaman tersebut dialihkan ke kontrol Soft UI. Jangan mengubah komponen bersama hanya demi satu layar admin; periksa pemakaian di pendaftaran publik terlebih dahulu.
 
-> Renderer `CmsCollectionClient` saat ini memakai Input/Select/Textarea kotak. Migrasikan per tipe sesuai rencana §2.3; jangan menambah pemakaian baru untuk kontrol kotak.
+> `CmsCollectionClient` masih mengimpor sebagian kontrol `style-line`. Gaya Soft UI saat ini diterapkan pada scope `.admin-shell`; saat komponen tersebut disentuh lagi, pindahkan presentasinya ke kontrol admin tanpa mengubah validasi dan data. Jangan mengubah `style-line` bersama karena formulir publik tetap memerlukannya.
 
 ### 6.3 Tabel & Daftar
 
 - Pakai `front/components/ui/table.tsx`; panel radius 20px, border `--border-default`, tanpa shadow, `overflow: hidden`.
 - Header: latar putih, hanya border bawah, teks 11–12px uppercase weight 600, warna `--text-secondary`.
 - Sel: padding 16–24px; garis pemisah tipis `--border-default`; jangan memakai border ganda di baris terakhir.
-- Baris: minimal 72px, hanya border bawah; hover `#F8F9FA` tanpa mengubah tinggi baris.
+- Baris: minimal 72px, hanya border bawah; hover `--bg-page` tanpa mengubah tinggi baris.
 - Kolom identitas: avatar/inisial + nama + meta.
 - Kolom angka: tabular, rata kanan bila berupa nominal.
 - Kolom status: pill §6.4, bukan teks berwarna saja.
@@ -320,6 +337,7 @@ Aturan:
 | Form | Wadah |
 |---|---|
 | Trainer, galeri, venue, partner, acara, member (≤ 12 field, tanpa editor) | Modal `dialog.tsx` |
+| Program (materi berulang) | Halaman |
 | Batch (sesi berulang + pratinjau) | Halaman |
 | Artikel (BlockNote) | Halaman |
 | Rekap pendaftar | Modal / panel samping |
@@ -327,7 +345,7 @@ Aturan:
 - Aturan: jika form butuh lebih dari satu layar, punya baris berulang, editor blok, atau pratinjau → halaman. Selain itu modal.
 - Modal: `max-w-lg`, judul + deskripsi, badan dapat digulir, footer aksi tetap terlihat.
 - Radius 16–20px, shadow level 3, latar kartu.
-- Muncul 120–160 ms (opacity + translateY 4px); hormati `prefers-reduced-motion` dengan keadaan akhir langsung.
+- Muncul mengikuti §10: 200–300 ms, opacity + translasi 8–12px; hormati `prefers-reduced-motion` dengan keadaan akhir langsung.
 - Fokus awal ke judul atau field pertama; Escape menutup; fokus kembali ke pemicu.
 - Langkah/wizard menampilkan kemajuan dan judul langkah; validasi hanya untuk langkah aktif.
 
@@ -341,7 +359,15 @@ Bukti tidak diunggah ke aplikasi. Alur yang berlaku: peserta transfer, lalu meng
 - Nomor resmi WhatsApp admin: **0857-1779-7637** (`wa.me/6285717797637`). Ambil dari satu sumber kanal kontak, bukan hardcode di komponen. Nomor komunitas `0878-2323-9575` bukan kanal admin Albana dan tidak dipakai di alur ini.
 - Tampilkan nomor `0857-1779-7637` dan jam layanan di dekat tombol; jangan memakai file input untuk bukti.
 - Admin mencocokkan pesan WhatsApp dengan ID pendaftaran, lalu menandai “Terverifikasi” di rekap.
-- “Menunggu verifikasi” berarti bukti sudah dikirim tetapi belum diperiksa admin.
+- Status mengikuti apa yang diketahui sistem, bukan apa yang diharapkan. Membuka tautan WhatsApp tidak membuktikan pesan terkirim, jadi tidak mengubah status.
+
+  | `invoice.status` | Label | Arti |
+  |---|---|---|
+  | `pending` | Menunggu pembayaran | Belum ada verifikasi admin; bukti mungkin sudah atau belum dikirim. |
+  | `verified` | Terverifikasi | Admin sudah mencocokkan bukti dengan tagihan. |
+  | `rejected` | Perlu ditinjau ulang | Admin menolak bukti; peserta diarahkan menghubungi admin. |
+
+- Status “bukti diterima” belum ada di data. Jangan menampilkannya sebelum ada kolom dan aksi admin yang mencatatnya.
 - Jangan menyimpan tangkapan bukti di storage publik dan jangan meminta peserta mengirim bukti dua kali.
 - Bila peserta mengirim bukti sebelum menyelesaikan form, admin meminta ID pendaftaran dari tanda terima.
 
@@ -349,16 +375,18 @@ Bukti tidak diunggah ke aplikasi. Alur yang berlaku: peserta transfer, lalu meng
 
 **Daftar program**
 
-- Sementara **statis, dua program**: **Public Speaking Series** dan **Basic to Advance**. Tidak ada aksi buat, ubah, atau hapus program.
-- Sumber tunggal di `front/lib/server/program-showcase.ts`; hapus `DUMMY_PROGRAM_CARDS`. Slug, judul, ringkasan, varian, dan harga dasar ada di sana, dipetakan ke baris program hasil seed.
-- Batch menaut ke id program hasil seed; tidak ada form program di admin.
-- Tampilkan program beserta batch, sesi berikutnya, harga efektif, dan status buka.
+- Program dikelola admin di `/admin/program`: buat, ubah, hapus. Sumber data tabel `programs`; tidak ada daftar program statis di kode.
+- Kolom daftar: nama program, deskripsi, harga promo, harga coret, materi, aksi. Harga kosong tampil “—”, bukan Rp0.
+- Satu aksi utama “Tambah Program” di header; di ponsel menjadi tombol mengambang dengan `aria-label`.
+- Daftar kosong: “Belum ada program. Tambahkan program lalu isi detailnya.”
 - Batch dibuat dalam konteks program; operator tidak memilih program dua kali.
+- Hapus program meminta konfirmasi dan menyebut batch yang ikut terdampak.
 
 **Form program**
 
-- Belum ada form program. Perubahan nama atau harga dilakukan lewat seed/migrasi sampai ada kebutuhan nyata.
-- Bila nanti dibuka, wadahnya modal — bukan halaman.
+- Halaman (`/admin/program/create`), bukan modal: memuat nama, deskripsi, harga, dan daftar materi berulang.
+- Slug mengikuti nama program secara otomatis; operator tidak mengetiknya.
+- Harga memakai aturan rupiah §6.2: prefix “Rp” satu kali, nilai disimpan sebagai integer.
 
 **Form batch**
 
@@ -401,15 +429,15 @@ Bukti tidak diunggah ke aplikasi. Alur yang berlaku: peserta transfer, lalu meng
 
 ### 6.11 Skeleton, Empty, Error
 
-- **Skeleton:** meniru layout akhir; header tabel `#E2E5EA`, blok `#E9EBEF`; 5–6 baris; `aria-hidden="true"`, kontainer `aria-busy="true"`; pulse 1200 ms dan statis saat reduced motion. Jangan tampilkan jika data selesai di bawah ±300 ms.
-- **Empty:** ikon/teks singkat + satu aksi yang relevan (mis. “Tambah batch”); jangan menawarkan aksi program yang memang statis.
+- **Skeleton:** meniru layout akhir; header tabel `--border-default`, blok `--bg-well`; 5–6 baris; `aria-hidden="true"`, kontainer `aria-busy="true"`; pulse 1200 ms dan statis saat reduced motion. Jangan tampilkan jika data selesai di bawah ±300 ms.
+- **Empty:** ikon/teks singkat + satu aksi yang relevan (mis. “Tambah batch” atau “Tambah Program”).
 - **Error:** pesan eksplisit + aksi coba lagi; jangan menyamarkan galat baca sebagai daftar kosong.
 
 ### 6.12 Kartu Statistik
 
 - Kontainer: radius 16px, latar `--bg-card`, border tipis `--border-default`, padding 20–24px. Tanpa gradient dan tanpa shadow ganda.
 - Label di atas angka: 13px weight 500, `--text-secondary`.
-- Angka utama: Inter tabular 38–56px, weight 800, `--text-primary`; satu angka utama per kartu.
+- Angka utama: Inter tabular 32–48px, weight 700, `--text-primary`; satu angka utama per kartu.
 - Badge pertumbuhan: pill 999px, 11px weight 600. Positif memakai §2.4 Berhasil, negatif §2.4 Galat, netral §2.4 Draf. Jangan memakai lime atau salmon.
 - Sparkline opsional: garis `--color-button` 2,5px tanpa isi, atau isi biru 12–20%. Bukan dekorasi tanpa data.
 - Ikon opsional 16–20px, `--text-muted`, di kanan atas; jangan mengganti angka dengan ikon.
@@ -418,8 +446,8 @@ Bukti tidak diunggah ke aplikasi. Alur yang berlaku: peserta transfer, lalu meng
 
 - Kontainer: radius 20px, latar `--bg-card`, border `--border-default`, padding 24px.
 - Header: judul 16–18px weight 600 + subteks 12px `--text-muted`; filter opsional memakai Select Shadcn.
-- Seri utama selalu biru aksi `#2F5C86`; pembanding sage 40%; segmen lain sand, sage, atau `--color-surface`. Jangan memakai hitam, navy `#1A1A2E`, atau lime.
-- Grid horizontal `#F3F4F6` (gelap `#2A2E42`), hanya sumbu X yang diberi label; label 10–11px `#6B7280`.
+- Seri utama biru aksi `#26599A`; pembanding `#8AB4DF`; segmen lain memakai turunan biru §2.5 dengan label yang jelas. Jangan memakai hijau mint atau lime hanya untuk meniru gambar referensi.
+- Grid horizontal `#EDF4FB` (gelap `#2D4763`), hanya sumbu X yang diberi label; label 10–11px `--text-muted`.
 - Bar radius 4px di atas. Area chart memakai garis biru 2,5px dan isi biru 12–20%.
 - Tooltip memakai permukaan kartu + border, bukan panel hitam.
 - Legend 12px `--text-secondary` dengan dot 8px; sediakan ringkasan teks untuk pembaca layar.
@@ -429,7 +457,7 @@ Bukti tidak diunggah ke aplikasi. Alur yang berlaku: peserta transfer, lalu meng
 
 - Kontainer: radius 16px, latar `--bg-card`, border `--border-default`, header + daftar baris.
 - Isi: batch berikutnya, pendaftar terbaru, atau ringkasan serupa; bukan produk e-commerce.
-- Baris: identitas + meta di kiri, nilai/status di kanan; hover `#F8F9FA`, border bawah tipis.
+- Baris: identitas + meta di kiri, nilai/status di kanan; hover `--bg-page`, border bawah tipis.
 - Maksimal 5 baris + tautan “Lihat semua”; status memakai pill §2.4.
 - Angka rata kanan dan tabular; jangan memakai mini-chart dekoratif tanpa data nyata.
 
@@ -440,9 +468,9 @@ Bukti tidak diunggah ke aplikasi. Alur yang berlaku: peserta transfer, lalu meng
 | Level | CSS | Penggunaan |
 |---|---|---|
 | 0 | `none` | Default |
-| 1 | `0 1px 2px rgba(0,0,0,0.04)` | Kartu tanpa border |
-| 2 | `0 4px 12px rgba(0,0,0,0.06)` | Dropdown, tooltip |
-| 3 | `0 20px 60px rgba(0,0,0,0.10)` | Dialog |
+| 1 | `0 1px 2px rgba(16,36,63,0.04)` | Kartu tanpa border |
+| 2 | `0 4px 12px rgba(16,36,63,0.06)` | Dropdown, tooltip |
+| 3 | `0 20px 60px rgba(16,36,63,0.10)` | Dialog |
 
 Kartu memakai border tipis **atau** shadow level 1, tidak keduanya.
 
@@ -467,10 +495,10 @@ Kartu memakai border tipis **atau** shadow level 1, tidak keduanya.
 | State | Efek |
 |---|---|
 | Hover tombol | Latar berubah, 100–120 ms |
-| Hover baris | Latar `#F8F9FA`, 80 ms; tinggi tidak berubah |
+| Hover baris | Latar `--bg-page`, 80 ms; tinggi tidak berubah |
 | Hover nav | Latar `--bg-page`, teks `--text-primary` |
-| Aktif nav | Garis kiri 3px + stabilo, bold, `aria-current="page"` |
-| Fokus input | Garis bawah biru 2px + ring 2px, offset 2px |
+| Aktif nav | Latar biru pucat + garis kiri 3px, bold, `aria-current="page"` |
+| Fokus input | Border biru + ring 2px, offset 2px; bidang tetap terisi |
 | Klik tombol | `scale(0.98)`, 80 ms |
 | Disabled | Opacity turun, tidak dapat diklik |
 | Loading | Spinner pada aksi; konten lain tetap stabil |
@@ -479,17 +507,21 @@ Kartu memakai border tipis **atau** shadow level 1, tidak keduanya.
 
 ## 10. Motion
 
-| Interaksi | Gerak |
-|---|---|
-| Hover/fokus | Warna 100–120 ms |
-| Dialog, langkah, baris sesi baru | Opacity + translateY 4px, 120–160 ms ease-out |
-| Simpan/gagal | Pesan muncul 120 ms dan diumumkan |
-| Loading | Satu indikator pada aksi; tabel/chart tidak melompat |
+Prinsip dari [animate](https://github.com/emilkowalski/skills/blob/main/skills/animate/SKILL.md) dan [animation-performance](https://github.com/emilkowalski/skills/blob/main/skills/animation-performance/SKILL.md): gerak dipakai untuk umpan balik atau perubahan ruang yang perlu dijelaskan; aksi yang sering diulang harus terasa segera. Perintah `npx skills@latest add emilkowalski/skills` menyediakan sumber skill, bukan dependensi yang diperlukan untuk CMS.
 
-- Tidak ada animasi scroll, parallax, atau text reveal.
-- `prefers-reduced-motion: reduce`: tampilkan keadaan akhir seketika; gunakan teks “Menyimpan…”.
-- Transisi hanya pada properti yang berubah; jangan memakai transisi menyeluruh pada shell.
-- Perubahan visual ini tidak memerlukan dependensi animasi.
+| Interaksi | Gerak | Durasi awal |
+|---|---|---:|
+| Hover/press tombol | Warna, border, atau bayangan tipis; tidak menggeser layout | 100–160 ms |
+| Filter/tab | Latar dan indikator aktif bergerak singkat | 150–220 ms |
+| Tooltip/popover kecil | Fade + translasi maksimum 4px | 125–200 ms |
+| Dropdown/select | Fade + translasi maksimum 6px | 150–250 ms |
+| Dialog/drawer | Opacity + translasi 8–12px, fokus berpindah segera | 200–300 ms |
+| Toast simpan berhasil | Fade ringan; status diumumkan ke pembaca layar. Galat memakai inline/banner §6.5, bukan toast | 150–220 ms |
+| Skeleton/loading | Satu indikator stabil pada area yang berubah | Tanpa loop mencolok |
+
+Masuk/keluar memakai `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`; perpindahan indikator memakai `--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)`. Gunakan CSS transition untuk kontrol yang bisa dipicu berulang. Jangan menganimasikan setiap baris tabel saat filter, input yang diketik, perubahan angka, atau tugas berfrekuensi tinggi. Tidak ada parallax, text reveal, atau scroll animation di area kerja. Hindari `transition: all`, gerak pada `width`/`height`/`top`/`left`, dan `will-change` pada seluruh kartu.
+
+Untuk `prefers-reduced-motion: reduce`, hilangkan translasi dan smooth scroll; tampilkan keadaan akhir seketika atau fade singkat bila membantu pemahaman. Efek hover bergerak hanya untuk pointer yang benar-benar mendukung hover. Validasi rasa dan kelancaran di perangkat ponsel kelas menengah; respons simpan harus jelas meski animasi dimatikan.
 
 ---
 
@@ -497,19 +529,19 @@ Kartu memakai border tipis **atau** shadow level 1, tidak keduanya.
 
 | Token | Light | Dark |
 |---|---|---|
-| `--bg-page` | `#F2F4F7` | `#0F1117` |
-| `--bg-card` | `#FFFFFF` | `#1A1D27` |
-| `--bg-well` | `#F5F5F5` | `#22263A` |
-| `--bg-sidebar` | `#FFFFFF` | `#1C1C1F` |
-| `--text-primary` | `#111111` | `#F0F0F0` |
-| `--text-secondary` | `#6B7280` | `#8B8FA8` |
-| `--text-muted` | `#9CA3AF` | `#55596E` |
-| `--border-default` | `#E5E7EB` | `#2A2E42` |
-| Aksi utama | `#2F5C86` | `#D5E7FF` |
-| Fokus | `#2F5C86` | `#D5E7FF` |
-| Stabilo | `#FFE78A` | `rgba(116,135,87,0.45)` |
-| `--chart-main` | `#2F5C86` | `#D5E7FF` |
-| `--chart-secondary` | Sage 40% | Sage 30% |
+| `--bg-page` | `#F4F8FC` | `#0D1B2D` |
+| `--bg-card` | `#FFFFFF` | `#15263D` |
+| `--bg-well` | `#EDF4FB` | `#1D3552` |
+| `--bg-sidebar` | `#FFFFFF` | `#10243F` |
+| `--text-primary` | `#10243F` | `#F4F8FC` |
+| `--text-secondary` | `#425A73` | `#B8CBE0` |
+| `--text-muted` | `#566B81` | `#9FB4CB` |
+| `--border-default` | `#D8E4F0` | `#2D4763` |
+| Aksi utama | `#26599A` | `#DCEBFA` |
+| Fokus | `#26599A` | `#DCEBFA` |
+| Stabilo | `#DCEBFA` | `#24486A` |
+| `--chart-main` | `#26599A` | `#DCEBFA` |
+| `--chart-secondary` | `#8AB4DF` | `#4A78A8` |
 
 `--accent-green` dan `--accent-red` adalah token lama; status memakai pasangan warna §2.4, bukan token ini. Jangan memakai lime `#BAFF6A` atau navy `#1A1A2E` untuk chart.
 
@@ -537,7 +569,7 @@ Sidebar mengikuti `privilege_groups`. Grup awal:
 | Grup | Modul |
 |---|---|
 | **PENDAFTARAN** | Data Pendaftar |
-| **KATALOG** | Program (statis), Batch, Trainer, Artikel, Galeri |
+| **KATALOG** | Program, Batch, Trainer, Artikel, Galeri |
 
 - Modul yang tidak berhubungan dengan alur program → batch → artikel → pendaftar tidak ditampilkan di sidebar: **Packages, Media, Voucher, Referral**, dan turunannya.
 - Modul lain (Acara, Venue, Partner, Members, Admins, Settings) mengikuti pola visual yang sama bila tetap dipakai.
@@ -559,10 +591,10 @@ Periksa satu form sederhana, editor batch, editor artikel, dan satu tabel:
 - [ ] Batch tanpa rekening tujuan tidak dapat dibuka.
 - [ ] Artikel lama tetap terbaca; draf hilang dari daftar publik.
 - [ ] Halaman pembaca tidak mengunduh editor (periksa Network).
-- [ ] Program hanya dua dan tidak ada tombol buat/ubah program.
-- [ ] Form pendek terbuka sebagai modal; batch dan artikel membuka halaman.
+- [ ] Program dapat dibuat, diubah, dan dihapus; slug terisi otomatis; daftar kosong menampilkan aksi “Tambah Program”.
+- [ ] Form pendek terbuka sebagai modal; program, batch, dan artikel membuka halaman.
 - [ ] Galat field muncul di bawah field; galat umum di atas field pertama; sukses memunculkan toast.
-- [ ] Tombol biru `#2F5C86`, stabilo, dan label form memakai satu gaya; tidak ada indigo atau gradient sisa.
+- [ ] Tombol biru `#26599A`, stabilo biru pucat, dan label form memakai satu gaya; tidak ada aksen pastel lama atau gradient sisa.
 - [ ] Kartu statistik dan chart memakai biru aksi; tidak ada lime `#BAFF6A`, navy `#1A1A2E`, atau tooltip hitam.
 - [ ] Tanda terima menampilkan ID dan tombol WhatsApp berisi pesan terisi ke nomor `0857-1779-7637`.
 - [ ] Bukti transfer tidak disimpan di storage aplikasi.
@@ -573,14 +605,14 @@ Periksa satu form sederhana, editor batch, editor artikel, dan satu tabel:
 ## 15. Keputusan & Asumsi
 
 - Brand: **Albana Speech Academy**.
-- Font admin: Montserrat; angka memakai Inter tabular; tidak ada serif dan tidak ada `font-mono` untuk label form.
-- Aksi dan fokus: biru Albana `#2F5C86` (hover `#24486A`), mengikuti landing page; stabilo `#FFE78A`; aksen pastel §2.3. Status: §2.4.
-- Wadah form: modal untuk form pendek, halaman untuk batch dan artikel.
-- Komponen: Shadcn untuk dialog/tabel/menu/toast; `style-line` untuk field.
+- Font admin: Plus Jakarta Sans untuk judul dan kontrol utama; Inter untuk body/form/data dan angka tabular; tidak ada serif atau `font-mono` untuk label form.
+- Aksi dan fokus: biru Albana `#26599A` (hover `#163E70`); stabilo `#DCEBFA`; permukaan biru lembut §2.3. Status: §2.4.
+- Wadah form: modal untuk form pendek, halaman untuk program, batch, dan artikel.
+- Komponen: primitif yang sudah ada untuk dialog/tabel/menu/toast; field admin memakai Soft UI terisi dengan radius 12px. `style-line` dipakai pada formulir academy.
 - Dashboard: kartu statistik radius 16px, kartu chart radius 20px, panel ringkas radius 16px; seri chart utama biru aksi dan badge pertumbuhan mengikuti §2.4.
-- Program: statis dua — Public Speaking Series dan Basic to Advance — sampai ada kebutuhan CRUD.
+- Program: CRUD di `/admin/program`, data dari tabel `programs`.
 - Bukti transfer: dikirim lewat WhatsApp admin `0857-1779-7637` (`wa.me/6285717797637`), bukan diunggah ke aplikasi.
-- Shell: topbar `h-18`, sidebar `w-56`, konten `max-w-7xl`.
+- Shell: topbar 64–72px, sidebar 64px ringkas atau 224px berlabel, konten maksimum 1280px.
 - Radius: kartu 16px, panel 20px.
 - Bahasa antarmuka: Indonesia.
 - Tema terang default; gelap opsional dan harus tetap kontras.
