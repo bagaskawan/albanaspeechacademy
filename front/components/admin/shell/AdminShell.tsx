@@ -87,7 +87,7 @@ export function AdminShell({ children, pendingInvoices, account, role }: ShellPr
           <LogoLink />
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle className={roundButton} />
-            <AccountMenu account={account} role={role} onToggleCompact={toggleCompact} />
+            <AccountMenu account={account} role={role} />
           </div>
         </header>
         <AnimatePresence>
@@ -111,7 +111,7 @@ export function AdminShell({ children, pendingInvoices, account, role }: ShellPr
       <div className="lg:flex">
         {/* §3.2 Sidebar: navigation only, sticky under the 72 px header. */}
         <aside className="sticky top-[72px] hidden h-[calc(100vh-72px)] shrink-0 p-3 lg:block">
-          <SidebarPanel {...sidebarProps} mode={compact === null ? "auto" : compact ? "compact" : "full"} layoutGroup="sidebar" />
+          <SidebarPanel {...sidebarProps} mode={compact === null ? "auto" : compact ? "compact" : "full"} layoutGroup="sidebar" onToggleCompact={toggleCompact} />
         </aside>
 
         <div className="min-w-0 flex-1 px-[var(--admin-gutter)] pb-10 pt-6 lg:pt-8">
@@ -149,7 +149,7 @@ function LogoLink() {
 const roleLabels: Record<string, string> = { adminsuper: "Super admin", admin: "Admin" };
 const menuItem = "flex h-11 cursor-pointer items-center gap-3 rounded-[14px] px-3 text-[15px] text-admin-ink outline-none data-[highlighted]:bg-admin-surface-muted";
 
-function AccountMenu({ account, role, onToggleCompact }: { account: string | null; role: string; onToggleCompact: () => void }) {
+function AccountMenu({ account, role }: { account: string | null; role: string }) {
   async function signOut() {
     await createClient().auth.signOut();
     window.location.assign("/login");
@@ -168,9 +168,6 @@ function AccountMenu({ account, role, onToggleCompact }: { account: string | nul
       </DropdownMenuLabel>
       <DropdownMenuSeparator className="mx-2 bg-admin-line" />
       <div className="py-1">
-        <DropdownMenuItem onSelect={onToggleCompact} className={`${menuItem} max-lg:hidden`}>
-          <PanelLeft aria-hidden="true" size={18} strokeWidth={1.5} /> Tata letak sidebar
-        </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
           <Link href="/admin/profil-akademi"><Settings aria-hidden="true" size={18} strokeWidth={1.5} /> Pengaturan</Link>
         </DropdownMenuItem>
@@ -191,9 +188,10 @@ type SidebarProps = {
   closed: Record<string, boolean>;
   toggleGroup: (id: string) => void;
   onNavigate?: () => void;
+  onToggleCompact?: () => void;
 };
 
-function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInvoices, closed, toggleGroup, onNavigate }: SidebarProps) {
+function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInvoices, closed, toggleGroup, onNavigate, onToggleCompact }: SidebarProps) {
   // "auto" is compact only between 1024 and 1279 px, decided in CSS so the first paint is right.
   // Labels use max-xl:sr-only, never not-sr-only: that utility sets position: static and drops the
   // label under the absolutely positioned active pill (the "invisible active label" bug).
@@ -241,6 +239,13 @@ function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInv
       })}
     </nav>
 
+    {onToggleCompact && <div className="border-t border-admin-line p-3">
+      <button type="button" onClick={onToggleCompact} aria-label={compactish ? "Tata letak sidebar: lebarkan" : "Tata letak sidebar: ringkas"} title="Tata letak sidebar"
+        className={`flex h-11 w-full items-center gap-3 rounded-full px-3.5 text-[15px] text-admin-ink transition-colors hover:bg-admin-surface-muted ${focusRing}`}>
+        <PanelLeft aria-hidden="true" size={18} strokeWidth={1.5} className="shrink-0" />
+        <span className={`truncate ${label}`}>Tata letak sidebar</span>
+      </button>
+    </div>}
   </div>;
 }
 
