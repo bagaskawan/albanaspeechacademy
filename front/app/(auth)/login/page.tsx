@@ -25,7 +25,7 @@ export default function LoginPage() {
     }
   }
 
-  return <main className="flex min-h-screen items-center justify-center bg-admin-surface-muted px-5 py-12 text-admin-ink">
+  return <main className="flex min-h-screen items-center justify-center bg-admin-canvas px-5 py-12 text-admin-ink">
     <div className="w-full max-w-md rounded-2xl border border-admin-line bg-admin-surface p-7 shadow-sm sm:p-9">
       <p className="text-sm font-bold tracking-widest text-admin-ink">ALBANA SPEECH ACADEMY</p>
       <h1 className="mt-5 text-3xl font-bold">Masuk ke CMS</h1>
