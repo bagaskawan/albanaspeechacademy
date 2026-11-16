@@ -3,13 +3,13 @@ import { BrandLogo } from "@/components/layout/brand-logo";
 import { RegistrationChoice } from "@/components/register/registration-choice";
 import { RetryButton } from "@/components/ui/retry-button";
 import type { RegistrationSelection } from "@/lib/server/registration-batch";
-import { readBundleChoice, type BundleChoice } from "@/lib/server/bundle-offer";
+import { readBundleOffer, type BundleOffer } from "@/lib/server/bundle-offer";
 
-function RegistrationState({ selection, bundle }: { selection: RegistrationSelection; bundle: BundleChoice | null }) {
+function RegistrationState({ selection, offer }: { selection: RegistrationSelection; offer: BundleOffer | null }) {
   if (selection.status === "ready") {
     return (
       <>
-        <RegistrationChoice batch={selection.batch} bundle={bundle} />
+        <RegistrationChoice batch={selection.batch} offer={offer} />
       </>
     );
   }
@@ -36,15 +36,15 @@ function RegistrationState({ selection, bundle }: { selection: RegistrationSelec
       <h2 className="text-xl font-semibold">{message[0]}</h2>
       <p className="mt-3 text-muted">{message[1]}</p>
       {selection.status === "failed" ? <RetryButton /> : null}
-      {selection.status === "missing" ? <Link className="button-primary mt-6" href="/#program-pilihan">Lihat pilihan program</Link> : null}
+      {selection.status === "missing" ? <Link className="button-primary mt-6" href="/#program">Lihat pilihan program</Link> : null}
     </section>
   );
 }
 
 export async function RegisterPage({ selection }: { selection: RegistrationSelection }) {
-  let bundle: BundleChoice | null = null;
+  let offer: BundleOffer | null = null;
   if (selection.status === "ready") {
-    try { bundle = await readBundleChoice(selection.batch); }
+    try { offer = await readBundleOffer(selection.batch); }
     catch { /* Standalone registration remains available if the offer lookup fails. */ }
   }
   return (
@@ -54,7 +54,7 @@ export async function RegisterPage({ selection }: { selection: RegistrationSelec
           <BrandLogo className="h-11 w-[7.2rem]" />
         </Link>
         <h1 className="sr-only">Pendaftaran kelas</h1>
-        <RegistrationState selection={selection} bundle={bundle} />
+        <RegistrationState selection={selection} offer={offer} />
       </div>
     </main>
   );

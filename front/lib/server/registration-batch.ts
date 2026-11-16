@@ -2,6 +2,7 @@ import type { RegistrationBatch, RegistrationFormKind, VariantCopy } from "@/lib
 import { pickAcceptingBatch } from "@/lib/registration";
 import { formatSessionDate, formatTimeRange } from "@/lib/format";
 import { readPrograms } from "./catalog";
+import { readAddressLabel } from "./public-contacts";
 
 export type RegistrationSelection =
   | { status: "ready"; batch: RegistrationBatch }
@@ -28,19 +29,18 @@ function asObjectArray(value: unknown): Record<string, unknown>[] {
 function toRegistrationBatch(
   program: Record<string, unknown>,
   batch: Record<string, unknown>,
+  address: string,
 ): RegistrationBatch | null {
   const programName = asString(program.title);
   const programSlug = asString(program.slug);
   const batchSlug = asString(batch.slug);
   const batchName = asString(batch.title);
-  const venueName = asString(batch.venue);
-  const venueAddress = asString(batch.address);
-  const formKindValue = asString(batch.form_kind);
+  const formKindValue = asString(program.form_kind);
   const formKind = FORM_KINDS.find((kind) => kind === formKindValue) ?? null;
-  const priceIdr = asNumber(batch.price_idr);
-  const feeDetails = asString(batch.fee_details);
-  const normalPriceIdr = asNumber(batch.normal_price_idr);
-  const dpValue = asNumber(batch.dp_percent);
+  const priceIdr = asNumber(program.price_idr);
+  const feeDetails = asString(program.fee_details);
+  const normalPriceIdr = asNumber(program.original_price_idr);
+  const dpValue = asNumber(program.dp_percent);
   const dpPercent = dpValue !== null && Number.isInteger(dpValue) && dpValue >= 1 && dpValue <= 99 ? dpValue : null;
 
   // Admin-editable wording for the register form; missing fields fall back to
@@ -70,11 +70,9 @@ function toRegistrationBatch(
     !programSlug ||
     !batchSlug ||
     !batchName ||
-    !venueName ||
-    !venueAddress ||
     !formKind ||
     priceIdr === null ||
-    priceIdr < 0 ||
+    priceIdr <= 0 ||
     sessions.length === 0
   ) {
     return null;
@@ -91,7 +89,7 @@ function toRegistrationBatch(
       sequence: session.sequence,
       dateLabel: formatSessionDate(session.startsAt),
     })),
-    venue: { name: venueName, address: venueAddress },
+    venue: { name: address, address },
     formKind,
     formCopy,
     priceIdr,
@@ -107,12 +105,12 @@ export async function readProgramRegistration(
   programSlug: string,
 ): Promise<RegistrationSelection> {
   try {
-    const programs = await readPrograms();
+    const [programs, address] = await Promise.all([readPrograms(), readAddressLabel()]);
     const program = asObjectArray(programs).find((item) => asString(item.slug) === programSlug);
     if (!program) return { status: "missing" };
     const title = asString(program.title) ?? programSlug;
     const batch = pickAcceptingBatch(asObjectArray(program.batches));
-    const selection = batch ? toRegistrationBatch(program, batch) : null;
+    const selection = batch ? toRegistrationBatch(program, batch, address) : null;
     if (selection) return { status: "ready", batch: selection };
     return { status: "program", program: { slug: programSlug, title } };
   } catch {

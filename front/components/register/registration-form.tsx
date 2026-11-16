@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { RegistrationStepFields } from "@/components/register/registration-steps";
 import type { RegistrationBatch } from "@/lib/registration";
-import type { BundleChoice } from "@/lib/server/bundle-offer";
+import { BundleOfferCard } from "@/components/register/bundle-offer-card";
+import type { BundleOffer } from "@/lib/server/bundle-offer";
 import { registrationFailure, type RegistrationBanner } from "@/lib/registration-feedback";
 import {
   REGISTRATION_STEPS,
@@ -19,12 +20,14 @@ import {
 
 type SubmitState = "idle" | "submitting" | "success";
 
-export function RegistrationForm({ batch, offer, bundleChoice, selectedOffer, onSelectOffer }: {
+export function RegistrationForm({ batch, baseBatch, offer, withBundle = false, onBundleChange }: {
+  /** Batch yang nilainya dikirim: program saja, atau paket bila peserta memilihnya. */
   batch: RegistrationBatch;
-  offer?: { slug: string; secondaryBatchSlug: string } | null;
-  bundleChoice?: BundleChoice | null;
-  selectedOffer?: "single" | "bundle";
-  onSelectOffer?: (value: "single" | "bundle") => void;
+  /** Program yang sedang didaftari, untuk naskah kartu tawaran. */
+  baseBatch?: RegistrationBatch;
+  offer?: BundleOffer | null;
+  withBundle?: boolean;
+  onBundleChange?: (selected: boolean) => void;
 }) {
   const copy = registrationFormCopy(batch);
   const [values, setValues] = useState<RegistrationValues>(emptyRegistrationValues);
@@ -33,7 +36,7 @@ export function RegistrationForm({ batch, offer, bundleChoice, selectedOffer, on
   const [banner, setBanner] = useState<RegistrationBanner | null>(null);
   const [step, setStep] = useState(0);
   const [staleKey, setStaleKey] = useState<string | null>(null);
-  const choiceKey = `${offer?.slug ?? "single"}:${batch.priceIdr}`;
+  const choiceKey = `${withBundle ? offer?.slug ?? "bundle" : "single"}:${batch.priceIdr}`;
   const isStale = staleKey === choiceKey;
   const headingRef = useRef<HTMLHeadingElement>(null);
   const focusFieldRef = useRef<keyof RegistrationValues | null>(null);
@@ -41,7 +44,7 @@ export function RegistrationForm({ batch, offer, bundleChoice, selectedOffer, on
   const submittingRef = useRef(false);
   const idempotencyKey = useRef<string | null>(null);
 
-  useEffect(() => { idempotencyKey.current = null; }, [batch.priceIdr, offer?.slug]);
+  useEffect(() => { idempotencyKey.current = null; }, [batch.priceIdr, withBundle]);
 
   useEffect(() => {
     if (!didMount.current) {
@@ -115,7 +118,8 @@ export function RegistrationForm({ batch, offer, bundleChoice, selectedOffer, on
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...buildRegistrationPayload(values, batch), idempotencyKey: idempotencyKey.current,
-          offerSlug: offer?.slug ?? null, secondaryBatchSlug: offer?.secondaryBatchSlug ?? null }),
+          offerSlug: withBundle && offer ? offer.slug : null,
+          secondaryBatchSlug: withBundle && offer ? offer.partner.batchSlug : null }),
       });
       const payload: unknown = await response.json().catch(() => null);
       const message = payload && typeof payload === "object" && "message" in payload &&
@@ -166,7 +170,7 @@ export function RegistrationForm({ batch, offer, bundleChoice, selectedOffer, on
         <div role="alert" className="mt-6 border-l-4 border-danger bg-surface px-4 py-3">
           <p className="font-medium">{banner.message}</p>
           {banner.showProgramLink ? (
-            <Link className="mt-2 inline-block font-semibold text-accent underline" href="/#program-pilihan">
+            <Link className="mt-2 inline-block font-semibold text-accent underline" href="/#program">
               Periksa pilihan program terbaru
             </Link>
           ) : null}
@@ -174,17 +178,15 @@ export function RegistrationForm({ batch, offer, bundleChoice, selectedOffer, on
       ) : null}
 
       <div className="mt-8 grid gap-6">
-        {isLastStep && bundleChoice && onSelectOffer ? <fieldset className="border border-rule p-5">
-          <legend className="px-2 font-semibold">Tinjau pilihan sebelum membayar</legend>
-          <p className="mb-4 text-sm text-muted">Pilihan awal dapat diubah sebelum pendaftaran dikirim.</p>
-          <div className="grid gap-3">
-            <label className="flex min-h-11 items-center gap-3"><input type="radio" name="final-offer" checked={selectedOffer === "single"} onChange={() => onSelectOffer("single")} />Tetap program biasa</label>
-            <label className="flex min-h-11 items-center gap-3"><input type="radio" name="final-offer" checked={selectedOffer === "bundle"} onChange={() => onSelectOffer("bundle")} />
-              <span><strong>{bundleChoice.title}</strong> · {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(bundleChoice.priceIdr)}
-                {bundleChoice.description ? <span className="block text-sm text-muted">{bundleChoice.description}</span> : null}</span>
-            </label>
-          </div>
-        </fieldset> : null}
+        {isLastStep && offer && baseBatch && onBundleChange ? (
+          <BundleOfferCard
+            offer={offer}
+            baseProgramName={baseBatch.programName}
+            basePriceIdr={baseBatch.priceIdr}
+            selected={withBundle}
+            onSelect={onBundleChange}
+          />
+        ) : null}
         <RegistrationStepFields
           stepId={currentStep.id}
           values={values}

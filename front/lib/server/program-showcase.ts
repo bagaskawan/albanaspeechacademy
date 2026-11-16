@@ -2,13 +2,18 @@ import { formatSessionDate, formatTimeRange } from "@/lib/format";
 import { isAcceptingBatch } from "@/lib/registration";
 import { readPrograms } from "./catalog";
 import { academyRequest } from "./academy-api";
+import { readAddressLabel } from "./public-contacts";
 import { youtubeVideoId } from "@/lib/youtube";
 
 export type ProgramBatchSummary = {
+  name: string;
   dateLabels: string[];
   timeLabel: string;
   formatLabel: string;
   venueLabel: string;
+  priceIdr: number | null;
+  normalPriceIdr: number | null;
+  dpPercent: number | null;
 };
 
 export type ProgramCard = {
@@ -70,27 +75,40 @@ function readTopics(materials: unknown): string[] {
     : [];
 }
 
-function readBatchSummary(batch: Record<string, unknown>): ProgramBatchSummary | null {
+// Biaya dan DP milik Program; batch hanya menyumbang nama dan jadwal, dan
+// alamat pelaksanaan datang dari menu Kontak.
+function readBatchSummary(
+  program: Record<string, unknown>,
+  batch: Record<string, unknown>,
+  address: string,
+): ProgramBatchSummary | null {
   const sessions = readSessions(batch);
   if (sessions.length === 0) return null;
+  const priceIdr = Number(program.price_idr);
+  const normalPriceIdr = Number(program.original_price_idr);
+  const dpPercent = Number(program.dp_percent);
   return {
+    name: asString(batch.title) ?? "Batch",
     dateLabels: sessions.map((session) => formatSessionDate(session.startsAt)),
     timeLabel: formatTimeRange(sessions[0].startsAt, sessions[0].endsAt),
     formatLabel: `${sessions.length} pertemuan`,
-    venueLabel: asString(batch.venue) ?? asString(batch.address) ?? "Tempat menyusul",
+    venueLabel: address,
+    priceIdr: Number.isSafeInteger(priceIdr) && priceIdr > 0 ? priceIdr : null,
+    normalPriceIdr: Number.isSafeInteger(normalPriceIdr) && normalPriceIdr > priceIdr ? normalPriceIdr : null,
+    dpPercent: Number.isInteger(dpPercent) && dpPercent > 0 ? dpPercent : null,
   };
 }
 
-function toCard(program: Record<string, unknown>): ProgramCard | null {
+function toCard(program: Record<string, unknown>, address: string): ProgramCard | null {
   const slug = asString(program.slug);
   const title = asString(program.title);
   const summary = asString(program.description);
   if (!slug || !title || !summary) return null;
 
   const batch = pickBatch(asObjectArray(program.batches));
-  const batchSummary = batch ? readBatchSummary(batch) : null;
+  const batchSummary = batch ? readBatchSummary(program, batch, address) : null;
 
-  let statusText = "Jadwal program ini belum tersedia.";
+  let statusText = "Jadwal menyusul";
   if (slug === "inhouse-training") statusText = "Konsultasi privat dengan tim Albana";
   let registrationUrl: string | null = null;
   if (batch && batchSummary) {
@@ -113,9 +131,9 @@ function toCard(program: Record<string, unknown>): ProgramCard | null {
 
 export async function readProgramShowcase(): Promise<ProgramShowcase> {
   try {
-    const programs = await readPrograms();
+    const [programs, address] = await Promise.all([readPrograms(), readAddressLabel()]);
     const cards = asObjectArray(programs)
-      .map(toCard)
+      .map((program) => toCard(program, address))
       .filter((card): card is ProgramCard => card !== null);
     return { status: "ready", cards };
   } catch {

@@ -2,6 +2,7 @@
 
 import { RadioGroup, TextArea, TextField } from "@/components/ui/field";
 import { formatRupiah } from "@/lib/format";
+import { paymentSummary } from "@/lib/bundle";
 import {
   MAX_CHALLENGE,
   MAX_EMAIL,
@@ -101,7 +102,8 @@ export function RegistrationStepFields({
     );
   }
 
-  const dpAmount = dpPercent === null ? null : Math.round((priceIdr * dpPercent) / 100);
+  const dpAmount = dpPercent === null ? null : paymentSummary(priceIdr, dpPercent, "dp").payNowIdr;
+  const summary = paymentSummary(priceIdr, dpPercent, values.paymentMethod);
   return (
     <>
       <p id="pembayaran" className="text-sm text-muted">
@@ -122,6 +124,22 @@ export function RegistrationStepFields({
         required
         error={errors.paymentMethod}
       />
+      <dl aria-live="polite" className="grid gap-1.5 border-t border-rule pt-4 text-sm">
+        <div className="flex flex-wrap justify-between gap-x-3">
+          <dt>Biaya</dt>
+          <dd className="font-semibold tabular-nums">{formatRupiah(summary.feeIdr)}</dd>
+        </div>
+        <div className="flex flex-wrap justify-between gap-x-3">
+          <dt>Transfer sekarang</dt>
+          <dd className="font-semibold tabular-nums">{formatRupiah(summary.payNowIdr)}</dd>
+        </div>
+        {summary.remainingIdr > 0 ? (
+          <div className="flex flex-wrap justify-between gap-x-3 text-muted">
+            <dt>Sisa</dt>
+            <dd className="tabular-nums">{formatRupiah(summary.remainingIdr)}</dd>
+          </div>
+        ) : null}
+      </dl>
       <label className="flex min-h-11 cursor-pointer items-start gap-3">
         <input
           id="consent"

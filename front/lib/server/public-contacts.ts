@@ -9,6 +9,19 @@ export async function readPublishedContacts(): Promise<ContactRow[]> {
   return rows as ContactRow[];
 }
 
+export const ADDRESS_FALLBACK = "Tempat menyusul";
+
+// Alamat pelaksanaan diambil dari menu Kontak, bukan dari batch. Kontak yang
+// gagal dibaca tidak boleh menggagalkan halaman program atau pendaftaran.
+export async function readAddressLabel(): Promise<string> {
+  try {
+    const rows = await readPublishedContacts();
+    return rows.find((row) => row.kind === "address")?.value.trim() || ADDRESS_FALLBACK;
+  } catch {
+    return ADDRESS_FALLBACK;
+  }
+}
+
 export function contactHref(row: ContactRow): string | undefined {
   if (row.kind === "email") return `mailto:${row.value}`;
   if (row.kind === "whatsapp") {

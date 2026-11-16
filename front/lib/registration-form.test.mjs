@@ -120,3 +120,11 @@ test("field kondisional memblokir langkahnya sendiri", () => {
   assert.ok(errors.sourceOther);
   assert.equal(errors.goal, undefined);
 });
+
+test("pilihan paket mengirim harga paket dan DP paket", () => {
+  const bundled = { ...batch, formKind: "exclusive", priceIdr: 2_900_000, dpPercent: 20 };
+  const payload = buildRegistrationPayload({ ...filled(), paymentMethod: "dp" }, bundled);
+  assert.equal(payload.priceIdr, 2_900_000);
+  assert.equal(payload.dpPercent, 20);
+  assert.ok(parseRegistration(payload));
+});
