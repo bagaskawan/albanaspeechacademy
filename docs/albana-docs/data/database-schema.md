@@ -198,6 +198,8 @@ Penghitung `attempts` per sumber per jendela waktu untuk pembatasan laju.
 
 `role` ∈ `admin` | `adminsuper` (bawaan `admin`), `created_at`. Keanggotaan tabel ini adalah syarat semua kebijakan tulis CMS.
 
+`username` (migrasi `20261116130000_admin_users_username`): opsional, **unik**, huruf kecil `^[a-z0-9][a-z0-9._-]{2,31}$`. Dipakai untuk masuk CMS dan sebagai nama di menu akun. Login mencarinya dengan service role, lalu masuk dengan email Supabase Auth akun tersebut. Akun `adminsuper` saat ini memakai `adminalbana`. Nilai diisi di luar migrasi agar email tidak tersimpan di repo.
+
 ### `system_settings` — PK `key`
 
 Pasangan `key`/`value` teks. Kunci yang dibaca Albana: `albana_media_min_image_width`, `albana_media_min_image_height`, `albana_media_min_video_short_side`.

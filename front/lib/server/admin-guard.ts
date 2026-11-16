@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 export type AdminUserRecord = {
   user_id: string;
   role: "admin" | "adminsuper" | string;
+  username: string | null;
 };
 
 // One auth + admin_users lookup per request, shared by the layout, the page and its actions.
@@ -18,7 +19,7 @@ const loadAdmin = cache(async () => {
   if (!userId) return { supabase, userId: null, admin: null, email: null };
   const { data: admin } = await supabase
     .from("admin_users")
-    .select("user_id, role")
+    .select("user_id, role, username")
     .eq("user_id", userId)
     .maybeSingle();
   return { supabase, userId, admin, email: typeof data.claims.email === "string" ? data.claims.email : null };

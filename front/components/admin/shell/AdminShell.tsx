@@ -8,7 +8,7 @@ import { AnimatePresence, m } from "motion/react";
 import { Dialog } from "radix-ui";
 import {
   BookOpen, Building2, CalendarRange, ChevronDown, Film, Handshake, Images, Landmark, LayoutDashboard,
-  LogOut, Menu, Newspaper, PanelLeftClose, PanelLeftOpen, Phone, Quote, ReceiptText, UserRound, Users, type LucideIcon,
+  LogOut, Menu, Newspaper, PanelLeft, Phone, Settings, Quote, ReceiptText, UserRound, Users, type LucideIcon,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { PageHeader } from "@/components/admin/PageHeader";
@@ -87,7 +87,7 @@ export function AdminShell({ children, pendingInvoices, account, role }: ShellPr
           <LogoLink />
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle className={roundButton} />
-            <AccountMenu account={account} />
+            <AccountMenu account={account} role={role} onToggleCompact={toggleCompact} />
           </div>
         </header>
         <AnimatePresence>
@@ -111,7 +111,7 @@ export function AdminShell({ children, pendingInvoices, account, role }: ShellPr
       <div className="lg:flex">
         {/* §3.2 Sidebar: navigation only, sticky under the 72 px header. */}
         <aside className="sticky top-[72px] hidden h-[calc(100vh-72px)] shrink-0 p-3 lg:block">
-          <SidebarPanel {...sidebarProps} mode={compact === null ? "auto" : compact ? "compact" : "full"} layoutGroup="sidebar" onToggleCompact={toggleCompact} />
+          <SidebarPanel {...sidebarProps} mode={compact === null ? "auto" : compact ? "compact" : "full"} layoutGroup="sidebar" />
         </aside>
 
         <div className="min-w-0 flex-1 px-[var(--admin-gutter)] pb-10 pt-6 lg:pt-8">
@@ -126,15 +126,30 @@ export function AdminShell({ children, pendingInvoices, account, role }: ShellPr
 }
 
 function LogoLink() {
-  return <Link href="/admin" aria-label="Albana CMS, ke Dashboard" className={`flex min-w-0 items-center gap-3 rounded-full ${focusRing}`}>
-    <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-[#0b0b0b]">
-      <Image src="/images/Albana-Speech-Academy-Logo-White.png" alt="" width={28} height={28} className="size-7 object-contain" priority />
-    </span>
-    <span aria-hidden="true" className="truncate text-[15px] font-medium max-sm:hidden">Albana CMS</span>
+  return <Link href="/admin" aria-label="Albana CMS, ke Dashboard" className={`inline-flex items-center rounded-xl py-1 transition-opacity hover:opacity-80 ${focusRing}`}>
+    <Image
+      src="/logo-blue.png"
+      alt="Albana CMS"
+      width={121}
+      height={47}
+      className="h-8 w-auto object-contain block dark:hidden"
+      priority
+    />
+    <Image
+      src="/logo-white.png"
+      alt="Albana CMS"
+      width={1602}
+      height={629}
+      className="h-8 w-auto object-contain hidden dark:block"
+      priority
+    />
   </Link>;
 }
 
-function AccountMenu({ account }: { account: string | null }) {
+const roleLabels: Record<string, string> = { adminsuper: "Super admin", admin: "Admin" };
+const menuItem = "flex h-11 cursor-pointer items-center gap-3 rounded-[14px] px-3 text-[15px] text-admin-ink outline-none data-[highlighted]:bg-admin-surface-muted";
+
+function AccountMenu({ account, role, onToggleCompact }: { account: string | null; role: string; onToggleCompact: () => void }) {
   async function signOut() {
     await createClient().auth.signOut();
     window.location.assign("/login");
@@ -146,10 +161,23 @@ function AccountMenu({ account }: { account: string | null }) {
       <span className="max-w-[160px] truncate text-[14px] max-md:hidden">{name}</span>
       <ChevronDown aria-hidden="true" size={16} strokeWidth={1.5} className="max-md:hidden" />
     </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" className="min-w-56 rounded-[20px] border-admin-line bg-admin-surface p-2 shadow-[var(--admin-shadow-pop)]">
-      <DropdownMenuLabel className="truncate text-[13px] font-normal text-admin-text-secondary">{name}</DropdownMenuLabel>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem onSelect={signOut}><LogOut aria-hidden="true" size={16} strokeWidth={1.5} /> Keluar</DropdownMenuItem>
+    <DropdownMenuContent align="end" sideOffset={8} className="w-64 rounded-[24px] border-admin-line bg-admin-canvas p-2 shadow-[var(--admin-shadow-pop)]">
+      <DropdownMenuLabel className="px-3 pb-3 pt-2 font-normal">
+        <span className="block truncate text-[15px] font-semibold text-admin-ink">{name}</span>
+        <span className="mt-0.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-admin-text-secondary">{roleLabels[role] ?? role}</span>
+      </DropdownMenuLabel>
+      <DropdownMenuSeparator className="mx-2 bg-admin-line" />
+      <div className="py-1">
+        <DropdownMenuItem onSelect={onToggleCompact} className={`${menuItem} max-lg:hidden`}>
+          <PanelLeft aria-hidden="true" size={18} strokeWidth={1.5} /> Tata letak sidebar
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className={menuItem}>
+          <Link href="/admin/profil-akademi"><Settings aria-hidden="true" size={18} strokeWidth={1.5} /> Pengaturan</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={signOut} className={`${menuItem} !text-admin-danger data-[highlighted]:bg-admin-rose-soft`}>
+          <LogOut aria-hidden="true" size={18} strokeWidth={1.5} className="text-admin-danger" /> Keluar
+        </DropdownMenuItem>
+      </div>
     </DropdownMenuContent>
   </DropdownMenu>;
 }
@@ -163,10 +191,9 @@ type SidebarProps = {
   closed: Record<string, boolean>;
   toggleGroup: (id: string) => void;
   onNavigate?: () => void;
-  onToggleCompact?: () => void;
 };
 
-function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInvoices, closed, toggleGroup, onNavigate, onToggleCompact }: SidebarProps) {
+function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInvoices, closed, toggleGroup, onNavigate }: SidebarProps) {
   // "auto" is compact only between 1024 and 1279 px, decided in CSS so the first paint is right.
   // Labels use max-xl:sr-only, never not-sr-only: that utility sets position: static and drops the
   // label under the absolutely positioned active pill (the "invisible active label" bug).
@@ -214,11 +241,6 @@ function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInv
       })}
     </nav>
 
-    {onToggleCompact && <div className="border-t border-admin-line p-3">
-      <button type="button" onClick={onToggleCompact} aria-label={compactish ? "Lebarkan sidebar" : "Ringkas sidebar"} className={roundButton}>
-        {mode === "full" ? <PanelLeftClose aria-hidden="true" size={18} strokeWidth={1.5} /> : <PanelLeftOpen aria-hidden="true" size={18} strokeWidth={1.5} />}
-      </button>
-    </div>}
   </div>;
 }
 

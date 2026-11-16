@@ -5,7 +5,7 @@ import { academyBillingClient } from "@/lib/server/academy-billing";
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await requireAdminMember();
   const pendingInvoices = await countPendingInvoices();
-  return <AdminShell pendingInvoices={pendingInvoices} role={supabase.adminUser.role} account={process.env.SUPABASE_ADMIN_USERNAME?.trim() || supabase.adminEmail}>{children}</AdminShell>;
+  return <AdminShell pendingInvoices={pendingInvoices} role={supabase.adminUser.role} account={supabase.adminUser.username ?? process.env.SUPABASE_ADMIN_USERNAME?.trim() ?? null}>{children}</AdminShell>;
 }
 
 // The badge is a hint; a billing outage must not take the whole CMS down.
