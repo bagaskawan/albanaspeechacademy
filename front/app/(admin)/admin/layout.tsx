@@ -6,8 +6,8 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 const groups = [
-  { title: "Operasional", links: [["Dashboard", "/admin"], ["Pendaftar", "/admin/pendaftar"], ["Tagihan", "/admin/tagihan"], ["Rekening", "/admin/rekening"]] },
-  { title: "Kelas", links: [["Program", "/admin/program"], ["Batch", "/admin/batch"], ["Trainer", "/admin/trainer"]] },
+  { title: "Operasional", links: [["Dashboard", "/admin"], ["Pendaftar", "/admin/pendaftar"], ["Tagihan", "/admin/tagihan"], ["Rekening", "/admin/rekening"], ["Kontak", "/admin/kontak"]] },
+  { title: "Kelas", links: [["Program", "/admin/program"], ["Batch", "/admin/batch"], ["Trainer", "/admin/trainer"], ["Profil Akademi", "/admin/profil-akademi"]] },
   { title: "Konten", links: [["Artikel", "/admin/artikel"], ["Galeri", "/admin/galeri"], ["Media", "/admin/media"], ["Testimoni", "/admin/testimoni"], ["Partner", "/admin/partner"]] },
 ];
 

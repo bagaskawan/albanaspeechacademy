@@ -128,8 +128,8 @@ grep -rnE 'from\("(members|privilege_[a-z]+|admin_roles|admin_role_permissions|r
 
 Visi, misi, bidang pelatihan, dan kerangka empat tingkat tetap **naskah statis** dari [konten beranda](../content/home-page-content.md); tidak perlu kolom baru.
 
-- [ ] Kontak dan profil dapat diubah dari CMS
-- [ ] Perubahan tampil di beranda tanpa deploy
+- [x] Kontak dan profil dapat diubah dari CMS
+- [x] Perubahan tampil di beranda tanpa deploy
 
 ### 1.5 Data trainer · P1
 

@@ -1,6 +1,6 @@
 import { HomePage } from "@/components/home/home-page";
 
-export const instant = false;
+export const dynamic = "force-dynamic";
 
 export default function Page() {
   return <HomePage />;

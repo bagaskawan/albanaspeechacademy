@@ -1,15 +1,23 @@
 import { Container } from "@/components/layout/container";
-import { contactHref, type ContactRow } from "@/lib/server/public-contacts";
+import { contactHref, readPublishedContacts, type ContactRow } from "@/lib/server/public-contacts";
 
-const CONTACTS: ContactRow[] = [
+const FALLBACK_CONTACTS: ContactRow[] = [
   { kind: "instagram", value: "@albanaspeechacademy" },
   { kind: "whatsapp", value: "0857-1779-7637" },
   { kind: "email", value: "asaalbana91@gmail.com" },
   { kind: "address", value: "Jl. Diponegoro No. 61 Bandung" },
 ];
 
-export function ContactSection() {
-  const contacts = CONTACTS;
+export async function ContactSection() {
+  let contacts = FALLBACK_CONTACTS;
+  try {
+    const published = await readPublishedContacts();
+    if (published && published.length > 0) {
+      contacts = published;
+    }
+  } catch {
+    // Fallback if network or DB fails
+  }
   const whatsapp = contacts.find((channel) => channel.kind === "whatsapp");
   return (
     <section
