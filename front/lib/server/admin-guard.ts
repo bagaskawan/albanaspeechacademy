@@ -3,8 +3,13 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-/** Server-side guard for admin pages: requires a logged-in member with role "admin". */
-export async function requireAdminMember() {
+export type AdminUserRecord = {
+  user_id: string;
+  role: "admin" | "adminsuper" | string;
+};
+
+/** Server-side guard for Albana CMS pages. */
+export async function requireAdminMember(requiredRole?: "adminsuper") {
   const supabase = await createClient();
 
   const {
@@ -13,13 +18,19 @@ export async function requireAdminMember() {
 
   if (!user) redirect("/login");
 
-  const { data: member } = await supabase
-    .from("members")
-    .select("role")
-    .eq("id", user.id)
+  const { data: admin } = await supabase
+    .from("admin_users")
+    .select("user_id, role")
+    .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!member || member.role !== "admin") redirect("/myprofile");
+  if (!admin) redirect("/");
 
-  return supabase;
+  if (requiredRole && admin.role !== requiredRole) {
+    throw new Error("Aksi ini memerlukan hak akses adminsuper.");
+  }
+
+  return Object.assign(supabase, {
+    adminUser: admin as AdminUserRecord,
+  });
 }

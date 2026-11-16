@@ -113,10 +113,10 @@ grep -rnE 'from\("(members|privilege_[a-z]+|admin_roles|admin_role_permissions|r
 4. Tambahkan **Rekening** ke grup sidebar (sementara di grup Operasional sampai Fase 3).
 5. Isi rekening aktif nyata dari pemilik.
 
-- [ ] Admin dapat menambah, mengubah, dan mengaktifkan rekening
-- [ ] Mengaktifkan rekening lain menonaktifkan yang lama
-- [ ] Rekening tidak terbaca dengan anon key
-- [ ] Rekening aktif nyata terisi
+- [x] Admin dapat menambah, mengubah, dan mengaktifkan rekening
+- [x] Mengaktifkan rekening lain menonaktifkan yang lama
+- [x] Rekening tidak terbaca dengan anon key
+- [x] Rekening aktif nyata terisi
 
 **Selesai bila:** pendaftaran uji tidak lagi ditolak “rekening belum tersedia”.
 
