@@ -1669,7 +1669,7 @@ body:has(.admin-shell) {
     .admin-table-stack tbody tr { margin-bottom: 8px; border-radius: 20px; background: var(--admin-surface); padding: 12px 16px; }
     .admin-table-stack tbody tr:hover { background: var(--admin-surface); }
     .admin-table-stack tbody td { height: auto; padding: 6px 0; border: 0; text-align: left; }
-    .admin-table-stack tbody td:first-child { padding: 0 0 6px; font-weight: 500; }
+    .admin-table-stack tbody td:first-child { padding: 0 0 6px; font-size: 15px; font-weight: 500; }
     .admin-table-stack tbody td[data-label]:not(:first-child)::before {
       content: attr(data-label); display: block; color: var(--admin-text-secondary); font-size: 13px;
     }
