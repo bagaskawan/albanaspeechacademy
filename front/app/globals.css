@@ -1603,6 +1603,46 @@ body:has(.admin-shell) {
 .admin-shell div.border-b:has(> input),
 .admin-shell div.border-b:has(> textarea) { border-bottom: 0; }
 
+/* Admin page enter (3.10): opacity only so nothing reflows. */
+.admin-page-enter { animation: admin-page-enter 160ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+@keyframes admin-page-enter { from { opacity: 0; } }
+
+/*
+ * Admin data lists (T1, admin-ui-patterns §8): rows are soft rounded strips on a surface card
+ * instead of a ruled grid. Unlayered on purpose so it wins over per-module table utilities.
+ */
+.admin-shell div:has(> table) {
+  border: 0;
+  border-radius: var(--admin-radius-card);
+  background: var(--admin-surface);
+  padding: 4px 8px 8px;
+}
+.admin-shell table { border-collapse: separate; border-spacing: 0 6px; }
+.admin-shell :is(thead, thead tr) { border: 0 !important; background: transparent !important; }
+.admin-shell th {
+  border: 0 !important;
+  background: transparent !important;
+  padding: 10px 16px 4px;
+  color: var(--admin-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+}
+.admin-shell tbody tr { border: 0 !important; }
+.admin-shell tbody td {
+  border: 0 !important;
+  background: var(--admin-canvas);
+  padding: 14px 16px;
+  vertical-align: middle;
+  transition: background-color var(--dur-hover) ease;
+}
+.admin-shell tbody td:first-child { border-radius: 20px 0 0 20px; }
+.admin-shell tbody td:last-child { border-radius: 0 20px 20px 0; }
+.admin-shell tbody td:only-child { border-radius: 20px; }
+.admin-shell tbody tr:hover td { background: var(--admin-surface-muted); }
+
 #form-pendaftaran .eyebrow {
   font-family: var(--font-sans);
   font-size: .875rem;

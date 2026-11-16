@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -14,8 +15,13 @@ declare global {
 
 gsap.registerPlugin(ScrollTrigger);
 
+// CMS and auth scroll natively: Lenis + the per-wheel DOM walk below made admin feel heavy.
+const NATIVE_SCROLL = /^\/(admin|login|forgot-password|reset-password)(\/|$)/;
+
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
+  const native = NATIVE_SCROLL.test(usePathname() ?? "");
   useEffect(() => {
+    if (native) return;
     const lenis = new Lenis({
       duration: 1.4,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -31,9 +37,8 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     // --- Sync Lenis ↔ GSAP ScrollTrigger ---
     lenis.on("scroll", ScrollTrigger.update);
 
-    gsap.ticker.add((time) => {
-      lenis.raf(time * 1000);
-    });
+    const tick = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
 
     ScrollTrigger.defaults({
@@ -136,11 +141,11 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
       document.removeEventListener("click", handleAnchorClick, { capture: true });
       document.removeEventListener("wheel", handleGlobalScrollInterception, { capture: true });
       document.removeEventListener("touchmove", handleGlobalScrollInterception, { capture: true });
-      gsap.ticker.remove((time) => lenis.raf(time * 1000));
+      gsap.ticker.remove(tick);
       lenis.destroy();
       delete window.__lenis;
     };
-  }, []);
+  }, [native]);
 
   return <>{children}</>;
 }

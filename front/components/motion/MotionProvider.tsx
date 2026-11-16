@@ -1,13 +1,12 @@
 "use client";
 
-import { LazyMotion, MotionConfig } from "motion/react";
+import { LazyMotion, MotionConfig, domMax } from "motion/react";
 import { transition } from "@/lib/motion/tokens";
 
-const loadFeatures = () => import("./features").then((mod) => mod.default);
-
+// Features load synchronously: async loading let the first pill/rail animation jump.
 // `strict` makes a stray `motion.*` import throw; use `m.*` inside this provider.
 export function MotionProvider({ children }: { children: React.ReactNode }) {
-  return <LazyMotion features={loadFeatures} strict>
+  return <LazyMotion features={domMax} strict>
     <MotionConfig reducedMotion="user" transition={transition.micro}>{children}</MotionConfig>
   </LazyMotion>;
 }

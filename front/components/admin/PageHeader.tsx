@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, m } from "motion/react";
+import { m } from "motion/react";
 import { ArrowLeft, MoveRight } from "lucide-react";
 import type { AdminNavGroup, AdminNavModule } from "@/lib/admin-nav";
-import { ease, transition } from "@/lib/motion/tokens";
+import { ease } from "@/lib/motion/tokens";
 
 const ACTIONS_ID = "admin-page-actions";
 const TITLE_ID = "admin-page-title";
@@ -16,13 +16,12 @@ const noopSubscribe = () => () => {};
 export function PageHeader({ group, module, isDetail, pathname }: { group: AdminNavGroup; module?: AdminNavModule; isDetail: boolean; pathname: string }) {
   const title = module?.label ?? group.label;
   return <div className="order-1 mb-8 flex flex-wrap items-end justify-between gap-4 lg:col-start-2 lg:row-start-1">
-    <AnimatePresence mode="wait" initial={false}>
-      <m.div
+    {/* Keyed remount fades the new title in at once; no exit wait between modules. */}
+    <m.div
         key={pathname}
         className="flex min-w-0 items-end gap-4"
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0, transition: { duration: 0.22, ease: ease.out } }}
-        exit={{ opacity: 0, transition: transition.exit }}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0, transition: { duration: 0.16, ease: ease.out } }}
       >
         {isDetail && module && <Link
           href={module.href}
@@ -46,7 +45,6 @@ export function PageHeader({ group, module, isDetail, pathname }: { group: Admin
         <h1 className="mt-2 text-[32px] font-normal leading-[1.1] tracking-[-0.02em] md:text-[44px]">{title}</h1>
         </div>
       </m.div>
-    </AnimatePresence>
     <div id={ACTIONS_ID} className="flex items-center gap-3 empty:hidden" />
   </div>;
 }
