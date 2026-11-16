@@ -50,7 +50,9 @@ export async function saveBatch(input: {
 }
 
 export async function deleteBatch(slug: string): Promise<{ error?: string }> {
-  const supabase = await requireAdminMember();
+  // Hapus hanya untuk adminsuper, seperti deletePartner dan deleteArticleAction;
+  // tombolnya memang disembunyikan di UI, tetapi aksi server tetap harus memeriksa.
+  const supabase = await requireAdminMember("adminsuper");
   // Menghapus batch berpendaftar akan memutus butir pendaftaran dan tagihannya.
   const { count, error: countError } = await academyBillingClient()
     .from("academy_registration_items").select("registration_id", { count: "exact", head: true }).eq("batch_slug", slug);
