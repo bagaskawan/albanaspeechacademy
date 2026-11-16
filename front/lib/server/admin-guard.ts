@@ -29,7 +29,8 @@ const loadAdmin = cache(async () => {
 export async function requireAdminMember(requiredRole?: "adminsuper") {
   const { supabase, userId, admin, email } = await loadAdmin();
   if (!userId) redirect("/login");
-  if (!admin) redirect("/");
+  // Signed in but not an admin: back to /login (proxy keeps non-admins there, so no redirect loop).
+  if (!admin) redirect("/login");
 
   if (requiredRole && admin.role !== requiredRole) {
     throw new Error("Aksi ini memerlukan hak akses adminsuper.");

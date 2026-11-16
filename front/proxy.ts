@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isAlbanaPath } from "./lib/albana-routes";
+import { authRedirect } from "./lib/auth-redirect";
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -22,14 +23,25 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  if (pathname === "/login" || pathname === "/" || pathname.startsWith("/program") || pathname.startsWith("/artikel") || pathname.startsWith("/register")) return response;
-  if (!pathname.startsWith("/admin")) return response;
+  const isAdminArea = pathname === "/admin" || pathname.startsWith("/admin/");
+  if (!isAdminArea && pathname !== "/login") return response;
 
-  // Signed-in check only (local JWT verify, also refreshes the session cookie).
-  // admin_users is enforced once per request by requireAdminMember() in the admin layout, pages and actions.
+  // Local JWT verify (also refreshes the session cookie). On /admin only "signed in" is checked here;
+  // admin_users is enforced by requireAdminMember() in the admin layout, pages and actions.
   const { data } = await supabase.auth.getClaims();
-  if (!data?.claims?.sub) return NextResponse.redirect(new URL("/login", request.url));
-  return response;
+  const userId = data?.claims?.sub;
+  let isAdmin = false;
+  if (userId && pathname === "/login") {
+    const { data: admin } = await supabase.from("admin_users").select("user_id").eq("user_id", userId).maybeSingle();
+    isAdmin = Boolean(admin);
+  }
+
+  const target = authRedirect(pathname, { signedIn: Boolean(userId), isAdmin });
+  if (!target) return response;
+  const redirect = NextResponse.redirect(new URL(target, request.url));
+  // Keep any refreshed session cookies on the redirect.
+  response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+  return redirect;
 }
 
 export const config = { matcher: ["/((?!_next/static|_next/image|.*\\..*|favicon.ico).*)"] };
