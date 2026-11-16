@@ -65,7 +65,7 @@ export function FormDialog({
                 <div className="flex items-start gap-4 border-b border-admin-line px-5 pb-5 pt-4 sm:px-6 sm:pt-6">
                   <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-[#0b0b0b] text-white">{icon}</span>
                   <div className="min-w-0 flex-1">
-                    <Dialog.Title className="text-[20px] font-semibold leading-tight text-admin-ink">{title}</Dialog.Title>
+                    <Dialog.Title className="text-[18px] font-semibold leading-tight text-admin-ink sm:text-[20px]">{title}</Dialog.Title>
                     {description && <Dialog.Description className="mt-1 text-[14px] text-admin-text-secondary">{description}</Dialog.Description>}
                   </div>
                   <Dialog.Close aria-label="Tutup" className={`inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-admin-line text-admin-text-secondary transition-colors hover:bg-admin-surface hover:text-admin-ink ${focusRing}`}>

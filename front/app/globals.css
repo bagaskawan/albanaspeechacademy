@@ -1620,6 +1620,11 @@ body:has(.admin-shell) {
 :is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select):hover { border-color: var(--admin-text-faint); }
 :is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select)[aria-invalid="true"] { border-color: var(--admin-danger); background: var(--admin-rose-soft); }
 :is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select):disabled { background: var(--admin-canvas); border-color: var(--admin-line); color: var(--admin-text-faint); }
+/* < 768 px: 16 px fields so iOS Safari does not zoom the page when a field gets focus. */
+@media (max-width: 767px) {
+  .admin-shell :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select),
+  :is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select) { font-size: 16px; }
+}
 /* Thinner focus than the 2 px outline elsewhere: 1 px ink border + a soft 3 px halo (still clearly visible). */
 :is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select):focus-visible {
   outline: none;

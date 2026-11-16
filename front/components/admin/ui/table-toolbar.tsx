@@ -80,7 +80,7 @@ export function TableToolbar({ search, filters = [], exportModule, create }: {
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={(event) => { if (event.key === "Escape") setQuery(""); }}
           placeholder={search.placeholder}
-          className="h-12 w-full rounded-full border-0 bg-admin-surface pl-11 pr-4 text-[14px] text-admin-ink placeholder:text-admin-text-secondary focus-visible:outline-2 focus-visible:outline-admin-ink"
+          className="h-12 w-full rounded-full border-0 bg-admin-surface pl-11 pr-4 text-[16px] text-admin-ink md:text-[14px] placeholder:text-admin-text-secondary focus-visible:outline-2 focus-visible:outline-admin-ink"
         />
       </label>}
 

@@ -40,7 +40,7 @@ function StatCard({ value, label, chip, spark, href }: { value: React.ReactNode;
   return <section className={`${card} flex min-h-[188px] flex-col justify-between gap-4`}>
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <p className="truncate text-[40px] font-normal leading-none tracking-[-0.02em] md:text-[48px]">{value}</p>
+        <p className="truncate text-[32px] font-normal leading-none tracking-[-0.02em] sm:text-[40px] md:text-[48px]">{value}</p>
         <h2 className="mt-3 text-[15px] text-admin-text-secondary">{label}</h2>
       </div>
       {spark ? <Sparkline values={spark} /> : href && <OpenLink href={href} label={label} />}
@@ -100,7 +100,7 @@ export function DashboardView({ stats }: { stats: DashboardStats }) {
       <section className={`${card} flex min-h-[188px] flex-col justify-between gap-4 !bg-admin-ink text-admin-on-ink`}>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[40px] font-normal leading-none tracking-[-0.02em] md:text-[48px]">{pending.count}</p>
+            <p className="text-[32px] font-normal leading-none tracking-[-0.02em] sm:text-[40px] md:text-[48px]">{pending.count}</p>
             <h2 className="mt-3 text-[15px] opacity-70">Tagihan menunggu · <Rupiah value={pending.total} className="[&>span:last-child]:text-current [&>span:last-child]:opacity-60" /></h2>
           </div>
           <OpenLink href="/admin/tagihan?status=pending" label="tagihan menunggu" inverse />

@@ -31,8 +31,8 @@ export function PageHeader({ group, module, isDetail, pathname }: { group: Admin
           className="mb-3 inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-admin-surface text-admin-ink transition-colors hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
         ><ArrowLeft aria-hidden="true" size={22} strokeWidth={1.5} /></Link>}
         <div className="min-w-0">
-          <h1 className="mt-2 text-[28px]  font-black leading-[1.1] tracking-[-0.02em] md:text-[40px]">{title}</h1>
-          {description && <p className="mt-2 max-w-[68ch] text-[12px] leading-[1.5] text-admin-text-secondary">{description}</p>}
+          <h1 className="mt-2 text-[24px] font-black leading-[1.15] tracking-[-0.02em] sm:text-[28px] md:text-[40px] md:leading-[1.1]">{title}</h1>
+          {description && <p className="mt-2 max-w-[60ch] text-[14px] leading-[1.5] text-admin-text-secondary">{description}</p>}
         </div>
       </m.div>
       <div id={ACTIONS_ID} className="flex items-center gap-3 empty:hidden" />

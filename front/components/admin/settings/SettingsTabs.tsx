@@ -59,8 +59,8 @@ export function SettingsTabs({ tabs, panels, initialTab }: { tabs: SettingsTab[]
             <ArrowLeft aria-hidden="true" size={20} strokeWidth={1.5} />
           </Link>
           <div className="min-w-0">
-            <h1 className="text-[28px] font-semibold leading-tight tracking-[-0.02em] md:text-[32px]">Pengaturan</h1>
-            <p className="mt-1 text-[15px] text-admin-text-secondary">Profil akademi, kanal kontak, dan rekening pembayaran.</p>
+            <h1 className="text-[24px] font-semibold leading-tight tracking-[-0.02em] sm:text-[28px] md:text-[32px]">Pengaturan</h1>
+            <p className="mt-1 text-[14px] text-admin-text-secondary md:text-[15px]">Profil akademi, kanal kontak, dan rekening pembayaran.</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -112,7 +112,7 @@ export function SettingsTabs({ tabs, panels, initialTab }: { tabs: SettingsTab[]
           <div className="mb-6 flex shrink-0 items-center gap-4 border-b border-admin-line pb-6">
             <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-admin-line-strong">{tab.icon}</span>
             <div className="min-w-0">
-              <h2 className="text-[20px] font-semibold">{tab.label}</h2>
+              <h2 className="text-[18px] font-semibold md:text-[20px]">{tab.label}</h2>
               <p className="text-[14px] text-admin-text-secondary">{tab.hint}</p>
             </div>
           </div>
