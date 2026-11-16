@@ -75,18 +75,20 @@ export function AdminShell({ children, pendingInvoices, account }: ShellProps) {
     store(COMPACT_KEY, !isCompactNow);
   }
 
-  const sidebarProps = { activeGroupId: nav.group.id, activeHref: nav.module?.href ?? (pathname === "/admin" ? "/admin" : undefined), pendingInvoices, account, closed, toggleGroup };
+  const sidebarProps = { activeGroupId: nav.group.id, activeHref: nav.module?.href ?? (pathname === "/admin" ? "/admin" : undefined), pendingInvoices, closed, toggleGroup };
 
   return <TooltipProvider delayDuration={200}>
-    <div className="min-h-screen text-admin-ink lg:flex">
-      {/* < 1024 px: a slim bar that only opens the drawer. */}
+    <div className="min-h-screen text-admin-ink">
+      {/* §3.1 Header: identity and account only — never module navigation. */}
       <Dialog.Root open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <div className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b border-admin-line bg-admin-canvas px-4 lg:hidden">
-          <Dialog.Trigger aria-label="Buka menu" className={roundButton}><Menu aria-hidden="true" size={20} strokeWidth={1.5} /></Dialog.Trigger>
+        <header className="sticky top-0 z-40 flex h-[72px] items-center gap-3 border-b border-admin-line bg-admin-canvas px-4 lg:px-6">
+          <Dialog.Trigger aria-label="Buka menu" className={`${roundButton} lg:hidden`}><Menu aria-hidden="true" size={20} strokeWidth={1.5} /></Dialog.Trigger>
           <LogoLink />
-          <span className="min-w-0 flex-1 truncate text-[15px] font-medium">{nav.module?.label ?? nav.group.label}</span>
-          {pendingInvoices > 0 && <Badge count={pendingInvoices} />}
-        </div>
+          <div className="ml-auto flex items-center gap-2">
+            <ThemeToggle className={roundButton} />
+            <AccountMenu account={account} />
+          </div>
+        </header>
         <AnimatePresence>
           {drawerOpen && <Dialog.Portal forceMount key="admin-drawer">
             <Dialog.Overlay asChild forceMount>
@@ -105,28 +107,50 @@ export function AdminShell({ children, pendingInvoices, account }: ShellProps) {
         </AnimatePresence>
       </Dialog.Root>
 
-      {/* ≥ 1024 px: the sidebar. */}
-      <aside className="sticky top-0 hidden h-screen shrink-0 p-3 lg:block">
-        <SidebarPanel {...sidebarProps} mode={compact === null ? "auto" : compact ? "compact" : "full"} layoutGroup="sidebar" onToggleCompact={toggleCompact} />
-      </aside>
+      <div className="lg:flex">
+        {/* §3.2 Sidebar: navigation only, sticky under the 72 px header. */}
+        <aside className="sticky top-[72px] hidden h-[calc(100vh-72px)] shrink-0 p-3 lg:block">
+          <SidebarPanel {...sidebarProps} mode={compact === null ? "auto" : compact ? "compact" : "full"} layoutGroup="sidebar" onToggleCompact={toggleCompact} />
+        </aside>
 
-      <div className="min-w-0 flex-1 px-[var(--admin-gutter)] pb-10 pt-6 lg:pt-10">
-        <div className="mx-auto max-w-[1440px]">
-          <PageHeader group={nav.group} module={nav.module} isDetail={nav.isDetail} pathname={pathname} />
-          <main id="admin-main" className="min-w-0">{children}</main>
+        <div className="min-w-0 flex-1 px-[var(--admin-gutter)] pb-10 pt-6 lg:pt-8">
+          <div className="mx-auto max-w-[1440px]">
+            <PageHeader group={nav.group} module={nav.module} isDetail={nav.isDetail} pathname={pathname} />
+            <main id="admin-main" className="min-w-0">{children}</main>
+          </div>
         </div>
       </div>
     </div>
   </TooltipProvider>;
 }
 
-function LogoLink({ withName = false, nameClass = "" }: { withName?: boolean; nameClass?: string }) {
+function LogoLink() {
   return <Link href="/admin" aria-label="Albana CMS, ke Dashboard" className={`flex min-w-0 items-center gap-3 rounded-full ${focusRing}`}>
     <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-[#0b0b0b]">
       <Image src="/images/Albana-Speech-Academy-Logo-White.png" alt="" width={28} height={28} className="size-7 object-contain" priority />
     </span>
-    {withName && <span className={`truncate text-[15px] font-medium ${nameClass}`}>Albana CMS</span>}
+    <span aria-hidden="true" className="truncate text-[15px] font-medium max-sm:hidden">Albana CMS</span>
   </Link>;
+}
+
+function AccountMenu({ account }: { account: string | null }) {
+  async function signOut() {
+    await createClient().auth.signOut();
+    window.location.assign("/login");
+  }
+  const name = account ?? "Admin";
+  return <DropdownMenu>
+    <DropdownMenuTrigger aria-label={`Menu akun ${name}`} className={`flex items-center gap-2 rounded-full p-1 transition-colors hover:bg-admin-surface-muted md:pr-3 ${focusRing}`}>
+      <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-full bg-admin-ink text-[14px] font-medium uppercase text-admin-on-ink">{name[0]}</span>
+      <span className="max-w-[160px] truncate text-[14px] max-md:hidden">{name}</span>
+      <ChevronDown aria-hidden="true" size={16} strokeWidth={1.5} className="max-md:hidden" />
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="end" className="min-w-56 rounded-[20px] border-admin-line bg-admin-surface p-2 shadow-[var(--admin-shadow-pop)]">
+      <DropdownMenuLabel className="truncate text-[13px] font-normal text-admin-text-secondary">{name}</DropdownMenuLabel>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem onSelect={signOut}><LogOut aria-hidden="true" size={16} strokeWidth={1.5} /> Keluar</DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>;
 }
 
 type SidebarProps = {
@@ -135,33 +159,25 @@ type SidebarProps = {
   activeGroupId: AdminNavGroup["id"];
   activeHref?: string;
   pendingInvoices: number;
-  account: string | null;
   closed: Record<string, boolean>;
   toggleGroup: (id: string) => void;
   onNavigate?: () => void;
   onToggleCompact?: () => void;
 };
 
-function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInvoices, account, closed, toggleGroup, onNavigate, onToggleCompact }: SidebarProps) {
+function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInvoices, closed, toggleGroup, onNavigate, onToggleCompact }: SidebarProps) {
   // "auto" is compact only between 1024 and 1279 px, decided in CSS so the first paint is right.
+  // Labels use max-xl:sr-only, never not-sr-only: that utility sets position: static and drops the
+  // label under the absolutely positioned active pill (the "invisible active label" bug).
   const width = mode === "full" ? "w-[264px]" : mode === "compact" ? "w-20" : "w-20 xl:w-[264px]";
-  const label = mode === "full" ? "" : mode === "compact" ? "sr-only" : "sr-only xl:not-sr-only";
+  const label = mode === "full" ? "" : mode === "compact" ? "sr-only" : "max-xl:sr-only";
   const onlyCompact = mode === "full" ? "hidden" : mode === "compact" ? "" : "xl:hidden";
   const onlyFull = mode === "full" ? "" : mode === "compact" ? "hidden" : "max-xl:hidden";
   const compactish = mode !== "full";
   const [dashboard, ...groups] = adminNavGroups;
 
-  async function signOut() {
-    await createClient().auth.signOut();
-    window.location.assign("/login");
-  }
-
   return <div className={`flex h-full ${width} flex-col rounded-[var(--admin-radius-card)] bg-admin-surface`}>
-    <div className="flex items-center justify-between gap-2 p-[18px]">
-      <LogoLink withName nameClass={label} />
-    </div>
-
-    <nav aria-label="Navigasi CMS" className="min-h-0 flex-1 overflow-y-auto px-3 pb-3">
+    <nav aria-label="Navigasi CMS" className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
       <NavItem item={{ ...dashboard, description: "" }} active={activeHref === dashboard.href} layoutGroup={layoutGroup} labelClass={label} tooltip={compactish} onNavigate={onNavigate} />
       {groups.map((group) => {
         const isOpen = group.id === activeGroupId || !closed[group.id];
@@ -197,22 +213,11 @@ function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInv
       })}
     </nav>
 
-    <div className={`flex items-center gap-2 border-t border-admin-line p-3 ${compactish ? "max-xl:flex-col" : ""} ${mode === "compact" ? "flex-col" : ""}`}>
-      <DropdownMenu>
-        <DropdownMenuTrigger aria-label="Menu akun" className={`flex min-w-0 flex-1 items-center gap-3 rounded-full p-1 pr-3 text-left hover:bg-admin-surface-muted ${focusRing}`}>
-          <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-full bg-admin-ink text-[14px] font-medium uppercase text-admin-on-ink">{account?.[0] ?? "A"}</span>
-          <span className={`truncate text-[14px] ${label}`}>{account ?? "Admin"}</span>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent side="top" align="start" className="min-w-56 rounded-[20px] border-admin-line bg-admin-surface p-2 shadow-[var(--admin-shadow-pop)]">
-          {account && <><DropdownMenuLabel className="truncate text-[13px] font-normal text-admin-text-secondary">{account}</DropdownMenuLabel><DropdownMenuSeparator /></>}
-          <DropdownMenuItem onSelect={signOut}><LogOut aria-hidden="true" size={16} strokeWidth={1.5} /> Keluar</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <ThemeToggle className={roundButton} />
-      {onToggleCompact && <button type="button" onClick={onToggleCompact} aria-label={compactish ? "Lebarkan sidebar" : "Ringkas sidebar"} className={roundButton}>
+    {onToggleCompact && <div className="border-t border-admin-line p-3">
+      <button type="button" onClick={onToggleCompact} aria-label={compactish ? "Lebarkan sidebar" : "Ringkas sidebar"} className={roundButton}>
         {mode === "full" ? <PanelLeftClose aria-hidden="true" size={18} strokeWidth={1.5} /> : <PanelLeftOpen aria-hidden="true" size={18} strokeWidth={1.5} />}
-      </button>}
-    </div>
+      </button>
+    </div>}
   </div>;
 }
 
@@ -220,16 +225,17 @@ function NavItem({ item, active, layoutGroup, labelClass, tooltip, badge = 0, on
   item: AdminNavModule; active: boolean; layoutGroup: string; labelClass: string; tooltip: boolean; badge?: number; onNavigate?: () => void;
 }) {
   const Icon = icons[item.icon];
+  const tone = active ? "text-admin-on-ink" : "text-admin-ink";
   const link = <Link
     href={item.href}
     onClick={onNavigate}
     aria-current={active ? "page" : undefined}
-    className={`relative flex h-11 items-center gap-3 rounded-full px-3.5 text-[15px] transition-colors duration-[var(--dur-hover)] ${focusRing} ${active ? "font-medium text-admin-on-ink" : "text-admin-ink hover:bg-admin-surface-muted"}`}
+    className={`relative flex h-11 items-center gap-3 rounded-full px-3.5 text-[15px] transition-colors duration-[var(--dur-hover)] ${focusRing} ${active ? "font-medium" : "hover:bg-admin-surface-muted"}`}
   >
     {active && <m.span layoutId={`admin-nav-active-${layoutGroup}`} className="absolute inset-0 rounded-full bg-admin-ink" transition={{ duration: 0.28, ease: ease.inOut }} />}
-    <Icon aria-hidden="true" size={18} strokeWidth={1.5} className="relative shrink-0" />
-    <span className={`relative truncate ${labelClass}`}>{item.label}</span>
-    {badge > 0 && <span className="relative ml-auto"><Badge count={badge} /></span>}
+    <Icon aria-hidden="true" size={18} strokeWidth={1.5} className={`relative z-[1] shrink-0 ${tone}`} />
+    <span className={`relative z-[1] truncate ${tone} ${labelClass}`}>{item.label}</span>
+    {badge > 0 && <span className="relative z-[1] ml-auto"><Badge count={badge} /></span>}
   </Link>;
   if (!tooltip) return link;
   return <Tooltip>
