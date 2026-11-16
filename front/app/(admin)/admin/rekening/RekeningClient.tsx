@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import { saveBankAccount, activateBankAccount, deleteBankAccount } from "./actions";
 import { PageAction } from "@/components/admin/PageHeader";
-import { Plus } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import { DataTable, StatusChip, rowActionClass, rowDangerActionClass } from "@/components/admin/ui/data-table";
 
 export type BankAccount = {
   id: number;
@@ -147,74 +148,50 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
       )}
 
       {/* Table of all accounts */}
-      <div className="overflow-hidden rounded-xl border border-admin-line bg-admin-surface shadow-sm">
-        <div className="border-b border-admin-line px-5 py-4">
-          <h2 className="font-semibold text-admin-ink">Daftar Semua Rekening</h2>
-          <p className="text-xs text-admin-text-secondary">
-            Database secara ketat membatasi tepat satu rekening berstatus aktif.
-          </p>
-        </div>
+      <div>
 
         {accounts.length === 0 ? (
-          <div className="p-8 text-center text-sm text-admin-text-secondary">
-            Belum ada data rekening. Klik <strong>+ Tambah Rekening</strong> untuk menambahkan.
+          <div className="rounded-[var(--admin-radius-card)] bg-admin-surface p-8 text-center text-[15px] text-admin-text-secondary">
+            Belum ada data rekening. Pilih <strong className="font-medium text-admin-ink">Tambah rekening</strong> untuk menambahkan.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-admin-line bg-admin-surface-muted text-xs uppercase tracking-wider text-admin-text-secondary">
+          <DataTable caption="Rekening pembayaran" stackOnMobile>
+              <thead>
                 <tr>
-                  <th className="px-5 py-3">Bank</th>
-                  <th className="px-5 py-3">Nomor Rekening</th>
-                  <th className="px-5 py-3">Atas Nama</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3 text-right">Aksi</th>
+                  <th scope="col">Bank</th>
+                  <th scope="col">Nomor rekening</th>
+                  <th scope="col">Atas nama</th>
+                  <th scope="col">Status</th>
+                  <th scope="col" className="text-right"><span className="sr-only">Aksi</span></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-admin-line">
+              <tbody>
                 {accounts.map((acc) => (
-                  <tr key={acc.id} className={acc.active ? "bg-admin-mint-soft/30" : undefined}>
-                    <td className="px-5 py-4 font-semibold text-admin-ink">{acc.bank}</td>
-                    <td className="px-5 py-4 font-mono text-sm text-admin-ink">{acc.account_number}</td>
-                    <td className="px-5 py-4 text-admin-text-secondary">{acc.holder}</td>
-                    <td className="px-5 py-4">
-                      {acc.active ? (
-                        <span className="inline-flex items-center rounded-full bg-admin-mint-soft px-2.5 py-0.5 text-xs font-semibold text-admin-mint-ink">
-                          Aktif
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center rounded-full bg-admin-surface-muted px-2.5 py-0.5 text-xs font-medium text-admin-text-secondary">
-                          Nonaktif
-                        </span>
-                      )}
+                  <tr key={acc.id}>
+                    <td data-label="Bank" className="font-medium">{acc.bank}</td>
+                    <td data-label="Nomor rekening" className="font-mono tabular-nums">{acc.account_number}</td>
+                    <td data-label="Atas nama" className="text-admin-text-secondary">{acc.holder}</td>
+                    <td data-label="Status">
+                      <StatusChip tone={acc.active ? "mint" : "neutral"}>{acc.active ? "Aktif" : "Nonaktif"}</StatusChip>
                     </td>
-                    <td className="px-5 py-4 text-right">
-                      <div className="inline-flex items-center gap-2">
+                    <td className="text-right">
+                      <div className="inline-flex items-center gap-1">
                         {!acc.active && (
                           <button
                             type="button"
                             disabled={isPending}
                             onClick={() => handleActivate(acc.id)}
-                            className="rounded-lg bg-admin-ink px-2.5 py-1 text-xs font-semibold text-admin-on-ink hover:bg-admin-ink-soft disabled:opacity-50"
+                            className="h-9 rounded-full px-3 text-[13px] font-medium text-admin-ink transition-colors hover:bg-admin-surface-muted disabled:opacity-50"
                           >
                             Aktifkan
                           </button>
                         )}
-                        <button
-                          type="button"
-                          onClick={() => openEditModal(acc)}
-                          className="rounded-lg border border-admin-line px-2.5 py-1 text-xs font-medium text-admin-ink hover:bg-admin-surface-muted"
-                        >
-                          Ubah
+                        <button type="button" onClick={() => openEditModal(acc)} aria-label={`Ubah rekening ${acc.bank}`} title="Ubah" className={rowActionClass}>
+                          <Pencil aria-hidden="true" size={18} strokeWidth={1.5} />
                         </button>
                         {isAdminSuper && (
-                          <button
-                            type="button"
-                            disabled={isPending}
-                            onClick={() => handleDelete(acc.id)}
-                            className="rounded-lg border border-admin-rose-dot/30 px-2.5 py-1 text-xs font-medium text-admin-danger hover:bg-admin-rose-soft disabled:opacity-50"
-                          >
-                            Hapus
+                          <button type="button" disabled={isPending} onClick={() => handleDelete(acc.id)} aria-label={`Hapus rekening ${acc.bank}`} title="Hapus" className={rowDangerActionClass}>
+                            <Trash2 aria-hidden="true" size={18} strokeWidth={1.5} />
                           </button>
                         )}
                       </div>
@@ -222,8 +199,7 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+          </DataTable>
         )}
       </div>
 

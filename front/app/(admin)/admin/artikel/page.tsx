@@ -2,8 +2,8 @@ import React from "react";
 import Link from "next/link";
 import { FilePlus2, Pencil } from "lucide-react";
 import { requireAdminMember } from "@/lib/server/admin-guard";
-import { Card } from "@/components/ui/card";
 import { PageAction } from "@/components/admin/PageHeader";
+import { DataTable, StatusChip, rowActionClass } from "@/components/admin/ui/data-table";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +11,7 @@ function formatDate(value: string | null) {
   if (!value) return null;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return null;
-  return new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short" }).format(date);
+  return new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jakarta" }).format(date);
 }
 
 export default async function ArtikelPage() {
@@ -26,92 +26,47 @@ export default async function ArtikelPage() {
       <PageAction href="/admin/artikel/baru" icon={<FilePlus2 aria-hidden="true" size={18} strokeWidth={1.5} />}>Tulis artikel</PageAction>
 
       {error && (
-        <div role="alert" className="rounded-xl bg-admin-rose-soft p-3 text-xs font-semibold text-admin-rose-ink">
+        <div role="alert" className="rounded-[20px] bg-admin-rose-soft p-4 text-[14px] text-admin-rose-ink">
           Daftar artikel tidak dapat dimuat: {error.message}
         </div>
       )}
 
       {!error && !data?.length && (
-        <div className="rounded-2xl border border-dashed border-border-default bg-bg-card p-10 text-center">
-          <p className="text-xs text-text-muted">Belum ada artikel.</p>
-        </div>
+        <p className="rounded-[var(--admin-radius-card)] bg-admin-surface p-8 text-center text-[15px] text-admin-text-secondary">Belum ada artikel.</p>
       )}
 
       {!!data?.length && (
-        <>
-          <div className="hidden overflow-hidden rounded-2xl border border-border-default bg-bg-card shadow-xs md:block">
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-left text-xs">
-                <thead>
-                  <tr className="border-b border-border-default bg-bg-well/50 font-semibold text-zinc-650 dark:text-zinc-400">
-                    <th className="px-5 py-3.5">Judul</th>
-                    <th className="px-5 py-3.5">Status</th>
-                    <th className="px-5 py-3.5">Terbit</th>
-                    <th className="px-5 py-3.5">Diperbarui</th>
-                    <th className="px-5 py-3.5 text-center">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border-default/40">
-                  {data.map((article) => (
-                    <tr key={article.slug} className="hover:bg-bg-well/40">
-                      <td className="max-w-[360px] px-5 py-3.5">
-                        <Link href={`/admin/artikel/${article.slug}`} className="font-bold text-text-primary hover:underline">
-                          {article.title}
-                        </Link>
-                        <p className="mt-0.5 truncate text-[11px] text-text-secondary">{article.excerpt}</p>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${article.published ? "bg-[#DCFCE7] text-[#166534] dark:bg-[#052E16] dark:text-[#86EFAC]" : "bg-bg-well text-text-secondary"}`}>
-                          {article.published ? "Terbit" : "Draf"}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5 text-text-secondary">{formatDate(article.published_at) ?? "—"}</td>
-                      <td className="px-5 py-3.5 text-text-secondary">{formatDate(article.updated_at) ?? "—"}</td>
-                      <td className="px-5 py-3.5 text-center">
-                        <Link
-                          href={`/admin/artikel/${article.slug}`}
-                          title="Ubah"
-                          className="inline-flex rounded-full border border-admin-lilac-dot/30 bg-admin-lilac-soft p-1.5 text-admin-lilac-ink hover:bg-admin-lilac-soft"
-                        >
-                          <Pencil size={14} />
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:hidden">
+        <DataTable caption="Artikel" stackOnMobile>
+          <thead>
+            <tr>
+              <th scope="col">Judul</th>
+              <th scope="col">Status</th>
+              <th scope="col">Terbit</th>
+              <th scope="col">Diperbarui</th>
+              <th scope="col" className="text-right"><span className="sr-only">Aksi</span></th>
+            </tr>
+          </thead>
+          <tbody>
             {data.map((article) => (
-              <Card key={article.slug} className="flex flex-col gap-3 p-4">
-                <div>
-                  <Link href={`/admin/artikel/${article.slug}`} className="text-sm font-black text-text-primary hover:underline">
+              <tr key={article.slug}>
+                <td data-label="Judul" className="max-w-[420px]">
+                  <Link href={`/admin/artikel/${article.slug}`} className="block truncate font-medium hover:underline" title={article.title}>
                     {article.title}
                   </Link>
-                  <p className="mt-1 text-[11px] text-text-secondary">{article.excerpt}</p>
-                </div>
-                <dl className="space-y-1 text-[11px]">
-                  <div className="flex gap-2">
-                    <dt className="text-text-secondary">Status</dt>
-                    <dd className="text-text-primary">{article.published ? "Terbit" : "Draf"}</dd>
-                  </div>
-                  <div className="flex gap-2">
-                    <dt className="text-text-secondary">Terbit</dt>
-                    <dd className="text-text-primary">{formatDate(article.published_at) ?? "—"}</dd>
-                  </div>
-                </dl>
-                <Link
-                  href={`/admin/artikel/${article.slug}`}
-                  className="ml-auto inline-flex h-8 items-center gap-1.5 rounded-full border border-admin-lilac-dot/30 bg-admin-lilac-soft px-3 text-[11px] font-bold text-admin-lilac-ink"
-                >
-                  <Pencil size={12} /> Ubah
-                </Link>
-              </Card>
+                  <p className="truncate text-[13px] text-admin-text-secondary" title={article.excerpt ?? undefined}>{article.excerpt || "—"}</p>
+                </td>
+                <td data-label="Status"><StatusChip tone={article.published ? "mint" : "neutral"}>{article.published ? "Terbit" : "Draf"}</StatusChip></td>
+                <td data-label="Terbit" className="whitespace-nowrap text-admin-text-secondary">{formatDate(article.published_at) ?? "—"}</td>
+                <td data-label="Diperbarui" className="whitespace-nowrap text-admin-text-secondary">{formatDate(article.updated_at) ?? "—"}</td>
+                <td className="text-right">
+                  <Link href={`/admin/artikel/${article.slug}`} aria-label={`Ubah ${article.title}`} title="Ubah" className={rowActionClass}>
+                    <Pencil aria-hidden="true" size={18} strokeWidth={1.5} />
+                  </Link>
+                </td>
+              </tr>
             ))}
-          </div>
-        </>
+          </tbody>
+        </DataTable>
       )}
     </div>
   );

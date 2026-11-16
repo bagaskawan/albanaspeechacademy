@@ -1,9 +1,10 @@
 import React from "react";
 import Link from "next/link";
-import { Plus, Package } from "lucide-react";
+import { Plus } from "lucide-react";
 import { requireAdminMember } from "@/lib/server/admin-guard";
 import ProgramRowActions from "@/components/admin/ProgramRowActions";
 import { PageAction } from "@/components/admin/PageHeader";
+import { DataTable } from "@/components/admin/ui/data-table";
 
 export const dynamic = "force-dynamic";
 
@@ -27,105 +28,46 @@ export default async function ProgramPage() {
   const rows = programs ?? [];
 
   return (
-    <div className="w-full space-y-5 pb-24 md:pb-0">
+    <div className="w-full space-y-5">
       <PageAction href="/admin/program/create" icon={<Plus aria-hidden="true" size={18} strokeWidth={1.5} />}>Tambah program</PageAction>
 
-      <Link
-        href="/admin/program/create"
-        aria-label="Tambah Program"
-        className="md:hidden fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg transition-transform hover:scale-105 active:scale-95 dark:text-zinc-900"
-      >
-        <Plus size={22} />
-      </Link>
-
-      <div className="hidden md:block bg-bg-card border border-border-default rounded-2xl overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="text-zinc-650 dark:text-zinc-400 font-semibold border-b border-border-default bg-bg-well/50">
-                <th className="py-3.5 px-5 border-r border-border-default/60 whitespace-nowrap">Nama Program</th>
-                <th className="py-3.5 px-5 border-r border-border-default/60 whitespace-nowrap">Deskripsi</th>
-                <th className="py-3.5 px-5 border-r border-border-default/60 whitespace-nowrap">Harga Promo</th>
-                <th className="py-3.5 px-5 border-r border-border-default/60 whitespace-nowrap">Harga Coret</th>
-                <th className="py-3.5 px-5 border-r border-border-default/60 whitespace-nowrap">Materi</th>
-                <th className="py-3.5 px-5 text-center whitespace-nowrap">Aksi</th>
+      {rows.length === 0
+        ? <p className="rounded-[var(--admin-radius-card)] bg-admin-surface p-8 text-center text-[15px] text-admin-text-secondary">Belum ada program. Tambahkan program lalu isi detailnya.</p>
+        : <DataTable caption="Program" stackOnMobile>
+          <thead>
+            <tr>
+              <th scope="col">Program</th>
+              <th scope="col">Deskripsi</th>
+              <th scope="col" data-numeric="">Harga</th>
+              <th scope="col" data-numeric="">Harga coret</th>
+              <th scope="col">Materi</th>
+              <th scope="col" className="text-right"><span className="sr-only">Aksi</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((program) => (
+              <tr key={program.slug}>
+                <td data-label="Program" className="max-w-[280px]">
+                  <p className="truncate font-medium" title={program.title}>{program.title}</p>
+                  <Link href={`/admin/batch?program=${encodeURIComponent(program.slug)}&add=1`} className="text-[13px] text-admin-text-secondary underline underline-offset-4 hover:text-admin-ink">Tambah batch</Link>
+                </td>
+                <td data-label="Deskripsi" className="max-w-[320px] truncate text-admin-text-secondary" title={program.description ?? ""}>
+                  {program.description || "—"}
+                </td>
+                <td data-label="Harga" data-numeric="" className="whitespace-nowrap">{formatRupiah(program.price_idr)}</td>
+                <td data-label="Harga coret" data-numeric="" className="whitespace-nowrap text-admin-text-faint line-through">
+                  {program.original_price_idr ? formatRupiah(program.original_price_idr) : "—"}
+                </td>
+                <td data-label="Materi" className="whitespace-nowrap text-admin-text-secondary">
+                  {Array.isArray(program.materials) ? `${program.materials.length} materi` : "—"}
+                </td>
+                <td className="text-right">
+                  <ProgramRowActions slug={program.slug} title={program.title} />
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-border-default/40">
-              {rows.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="py-12 px-5 text-center text-xs font-semibold text-text-muted">
-                    Belum ada program. Tambahkan program lalu isi detailnya.
-                  </td>
-                </tr>
-              )}
-              {rows.map((program) => (
-                <tr key={program.slug} className="hover:bg-bg-well/40 transition-colors">
-                  <td className="py-3.5 px-5 border-r border-border-default/40 font-bold text-text-primary">
-                    {program.title}
-                    <Link href={`/admin/batch?program=${encodeURIComponent(program.slug)}&add=1`} className="mt-1 block text-xs font-medium underline">Tambah batch</Link>
-                  </td>
-                  <td className="py-3.5 px-5 border-r border-border-default/40 max-w-[280px] truncate text-text-secondary" title={program.description ?? ""}>
-                    {program.description || "—"}
-                  </td>
-                  <td className="py-3.5 px-5 border-r border-border-default/40 font-bold text-text-primary whitespace-nowrap">
-                    {formatRupiah(program.price_idr)}
-                  </td>
-                  <td className="py-3.5 px-5 border-r border-border-default/40 text-text-muted line-through whitespace-nowrap">
-                    {program.original_price_idr ? formatRupiah(program.original_price_idr) : "—"}
-                  </td>
-                  <td className="py-3.5 px-5 border-r border-border-default/40 text-text-secondary">
-                    {Array.isArray(program.materials) ? `${program.materials.length} materi` : "—"}
-                  </td>
-                  <td className="py-3.5 px-5">
-                    <ProgramRowActions slug={program.slug} title={program.title} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="md:hidden grid grid-cols-1 gap-4">
-        {rows.length === 0 ? (
-          <div className="bg-bg-card border border-border-default border-dashed rounded-2xl p-10 text-center">
-            <Package className="w-8 h-8 mx-auto mb-2 text-text-muted opacity-40" />
-            <p className="text-xs font-semibold text-text-muted">Belum ada program.</p>
-          </div>
-        ) : (
-          rows.map((program) => (
-            <div key={program.slug} className="bg-bg-card border border-border-default rounded-2xl p-4 space-y-3">
-              <div>
-                <h3 className="text-sm font-black text-text-primary break-words">{program.title}</h3>
-                <Link href={`/admin/batch?program=${encodeURIComponent(program.slug)}&add=1`} className="mt-1 inline-block text-xs underline">Tambah batch</Link>
-                <p className="mt-1 text-[11px] text-text-secondary line-clamp-3">{program.description || "—"}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-[11px]">
-                <div>
-                  <span className="block text-text-muted">Harga Promo</span>
-                  <span className="font-bold text-text-primary">{formatRupiah(program.price_idr)}</span>
-                </div>
-                <div>
-                  <span className="block text-text-muted">Harga Coret</span>
-                  <span className="font-medium text-text-muted line-through">
-                    {program.original_price_idr ? formatRupiah(program.original_price_idr) : "—"}
-                  </span>
-                </div>
-                <div className="col-span-2">
-                  <span className="block text-text-muted">Materi</span>
-                  <span className="font-medium text-text-primary">
-                    {Array.isArray(program.materials) ? `${program.materials.length} materi` : "—"}
-                  </span>
-                </div>
-              </div>
-              <div className="pt-2 border-t border-border-default/40 flex justify-end">
-                <ProgramRowActions slug={program.slug} title={program.title} />
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+            ))}
+          </tbody>
+        </DataTable>}
     </div>
   );
 }

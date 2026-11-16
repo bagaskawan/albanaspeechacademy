@@ -21,6 +21,7 @@ import { SelectLine } from "@/components/ui/SelectLine";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { TimePicker } from "@/components/ui/TimePicker";
 import { PageAction } from "@/components/admin/PageHeader";
+import { DataTable, rowActionClass, rowDangerActionClass } from "@/components/admin/ui/data-table";
 
 export type CmsFieldType =
   | "text"
@@ -188,7 +189,6 @@ export default function CmsCollectionClient({
   table,
   primaryKey,
   title,
-  description,
   fields,
   initialRows,
   displayField,
@@ -494,13 +494,13 @@ export default function CmsCollectionClient({
         disabled={active || busy}
         aria-pressed={active}
         title={active ? `${title} aktif` : `Aktifkan ${title.toLowerCase()} ini`}
-        className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-full border text-[11px] font-bold uppercase tracking-wider transition-colors ${
+        className={`inline-flex h-[26px] items-center gap-1.5 rounded-full px-2.5 text-[12px] font-medium transition-colors ${
           active
-            ? "border-admin-mint-dot/30 bg-admin-mint-soft text-admin-mint-ink cursor-default"
-            : "border-border-default bg-bg-well/50 text-text-secondary hover:text-text-primary cursor-pointer"
+            ? "bg-admin-mint-soft text-admin-mint-ink cursor-default"
+            : "bg-admin-surface-muted text-admin-text-secondary hover:text-admin-ink cursor-pointer"
         }`}
       >
-        {busy ? <Loader2 size={12} className="animate-spin" /> : active ? "Active" : "Inactive"}
+        {busy ? <Loader2 size={12} className="animate-spin" /> : <><span aria-hidden="true" className={`size-1.5 rounded-full ${active ? "bg-admin-mint-dot" : "bg-admin-text-faint"}`} />{active ? "Aktif" : "Nonaktif"}</>}
       </button>
     );
   };
@@ -1029,82 +1029,68 @@ export default function CmsCollectionClient({
         )
       ) : (
         <>
-      <div className="hidden md:block bg-bg-card border border-border-default rounded-2xl overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
+      <div className="hidden md:block"><DataTable caption={title}>
             <thead>
-              <tr className="text-zinc-650 dark:text-zinc-400 font-semibold border-b border-border-default bg-bg-well/50">
+              <tr>
                 {tableFields.map((field) => (
-                  <th key={field.name} className="py-3.5 px-5 border-r border-border-default/60 whitespace-nowrap">
+                  <th scope="col" key={field.name}>
                     {field.label}
                   </th>
                 ))}
                 {activeField && (
-                  <th className="py-3.5 px-5 border-r border-border-default/60 text-center whitespace-nowrap">Status</th>
+                  <th scope="col">Status</th>
                 )}
-                <th className="py-3.5 px-5 text-center whitespace-nowrap">Aksi</th>
+                <th scope="col" className="text-right"><span className="sr-only">Aksi</span></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border-default/40">
+            <tbody>
               {visibleRows.length === 0 && (
                 <tr>
-                  <td colSpan={tableFields.length + (activeField ? 2 : 1)} className="py-12 px-5 text-center text-xs font-semibold text-text-muted">
+                  <td colSpan={tableFields.length + (activeField ? 2 : 1)} className="text-center text-admin-text-secondary">
                     {emptyText}
                   </td>
                 </tr>
               )}
               {visibleRows.map((row) => (
-                <tr key={String(row[primaryKey])} className="hover:bg-bg-well/40 transition-colors">
+                <tr key={String(row[primaryKey])}>
                   {tableFields.map((field) => (
                     <td
                       key={field.name}
-                      className="py-3.5 px-5 border-r border-border-default/40 max-w-[240px] truncate text-text-secondary"
+                      className={`max-w-[280px] truncate ${field.name === displayField ? "" : "text-admin-text-secondary"}`}
                       title={displayValue(field, row)}
                     >
                       {field.type === "gallery" && row[field.name] ? (
                         <img
                           src={String(row[field.name])}
                           alt=""
-                          className="w-8 h-8 rounded-lg object-cover border border-border-default/60"
+                          className="size-10 rounded-xl object-cover"
                         />
                       ) : field.name === displayField ? (
-                        <span className="font-bold text-text-primary">{displayValue(field, row)}</span>
+                        <span className="font-medium">{displayValue(field, row)}</span>
                       ) : (
                         displayValue(field, row)
                       )}
                     </td>
                   ))}
                   {activeField && (
-                    <td className="py-3.5 px-5 border-r border-border-default/40 text-center">
+                    <td>
                       {renderActiveToggle(row)}
                     </td>
                   )}
-                  <td className="py-3.5 px-5">
-                    <div className="flex items-center justify-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => openEdit(row)}
-                        title="Ubah"
-                        className="p-1.5 rounded-full border border-admin-lilac-dot/30 bg-admin-lilac-soft hover:bg-admin-lilac-soft text-admin-lilac-ink transition-colors cursor-pointer"
-                      >
-                        <Pencil size={14} />
+                  <td className="text-right">
+                    <div className="inline-flex items-center gap-1">
+                      <button type="button" onClick={() => openEdit(row)} aria-label={`Ubah ${displayValue(fields.find((field) => field.name === displayField) ?? tableFields[0], row)}`} title="Ubah" className={rowActionClass}>
+                        <Pencil aria-hidden="true" size={18} strokeWidth={1.5} />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => setDeleteTarget(row)}
-                        title="Hapus"
-                        className="p-1.5 rounded-full border border-admin-rose-dot/30 bg-admin-rose-soft hover:bg-admin-rose-soft text-admin-danger transition-colors cursor-pointer"
-                      >
-                        <Trash2 size={14} />
+                      <button type="button" onClick={() => setDeleteTarget(row)} aria-label="Hapus" title="Hapus" className={rowDangerActionClass}>
+                        <Trash2 aria-hidden="true" size={18} strokeWidth={1.5} />
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-      </div>
+          </DataTable></div>
 
       {visibleRows.length === 0 ? (
         <div className="md:hidden bg-bg-card border border-border-default border-dashed rounded-2xl p-10 text-center">

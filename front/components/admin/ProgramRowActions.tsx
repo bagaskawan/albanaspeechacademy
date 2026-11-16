@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { DeleteConfirmDialog } from "@/components/ui/DeleteConfirmDialog";
+import { rowActionClass, rowDangerActionClass } from "@/components/admin/ui/data-table";
 
 export default function ProgramRowActions({ slug, title }: { slug: string; title: string }) {
   const router = useRouter();
@@ -31,21 +32,12 @@ export default function ProgramRowActions({ slug, title }: { slug: string; title
 
   return (
     <>
-      <div className="flex items-center justify-center gap-1.5">
-        <Link
-          href={`/admin/program/${slug}/edit`}
-          className="p-1.5 rounded-full border border-sky-500/20 bg-sky-500/10 hover:bg-sky-500/20 text-sky-600 dark:text-sky-400 transition-colors cursor-pointer"
-          title="Edit Program"
-        >
-          <Pencil size={14} />
+      <div className="inline-flex items-center gap-1">
+        <Link href={`/admin/program/${slug}/edit`} aria-label={`Ubah ${title}`} title="Ubah" className={rowActionClass}>
+          <Pencil aria-hidden="true" size={18} strokeWidth={1.5} />
         </Link>
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className="p-1.5 rounded-full border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 transition-colors cursor-pointer"
-          title="Hapus Program"
-        >
-          <Trash2 size={14} />
+        <button type="button" onClick={() => setIsOpen(true)} aria-label={`Hapus ${title}`} title="Hapus" className={rowDangerActionClass}>
+          <Trash2 aria-hidden="true" size={18} strokeWidth={1.5} />
         </button>
       </div>
 
