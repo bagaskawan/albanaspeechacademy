@@ -61,3 +61,10 @@ test("/admin/settings resolves to Pengaturan but stays out of the sidebar", () =
   assert.equal(nav.module?.hidden, true);
   assert.equal(nav.isDetail, false);
 });
+
+test("Kelas berisi Program & Batch dan Trainer; /admin/batch bukan modul lagi", () => {
+  const kelas = adminNavGroups.find((group) => group.id === "kelas");
+  assert.deepEqual(kelas.modules.map((item) => item.label), ["Program & Batch", "Trainer"]);
+  assert.equal(resolveAdminNav("/admin/batch").module, undefined);
+  assert.equal(resolveAdminNav("/admin/program").module?.label, "Program & Batch");
+});

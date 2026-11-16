@@ -84,7 +84,7 @@ async function load(module: ExportModule, params: URLSearchParams): Promise<Load
         ],
       };
     case "program": {
-      let request = db.from("programs").select("slug,title,price_idr,original_price_idr,materials").order("title").limit(limit);
+      let request = db.from("programs").select("slug,title,price_idr,original_price_idr,dp_percent,materials").order("title").limit(limit);
       if (q) request = request.ilike("title", ilikePattern(q));
       const [rows, batches] = await Promise.all([run(request), run(db.from("batches").select("program_slug"))]);
       const count = (slug: unknown) => batches.filter((batch) => batch.program_slug === slug).length;
@@ -94,13 +94,14 @@ async function load(module: ExportModule, params: URLSearchParams): Promise<Load
           { header: "Nama", value: (row) => row.title },
           { header: "Harga", value: (row) => row.price_idr },
           { header: "Harga coret", value: (row) => row.original_price_idr },
+          { header: "DP (%)", value: (row) => row.dp_percent },
           { header: "Jumlah materi", value: (row) => (Array.isArray(row.materials) ? row.materials.length : 0) },
           { header: "Jumlah batch", value: (row) => count(row.slug) },
         ],
       };
     }
     case "batch": {
-      let request = db.from("batches").select("title,program_slug,sessions,price_idr,registration_open,is_active").order("title").limit(limit);
+      let request = db.from("batches").select("title,program_slug,sessions,registration_open").order("title").limit(limit);
       if (q) request = request.ilike("title", ilikePattern(q));
       const open = params.get("registration_open");
       if (open === "true" || open === "false") request = request.eq("registration_open", open === "true");
@@ -112,9 +113,7 @@ async function load(module: ExportModule, params: URLSearchParams): Promise<Load
           { header: "Program", value: (row) => row.program_slug },
           { header: "Sesi pertama (WIB)", value: (row) => wibDateTime(sessions(row)[0]?.starts_at as string | undefined) },
           { header: "Jumlah sesi", value: (row) => sessions(row).length },
-          { header: "Harga", value: (row) => row.price_idr },
           { header: "Pendaftaran dibuka", value: (row) => yesNo(row.registration_open) },
-          { header: "Aktif", value: (row) => yesNo(row.is_active) },
         ],
       };
     }

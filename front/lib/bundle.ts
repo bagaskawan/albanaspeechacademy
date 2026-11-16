@@ -2,6 +2,7 @@
 // Rancangan: docs/albana-docs/plans/2026-11-16-program-batch-bundling-design.md §5.4
 
 export const BUNDLE_SLUG = "paket-speaker-sertifikasi";
+export const SERIES_SLUG = "public-speaking-series";
 export const SPEAKER_SLUG = "public-speaking-for-speakers";
 export const CERTIFICATION_SLUG = "sertifikasi-pembicara-profesional";
 export const INHOUSE_SLUG = "inhouse-training";

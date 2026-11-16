@@ -7,7 +7,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { InputLine } from "@/components/ui/style-line/InputLine";
 import { TextareaLine } from "@/components/ui/style-line/TextareaLine";
-import { saveProgramBundle } from "@/app/(admin)/admin/bundling/actions";
+import { INHOUSE_SLUG } from "@/lib/bundle";
 
 const formatNumber = (digits: string) =>
   digits ? new Intl.NumberFormat("id-ID").format(parseInt(digits, 10)) : "";
@@ -15,46 +15,40 @@ const formatNumber = (digits: string) =>
 const toDigits = (value: unknown) => String(value ?? "").replace(/\D/g, "");
 
 type ProgramRow = {
-  slug?: string;
+  slug: string;
   title?: string | null;
   description?: string | null;
   price_idr?: number | null;
   original_price_idr?: number | null;
+  dp_percent?: number | null;
+  fee_details?: string | null;
   materials?: string[] | null;
   form_prior_experience?: string | null;
   form_goal?: string | null;
   form_challenge?: string | null;
 };
 
-type BundleRow = { speaker_program_slug: string; certification_program_slug: string; show_on_speaker: boolean; show_on_certification: boolean; title: string; description: string | null; price_idr: number | null; dp_percent: number | null };
-
-export default function ProgramForm({ initialData = null, programOptions = [], initialBundle = null }: {
-  initialData?: ProgramRow | null;
-  programOptions?: { slug: string; title: string }[];
-  initialBundle?: BundleRow | null;
-}) {
+// Program adalah daftar tetap: form ini hanya mengubah, tidak membuat.
+export default function ProgramForm({ initialData }: { initialData: ProgramRow }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [bundleEnabled, setBundleEnabled] = useState(Boolean(initialBundle && (initialBundle.speaker_program_slug === initialData?.slug ? initialBundle.show_on_speaker : initialBundle.show_on_certification)));
-  const [bundlePartner, setBundlePartner] = useState(initialBundle ? initialBundle.speaker_program_slug === initialData?.slug ? initialBundle.certification_program_slug : initialBundle.speaker_program_slug : "");
-  const [bundleTitle, setBundleTitle] = useState(initialBundle?.title ?? "");
-  const [bundleDescription, setBundleDescription] = useState(initialBundle?.description ?? "");
-  const [bundlePrice, setBundlePrice] = useState(toDigits(initialBundle?.price_idr));
-  const [bundleDp, setBundleDp] = useState(initialBundle?.dp_percent?.toString() ?? "");
+  const isInhouse = initialData.slug === INHOUSE_SLUG;
 
   const [formData, setFormData] = useState({
-    title: initialData?.title || "",
-    description: initialData?.description || "",
-    price_idr: toDigits(initialData?.price_idr),
-    original_price_idr: toDigits(initialData?.original_price_idr),
-    form_prior_experience: initialData?.form_prior_experience || "",
-    form_goal: initialData?.form_goal || "",
-    form_challenge: initialData?.form_challenge || "",
+    title: initialData.title || "",
+    description: initialData.description || "",
+    price_idr: toDigits(initialData.price_idr),
+    original_price_idr: toDigits(initialData.original_price_idr),
+    dp_percent: initialData.dp_percent?.toString() ?? "",
+    fee_details: initialData.fee_details || "",
+    form_prior_experience: initialData.form_prior_experience || "",
+    form_goal: initialData.form_goal || "",
+    form_challenge: initialData.form_challenge || "",
   });
 
   const [materials, setMaterials] = useState<string[]>(
-    Array.isArray(initialData?.materials) ? initialData.materials : []
+    Array.isArray(initialData.materials) ? initialData.materials : []
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -81,39 +75,53 @@ export default function ProgramForm({ initialData = null, programOptions = [], i
     e.preventDefault();
     setError(null);
 
-    if (!formData.title.trim() || !formData.description.trim() || !formData.price_idr) {
-      setError("Nama program, deskripsi, dan harga promo wajib diisi.");
+    if (!formData.title.trim() || !formData.description.trim()) {
+      setError("Nama program dan deskripsi wajib diisi.");
+      return;
+    }
+    if (!isInhouse && !formData.price_idr) {
+      setError("Biaya program wajib diisi.");
+      return;
+    }
+    const price = Number(formData.price_idr || 0);
+    const original = formData.original_price_idr ? Number(formData.original_price_idr) : null;
+    const dp = formData.dp_percent ? Number(formData.dp_percent) : null;
+    if (original !== null && original <= price) {
+      setError("Harga coret harus lebih besar dari biaya.");
+      return;
+    }
+    if (dp !== null && (!Number.isInteger(dp) || dp < 1 || dp > 99)) {
+      setError("DP harus 1–99%.");
       return;
     }
 
     setIsSubmitting(true);
-    const payload = {
-      title: formData.title.trim(),
-      description: formData.description.trim(),
-      price_idr: Number(formData.price_idr),
-      original_price_idr: formData.original_price_idr ? Number(formData.original_price_idr) : null,
-      materials: materials.map((item) => item.trim()).filter(Boolean),
-      form_prior_experience: formData.form_prior_experience.trim() || null,
-      form_goal: formData.form_goal.trim() || null,
-      form_challenge: formData.form_challenge.trim() || null,
-    };
+    const payload = isInhouse
+      ? {
+          title: formData.title.trim(),
+          description: formData.description.trim(),
+          materials: materials.map((item) => item.trim()).filter(Boolean),
+        }
+      : {
+          title: formData.title.trim(),
+          description: formData.description.trim(),
+          price_idr: price,
+          original_price_idr: original,
+          dp_percent: dp,
+          fee_details: formData.fee_details.trim() || null,
+          materials: materials.map((item) => item.trim()).filter(Boolean),
+          form_prior_experience: formData.form_prior_experience.trim() || null,
+          form_goal: formData.form_goal.trim() || null,
+          form_challenge: formData.form_challenge.trim() || null,
+        };
 
     const supabase = createClient();
-    const { data: saved, error: saveError } = initialData?.slug
-      ? await supabase.from("programs").update(payload).eq("slug", initialData.slug).select("slug").single()
-      : await supabase.from("programs").insert(payload).select("slug").single();
+    const { error: saveError } = await supabase.from("programs").update(payload).eq("slug", initialData.slug);
 
     if (saveError) {
       setIsSubmitting(false);
       setError(saveError.message);
       return;
-    }
-
-    if (initialData?.slug && saved?.slug) {
-      const result = await saveProgramBundle({ programSlug: saved.slug, enabled: bundleEnabled,
-        partnerSlug: bundlePartner, title: bundleTitle, description: bundleDescription,
-        price: Number(bundlePrice), dpPercent: bundleDp ? Number(bundleDp) : null });
-      if (result.error) { setIsSubmitting(false); setError(`Program tersimpan, tetapi bundling belum: ${result.error}`); return; }
     }
 
     setIsSubmitting(false);
@@ -137,7 +145,7 @@ export default function ProgramForm({ initialData = null, programOptions = [], i
             [ PENGATURAN PROGRAM ]
           </span>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-text-primary mt-0.5">
-            {initialData ? "Edit Program" : "Tambah Program Baru"}
+            Edit Program
           </h1>
         </div>
       </div>
@@ -179,31 +187,54 @@ export default function ProgramForm({ initialData = null, programOptions = [], i
               placeholder="Jelaskan tujuan dan gambaran program ini..."
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <InputLine
-                label="Harga Promo"
-                name="price_idr"
-                required
-                prefixText="Rp"
-                inputMode="numeric"
-                value={formatNumber(formData.price_idr)}
-                onChange={handleMoneyChange}
-                placeholder="349.000"
+            {!isInhouse && <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <InputLine
+                  label="Biaya"
+                  name="price_idr"
+                  required
+                  prefixText="Rp"
+                  inputMode="numeric"
+                  value={formatNumber(formData.price_idr)}
+                  onChange={handleMoneyChange}
+                  placeholder="1.300.000"
+                />
+                <InputLine
+                  label="Harga Coret / Asli (Opsional)"
+                  name="original_price_idr"
+                  prefixText="Rp"
+                  inputMode="numeric"
+                  value={formatNumber(formData.original_price_idr)}
+                  onChange={handleMoneyChange}
+                  placeholder="1.500.000"
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <InputLine
+                  label="DP (%)"
+                  name="dp_percent"
+                  type="number"
+                  min={1}
+                  max={99}
+                  value={formData.dp_percent}
+                  onChange={handleChange}
+                  placeholder="20"
+                  hint="Kosongkan bila DP tidak ditawarkan."
+                />
+              </div>
+              <TextareaLine
+                label="Rincian Biaya (Opsional)"
+                name="fee_details"
+                rows={2}
+                value={formData.fee_details}
+                onChange={handleChange}
+                placeholder="Termasuk modul, konsumsi, dan sertifikat."
               />
-              <InputLine
-                label="Harga Coret / Asli (Opsional)"
-                name="original_price_idr"
-                prefixText="Rp"
-                inputMode="numeric"
-                value={formatNumber(formData.original_price_idr)}
-                onChange={handleMoneyChange}
-                placeholder="599.000"
-              />
-            </div>
+            </>}
           </div>
         </div>
 
-        <div className="space-y-4 pt-4 border-t border-border-default/40">
+        {!isInhouse && <div className="space-y-4 pt-4 border-t border-border-default/40">
           <div className="flex items-center gap-2 pb-2 border-b border-border-default/40">
             <span className="w-6 h-6 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-text-primary flex items-center justify-center font-bold text-xs">
               2
@@ -214,7 +245,7 @@ export default function ProgramForm({ initialData = null, programOptions = [], i
           </div>
 
           <p className="text-[11px] leading-relaxed text-text-secondary">
-            Naskah pertanyaan di halaman daftar untuk program ini. Kosongkan bila cukup memakai naskah bawaan varian formulir batch.
+            Naskah pertanyaan di halaman daftar untuk program ini. Kosongkan bila cukup memakai naskah bawaan jenis formulir program ini.
           </p>
 
           <TextareaLine
@@ -241,12 +272,12 @@ export default function ProgramForm({ initialData = null, programOptions = [], i
             onChange={handleChange}
             placeholder="Apa tantangan terbesar Anda dalam aktivitas Public Speaking?"
           />
-        </div>
+        </div>}
 
         <div className="space-y-4 pt-4 border-t border-border-default/40">
           <div className="flex items-center gap-2 pb-2 border-b border-border-default/40">
             <span className="w-6 h-6 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-text-primary flex items-center justify-center font-bold text-xs">
-              3
+              {isInhouse ? 2 : 3}
             </span>
             <h2 className="text-sm font-bold text-text-primary uppercase tracking-wider">
               Materi & Benefit
@@ -295,30 +326,6 @@ export default function ProgramForm({ initialData = null, programOptions = [], i
             <Plus size={15} />
             <span>Tambah Materi</span>
           </button>
-        </div>
-
-        <div className="space-y-4 pt-4 border-t border-border-default/40">
-          <h2 className="text-sm font-bold text-text-primary uppercase tracking-wider">Bundling</h2>
-          {initialData?.slug ? <>
-            <fieldset className="space-y-2">
-              <legend className="text-xs font-semibold">Tawarkan bundling dari program ini?</legend>
-              <div className="flex gap-5 text-sm">
-                <label className="flex items-center gap-2"><input type="radio" name="bundle-enabled" checked={!bundleEnabled} onChange={() => setBundleEnabled(false)} />Tidak</label>
-                <label className="flex items-center gap-2"><input type="radio" name="bundle-enabled" checked={bundleEnabled} onChange={() => setBundleEnabled(true)} />Ya</label>
-              </div>
-            </fieldset>
-            {bundleEnabled ? <div className="space-y-4">
-              <label className="block text-xs font-semibold">Program pasangan
-                <select required value={bundlePartner} onChange={(event) => setBundlePartner(event.target.value)} className="mt-2 block min-h-11 w-full rounded border border-border-default bg-bg-card px-3">
-                  <option value="">Pilih program</option>{programOptions.map((item) => <option key={item.slug} value={item.slug}>{item.title}</option>)}
-                </select>
-              </label>
-              <InputLine label="Judul paket" required value={bundleTitle} onChange={(event) => setBundleTitle(event.target.value)} />
-              <TextareaLine label="Penjelasan isi bundling" required rows={3} value={bundleDescription} onChange={(event) => setBundleDescription(event.target.value)} />
-              <InputLine label="Harga bundling" required prefixText="Rp" inputMode="numeric" value={formatNumber(bundlePrice)} onChange={(event) => setBundlePrice(event.target.value.replace(/\D/g, ""))} />
-              <InputLine label="DP bundling (%) (opsional)" type="number" min={1} max={99} value={bundleDp} onChange={(event) => setBundleDp(event.target.value)} />
-            </div> : null}
-          </> : <p className="text-xs text-text-secondary">Simpan Program terlebih dahulu, lalu buka Edit untuk mengatur bundling.</p>}
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-border-default/60">

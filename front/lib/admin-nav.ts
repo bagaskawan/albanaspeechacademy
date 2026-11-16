@@ -34,8 +34,7 @@ export const adminNavGroups: AdminNavGroup[] = [
   {
     id: "kelas", label: "Kelas", href: "/admin/program", icon: "book",
     modules: [
-      { label: "Program", href: "/admin/program", icon: "book", description: "Program kelas yang tampil di halaman publik." },
-      { label: "Batch", href: "/admin/batch", icon: "calendar", description: "Jadwal angkatan, biaya, lokasi, dan status pendaftaran." },
+      { label: "Program & Batch", href: "/admin/program", icon: "book", description: "Biaya dan isi tiap program, jadwal batch, dan tawaran paket." },
       { label: "Trainer", href: "/admin/trainer", icon: "trainer", description: "Profil pengajar Albana." },
     ],
   },
