@@ -77,10 +77,10 @@ export function FormDialog({
 
                 {/* Desktop: two equal pills, Batal left. Sheet: primary on top, both full width. */}
                 <div className="flex flex-col-reverse gap-3 border-t border-admin-line px-5 pt-4 pb-[max(20px,env(safe-area-inset-bottom))] sm:flex-row sm:px-6 sm:pb-6">
-                  <Dialog.Close type="button" className={`inline-flex h-12 flex-1 items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface ${focusRing}`}>
+                  <Dialog.Close type="button" className={`inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface ${focusRing}`}>
                     {cancelLabel}
                   </Dialog.Close>
-                  <button type="submit" disabled={pending} className={`inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-admin-ink text-[15px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft disabled:opacity-60 ${focusRing}`}>
+                  <button type="submit" disabled={pending} className={`inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center gap-2 rounded-full bg-admin-ink text-[15px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft disabled:opacity-60 ${focusRing}`}>
                     {pending && <Loader2 aria-hidden="true" size={18} className="animate-spin" />}
                     {pending ? "Menyimpan…" : submitLabel}
                   </button>
