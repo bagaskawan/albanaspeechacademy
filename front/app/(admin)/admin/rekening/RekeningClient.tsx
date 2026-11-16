@@ -196,7 +196,7 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
                           Aktif
                         </span>
                       ) : (
-                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                        <span className="inline-flex items-center rounded-full bg-admin-surface-muted px-2.5 py-0.5 text-xs font-medium text-admin-text-secondary">
                           Nonaktif
                         </span>
                       )}

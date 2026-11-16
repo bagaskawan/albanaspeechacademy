@@ -766,7 +766,7 @@ export default function CmsCollectionClient({
                 </button>
                 <label
                   htmlFor={inputId}
-                  className="absolute bottom-2 right-2 h-8 px-3 rounded-full bg-admin-surface/90 text-zinc-900 hover:bg-admin-surface text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="absolute bottom-2 right-2 h-8 px-3 rounded-full bg-admin-surface/90 text-admin-ink hover:bg-admin-surface text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <ImageIcon size={13} /> Ganti foto
                 </label>

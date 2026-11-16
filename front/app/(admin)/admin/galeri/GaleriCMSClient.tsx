@@ -679,7 +679,7 @@ export default function GaleriCMSClient({
           {/* Right Action: Tambah Album */}
           <Link
             href="/admin/galeri/addGallery"
-            className="h-9 px-4 rounded-full bg-admin-surface text-zinc-900 dark:text-zinc-900 hover:bg-zinc-100 flex items-center gap-1.5 text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
+            className="h-9 px-4 rounded-full bg-admin-surface text-admin-ink dark:text-zinc-900 hover:bg-zinc-100 flex items-center gap-1.5 text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
             title="Tambah Album Baru"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />

@@ -1421,10 +1421,14 @@ body:has(.admin-shell) {
 
 .admin-shell,
 body:has(.admin-shell) {
+  color-scheme: light;
   background: var(--admin-canvas);
   color: var(--admin-ink);
   font-family: var(--font-admin-display);
 }
+
+.dark .admin-shell,
+.dark body:has(.admin-shell) { color-scheme: dark; }
 
 .admin-pattern-empty { background: var(--admin-pattern-empty); }
 
