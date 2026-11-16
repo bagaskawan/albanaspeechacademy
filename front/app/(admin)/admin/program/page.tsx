@@ -36,7 +36,7 @@ export default async function ProgramPage() {
         </div>
         <Link
           href="/admin/program/create"
-          className="hidden md:inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full bg-zinc-900 px-5 text-[11px] font-bold uppercase tracking-wider text-white transition-colors hover:bg-zinc-800 dark:bg-yellow-100 dark:text-zinc-900 dark:hover:bg-yellow-200"
+          className="hidden md:inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full bg-zinc-900 px-5 text-[11px] font-bold uppercase tracking-wider text-white transition-colors hover:bg-zinc-800 dark:text-zinc-900 dark:hover:bg-yellow-200"
         >
           <Plus size={14} /> Tambah Program
         </Link>
@@ -45,7 +45,7 @@ export default async function ProgramPage() {
       <Link
         href="/admin/program/create"
         aria-label="Tambah Program"
-        className="md:hidden fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg transition-transform hover:scale-105 active:scale-95 dark:bg-white dark:text-zinc-900"
+        className="md:hidden fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg transition-transform hover:scale-105 active:scale-95 dark:text-zinc-900"
       >
         <Plus size={22} />
       </Link>
@@ -75,6 +75,7 @@ export default async function ProgramPage() {
                 <tr key={program.slug} className="hover:bg-bg-well/40 transition-colors">
                   <td className="py-3.5 px-5 border-r border-border-default/40 font-bold text-text-primary">
                     {program.title}
+                    <Link href={`/admin/batch?program=${encodeURIComponent(program.slug)}&add=1`} className="mt-1 block text-xs font-medium underline">Tambah batch</Link>
                   </td>
                   <td className="py-3.5 px-5 border-r border-border-default/40 max-w-[280px] truncate text-text-secondary" title={program.description ?? ""}>
                     {program.description || "—"}
@@ -109,6 +110,7 @@ export default async function ProgramPage() {
             <div key={program.slug} className="bg-bg-card border border-border-default rounded-2xl p-4 space-y-3">
               <div>
                 <h3 className="text-sm font-black text-text-primary break-words">{program.title}</h3>
+                <Link href={`/admin/batch?program=${encodeURIComponent(program.slug)}&add=1`} className="mt-1 inline-block text-xs underline">Tambah batch</Link>
                 <p className="mt-1 text-[11px] text-text-secondary line-clamp-3">{program.description || "—"}</p>
               </div>
               <div className="grid grid-cols-2 gap-2 text-[11px]">

@@ -248,7 +248,7 @@
             {/* Action Button Header Desktop (h-9 px-4 rounded-full) */}
             <Link
               href="/admin/partner/addPartner"
-              className="hidden sm:inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-xs font-bold text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 transition-all shadow-xs cursor-pointer shrink-0"
+              className="hidden sm:inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-xs font-bold text-white bg-zinc-900 hover:bg-zinc-800 dark:text-zinc-900 dark:hover:bg-zinc-100 transition-all shadow-xs cursor-pointer shrink-0"
             >
               <Plus size={14} className="stroke-[2.5]" />
               <span>Tambah Partner</span>
@@ -266,8 +266,8 @@
               setTypeFilter("all");
             }}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 inline-flex items-center gap-2 transition-all cursor-pointer select-none ${statusFilter === "all" && typeFilter === "all"
-              ? "bg-white dark:bg-zinc-800 text-text-primary shadow-xs border border-border-default/60"
-              : "text-text-secondary hover:text-text-primary hover:bg-white/50 dark:hover:bg-zinc-800/50"
+              ? "bg-admin-surface dark:bg-zinc-800 text-text-primary shadow-xs border border-border-default/60"
+              : "text-text-secondary hover:text-text-primary hover:bg-admin-surface/50 dark:hover:bg-zinc-800/50"
               }`}
           >
             <span>Semua Partner</span>
@@ -285,12 +285,12 @@
             }}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 inline-flex items-center gap-2 transition-all cursor-pointer select-none ${statusFilter === "active"
               ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
-              : "text-text-secondary hover:text-text-primary hover:bg-white/50 dark:hover:bg-zinc-800/50"
+              : "text-text-secondary hover:text-text-primary hover:bg-admin-surface/50 dark:hover:bg-zinc-800/50"
               }`}
           >
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="inline-block w-2 h-2 rounded-full bg-admin-mint-dot animate-pulse" />
             <span>Aktif</span>
-            <span className="px-2 py-0.5 rounded-full bg-white/20 dark:bg-zinc-950 text-[10px] font-extrabold font-mono">
+            <span className="px-2 py-0.5 rounded-full bg-admin-surface/20 dark:bg-zinc-950 text-[10px] font-extrabold font-mono">
               {partners.filter((p) => p.is_active).length}
             </span>
           </button>
@@ -310,7 +310,7 @@
                 }}
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 inline-flex items-center gap-2 transition-all cursor-pointer select-none ${isSelected
                   ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
-                  : "text-text-secondary hover:text-text-primary hover:bg-white/50 dark:hover:bg-zinc-800/50"
+                  : "text-text-secondary hover:text-text-primary hover:bg-admin-surface/50 dark:hover:bg-zinc-800/50"
                   }`}
               >
                 <span>{t.label}</span>
@@ -430,7 +430,7 @@
                             type="button"
                             onClick={() => handleToggleActive(p.id, p.is_active, p.name)}
                             className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${p.is_active
-                              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                              ? "bg-admin-mint-soft text-admin-mint-ink border border-admin-mint-dot/30"
                               : "bg-zinc-500/10 text-zinc-500 border border-zinc-500/20"
                               }`}
                           >
@@ -459,7 +459,7 @@
                             <button
                               type="button"
                               onClick={() => setPartnerToDelete(p)}
-                              className="p-1.5 rounded-lg border border-border-default/60 hover:bg-red-500/10 text-red-500 transition-colors cursor-pointer"
+                              className="p-1.5 rounded-lg border border-border-default/60 hover:bg-admin-rose-soft text-admin-danger transition-colors cursor-pointer"
                               title="Hapus Partner"
                             >
                               <Trash2 size={13} />
@@ -486,7 +486,7 @@
             paginatedPartners.map((p) => (
               <div
                 key={p.id}
-                className="bg-white dark:bg-[#121212] border border-border-default/70 hover:border-zinc-300 dark:hover:border-zinc-700 rounded-3xl p-4 sm:p-5 transition-all shadow-xs flex flex-col justify-between active:scale-[0.99] space-y-3"
+                className="bg-admin-surface dark:bg-[#121212] border border-border-default/70 hover:border-zinc-300 dark:hover:border-zinc-700 rounded-3xl p-4 sm:p-5 transition-all shadow-xs flex flex-col justify-between active:scale-[0.99] space-y-3"
               >
                 {/* Top Row: Type Pill + Status */}
                 <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-border-default/40">
@@ -497,7 +497,7 @@
                     type="button"
                     onClick={() => handleToggleActive(p.id, p.is_active, p.name)}
                     className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider cursor-pointer ${p.is_active
-                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                      ? "bg-admin-mint-soft text-admin-mint-ink border border-admin-mint-dot/30"
                       : "bg-zinc-500/10 text-zinc-500 border border-zinc-500/20"
                       }`}
                   >
@@ -583,7 +583,7 @@
                     <button
                       type="button"
                       onClick={() => setPartnerToDelete(p)}
-                      className="w-8 h-8 rounded-full border border-border-default flex items-center justify-center hover:bg-red-500/10 text-red-500 hover:text-red-600 active:scale-95 transition-all cursor-pointer"
+                      className="w-8 h-8 rounded-full border border-border-default flex items-center justify-center hover:bg-admin-rose-soft text-admin-danger hover:text-admin-danger active:scale-95 transition-all cursor-pointer"
                       title="Hapus Partner"
                     >
                       <Trash2 size={13} />
@@ -621,14 +621,14 @@
                 >
                   <SlidersHorizontal className="w-4 h-4" />
                   {(typeFilter !== "all" || statusFilter !== "all") && (
-                    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#BAFF6A]" />
+                    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-admin-mint-soft" />
                   )}
                 </button>
               </PopoverTrigger>
               <PopoverContent
                 side="top"
                 align="center"
-                className="w-64 p-3.5 rounded-3xl shadow-2xl bg-white dark:bg-[#18181b] border border-border-default/80 text-text-primary space-y-3 mb-2 z-50 max-h-72 overflow-y-auto"
+                className="w-64 p-3.5 rounded-3xl shadow-2xl bg-admin-surface dark:bg-[#18181b] border border-border-default/80 text-text-primary space-y-3 mb-2 z-50 max-h-72 overflow-y-auto"
               >
                 <div className="flex items-center justify-between border-b border-border-default/50 pb-2">
                   <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-text-muted">
@@ -641,7 +641,7 @@
                         setTypeFilter("all");
                         setStatusFilter("all");
                       }}
-                      className="text-[10px] font-bold text-red-500 hover:underline cursor-pointer"
+                      className="text-[10px] font-bold text-admin-danger hover:underline cursor-pointer"
                     >
                       Reset
                     </button>
@@ -684,7 +684,7 @@
             {/* Right Action: Tambah Partner */}
             <Link
               href="/admin/partner/addPartner"
-              className="h-9 px-4 rounded-full bg-white text-zinc-900 dark:bg-white dark:text-zinc-900 hover:bg-zinc-100 flex items-center gap-1.5 text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
+              className="h-9 px-4 rounded-full bg-admin-surface text-zinc-900 dark:text-zinc-900 hover:bg-zinc-100 flex items-center gap-1.5 text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
               title="Tambah Partner Baru"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
@@ -695,7 +695,7 @@
 
         {/* ═══ DETAIL MODAL (Mobile Responsive rounded-none sm:rounded-3xl border-0 sm:border) ═══ */}
         <Dialog open={Boolean(partnerDetail)} onOpenChange={(open) => !open && setPartnerDetail(null)}>
-          <DialogContent className="max-w-xl bg-white dark:bg-zinc-950 border-0 sm:border border-border-default p-6 rounded-none sm:rounded-3xl">
+          <DialogContent className="max-w-xl bg-admin-surface dark:bg-zinc-950 border-0 sm:border border-border-default p-6 rounded-none sm:rounded-3xl">
             <DialogIconHeader
               icon={<Briefcase size={18} />}
               title="Detail Partner & Kolaborator"
@@ -726,7 +726,7 @@
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                         partnerDetail.is_active
-                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                          ? "bg-admin-mint-soft text-admin-mint-ink border border-admin-mint-dot/30"
                           : "bg-zinc-500/10 text-zinc-500 border border-zinc-500/20"
                       }`}
                     >

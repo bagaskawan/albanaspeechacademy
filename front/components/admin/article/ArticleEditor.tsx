@@ -196,7 +196,7 @@ export default function ArticleEditor({ article }: { article: ArticleEditorData 
       {error && (
         <div
           role="alert"
-          className="mt-4 flex flex-wrap items-center gap-2 rounded-xl bg-[#FEE2E2] p-3 text-xs font-semibold text-[#991B1B] dark:bg-[#450A0A] dark:text-[#FECACA]"
+          className="mt-4 flex flex-wrap items-center gap-2 rounded-xl bg-admin-rose-soft p-3 text-xs font-semibold text-admin-rose-ink"
         >
           <span>{error}</span>
           {error.includes("tab lain") ? (
@@ -239,14 +239,14 @@ export default function ArticleEditor({ article }: { article: ArticleEditorData 
         type="button"
         onClick={() => save(true, false)}
         disabled={saving}
-        className="fixed bottom-6 right-5 z-40 h-9 rounded-full bg-[#2F5C86] px-4 text-[10px] font-bold uppercase tracking-wider text-white shadow-lg hover:bg-[#24486A] md:right-8"
+        className="fixed bottom-6 right-5 z-40 h-9 rounded-full bg-admin-ink px-4 text-[10px] font-bold uppercase tracking-wider text-admin-on-ink shadow-lg hover:bg-admin-ink-soft md:right-8"
       >
         {saving ? "Menyimpan…" : published ? "Perbarui terbitan" : "Terbitkan"}
       </Button>
 
       {/* Modal Popup Warning Perubahan Belum Tersimpan */}
       <Dialog open={showLeaveConfirm} onOpenChange={setShowLeaveConfirm}>
-        <DialogContent className="max-w-md bg-white dark:bg-zinc-950 border-0 sm:border border-zinc-200 dark:border-zinc-800 p-6 rounded-none sm:rounded-[24px]">
+        <DialogContent className="max-w-md bg-admin-surface dark:bg-zinc-950 border-0 sm:border border-zinc-200 dark:border-zinc-800 p-6 rounded-none sm:rounded-[24px]">
           <DialogIconHeader
             icon={<AlertTriangle size={18} />}
             title="Perubahan Belum Tersimpan"

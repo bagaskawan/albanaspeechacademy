@@ -55,8 +55,8 @@ export default function KontakClient({ initialContacts }: KontakClientProps) {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-[#10243F]">Kanal Kontak Resmi</h1>
-        <p className="mt-1 text-sm text-[#566B84]">
+        <h1 className="text-2xl font-bold tracking-tight text-admin-ink">Kanal Kontak Resmi</h1>
+        <p className="mt-1 text-sm text-admin-text-secondary">
           Informasi kontak yang tampil di beranda, footer situs, dan dipakai untuk konfirmasi pendaftaran peserta.
         </p>
       </div>
@@ -65,17 +65,17 @@ export default function KontakClient({ initialContacts }: KontakClientProps) {
         <div
           className={`rounded-xl border p-4 text-sm ${
             statusMessage.type === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-              : "border-red-200 bg-red-50 text-red-800"
+              ? "border-admin-mint-dot/30 bg-admin-mint-soft text-admin-mint-ink"
+              : "border-admin-rose-dot/30 bg-admin-rose-soft text-admin-danger"
           }`}
         >
           {statusMessage.text}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-[#D8E4F0] bg-white p-6 sm:p-8 shadow-sm">
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-admin-line bg-admin-surface p-6 sm:p-8 shadow-sm">
         <div>
-          <label htmlFor="contact-whatsapp" className="block text-xs font-bold uppercase tracking-wider text-[#566B84]">
+          <label htmlFor="contact-whatsapp" className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">
             WhatsApp
           </label>
           <input
@@ -85,13 +85,13 @@ export default function KontakClient({ initialContacts }: KontakClientProps) {
             value={whatsapp}
             onChange={(e) => setWhatsapp(formatPhoneNumber(e.target.value))}
             placeholder="0812-3456-7890"
-            className="mt-1.5 block w-full rounded-xl border border-[#D8E4F0] px-3.5 py-2.5 text-sm text-[#10243F] focus:border-[#26599A] focus:outline-none"
+            className="mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
           />
-          <p className="mt-1 text-xs text-[#566B84]">Nomor lokal, diawali angka 0. Otomatis diformat dan ditautkan ke wa.me.</p>
+          <p className="mt-1 text-xs text-admin-text-secondary">Nomor lokal, diawali angka 0. Otomatis diformat dan ditautkan ke wa.me.</p>
         </div>
 
         <div>
-          <label htmlFor="contact-email" className="block text-xs font-bold uppercase tracking-wider text-[#566B84]">
+          <label htmlFor="contact-email" className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">
             Email
           </label>
           <input
@@ -100,12 +100,12 @@ export default function KontakClient({ initialContacts }: KontakClientProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="nama@email.com"
-            className="mt-1.5 block w-full rounded-xl border border-[#D8E4F0] px-3.5 py-2.5 text-sm text-[#10243F] focus:border-[#26599A] focus:outline-none"
+            className="mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
           />
         </div>
 
         <div>
-          <label htmlFor="contact-instagram" className="block text-xs font-bold uppercase tracking-wider text-[#566B84]">
+          <label htmlFor="contact-instagram" className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">
             Instagram
           </label>
           <input
@@ -114,12 +114,12 @@ export default function KontakClient({ initialContacts }: KontakClientProps) {
             value={instagram}
             onChange={(e) => setInstagram(e.target.value)}
             placeholder="@albanaspeechacademy"
-            className="mt-1.5 block w-full rounded-xl border border-[#D8E4F0] px-3.5 py-2.5 text-sm text-[#10243F] focus:border-[#26599A] focus:outline-none"
+            className="mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
           />
         </div>
 
         <div>
-          <label htmlFor="contact-address" className="block text-xs font-bold uppercase tracking-wider text-[#566B84]">
+          <label htmlFor="contact-address" className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">
             Alamat
           </label>
           <textarea
@@ -128,15 +128,15 @@ export default function KontakClient({ initialContacts }: KontakClientProps) {
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             placeholder="Alamat lengkap kantor atau studio Albana"
-            className="mt-1.5 block w-full rounded-xl border border-[#D8E4F0] px-3.5 py-2.5 text-sm text-[#10243F] focus:border-[#26599A] focus:outline-none"
+            className="mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
           />
         </div>
 
-        <div className="flex items-center justify-end border-t border-[#D8E4F0] pt-5">
+        <div className="flex items-center justify-end border-t border-admin-line pt-5">
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex items-center justify-center rounded-xl bg-[#26599A] px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#163E70] disabled:opacity-50 transition-colors"
+            className="inline-flex items-center justify-center rounded-xl bg-admin-ink px-5 py-2.5 text-sm font-semibold text-admin-on-ink shadow-sm hover:bg-admin-ink-soft disabled:opacity-50 transition-colors"
           >
             {isPending ? "Menyimpan..." : "Simpan Perubahan Kontak"}
           </button>

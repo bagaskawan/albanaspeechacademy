@@ -30,7 +30,7 @@ export default async function ArtikelPage() {
             Draf dan artikel yang sudah terbit. Hanya artikel terbit yang tampil di situs publik.
           </p>
         </div>
-        <Button asChild className="h-10 shrink-0 rounded-full bg-[#2F5C86] px-5 text-[11px] font-bold uppercase tracking-wider text-white hover:bg-[#24486A]">
+        <Button asChild className="h-10 shrink-0 rounded-full bg-admin-ink px-5 text-[11px] font-bold uppercase tracking-wider text-admin-on-ink hover:bg-admin-ink-soft">
           <Link href="/admin/artikel/baru">
             <FilePlus2 size={14} /> Tulis artikel
           </Link>
@@ -38,7 +38,7 @@ export default async function ArtikelPage() {
       </div>
 
       {error && (
-        <div role="alert" className="rounded-xl bg-[#FEE2E2] p-3 text-xs font-semibold text-[#991B1B] dark:bg-[#450A0A] dark:text-[#FECACA]">
+        <div role="alert" className="rounded-xl bg-admin-rose-soft p-3 text-xs font-semibold text-admin-rose-ink">
           Daftar artikel tidak dapat dimuat: {error.message}
         </div>
       )}
@@ -83,7 +83,7 @@ export default async function ArtikelPage() {
                         <Link
                           href={`/admin/artikel/${article.slug}`}
                           title="Ubah"
-                          className="inline-flex rounded-full border border-sky-500/20 bg-sky-500/10 p-1.5 text-sky-600 hover:bg-sky-500/20 dark:text-sky-400"
+                          className="inline-flex rounded-full border border-admin-lilac-dot/30 bg-admin-lilac-soft p-1.5 text-admin-lilac-ink hover:bg-admin-lilac-soft"
                         >
                           <Pencil size={14} />
                         </Link>
@@ -116,7 +116,7 @@ export default async function ArtikelPage() {
                 </dl>
                 <Link
                   href={`/admin/artikel/${article.slug}`}
-                  className="ml-auto inline-flex h-8 items-center gap-1.5 rounded-full border border-sky-500/20 bg-sky-500/10 px-3 text-[11px] font-bold text-sky-600 dark:text-sky-400"
+                  className="ml-auto inline-flex h-8 items-center gap-1.5 rounded-full border border-admin-lilac-dot/30 bg-admin-lilac-soft px-3 text-[11px] font-bold text-admin-lilac-ink"
                 >
                   <Pencil size={12} /> Ubah
                 </Link>

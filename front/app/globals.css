@@ -224,19 +224,28 @@
   --color-admin-text-faint: var(--admin-text-faint);
   --color-admin-line: var(--admin-line);
   --color-admin-line-strong: var(--admin-line-strong);
-  --color-admin-accent: var(--admin-accent);
-  --color-admin-accent-ink: var(--admin-accent-ink);
-  --color-admin-success-bg: var(--admin-success-bg);
-  --color-admin-success-ink: var(--admin-success-ink);
   --color-admin-danger: var(--admin-danger);
-  --color-admin-danger-bg: var(--admin-danger-bg);
-  --color-admin-online: var(--admin-online);
+  --color-admin-mint-soft: var(--admin-mint-soft);
+  --color-admin-mint-ink: var(--admin-mint-ink);
+  --color-admin-mint-dot: var(--admin-mint-dot);
+  --color-admin-peach-soft: var(--admin-peach-soft);
+  --color-admin-peach-ink: var(--admin-peach-ink);
+  --color-admin-peach-dot: var(--admin-peach-dot);
+  --color-admin-rose-soft: var(--admin-rose-soft);
+  --color-admin-rose-ink: var(--admin-rose-ink);
+  --color-admin-rose-dot: var(--admin-rose-dot);
+  --color-admin-butter-soft: var(--admin-butter-soft);
+  --color-admin-butter-ink: var(--admin-butter-ink);
+  --color-admin-butter-dot: var(--admin-butter-dot);
+  --color-admin-lilac-soft: var(--admin-lilac-soft);
+  --color-admin-lilac-ink: var(--admin-lilac-ink);
+  --color-admin-lilac-dot: var(--admin-lilac-dot);
   --color-admin-rule: var(--admin-line);
   --color-admin-well: var(--admin-surface-muted);
   --color-admin-faint: var(--admin-text-faint);
   --color-admin-page: var(--admin-canvas);
   --color-admin-muted: var(--admin-text-secondary);
-  --color-admin-mark: var(--admin-accent);
+  --color-admin-mark: var(--admin-butter-soft);
   --color-admin-card: var(--admin-surface);
   --radius-admin-card: 1rem;
   --radius-admin-panel: 1.25rem;
@@ -1307,23 +1316,34 @@ body[style*="overflow: hidden"] {
  */
 .admin-shell,
 body:has(.admin-shell) {
-  --admin-canvas: #efefef;
-  --admin-surface: #ffffff;
-  --admin-surface-muted: #f5f5f5;
+  --admin-canvas: #ffffff;
+  --admin-surface: #f6f6f6;
+  --admin-surface-muted: #ededed;
   --admin-ink: #0b0b0b;
   --admin-ink-soft: #2a2a2a;
   --admin-on-ink: #ffffff;
   --admin-text-secondary: #5c5c5c;
   --admin-text-faint: #8f8f8f;
-  --admin-line: #e3e3e3;
+  --admin-line: #e5e5e5;
   --admin-line-strong: #c9c9c9;
-  --admin-accent: #ede84a;
-  --admin-accent-ink: #0b0b0b;
-  --admin-success-bg: #d3e5cf;
-  --admin-success-ink: #1f3d1a;
-  --admin-danger: #c2410c;
-  --admin-danger-bg: #fbe5da;
-  --admin-online: #22a35a;
+  --admin-danger: #b42318;
+
+  /* Soft tones (3.6): one meaning each — mint ok, peach waiting, rose rejected, butter highlight, lilac neutral. */
+  --admin-mint-soft: #ddf1e4;
+  --admin-mint-ink: #1e6a3c;
+  --admin-mint-dot: #22a35a;
+  --admin-peach-soft: #fde7da;
+  --admin-peach-ink: #9a4a1f;
+  --admin-peach-dot: #e8833a;
+  --admin-rose-soft: #fbe1e1;
+  --admin-rose-ink: #a3282a;
+  --admin-rose-dot: #e5484d;
+  --admin-butter-soft: #fbf6c8;
+  --admin-butter-ink: #6b5d00;
+  --admin-butter-dot: #e1c100;
+  --admin-lilac-soft: #ece7fa;
+  --admin-lilac-ink: #5b47a8;
+  --admin-lilac-dot: #7c66d9;
 
   --admin-radius-card: 32px;
   --admin-radius-card-inner: 24px;
@@ -1376,21 +1396,27 @@ body:has(.admin-shell) {
 
 .dark .admin-shell,
 .dark body:has(.admin-shell) {
-  --admin-canvas: #0e0e0e;
-  --admin-surface: #1a1a1a;
-  --admin-surface-muted: #242424;
+  --admin-canvas: #0b0b0b;
+  --admin-surface: #161616;
+  --admin-surface-muted: #222222;
   --admin-ink: #f5f5f5;
   --admin-ink-soft: #d9d9d9;
   --admin-on-ink: #0b0b0b;
   --admin-text-secondary: #a8a8a8;
   --admin-text-faint: #6e6e6e;
-  --admin-line: #2e2e2e;
+  --admin-line: #2a2a2a;
   --admin-line-strong: #3d3d3d;
-  --admin-success-bg: #22331f;
-  --admin-success-ink: #bfe0b8;
-  --admin-danger: #fb8a5a;
-  --admin-danger-bg: #3a1e12;
-  --admin-online: #4ade80;
+  --admin-danger: #f97066;
+  --admin-mint-soft: #15291d;
+  --admin-mint-ink: #9fe0b5;
+  --admin-peach-soft: #33201a;
+  --admin-peach-ink: #f6b894;
+  --admin-rose-soft: #331a1a;
+  --admin-rose-ink: #f4a3a3;
+  --admin-butter-soft: #2e2b12;
+  --admin-butter-ink: #f2e58a;
+  --admin-lilac-soft: #221d33;
+  --admin-lilac-ink: #c3b5f2;
 }
 
 .admin-shell,

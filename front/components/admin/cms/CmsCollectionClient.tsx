@@ -70,6 +70,9 @@ interface CmsCollectionClientProps {
   activeField?: string;
   /** One line under the dialog title explaining what to fill. */
   formHint?: string;
+  initialGroup?: string;
+  openCreateInitially?: boolean;
+  createDefaults?: Record<string, Row>;
   /** Override the dialog max width, e.g. "max-w-lg". */
   maxWidth?: string;
   /** Tampilkan baris sebagai grid bento yang bisa diklik, bukan tabel. */
@@ -192,6 +195,9 @@ export default function CmsCollectionClient({
   groupBy,
   activeField,
   formHint,
+  initialGroup,
+  openCreateInitially,
+  createDefaults,
   maxWidth,
   bento,
   members,
@@ -201,11 +207,12 @@ export default function CmsCollectionClient({
   const tableFields = groupField ? fields.filter((field) => field.name !== groupField.name) : fields;
 
   const [rows, setRows] = useState<Row[]>(initialRows);
-  const [activeGroup, setActiveGroup] = useState(groups[0] ?? "");
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [activeGroup, setActiveGroup] = useState(initialGroup && groups.includes(initialGroup) ? initialGroup : groups[0] ?? "");
+  const [isFormOpen, setIsFormOpen] = useState(Boolean(openCreateInitially));
   const [editingRow, setEditingRow] = useState<Row | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Row | null>(null);
-  const [form, setForm] = useState<Row>(() => initialFormState(fields, null));
+  const [form, setForm] = useState<Row>(() => ({ ...initialFormState(fields, null), ...(createDefaults?.[initialGroup ?? ""] ?? {}),
+    ...(groupField && initialGroup ? { [groupField.name]: initialGroup } : {}) }));
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -263,6 +270,7 @@ export default function CmsCollectionClient({
     setEditingRow(null);
     setForm({
       ...initialFormState(fields, null),
+      ...(createDefaults?.[activeGroup] ?? {}),
       ...(groupField ? { [groupField.name]: activeGroup } : {}),
     });
     setError(null);
@@ -487,7 +495,7 @@ export default function CmsCollectionClient({
         title={active ? `${title} aktif` : `Aktifkan ${title.toLowerCase()} ini`}
         className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-full border text-[11px] font-bold uppercase tracking-wider transition-colors ${
           active
-            ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 cursor-default"
+            ? "border-admin-mint-dot/30 bg-admin-mint-soft text-admin-mint-ink cursor-default"
             : "border-border-default bg-bg-well/50 text-text-secondary hover:text-text-primary cursor-pointer"
         }`}
       >
@@ -539,7 +547,7 @@ export default function CmsCollectionClient({
                     disabled={sessions.length === 1}
                     aria-label={`Hapus sesi ${index + 1}`}
                     title={sessions.length === 1 ? "Minimal satu sesi" : "Hapus sesi"}
-                    className="rounded-full border border-red-500/20"
+                    className="rounded-full border border-admin-rose-dot/30"
                   >
                     <Trash2 />
                   </Button>
@@ -582,7 +590,7 @@ export default function CmsCollectionClient({
             type="button"
             variant="outline"
             onClick={() => setValue(field, [...sessions, { date: "", start: "", end: "" }])}
-            className="h-9 w-full rounded-full border-sky-500/20 bg-sky-500/10 text-[11px] font-bold uppercase tracking-wider text-sky-600 hover:bg-sky-500/20 dark:text-sky-400"
+            className="h-9 w-full rounded-full border-admin-lilac-dot/30 bg-admin-lilac-soft text-[11px] font-bold uppercase tracking-wider text-admin-lilac-ink hover:bg-admin-lilac-soft"
           >
             <Plus size={13} /> Tambah sesi
           </Button>
@@ -684,14 +692,14 @@ export default function CmsCollectionClient({
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-sky-500/10 px-2.5 py-1 text-[11px] font-semibold text-sky-700 dark:text-sky-300"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-admin-lilac-soft px-2.5 py-1 text-[11px] font-semibold text-admin-lilac-ink"
                 >
                   {tag}
                   <button
                     type="button"
                     aria-label={`Hapus ${tag}`}
                     onClick={() => setValue(field, tags.filter((item) => item !== tag).join(", "))}
-                    className="cursor-pointer text-sky-600/70 hover:text-red-500 dark:text-sky-300/70"
+                    className="cursor-pointer text-admin-lilac-ink/70 hover:text-admin-danger"
                   >
                     <X size={11} />
                   </button>
@@ -729,7 +737,7 @@ export default function CmsCollectionClient({
             className={`relative ${
               url ? "mx-auto w-fit max-w-full" : "w-full"
             } rounded-2xl border-2 border-dashed transition-colors overflow-hidden ${
-              galleryDragging ? "border-sky-500 bg-sky-500/5" : "border-border-default bg-bg-well/40"
+              galleryDragging ? "border-admin-lilac-dot/30 bg-admin-lilac-dot/5" : "border-border-default bg-bg-well/40"
             }`}
           >
             <input
@@ -758,7 +766,7 @@ export default function CmsCollectionClient({
                 </button>
                 <label
                   htmlFor={inputId}
-                  className="absolute bottom-2 right-2 h-8 px-3 rounded-full bg-white/90 text-zinc-900 hover:bg-white text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="absolute bottom-2 right-2 h-8 px-3 rounded-full bg-admin-surface/90 text-zinc-900 hover:bg-admin-surface text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <ImageIcon size={13} /> Ganti foto
                 </label>
@@ -877,7 +885,7 @@ export default function CmsCollectionClient({
       </p>
 
       {error && (
-        <div role="alert" className="p-3 rounded-xl text-xs font-semibold bg-[#FEE2E2] text-[#991B1B] dark:bg-[#450A0A] dark:text-[#FECACA]">
+        <div role="alert" className="p-3 rounded-xl text-xs font-semibold bg-admin-rose-soft text-admin-rose-ink">
           {error}
         </div>
       )}
@@ -893,7 +901,7 @@ export default function CmsCollectionClient({
           <form onSubmit={handleSubmit} noValidate className="flex min-h-0 flex-1 flex-col">
             <div className="min-h-0 flex-1 overflow-y-auto space-y-4 pr-1">
               {error && (
-                <div role="alert" className="p-3 rounded-xl text-xs font-semibold bg-[#FEE2E2] text-[#991B1B] dark:bg-[#450A0A] dark:text-[#FECACA]">
+                <div role="alert" className="p-3 rounded-xl text-xs font-semibold bg-admin-rose-soft text-admin-rose-ink">
                   {error}
                 </div>
               )}
@@ -1088,7 +1096,7 @@ export default function CmsCollectionClient({
                         type="button"
                         onClick={() => openEdit(row)}
                         title="Ubah"
-                        className="p-1.5 rounded-full border border-sky-500/20 bg-sky-500/10 hover:bg-sky-500/20 text-sky-600 dark:text-sky-400 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-full border border-admin-lilac-dot/30 bg-admin-lilac-soft hover:bg-admin-lilac-soft text-admin-lilac-ink transition-colors cursor-pointer"
                       >
                         <Pencil size={14} />
                       </button>
@@ -1096,7 +1104,7 @@ export default function CmsCollectionClient({
                         type="button"
                         onClick={() => setDeleteTarget(row)}
                         title="Hapus"
-                        className="p-1.5 rounded-full border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-full border border-admin-rose-dot/30 bg-admin-rose-soft hover:bg-admin-rose-soft text-admin-danger transition-colors cursor-pointer"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -1138,14 +1146,14 @@ export default function CmsCollectionClient({
                 <button
                   type="button"
                   onClick={() => openEdit(row)}
-                  className="ml-auto h-8 px-3 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-600 dark:text-sky-400 text-[11px] font-bold flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer"
+                  className="ml-auto h-8 px-3 rounded-full bg-admin-lilac-soft border border-admin-lilac-dot/30 text-admin-lilac-ink text-[11px] font-bold flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer"
                 >
                   <Pencil size={12} /> Ubah
                 </button>
                 <button
                   type="button"
                   onClick={() => setDeleteTarget(row)}
-                  className="h-8 px-3 rounded-full bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-[11px] font-bold flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer"
+                  className="h-8 px-3 rounded-full bg-admin-rose-soft border border-admin-rose-dot/30 text-admin-danger text-[11px] font-bold flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer"
                 >
                   <Trash2 size={12} /> Hapus
                 </button>

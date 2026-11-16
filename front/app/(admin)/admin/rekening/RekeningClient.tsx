@@ -103,15 +103,15 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#10243F]">Rekening Pembayaran</h1>
-          <p className="mt-1 text-sm text-[#566B84]">
+          <h1 className="text-2xl font-bold tracking-tight text-admin-ink">Rekening Pembayaran</h1>
+          <p className="mt-1 text-sm text-admin-text-secondary">
             Kelola data rekening tujuan transfer pembayaran pendaftaran peserta Albana.
           </p>
         </div>
         <button
           type="button"
           onClick={openCreateModal}
-          className="inline-flex items-center justify-center rounded-xl bg-[#26599A] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#163E70] transition-colors"
+          className="inline-flex items-center justify-center rounded-xl bg-admin-ink px-4 py-2.5 text-sm font-semibold text-admin-on-ink shadow-sm hover:bg-admin-ink-soft transition-colors"
         >
           + Tambah Rekening
         </button>
@@ -119,38 +119,38 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
 
       {/* Messages */}
       {errorMessage && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+        <div className="rounded-xl border border-admin-rose-dot/30 bg-admin-rose-soft p-4 text-sm text-admin-danger">
           {errorMessage}
         </div>
       )}
       {successMessage && (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+        <div className="rounded-xl border border-admin-mint-dot/30 bg-admin-mint-soft p-4 text-sm text-admin-mint-ink">
           {successMessage}
         </div>
       )}
 
       {/* Notice on active account */}
       {!activeAccount ? (
-        <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+        <div className="rounded-xl border border-admin-peach-dot/30 bg-admin-peach-soft p-4 text-sm text-admin-peach-ink">
           <strong className="font-semibold">Peringatan:</strong> Belum ada rekening aktif! Setiap pendaftaran baru memerlukan satu rekening aktif untuk menerbitkan tagihan. Silakan aktifkan salah satu rekening di bawah.
         </div>
       ) : (
-        <div className="rounded-xl border border-[#D8E4F0] bg-white p-5 shadow-sm">
+        <div className="rounded-xl border border-admin-line bg-admin-surface p-5 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" /> Rekening Aktif Saat Ini
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-admin-mint-soft px-3 py-1 text-xs font-semibold text-admin-mint-ink">
+                <span className="h-2 w-2 rounded-full bg-admin-mint-dot" /> Rekening Aktif Saat Ini
               </span>
-              <h2 className="mt-2 text-xl font-bold text-[#10243F]">
+              <h2 className="mt-2 text-xl font-bold text-admin-ink">
                 {activeAccount.bank} — {activeAccount.account_number}
               </h2>
-              <p className="text-sm text-[#566B84]">a.n. {activeAccount.holder}</p>
+              <p className="text-sm text-admin-text-secondary">a.n. {activeAccount.holder}</p>
             </div>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => openEditModal(activeAccount)}
-                className="rounded-lg border border-[#D8E4F0] px-3 py-1.5 text-sm font-medium text-[#10243F] hover:bg-[#F4F8FC]"
+                className="rounded-lg border border-admin-line px-3 py-1.5 text-sm font-medium text-admin-ink hover:bg-admin-surface-muted"
               >
                 Ubah
               </button>
@@ -160,22 +160,22 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
       )}
 
       {/* Table of all accounts */}
-      <div className="overflow-hidden rounded-xl border border-[#D8E4F0] bg-white shadow-sm">
-        <div className="border-b border-[#D8E4F0] px-5 py-4">
-          <h2 className="font-semibold text-[#10243F]">Daftar Semua Rekening</h2>
-          <p className="text-xs text-[#566B84]">
+      <div className="overflow-hidden rounded-xl border border-admin-line bg-admin-surface shadow-sm">
+        <div className="border-b border-admin-line px-5 py-4">
+          <h2 className="font-semibold text-admin-ink">Daftar Semua Rekening</h2>
+          <p className="text-xs text-admin-text-secondary">
             Database secara ketat membatasi tepat satu rekening berstatus aktif.
           </p>
         </div>
 
         {accounts.length === 0 ? (
-          <div className="p-8 text-center text-sm text-[#566B84]">
+          <div className="p-8 text-center text-sm text-admin-text-secondary">
             Belum ada data rekening. Klik <strong>+ Tambah Rekening</strong> untuk menambahkan.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-[#D8E4F0] bg-[#F8FAFC] text-xs uppercase tracking-wider text-[#566B84]">
+              <thead className="border-b border-admin-line bg-admin-surface-muted text-xs uppercase tracking-wider text-admin-text-secondary">
                 <tr>
                   <th className="px-5 py-3">Bank</th>
                   <th className="px-5 py-3">Nomor Rekening</th>
@@ -184,15 +184,15 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
                   <th className="px-5 py-3 text-right">Aksi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E2E8F0]">
+              <tbody className="divide-y divide-admin-line">
                 {accounts.map((acc) => (
-                  <tr key={acc.id} className={acc.active ? "bg-emerald-50/30" : undefined}>
-                    <td className="px-5 py-4 font-semibold text-[#10243F]">{acc.bank}</td>
-                    <td className="px-5 py-4 font-mono text-sm text-[#10243F]">{acc.account_number}</td>
-                    <td className="px-5 py-4 text-[#344B66]">{acc.holder}</td>
+                  <tr key={acc.id} className={acc.active ? "bg-admin-mint-soft/30" : undefined}>
+                    <td className="px-5 py-4 font-semibold text-admin-ink">{acc.bank}</td>
+                    <td className="px-5 py-4 font-mono text-sm text-admin-ink">{acc.account_number}</td>
+                    <td className="px-5 py-4 text-admin-text-secondary">{acc.holder}</td>
                     <td className="px-5 py-4">
                       {acc.active ? (
-                        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                        <span className="inline-flex items-center rounded-full bg-admin-mint-soft px-2.5 py-0.5 text-xs font-semibold text-admin-mint-ink">
                           Aktif
                         </span>
                       ) : (
@@ -208,7 +208,7 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
                             type="button"
                             disabled={isPending}
                             onClick={() => handleActivate(acc.id)}
-                            className="rounded-lg bg-[#26599A] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#163E70] disabled:opacity-50"
+                            className="rounded-lg bg-admin-ink px-2.5 py-1 text-xs font-semibold text-admin-on-ink hover:bg-admin-ink-soft disabled:opacity-50"
                           >
                             Aktifkan
                           </button>
@@ -216,7 +216,7 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
                         <button
                           type="button"
                           onClick={() => openEditModal(acc)}
-                          className="rounded-lg border border-[#D8E4F0] px-2.5 py-1 text-xs font-medium text-[#10243F] hover:bg-[#F4F8FC]"
+                          className="rounded-lg border border-admin-line px-2.5 py-1 text-xs font-medium text-admin-ink hover:bg-admin-surface-muted"
                         >
                           Ubah
                         </button>
@@ -225,7 +225,7 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
                             type="button"
                             disabled={isPending}
                             onClick={() => handleDelete(acc.id)}
-                            className="rounded-lg border border-red-200 px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                            className="rounded-lg border border-admin-rose-dot/30 px-2.5 py-1 text-xs font-medium text-admin-danger hover:bg-admin-rose-soft disabled:opacity-50"
                           >
                             Hapus
                           </button>
@@ -243,11 +243,11 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
       {/* Modal Dialog */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <h2 className="text-lg font-bold text-[#10243F]">
+          <div className="w-full max-w-md rounded-2xl bg-admin-surface p-6 shadow-xl">
+            <h2 className="text-lg font-bold text-admin-ink">
               {editingAccount ? "Ubah Data Rekening" : "Tambah Rekening Baru"}
             </h2>
-            <p className="mt-1 text-xs text-[#566B84]">
+            <p className="mt-1 text-xs text-admin-text-secondary">
               Pastikan nama bank, nomor rekening, dan atas nama sesuai dengan rekening resmi Albana.
             </p>
 
@@ -255,7 +255,7 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
               {editingAccount && <input type="hidden" name="id" value={editingAccount.id} />}
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#566B84]" htmlFor="bank">
+                <label className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary" htmlFor="bank">
                   Nama Bank
                 </label>
                 <input
@@ -265,12 +265,12 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
                   required
                   placeholder="Contoh: BCA, Mandiri, BSI"
                   defaultValue={editingAccount?.bank || ""}
-                  className="mt-1 block w-full rounded-xl border border-[#D8E4F0] px-3 py-2 text-sm text-[#10243F] focus:border-[#26599A] focus:outline-none"
+                  className="mt-1 block w-full rounded-xl border border-admin-line px-3 py-2 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#566B84]" htmlFor="account_number">
+                <label className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary" htmlFor="account_number">
                   Nomor Rekening
                 </label>
                 <input
@@ -280,12 +280,12 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
                   required
                   placeholder="Contoh: 4497062020"
                   defaultValue={editingAccount?.account_number || ""}
-                  className="mt-1 block w-full rounded-xl border border-[#D8E4F0] px-3 py-2 text-sm font-mono text-[#10243F] focus:border-[#26599A] focus:outline-none"
+                  className="mt-1 block w-full rounded-xl border border-admin-line px-3 py-2 text-sm font-mono text-admin-ink focus:border-admin-ink focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#566B84]" htmlFor="holder">
+                <label className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary" htmlFor="holder">
                   Atas Nama Pemilik
                 </label>
                 <input
@@ -295,7 +295,7 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
                   required
                   placeholder="Contoh: ASA Albana CV"
                   defaultValue={editingAccount?.holder || ""}
-                  className="mt-1 block w-full rounded-xl border border-[#D8E4F0] px-3 py-2 text-sm text-[#10243F] focus:border-[#26599A] focus:outline-none"
+                  className="mt-1 block w-full rounded-xl border border-admin-line px-3 py-2 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
                 />
               </div>
 
@@ -306,9 +306,9 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
                   type="checkbox"
                   value="true"
                   defaultChecked={editingAccount ? editingAccount.active : accounts.length === 0}
-                  className="h-4 w-4 rounded border-[#D8E4F0] text-[#26599A] focus:ring-[#26599A]"
+                  className="h-4 w-4 rounded border-admin-line text-admin-ink focus:ring-admin-ink"
                 />
-                <label htmlFor="active" className="text-sm text-[#344B66]">
+                <label htmlFor="active" className="text-sm text-admin-text-secondary">
                   Jadikan sebagai rekening aktif utama
                 </label>
               </div>
@@ -317,14 +317,14 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="rounded-xl border border-[#D8E4F0] px-4 py-2 text-sm font-medium text-[#566B84] hover:bg-[#F4F8FC]"
+                  className="rounded-xl border border-admin-line px-4 py-2 text-sm font-medium text-admin-text-secondary hover:bg-admin-surface-muted"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="rounded-xl bg-[#26599A] px-4 py-2 text-sm font-semibold text-white hover:bg-[#163E70] disabled:opacity-50"
+                  className="rounded-xl bg-admin-ink px-4 py-2 text-sm font-semibold text-admin-on-ink hover:bg-admin-ink-soft disabled:opacity-50"
                 >
                   {isPending ? "Menyimpan..." : "Simpan Rekening"}
                 </button>

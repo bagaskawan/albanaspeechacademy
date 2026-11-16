@@ -131,7 +131,7 @@ function GroupPills({ activeId, pendingInvoices, vertical = false, onNavigate }:
 }
 
 function Badge({ count }: { count: number }) {
-  return <span className="relative -mr-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-admin-accent px-1.5 text-[12px] font-medium text-admin-accent-ink">
+  return <span className="relative -mr-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-admin-peach-dot px-1.5 text-[12px] font-medium text-[#0b0b0b]">
     <span aria-hidden="true">{count > 99 ? "99+" : count}</span>
     <span className="sr-only">, {count} tagihan menunggu verifikasi</span>
   </span>;

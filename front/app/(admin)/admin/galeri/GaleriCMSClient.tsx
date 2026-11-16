@@ -230,7 +230,7 @@ export default function GaleriCMSClient({
           {/* Action Button Header Desktop (h-9 px-4 rounded-full) */}
           <Link
             href="/admin/galeri/addGallery"
-            className="hidden sm:inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-xs font-bold text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 transition-all shadow-xs cursor-pointer shrink-0"
+            className="hidden sm:inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-xs font-bold text-white bg-zinc-900 hover:bg-zinc-800 dark:text-zinc-900 dark:hover:bg-zinc-100 transition-all shadow-xs cursor-pointer shrink-0"
           >
             <Plus size={14} className="stroke-[2.5]" />
             <span>Tambah Album</span>
@@ -249,8 +249,8 @@ export default function GaleriCMSClient({
           }}
           className={`px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 inline-flex items-center gap-2 transition-all cursor-pointer select-none ${
             categoryFilter === "all" && statusFilter === "all"
-              ? "bg-white dark:bg-zinc-800 text-text-primary shadow-xs border border-border-default/60"
-              : "text-text-secondary hover:text-text-primary hover:bg-white/50 dark:hover:bg-zinc-800/50"
+              ? "bg-admin-surface dark:bg-zinc-800 text-text-primary shadow-xs border border-border-default/60"
+              : "text-text-secondary hover:text-text-primary hover:bg-admin-surface/50 dark:hover:bg-zinc-800/50"
           }`}
         >
           <span>Semua Album</span>
@@ -269,12 +269,12 @@ export default function GaleriCMSClient({
           className={`px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 inline-flex items-center gap-2 transition-all cursor-pointer select-none ${
             statusFilter === "published"
               ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
-              : "text-text-secondary hover:text-text-primary hover:bg-white/50 dark:hover:bg-zinc-800/50"
+              : "text-text-secondary hover:text-text-primary hover:bg-admin-surface/50 dark:hover:bg-zinc-800/50"
           }`}
         >
-          <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="inline-block w-2 h-2 rounded-full bg-admin-mint-dot animate-pulse" />
           <span>Published</span>
-          <span className="px-2 py-0.5 rounded-full bg-white/20 dark:bg-zinc-950 text-[10px] font-extrabold font-mono">
+          <span className="px-2 py-0.5 rounded-full bg-admin-surface/20 dark:bg-zinc-950 text-[10px] font-extrabold font-mono">
             {albums.filter((a) => a.is_published).length}
           </span>
         </button>
@@ -288,12 +288,12 @@ export default function GaleriCMSClient({
           }}
           className={`px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 inline-flex items-center gap-2 transition-all cursor-pointer select-none ${
             statusFilter === "draft"
-              ? "bg-amber-500 text-white shadow-xs"
-              : "text-text-secondary hover:text-text-primary hover:bg-white/50 dark:hover:bg-zinc-800/50"
+              ? "bg-admin-peach-dot text-white shadow-xs"
+              : "text-text-secondary hover:text-text-primary hover:bg-admin-surface/50 dark:hover:bg-zinc-800/50"
           }`}
         >
           <span>Draft</span>
-          <span className="px-2 py-0.5 rounded-full bg-white/20 dark:bg-zinc-950 text-[10px] font-extrabold font-mono">
+          <span className="px-2 py-0.5 rounded-full bg-admin-surface/20 dark:bg-zinc-950 text-[10px] font-extrabold font-mono">
             {albums.filter((a) => !a.is_published).length}
           </span>
         </button>
@@ -315,7 +315,7 @@ export default function GaleriCMSClient({
               className={`px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 inline-flex items-center gap-2 transition-all cursor-pointer select-none ${
                 isSelected
                   ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
-                  : "text-text-secondary hover:text-text-primary hover:bg-white/50 dark:hover:bg-zinc-800/50"
+                  : "text-text-secondary hover:text-text-primary hover:bg-admin-surface/50 dark:hover:bg-zinc-800/50"
               }`}
             >
               <span>{cat.label}</span>
@@ -416,7 +416,7 @@ export default function GaleriCMSClient({
                               href={album.album_link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[10px] text-sky-600 dark:text-sky-400 font-bold hover:underline inline-flex items-center gap-1 mt-0.5"
+                              className="text-[10px] text-admin-lilac-ink font-bold hover:underline inline-flex items-center gap-1 mt-0.5"
                             >
                               <LinkIcon size={10} /> Google Drive
                             </a>
@@ -440,8 +440,8 @@ export default function GaleriCMSClient({
                         }
                         className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                           album.is_published
-                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                            : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                            ? "bg-admin-mint-soft text-admin-mint-ink border border-admin-mint-dot/30"
+                            : "bg-admin-peach-soft text-admin-peach-ink border border-admin-peach-dot/30"
                         }`}
                       >
                         {album.is_published ? "Published" : "Draft"}
@@ -459,7 +459,7 @@ export default function GaleriCMSClient({
                         </button>
                         <Link
                           href={`/admin/galeri/addGallery?id=${album.id}`}
-                          className="p-1.5 rounded-full border border-sky-500/20 bg-sky-500/10 hover:bg-sky-500/20 text-sky-600 dark:text-sky-400 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-full border border-admin-lilac-dot/30 bg-admin-lilac-soft hover:bg-admin-lilac-soft text-admin-lilac-ink transition-colors cursor-pointer"
                           title="Edit"
                         >
                           <Edit size={13} />
@@ -467,7 +467,7 @@ export default function GaleriCMSClient({
                         <button
                           type="button"
                           onClick={() => setAlbumToDelete(album)}
-                          className="p-1.5 rounded-full border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-full border border-admin-rose-dot/30 bg-admin-rose-soft hover:bg-admin-rose-soft text-admin-danger transition-colors cursor-pointer"
                           title="Hapus"
                         >
                           <Trash2 size={13} />
@@ -493,7 +493,7 @@ export default function GaleriCMSClient({
           paginatedAlbums.map((album) => (
             <div
               key={album.id}
-              className="bg-white dark:bg-[#121212] border border-border-default/70 hover:border-zinc-300 dark:hover:border-zinc-700 rounded-3xl p-4 sm:p-5 transition-all shadow-xs flex flex-col justify-between active:scale-[0.99] space-y-3"
+              className="bg-admin-surface dark:bg-[#121212] border border-border-default/70 hover:border-zinc-300 dark:hover:border-zinc-700 rounded-3xl p-4 sm:p-5 transition-all shadow-xs flex flex-col justify-between active:scale-[0.99] space-y-3"
             >
               {/* Top Row: Category + Published Switch + Date */}
               <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-border-default/40">
@@ -511,8 +511,8 @@ export default function GaleriCMSClient({
                     }
                     className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider cursor-pointer ${
                       album.is_published
-                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                        : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                        ? "bg-admin-mint-soft text-admin-mint-ink border border-admin-mint-dot/30"
+                        : "bg-admin-peach-soft text-admin-peach-ink border border-admin-peach-dot/30"
                     }`}
                   >
                     {album.is_published ? "Published" : "Draft"}
@@ -548,7 +548,7 @@ export default function GaleriCMSClient({
                       href={album.album_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[11px] text-sky-600 dark:text-sky-400 font-bold hover:underline inline-flex items-center gap-1 mt-1"
+                      className="text-[11px] text-admin-lilac-ink font-bold hover:underline inline-flex items-center gap-1 mt-1"
                     >
                       <LinkIcon size={11} /> Google Drive Folder
                     </a>
@@ -568,7 +568,7 @@ export default function GaleriCMSClient({
                 </button>
                 <Link
                   href={`/admin/galeri/addGallery?id=${album.id}`}
-                  className="ml-auto h-8 px-3 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-600 dark:text-sky-400 text-[11px] font-bold flex items-center gap-1.5 whitespace-nowrap active:scale-95 transition-all cursor-pointer"
+                  className="ml-auto h-8 px-3 rounded-full bg-admin-lilac-soft border border-admin-lilac-dot/30 text-admin-lilac-ink text-[11px] font-bold flex items-center gap-1.5 whitespace-nowrap active:scale-95 transition-all cursor-pointer"
                   title="Edit Album"
                 >
                   <Edit size={13} /> Ubah
@@ -576,7 +576,7 @@ export default function GaleriCMSClient({
                 <button
                   type="button"
                   onClick={() => setAlbumToDelete(album)}
-                  className="h-8 px-3 rounded-full bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-[11px] font-bold flex items-center gap-1.5 whitespace-nowrap active:scale-95 transition-all cursor-pointer"
+                  className="h-8 px-3 rounded-full bg-admin-rose-soft border border-admin-rose-dot/30 text-admin-danger text-[11px] font-bold flex items-center gap-1.5 whitespace-nowrap active:scale-95 transition-all cursor-pointer"
                   title="Hapus Album"
                 >
                   <Trash2 size={13} /> Hapus
@@ -621,7 +621,7 @@ export default function GaleriCMSClient({
             <PopoverContent
               side="top"
               align="center"
-              className="w-64 p-3.5 rounded-3xl shadow-2xl bg-white dark:bg-[#18181b] border border-border-default/80 text-text-primary space-y-3 mb-2 z-50 max-h-72 overflow-y-auto"
+              className="w-64 p-3.5 rounded-3xl shadow-2xl bg-admin-surface dark:bg-[#18181b] border border-border-default/80 text-text-primary space-y-3 mb-2 z-50 max-h-72 overflow-y-auto"
             >
               <div className="flex items-center justify-between border-b border-border-default/50 pb-2">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-text-muted">
@@ -634,7 +634,7 @@ export default function GaleriCMSClient({
                       setCategoryFilter("all");
                       setStatusFilter("all");
                     }}
-                    className="text-[10px] font-bold text-red-500 hover:underline cursor-pointer"
+                    className="text-[10px] font-bold text-admin-danger hover:underline cursor-pointer"
                   >
                     Reset
                   </button>
@@ -679,7 +679,7 @@ export default function GaleriCMSClient({
           {/* Right Action: Tambah Album */}
           <Link
             href="/admin/galeri/addGallery"
-            className="h-9 px-4 rounded-full bg-white text-zinc-900 dark:bg-white dark:text-zinc-900 hover:bg-zinc-100 flex items-center gap-1.5 text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
+            className="h-9 px-4 rounded-full bg-admin-surface text-zinc-900 dark:text-zinc-900 hover:bg-zinc-100 flex items-center gap-1.5 text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
             title="Tambah Album Baru"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
@@ -690,7 +690,7 @@ export default function GaleriCMSClient({
 
       {/* ═══ DETAIL MODAL (Mobile Responsive rounded-none sm:rounded-3xl border-0 sm:border) ═══ */}
       <Dialog open={Boolean(detailAlbum)} onOpenChange={(open) => !open && setDetailAlbum(null)}>
-        <DialogContent className="max-w-xl bg-white dark:bg-zinc-950 border-0 sm:border border-border-default p-6 rounded-none sm:rounded-3xl">
+        <DialogContent className="max-w-xl bg-admin-surface dark:bg-zinc-950 border-0 sm:border border-border-default p-6 rounded-none sm:rounded-3xl">
           <DialogIconHeader
             icon={<ImageIcon size={18} />}
             title="Detail Album Kegiatan"
@@ -717,8 +717,8 @@ export default function GaleriCMSClient({
                   <span
                     className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                       detailAlbum.is_published
-                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                        : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                        ? "bg-admin-mint-soft text-admin-mint-ink border border-admin-mint-dot/30"
+                        : "bg-admin-peach-soft text-admin-peach-ink border border-admin-peach-dot/30"
                     }`}
                   >
                     {detailAlbum.is_published ? "Published" : "Draft"}

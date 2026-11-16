@@ -1,37 +1,12 @@
-import React from "react";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
-import { Construction } from "lucide-react";
-
-export const dynamic = "force-dynamic";
+import Link from "next/link";
+import { requireAdminMember } from "@/lib/server/admin-guard";
 
 export default async function AdminDashboardPage() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: adminMember } = await supabase
-    .from("members")
-    .select("id, full_name, stage_name, role")
-    .eq("id", user.id)
-    .single();
-
-  if (!adminMember || adminMember.role !== "admin") {
-    redirect("/myprofile");
-  }
-
-  return (
-    <div className="w-full min-h-[70vh] flex flex-col items-center justify-center gap-8 text-center text-text-muted">
-      <Construction size={96} strokeWidth={1.5} aria-hidden="true" />
-      <p className="text-xl md:text-md font-black text-text-muted uppercase tracking-[0.15em]">
-        Under construction
-      </p>
+  await requireAdminMember();
+  return <div className="space-y-7">
+    <div><p className="text-xs font-bold uppercase tracking-widest text-admin-ink">Albana CMS</p><h1 className="mt-2 text-3xl font-bold">Ruang kerja admin</h1><p className="mt-2 text-admin-text-secondary">Kelola pendaftar, kelas, tagihan, dan konten akademi.</p></div>
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      {[["Pendaftar", "/admin/pendaftar"], ["Tagihan", "/admin/tagihan"], ["Program", "/admin/program"], ["Batch", "/admin/batch"], ["Media", "/admin/media"], ["Artikel", "/admin/artikel"]].map(([label, href]) => <Link key={href} href={href} className="rounded-2xl border border-admin-line bg-admin-surface p-6 font-semibold hover:border-admin-ink hover:text-admin-ink">{label} <span aria-hidden="true">→</span></Link>)}
     </div>
-  );
+  </div>;
 }

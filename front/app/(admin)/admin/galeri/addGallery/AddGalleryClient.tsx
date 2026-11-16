@@ -303,11 +303,11 @@ export default function AddGalleryClient({
 
         <div>
           {initialAlbum ? (
-            <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-mono">
+            <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-admin-peach-soft text-admin-peach-ink border border-admin-peach-dot/30 font-mono">
               Mode: Edit
             </span>
           ) : (
-            <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono">
+            <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-admin-mint-soft text-admin-mint-ink border border-admin-mint-dot/30 font-mono">
               Mode: Baru
             </span>
           )}
@@ -358,7 +358,7 @@ export default function AddGalleryClient({
             <div className="md:col-span-2 space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="block text-[11px] font-semibold text-text-secondary">
-                  Kaitkan dengan Acara (Event) <span className="text-red-500">*</span>
+                  Kaitkan dengan Acara (Event) <span className="text-admin-danger">*</span>
                 </label>
                 <span className="text-[10px] text-text-muted font-mono">
                   {availableEvents.length} acara tersedia
@@ -401,7 +401,7 @@ export default function AddGalleryClient({
             {/* Kategori */}
             <div>
               <label className="block text-[11px] font-semibold text-text-secondary mb-1.5">
-                Kategori Kegiatan <span className="text-red-500">*</span>
+                Kategori Kegiatan <span className="text-admin-danger">*</span>
               </label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger aria-label="Kategori Kegiatan" className="w-full h-10 rounded-xl border-border-default bg-bg-well/50 text-xs font-medium">
@@ -471,7 +471,7 @@ export default function AddGalleryClient({
 
           {/* Error Message */}
           {formError && (
-            <div className="p-3.5 bg-red-500/10 border border-red-500/30 text-red-500 rounded-xl text-xs font-semibold flex items-center gap-2">
+            <div className="p-3.5 bg-admin-rose-soft border border-admin-rose-dot/30 text-admin-danger rounded-xl text-xs font-semibold flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{formError}</span>
             </div>

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { InputLine } from "@/components/ui/style-line/InputLine";
 import { TextareaLine } from "@/components/ui/style-line/TextareaLine";
+import { saveProgramBundle } from "@/app/(admin)/admin/bundling/actions";
 
 const formatNumber = (digits: string) =>
   digits ? new Intl.NumberFormat("id-ID").format(parseInt(digits, 10)) : "";
@@ -25,10 +26,22 @@ type ProgramRow = {
   form_challenge?: string | null;
 };
 
-export default function ProgramForm({ initialData = null }: { initialData?: ProgramRow | null }) {
+type BundleRow = { speaker_program_slug: string; certification_program_slug: string; show_on_speaker: boolean; show_on_certification: boolean; title: string; description: string | null; price_idr: number | null; dp_percent: number | null };
+
+export default function ProgramForm({ initialData = null, programOptions = [], initialBundle = null }: {
+  initialData?: ProgramRow | null;
+  programOptions?: { slug: string; title: string }[];
+  initialBundle?: BundleRow | null;
+}) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [bundleEnabled, setBundleEnabled] = useState(Boolean(initialBundle && (initialBundle.speaker_program_slug === initialData?.slug ? initialBundle.show_on_speaker : initialBundle.show_on_certification)));
+  const [bundlePartner, setBundlePartner] = useState(initialBundle ? initialBundle.speaker_program_slug === initialData?.slug ? initialBundle.certification_program_slug : initialBundle.speaker_program_slug : "");
+  const [bundleTitle, setBundleTitle] = useState(initialBundle?.title ?? "");
+  const [bundleDescription, setBundleDescription] = useState(initialBundle?.description ?? "");
+  const [bundlePrice, setBundlePrice] = useState(toDigits(initialBundle?.price_idr));
+  const [bundleDp, setBundleDp] = useState(initialBundle?.dp_percent?.toString() ?? "");
 
   const [formData, setFormData] = useState({
     title: initialData?.title || "",
@@ -86,16 +99,24 @@ export default function ProgramForm({ initialData = null }: { initialData?: Prog
     };
 
     const supabase = createClient();
-    const { error: saveError } = initialData?.slug
-      ? await supabase.from("programs").update(payload).eq("slug", initialData.slug)
-      : await supabase.from("programs").insert(payload);
-
-    setIsSubmitting(false);
+    const { data: saved, error: saveError } = initialData?.slug
+      ? await supabase.from("programs").update(payload).eq("slug", initialData.slug).select("slug").single()
+      : await supabase.from("programs").insert(payload).select("slug").single();
 
     if (saveError) {
+      setIsSubmitting(false);
       setError(saveError.message);
       return;
     }
+
+    if (initialData?.slug && saved?.slug) {
+      const result = await saveProgramBundle({ programSlug: saved.slug, enabled: bundleEnabled,
+        partnerSlug: bundlePartner, title: bundleTitle, description: bundleDescription,
+        price: Number(bundlePrice), dpPercent: bundleDp ? Number(bundleDp) : null });
+      if (result.error) { setIsSubmitting(false); setError(`Program tersimpan, tetapi bundling belum: ${result.error}`); return; }
+    }
+
+    setIsSubmitting(false);
 
     router.push("/admin/program");
     router.refresh();
@@ -274,6 +295,30 @@ export default function ProgramForm({ initialData = null }: { initialData?: Prog
             <Plus size={15} />
             <span>Tambah Materi</span>
           </button>
+        </div>
+
+        <div className="space-y-4 pt-4 border-t border-border-default/40">
+          <h2 className="text-sm font-bold text-text-primary uppercase tracking-wider">Bundling</h2>
+          {initialData?.slug ? <>
+            <fieldset className="space-y-2">
+              <legend className="text-xs font-semibold">Tawarkan bundling dari program ini?</legend>
+              <div className="flex gap-5 text-sm">
+                <label className="flex items-center gap-2"><input type="radio" name="bundle-enabled" checked={!bundleEnabled} onChange={() => setBundleEnabled(false)} />Tidak</label>
+                <label className="flex items-center gap-2"><input type="radio" name="bundle-enabled" checked={bundleEnabled} onChange={() => setBundleEnabled(true)} />Ya</label>
+              </div>
+            </fieldset>
+            {bundleEnabled ? <div className="space-y-4">
+              <label className="block text-xs font-semibold">Program pasangan
+                <select required value={bundlePartner} onChange={(event) => setBundlePartner(event.target.value)} className="mt-2 block min-h-11 w-full rounded border border-border-default bg-bg-card px-3">
+                  <option value="">Pilih program</option>{programOptions.map((item) => <option key={item.slug} value={item.slug}>{item.title}</option>)}
+                </select>
+              </label>
+              <InputLine label="Judul paket" required value={bundleTitle} onChange={(event) => setBundleTitle(event.target.value)} />
+              <TextareaLine label="Penjelasan isi bundling" required rows={3} value={bundleDescription} onChange={(event) => setBundleDescription(event.target.value)} />
+              <InputLine label="Harga bundling" required prefixText="Rp" inputMode="numeric" value={formatNumber(bundlePrice)} onChange={(event) => setBundlePrice(event.target.value.replace(/\D/g, ""))} />
+              <InputLine label="DP bundling (%) (opsional)" type="number" min={1} max={99} value={bundleDp} onChange={(event) => setBundleDp(event.target.value)} />
+            </div> : null}
+          </> : <p className="text-xs text-text-secondary">Simpan Program terlebih dahulu, lalu buka Edit untuk mengatur bundling.</p>}
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-border-default/60">

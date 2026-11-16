@@ -386,11 +386,11 @@ export default function AddPartnerClient({ initialPartner, venues = [] }: AddPar
 
         <div>
           {initialPartner ? (
-            <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-mono">
+            <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-admin-peach-soft text-admin-peach-ink border border-admin-peach-dot/30 font-mono">
               Mode: Edit
             </span>
           ) : (
-            <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono">
+            <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-admin-mint-soft text-admin-mint-ink border border-admin-mint-dot/30 font-mono">
               Mode: Baru
             </span>
           )}
@@ -464,7 +464,7 @@ export default function AddPartnerClient({ initialPartner, venues = [] }: AddPar
             {/* Kategori / Tipe (Urutan Pertama) */}
             <div>
               <label className="block text-[11px] font-semibold text-text-secondary mb-1.5">
-                Kategori Partner <span className="text-red-500">*</span>
+                Kategori Partner <span className="text-admin-danger">*</span>
               </label>
               <Select value={type} onValueChange={setType}>
                 <SelectTrigger aria-label="Kategori Partner" className="w-full sm:w-72 h-10 rounded-xl border-border-default bg-bg-well/50 text-xs font-medium">
@@ -487,19 +487,19 @@ export default function AddPartnerClient({ initialPartner, venues = [] }: AddPar
             >
               <div className="flex items-center justify-between gap-2 mb-1.5">
                 <label htmlFor="partner-name" className="block text-[11px] font-semibold text-text-secondary">
-                  Nama Partner {type === "kafe" ? "/ Tempat / Venue" : ""} <span className="text-red-500">*</span>
+                  Nama Partner {type === "kafe" ? "/ Tempat / Venue" : ""} <span className="text-admin-danger">*</span>
                 </label>
 
                 {/* Status Badge Saat Kategori Kafe */}
                 {type === "kafe" && (
                   <>
                     {matchedVenue ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20 font-semibold select-none">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-mono text-admin-mint-ink bg-admin-mint-soft px-2 py-0.5 rounded-md border border-admin-mint-dot/30 font-semibold select-none">
                         <Building2 className="w-3 h-3 shrink-0" />
                         <span>Dari Tabel Venue</span>
                       </span>
                     ) : name.trim() ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-mono text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 font-semibold select-none">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-mono text-admin-peach-ink bg-admin-peach-soft px-2 py-0.5 rounded-md border border-admin-peach-dot/30 font-semibold select-none">
                         <Sparkles className="w-3 h-3 shrink-0" />
                         <span>Input Baru (Auto-Save ke Venue)</span>
                       </span>
@@ -564,7 +564,7 @@ export default function AddPartnerClient({ initialPartner, venues = [] }: AddPar
 
               {/* Suggestions / Options Dropdown untuk Venue */}
               {type === "kafe" && isVenueDropdownOpen && (
-                <div className="absolute left-0 right-0 top-[62px] z-50 bg-white dark:bg-[#18181b] border border-border-default rounded-2xl shadow-xl overflow-hidden animate-in fade-in-50 zoom-in-95 duration-150">
+                <div className="absolute left-0 right-0 top-[62px] z-50 bg-admin-surface dark:bg-[#18181b] border border-border-default rounded-2xl shadow-xl overflow-hidden animate-in fade-in-50 zoom-in-95 duration-150">
                   <div className="px-3.5 py-2 border-b border-border-default/50 bg-bg-well/50 flex items-center justify-between text-[10px] font-mono text-text-muted uppercase tracking-wider">
                     <span>Pilihan dari Tabel Venue ({filteredVenues.length} Tersedia)</span>
                     <span className="text-[9px] text-text-secondary">Pilih atau Ketik Manual</span>
@@ -589,7 +589,7 @@ export default function AddPartnerClient({ initialPartner, venues = [] }: AddPar
                               <span className="font-bold text-text-primary truncate">
                                 {v.name}
                               </span>
-                              <span className="text-[9px] font-mono font-semibold px-1.5 py-0.2 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                              <span className="text-[9px] font-mono font-semibold px-1.5 py-0.2 rounded-full bg-admin-mint-soft text-admin-mint-ink border border-admin-mint-dot/30 shrink-0">
                                 Venue
                               </span>
                               {v.city && (
@@ -605,7 +605,7 @@ export default function AddPartnerClient({ initialPartner, venues = [] }: AddPar
                             )}
                           </div>
                           {isSelected && (
-                            <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                            <Check className="w-4 h-4 text-admin-mint-ink shrink-0 mt-0.5" />
                           )}
                         </button>
                       );
@@ -622,11 +622,11 @@ export default function AddPartnerClient({ initialPartner, venues = [] }: AddPar
                       <button
                         type="button"
                         onClick={() => setIsVenueDropdownOpen(false)}
-                        className="w-full flex items-start gap-2.5 px-3 py-2.5 rounded-xl text-left text-xs bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/20 text-text-primary transition-colors cursor-pointer mt-1"
+                        className="w-full flex items-start gap-2.5 px-3 py-2.5 rounded-xl text-left text-xs bg-admin-peach-soft hover:bg-admin-peach-soft border border-admin-peach-dot/30 text-text-primary transition-colors cursor-pointer mt-1"
                       >
-                        <Plus className="w-4 h-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+                        <Plus className="w-4 h-4 shrink-0 mt-0.5 text-admin-peach-ink" />
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-amber-700 dark:text-amber-300">
+                          <p className="font-bold text-admin-peach-ink dark:text-amber-300">
                             Gunakan input manual: &quot;{name}&quot;
                           </p>
                           <p className="text-[10px] text-text-muted font-mono mt-0.5">
@@ -658,7 +658,7 @@ export default function AddPartnerClient({ initialPartner, venues = [] }: AddPar
                       Informasi Tambahan & Kontak
                     </span>
                     {hasActiveDetails ? (
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-admin-mint-soft text-admin-mint-ink border border-admin-mint-dot/30">
                         {filledCount} Terisi
                       </span>
                     ) : (
@@ -761,7 +761,7 @@ export default function AddPartnerClient({ initialPartner, venues = [] }: AddPar
 
           {/* Error Message */}
           {formError && (
-            <div className="p-3.5 bg-red-500/10 border border-red-500/30 text-red-500 rounded-xl text-xs font-semibold flex items-center gap-2">
+            <div className="p-3.5 bg-admin-rose-soft border border-admin-rose-dot/30 text-admin-danger rounded-xl text-xs font-semibold flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{formError}</span>
             </div>
@@ -781,7 +781,7 @@ export default function AddPartnerClient({ initialPartner, venues = [] }: AddPar
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 sm:flex-initial sm:w-44 h-10 rounded-xl bg-[#2F5C86] text-white hover:bg-[#24486A] active:bg-[#1A3350] text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+              className="flex-1 sm:flex-initial sm:w-44 h-10 rounded-xl bg-admin-ink text-admin-on-ink hover:bg-admin-ink-soft active:bg-admin-ink-soft text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>

@@ -138,19 +138,19 @@ function ResetPasswordContent() {
   };
 
   return (
-    <div className="min-h-screen w-full font-sans selection:bg-black selection:text-white bg-[#F9F9F9] dark:bg-[#121212] text-[#0A0A0A] dark:text-white flex flex-col justify-between p-6 md:p-12 relative overflow-auto">
+    <div className="min-h-screen w-full font-sans selection:bg-black selection:text-white bg-admin-surface dark:bg-[#121212] text-admin-ink dark:text-white flex flex-col justify-between p-6 md:p-12 relative overflow-auto">
       {/* Top Bar with Logo */}
       <div className="w-full max-w-md mx-auto flex items-center justify-between">
-        <Logo size="sm" isLink={true} className="text-[#0A0A0A] dark:text-white" />
+        <Logo size="sm" isLink={true} className="text-admin-ink dark:text-white" />
       </div>
 
       {/* Form Container (Centered Horizontally & Vertically) */}
-      <div className="my-auto max-w-md w-full mx-auto py-8 px-6 sm:px-8 bg-white dark:bg-[#0A0A0A] border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-6">
+      <div className="my-auto max-w-md w-full mx-auto py-8 px-6 sm:px-8 bg-admin-surface dark:bg-[#0A0A0A] border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-6">
         <div>
           <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-zinc-400 block mb-1">
             [ KEAMANAN AKUN ]
           </span>
-          <h2 className="text-3xl lg:text-4xl font-serif italic tracking-tight leading-tight text-[#0A0A0A] dark:text-white">
+          <h2 className="text-3xl lg:text-4xl font-serif italic tracking-tight leading-tight text-admin-ink dark:text-white">
             Password <br />
             <span className="not-italic font-sans font-black tracking-wide text-zinc-800 dark:text-zinc-300 uppercase">
               Baru Akun
@@ -162,9 +162,9 @@ function ResetPasswordContent() {
         </div>
 
         {hasRecoverySession === false && !isSuccess && (
-          <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border-l-4 border-amber-500 text-xs text-amber-900 dark:text-amber-300 font-sans space-y-3 animate-fade-in">
+          <div className="p-4 bg-admin-peach-soft dark:bg-amber-950/20 border-l-4 border-admin-peach-dot/30 text-xs text-admin-peach-ink dark:text-amber-300 font-sans space-y-3 animate-fade-in">
             <div className="flex items-start gap-2.5">
-              <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-admin-peach-ink shrink-0 mt-0.5" />
               <div>
                 <h4 className="font-bold text-sm text-amber-950 dark:text-amber-200">
                   Sesi Reset Password Kedaluwarsa / Tidak Ditemukan ⚠️
@@ -175,7 +175,7 @@ function ResetPasswordContent() {
               </div>
             </div>
 
-            <div className="pt-2 border-t border-amber-200 dark:border-amber-900/50 flex justify-between items-center text-[10px] font-mono uppercase tracking-wider">
+            <div className="pt-2 border-t border-admin-peach-dot/30 flex justify-between items-center text-[10px] font-mono uppercase tracking-wider">
               <span></span>
               <Link
                 href="/forgot-password"
@@ -189,7 +189,7 @@ function ResetPasswordContent() {
         )}
 
         {error && (
-          <div className="p-3 bg-red-50 dark:bg-red-950/20 border-l-4 border-[#bc151b] text-[11px] text-[#bc151b] dark:text-red-400 font-mono flex items-start gap-2 rounded-none animate-fade-in">
+          <div className="p-3 bg-admin-rose-soft dark:bg-red-950/20 border-l-4 border-admin-danger text-[11px] text-admin-danger font-mono flex items-start gap-2 rounded-none animate-fade-in">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <div className="flex-1">
               <span className="font-bold block uppercase tracking-wider text-[9px] mb-0.5">
@@ -215,11 +215,11 @@ function ResetPasswordContent() {
             </span>
           </div>
         ) : isSuccess ? (
-          <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 border-l-4 border-emerald-500 text-xs text-emerald-800 dark:text-emerald-300 font-sans space-y-3 animate-fade-in">
+          <div className="p-4 bg-admin-mint-soft dark:bg-emerald-950/20 border-l-4 border-admin-mint-dot/30 text-xs text-admin-mint-ink dark:text-emerald-300 font-sans space-y-3 animate-fade-in">
             <div className="flex items-start gap-2.5">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-5 h-5 text-admin-mint-ink shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-bold text-sm text-emerald-900 dark:text-emerald-200">
+                <h4 className="font-bold text-sm text-admin-mint-ink dark:text-emerald-200">
                   Password Berhasil Diperbarui! 🔒
                 </h4>
                 <p className="mt-1 leading-relaxed text-[11px]">
@@ -252,7 +252,7 @@ function ResetPasswordContent() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-700 py-2 pr-8 text-xs rounded-none focus:outline-none focus:border-black dark:focus:border-white transition-colors placeholder-zinc-300 dark:placeholder-zinc-650 text-[#0A0A0A] dark:text-white"
+                  className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-700 py-2 pr-8 text-xs rounded-none focus:outline-none focus:border-black dark:focus:border-white transition-colors placeholder-zinc-300 dark:placeholder-zinc-650 text-admin-ink dark:text-white"
                   required
                 />
                 <button
@@ -277,7 +277,7 @@ function ResetPasswordContent() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-700 py-2 pr-8 text-xs rounded-none focus:outline-none focus:border-black dark:focus:border-white transition-colors placeholder-zinc-300 dark:placeholder-zinc-650 text-[#0A0A0A] dark:text-white"
+                  className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-700 py-2 pr-8 text-xs rounded-none focus:outline-none focus:border-black dark:focus:border-white transition-colors placeholder-zinc-300 dark:placeholder-zinc-650 text-admin-ink dark:text-white"
                   required
                 />
                 <button
@@ -295,7 +295,7 @@ function ResetPasswordContent() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 bg-black dark:bg-white text-white dark:text-black hover:bg-[#bc151b] dark:hover:bg-[#bc151b] dark:hover:text-white font-bold text-[11px] uppercase tracking-wider rounded-none transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                className="w-full py-3 bg-black text-white dark:text-black hover:bg-admin-danger dark:hover:bg-admin-danger dark:hover:text-white font-bold text-[11px] uppercase tracking-wider rounded-none transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
               >
                 {isLoading ? (
                   <svg className="animate-spin h-3.5 w-3.5 text-white dark:text-black" fill="none" viewBox="0 0 24 24">

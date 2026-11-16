@@ -16,7 +16,7 @@ export default async function ArtikelEditPage({ params }: { params: Promise<{ sl
 
   if (error) {
     return (
-      <div role="alert" className="rounded-xl bg-[#FEE2E2] p-3 text-xs font-semibold text-[#991B1B] dark:bg-[#450A0A] dark:text-[#FECACA]">
+      <div role="alert" className="rounded-xl bg-admin-rose-soft p-3 text-xs font-semibold text-admin-rose-ink">
         Artikel tidak dapat dimuat: {error.message}
       </div>
     );

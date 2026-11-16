@@ -285,7 +285,7 @@ export default function PendaftarClient({ initialRows }: { initialRows: Registra
                       href={waLink(row.whatsapp)}
                       target="_blank"
                       rel="noreferrer"
-                      className="h-8 px-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 flex items-center gap-1.5 whitespace-nowrap shrink-0 transition-colors"
+                      className="h-8 px-2.5 rounded-xl bg-admin-mint-soft border border-admin-mint-dot/30 text-[11px] font-semibold text-admin-mint-ink hover:bg-admin-mint-soft flex items-center gap-1.5 whitespace-nowrap shrink-0 transition-colors"
                     >
                       <MessageCircle size={13} /> WhatsApp
                     </a>
@@ -317,7 +317,7 @@ export default function PendaftarClient({ initialRows }: { initialRows: Registra
                 href={waLink(detailRow.whatsapp)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="h-10 px-4 text-xs font-bold rounded-xl text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-yellow-100 dark:text-zinc-900 dark:hover:bg-yellow-200 transition-colors w-full flex justify-center items-center gap-2 cursor-pointer text-center"
+                className="h-10 px-4 text-xs font-bold rounded-xl text-white bg-zinc-900 hover:bg-zinc-800 dark:text-zinc-900 dark:hover:bg-yellow-200 transition-colors w-full flex justify-center items-center gap-2 cursor-pointer text-center"
               >
                 <span>Kirim WhatsApp</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -397,11 +397,11 @@ export default function PendaftarClient({ initialRows }: { initialRows: Registra
 function StatusBadge({ method }: { method: string }) {
   const styles =
     method === "full"
-      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+      ? "bg-admin-mint-soft text-admin-mint-ink border-admin-mint-dot/30"
       : method === "dp20"
-        ? "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20"
+        ? "bg-admin-rose-soft text-admin-danger border-admin-rose-dot/30"
         : "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-500/20";
-  const dot = method === "full" ? "bg-emerald-500" : method === "dp20" ? "bg-red-500" : "bg-zinc-400";
+  const dot = method === "full" ? "bg-admin-mint-dot" : method === "dp20" ? "bg-red-500" : "bg-zinc-400";
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold border uppercase tracking-wider whitespace-nowrap ${styles}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />

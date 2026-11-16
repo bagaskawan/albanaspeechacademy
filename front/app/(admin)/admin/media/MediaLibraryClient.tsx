@@ -169,10 +169,10 @@ export default function MediaLibraryClient() {
 
   const getFileIcon = (mimetype: string) => {
     if (!mimetype) return <File className="w-8 h-8 text-text-secondary" />;
-    if (mimetype.startsWith("image/")) return <ImageIcon className="w-8 h-8 text-indigo-500" />;
-    if (mimetype.startsWith("video/")) return <Video className="w-8 h-8 text-amber-500" />;
+    if (mimetype.startsWith("image/")) return <ImageIcon className="w-8 h-8 text-admin-lilac-ink" />;
+    if (mimetype.startsWith("video/")) return <Video className="w-8 h-8 text-admin-peach-ink" />;
     if (mimetype.startsWith("text/") || mimetype.includes("pdf") || mimetype.includes("word")) {
-      return <FileText className="w-8 h-8 text-emerald-500" />;
+      return <FileText className="w-8 h-8 text-admin-mint-ink" />;
     }
     return <File className="w-8 h-8 text-text-secondary" />;
   };
@@ -269,22 +269,22 @@ export default function MediaLibraryClient() {
       )}
 
       {uploadError && (
-        <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl flex items-center justify-between text-red-500 text-xs font-semibold">
+        <div className="bg-admin-rose-soft border border-admin-rose-dot/30 p-4 rounded-xl flex items-center justify-between text-admin-danger text-xs font-semibold">
           <div className="flex items-center gap-2">
             <AlertCircle size={15} />
             <span>{uploadError}</span>
           </div>
-          <button onClick={() => setUploadError("")} className="text-red-500 font-bold hover:underline">✕</button>
+          <button onClick={() => setUploadError("")} className="text-admin-danger font-bold hover:underline">✕</button>
         </div>
       )}
 
       {uploadSuccess && (
-        <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-xl flex items-center justify-between text-[#2D5A00] text-xs font-semibold">
+        <div className="bg-admin-mint-soft border border-admin-mint-dot/30 p-4 rounded-xl flex items-center justify-between text-admin-mint-ink text-xs font-semibold">
           <div className="flex items-center gap-2">
-            <CheckCircle size={15} className="text-[#2D5A00]" />
+            <CheckCircle size={15} className="text-admin-mint-ink" />
             <span>{uploadSuccess}</span>
           </div>
-          <button onClick={() => setUploadSuccess("")} className="text-[#2D5A00] font-bold hover:underline">✕</button>
+          <button onClick={() => setUploadSuccess("")} className="text-admin-mint-ink font-bold hover:underline">✕</button>
         </div>
       )}
 
@@ -329,8 +329,8 @@ export default function MediaLibraryClient() {
           <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Memuat media berkas...</p>
         </div>
       ) : error ? (
-        <div className="bg-bg-card border border-border-default rounded-2xl p-10 text-center text-red-500">
-          <AlertCircle className="w-10 h-10 mx-auto mb-3 text-red-500" />
+        <div className="bg-bg-card border border-border-default rounded-2xl p-10 text-center text-admin-danger">
+          <AlertCircle className="w-10 h-10 mx-auto mb-3 text-admin-danger" />
           <p className="text-xs font-bold uppercase tracking-wider">{error}</p>
         </div>
       ) : filteredFiles.length > 0 ? (
@@ -366,7 +366,7 @@ export default function MediaLibraryClient() {
                       className="bg-bg-card text-text-primary border border-border-default hover:scale-105 rounded-full p-2.5 shadow-md transition-all cursor-pointer"
                       title="Salin Link Berkas"
                     >
-                      {isCopied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                      {isCopied ? <Check size={14} className="text-admin-mint-ink" /> : <Copy size={14} />}
                     </button>
                     <a
                       href={fileUrl}
@@ -402,7 +402,7 @@ export default function MediaLibraryClient() {
                   <button
                     onClick={() => handleCopyUrl(file.name)}
                     className={`flex-1 border text-[10px] font-bold uppercase tracking-wider rounded-full py-1.5 transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${isCopied
-                      ? "bg-[#EDFFF4] text-[#22C55E] border-emerald-500/20"
+                      ? "bg-[#EDFFF4] text-admin-mint-dot border-admin-mint-dot/30"
                       : "border-border-default text-text-primary hover:bg-bg-well"
                       }`}
                   >
@@ -420,7 +420,7 @@ export default function MediaLibraryClient() {
                   </button>
                   <button
                     onClick={() => handleDeleteFile(file.name)}
-                    className="border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 rounded-full p-2 text-red-500 transition-colors cursor-pointer flex items-center justify-center"
+                    className="border border-admin-rose-dot/30 bg-admin-rose-soft hover:bg-admin-rose-soft rounded-full p-2 text-admin-danger transition-colors cursor-pointer flex items-center justify-center"
                     title="Hapus Media"
                   >
                     <Trash2 size={12} />

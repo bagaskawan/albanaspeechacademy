@@ -44,8 +44,8 @@ export default function ProfilAkademiClient({ initialProfile }: ProfilAkademiCli
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-[#10243F]">Profil Akademi</h1>
-        <p className="mt-1 text-sm text-[#566B84]">
+        <h1 className="text-2xl font-bold tracking-tight text-admin-ink">Profil Akademi</h1>
+        <p className="mt-1 text-sm text-admin-text-secondary">
           Nama resmi akademi, metode pengajaran yang ditampilkan di beranda, dan ketentuan penjadwalan ulang bagi peserta.
         </p>
       </div>
@@ -54,17 +54,17 @@ export default function ProfilAkademiClient({ initialProfile }: ProfilAkademiCli
         <div
           className={`rounded-xl border p-4 text-sm ${
             statusMessage.type === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-              : "border-red-200 bg-red-50 text-red-800"
+              ? "border-admin-mint-dot/30 bg-admin-mint-soft text-admin-mint-ink"
+              : "border-admin-rose-dot/30 bg-admin-rose-soft text-admin-danger"
           }`}
         >
           {statusMessage.text}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-[#D8E4F0] bg-white p-6 sm:p-8 shadow-sm">
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-admin-line bg-admin-surface p-6 sm:p-8 shadow-sm">
         <div>
-          <label htmlFor="academy-name" className="block text-xs font-bold uppercase tracking-wider text-[#566B84]">
+          <label htmlFor="academy-name" className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">
             Nama Akademi
           </label>
           <input
@@ -74,12 +74,12 @@ export default function ProfilAkademiClient({ initialProfile }: ProfilAkademiCli
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Albana Speech Academy"
-            className="mt-1.5 block w-full rounded-xl border border-[#D8E4F0] px-3.5 py-2.5 text-sm text-[#10243F] focus:border-[#26599A] focus:outline-none"
+            className="mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
           />
         </div>
 
         <div>
-          <label htmlFor="teaching-method" className="block text-xs font-bold uppercase tracking-wider text-[#566B84]">
+          <label htmlFor="teaching-method" className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">
             Metode Belajar
           </label>
           <textarea
@@ -88,15 +88,15 @@ export default function ProfilAkademiClient({ initialProfile }: ProfilAkademiCli
             value={teachingMethod}
             onChange={(e) => setTeachingMethod(e.target.value)}
             placeholder="70% praktik dan simulasi, 20% coaching dan feedback, 10% konsep dan kerangka."
-            className="mt-1.5 block w-full rounded-xl border border-[#D8E4F0] px-3.5 py-2.5 text-sm text-[#10243F] focus:border-[#26599A] focus:outline-none"
+            className="mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
           />
-          <p className="mt-1 text-xs text-[#566B84]">
+          <p className="mt-1 text-xs text-admin-text-secondary">
             Teks ini ditampilkan pada bagian &quot;Cara belajar&quot; di halaman beranda.
           </p>
         </div>
 
         <div>
-          <label htmlFor="reschedule-policy" className="block text-xs font-bold uppercase tracking-wider text-[#566B84]">
+          <label htmlFor="reschedule-policy" className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">
             Ketentuan Penjadwalan Ulang
           </label>
           <textarea
@@ -105,18 +105,18 @@ export default function ProfilAkademiClient({ initialProfile }: ProfilAkademiCli
             value={reschedulePolicy}
             onChange={(e) => setReschedulePolicy(e.target.value)}
             placeholder="Peserta yang berhalangan dapat mengajukan penjadwalan ulang melalui admin..."
-            className="mt-1.5 block w-full rounded-xl border border-[#D8E4F0] px-3.5 py-2.5 text-sm text-[#10243F] focus:border-[#26599A] focus:outline-none"
+            className="mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
           />
-          <p className="mt-1 text-xs text-[#566B84]">
+          <p className="mt-1 text-xs text-admin-text-secondary">
             Digunakan sebagai acuan kebijakan pembatalan dan pemindahan sesi belajar.
           </p>
         </div>
 
-        <div className="flex items-center justify-end border-t border-[#D8E4F0] pt-5">
+        <div className="flex items-center justify-end border-t border-admin-line pt-5">
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex items-center justify-center rounded-xl bg-[#26599A] px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#163E70] disabled:opacity-50 transition-colors"
+            className="inline-flex items-center justify-center rounded-xl bg-admin-ink px-5 py-2.5 text-sm font-semibold text-admin-on-ink shadow-sm hover:bg-admin-ink-soft disabled:opacity-50 transition-colors"
           >
             {isPending ? "Menyimpan..." : "Simpan Profil Akademi"}
           </button>
