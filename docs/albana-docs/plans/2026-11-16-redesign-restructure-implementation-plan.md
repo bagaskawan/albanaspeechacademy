@@ -135,7 +135,7 @@ Visi, misi, bidang pelatihan, dan kerangka empat tingkat tetap **naskah statis**
 
 Lengkapi `trainers.bio` dan `trainers.expertise` empat trainer dari [proposal](../content/academy-proposal.md) melalui `/admin/trainer`.
 
-- [ ] Empat trainer punya bio dan keahlian
+- [x] Empat trainer punya bio dan keahlian
 
 ---
 
