@@ -29,6 +29,8 @@ export default async function GaleriPage() {
       fields={fields}
       initialRows={data ?? []}
       displayField="title"
+      searchPlaceholder="Cari gambar…"
+      createLabel="Tambah gambar"
       emptyText="Tidak ada gambar yang ditemukan."
       maxWidth="max-w-lg"
       bento

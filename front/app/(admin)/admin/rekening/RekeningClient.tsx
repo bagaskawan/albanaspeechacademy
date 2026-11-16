@@ -2,9 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { saveBankAccount, activateBankAccount, deleteBankAccount } from "./actions";
-import { PageAction } from "@/components/admin/PageHeader";
-import { Pencil, Plus, Trash2 } from "lucide-react";
-import { DataTable, StatusChip, rowActionClass, rowDangerActionClass } from "@/components/admin/ui/data-table";
+import { DataTable, StatusChip } from "@/components/admin/ui/data-table";
+import { TableToolbar } from "@/components/admin/ui/table-toolbar";
+import { RowActions, rowPillClass } from "@/components/admin/ui/row-actions";
 
 export type BankAccount = {
   id: number;
@@ -19,7 +19,8 @@ interface RekeningClientProps {
   isAdminSuper: boolean;
 }
 
-export default function RekeningClient({ accounts, isAdminSuper }: RekeningClientProps) {
+// isAdminSuper stays in the props for the page; RowActions reads the role from the shell context.
+export default function RekeningClient({ accounts }: RekeningClientProps) {
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -27,9 +28,6 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
   // Form modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<BankAccount | null>(null);
-
-  // Delete confirm state
-  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   function openCreateModal() {
     setEditingAccount(null);
@@ -81,29 +79,17 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
     });
   }
 
-  function handleDelete(id: number) {
-    if (!confirm("Yakin ingin menghapus rekening ini? Tindakan ini tidak dapat dibatalkan.")) {
-      return;
-    }
-    setErrorMessage(null);
-    setSuccessMessage(null);
-
-    startTransition(async () => {
-      const res = await deleteBankAccount(id);
-      if (!res.success) {
-        setErrorMessage(res.error || "Gagal menghapus rekening.");
-      } else {
-        setSuccessMessage("Rekening berhasil dihapus.");
-        setDeletingId(null);
-      }
-    });
+  // RowActions confirms, toasts, and refreshes; this only maps the action result.
+  async function handleDelete(id: number) {
+    const res = await deleteBankAccount(id);
+    return res.success ? {} : { error: res.error || "Gagal menghapus rekening." };
   }
 
   const activeAccount = accounts.find((a) => a.active);
 
   return (
     <div className="space-y-6">
-      <PageAction onClick={openCreateModal} icon={<Plus aria-hidden="true" size={18} strokeWidth={1.5} />}>Tambah rekening</PageAction>
+      <TableToolbar create={{ label: "Tambah rekening", onClick: openCreateModal }} />
 
       {/* Messages */}
       {errorMessage && (
@@ -175,26 +161,12 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
                       <StatusChip tone={acc.active ? "mint" : "neutral"}>{acc.active ? "Aktif" : "Nonaktif"}</StatusChip>
                     </td>
                     <td className="text-right">
-                      <div className="inline-flex items-center gap-1">
-                        {!acc.active && (
-                          <button
-                            type="button"
-                            disabled={isPending}
-                            onClick={() => handleActivate(acc.id)}
-                            className="h-9 rounded-full px-3 text-[13px] font-medium text-admin-ink transition-colors hover:bg-admin-surface-muted disabled:opacity-50"
-                          >
-                            Aktifkan
-                          </button>
-                        )}
-                        <button type="button" onClick={() => openEditModal(acc)} aria-label={`Ubah rekening ${acc.bank}`} title="Ubah" className={rowActionClass}>
-                          <Pencil aria-hidden="true" size={18} strokeWidth={1.5} />
-                        </button>
-                        {isAdminSuper && (
-                          <button type="button" disabled={isPending} onClick={() => handleDelete(acc.id)} aria-label={`Hapus rekening ${acc.bank}`} title="Hapus" className={rowDangerActionClass}>
-                            <Trash2 aria-hidden="true" size={18} strokeWidth={1.5} />
-                          </button>
-                        )}
-                      </div>
+                      <RowActions
+                        itemName={`rekening ${acc.bank}`}
+                        onEdit={() => openEditModal(acc)}
+                        onDelete={() => handleDelete(acc.id)}
+                        extra={!acc.active && <button type="button" disabled={isPending} onClick={() => handleActivate(acc.id)} className={rowPillClass}>Aktifkan</button>}
+                      />
                     </td>
                   </tr>
                 ))}

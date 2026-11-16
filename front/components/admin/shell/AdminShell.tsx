@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { AdminRoleProvider } from "@/components/admin/ui/row-actions";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -44,9 +45,9 @@ function store(key: string, value: unknown) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* private mode: keep in memory only */ }
 }
 
-type ShellProps = { children: React.ReactNode; pendingInvoices: number; account: string | null };
+type ShellProps = { children: React.ReactNode; pendingInvoices: number; account: string | null; role: string };
 
-export function AdminShell({ children, pendingInvoices, account }: ShellProps) {
+export function AdminShell({ children, pendingInvoices, account, role }: ShellProps) {
   const pathname = usePathname();
   const nav = resolveAdminNav(pathname);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -77,7 +78,7 @@ export function AdminShell({ children, pendingInvoices, account }: ShellProps) {
 
   const sidebarProps = { activeGroupId: nav.group.id, activeHref: nav.module?.href ?? (pathname === "/admin" ? "/admin" : undefined), pendingInvoices, closed, toggleGroup };
 
-  return <TooltipProvider delayDuration={200}>
+  return <AdminRoleProvider value={role}><TooltipProvider delayDuration={200}>
     <div className="min-h-screen text-admin-ink">
       {/* §3.1 Header: identity and account only — never module navigation. */}
       <Dialog.Root open={drawerOpen} onOpenChange={setDrawerOpen}>
@@ -121,7 +122,7 @@ export function AdminShell({ children, pendingInvoices, account }: ShellProps) {
         </div>
       </div>
     </div>
-  </TooltipProvider>;
+  </TooltipProvider></AdminRoleProvider>;
 }
 
 function LogoLink() {

@@ -4,11 +4,12 @@ import { requireAdminMember } from "@/lib/server/admin-guard";
 
 export const dynamic = "force-dynamic";
 
-export default async function BatchPage() {
+export default async function BatchPage({ searchParams }: { searchParams: Promise<{ program?: string; add?: string }> }) {
   const supabase = await requireAdminMember();
+  const query = await searchParams;
   const [{ data: batches }, { data: programs }] = await Promise.all([
     supabase.from("batches").select("*").order("title", { ascending: true }),
-    supabase.from("programs").select("slug, title").order("title", { ascending: true }),
+    supabase.from("programs").select("slug, title, price_idr").order("title", { ascending: true }),
   ]);
 
   const labels = Object.fromEntries(
@@ -105,6 +106,10 @@ export default async function BatchPage() {
       fields={fields}
       initialRows={batches ?? []}
       displayField="title"
+      searchPlaceholder="Cari batch…"
+      filters={[{ param: "registration_open", label: "Pendaftaran", options: [{ value: "true", label: "Dibuka" }, { value: "false", label: "Ditutup" }] }]}
+      exportModule="batch"
+      createLabel="Tambah batch"
       emptyText={
         (programs ?? []).length
           ? "Belum ada batch untuk program ini. Klik Tambah untuk membuat batch pertama."
@@ -113,6 +118,15 @@ export default async function BatchPage() {
       groupBy="program_slug"
       activeField="is_active"
       formHint="Isi program dan nama batch, lalu jadwal sesinya."
+      initialGroup={(programs ?? []).some((item) => item.slug === query.program) ? query.program : undefined}
+      openCreateInitially={query.add === "1" && (programs ?? []).some((item) => item.slug === query.program)}
+      createDefaults={Object.fromEntries((programs ?? []).map((item) => {
+        const prior = (batches ?? []).find((batch) => batch.program_slug === item.slug && batch.is_active);
+        return [item.slug, { price_idr: String(item.price_idr ?? ""),
+          ...(prior ? { form_kind: prior.form_kind, venue: prior.venue, address: prior.address,
+            normal_price_idr: String(prior.normal_price_idr ?? ""),
+            fee_details: prior.fee_details, dp_percent: prior.dp_percent } : {}) }];
+      }))}
     />
   );
 }

@@ -1,9 +1,12 @@
 import React from "react";
 import Link from "next/link";
-import { FilePlus2, Pencil } from "lucide-react";
+import { FilePlus2 } from "lucide-react";
 import { requireAdminMember } from "@/lib/server/admin-guard";
-import { PageAction } from "@/components/admin/PageHeader";
-import { DataTable, StatusChip, rowActionClass } from "@/components/admin/ui/data-table";
+import { DataTable, StatusChip } from "@/components/admin/ui/data-table";
+import { TableToolbar } from "@/components/admin/ui/table-toolbar";
+import { RowActions } from "@/components/admin/ui/row-actions";
+import { deleteArticleAction } from "@/lib/actions/article-actions";
+import { ilikePattern } from "@/lib/ilike";
 
 export const dynamic = "force-dynamic";
 
@@ -14,16 +17,25 @@ function formatDate(value: string | null) {
   return new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jakarta" }).format(date);
 }
 
-export default async function ArtikelPage() {
+export default async function ArtikelPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string }> }) {
   const supabase = await requireAdminMember();
-  const { data, error } = await supabase
+  const { q, status } = await searchParams;
+  let request = supabase
     .from("articles")
     .select("slug,title,excerpt,published,published_at,updated_at")
     .order("updated_at", { ascending: false });
+  if (q) request = request.ilike("title", ilikePattern(q));
+  if (status === "terbit" || status === "draf") request = request.eq("published", status === "terbit");
+  const { data, error } = await request;
 
   return (
     <div className="w-full space-y-5">
-      <PageAction href="/admin/artikel/baru" icon={<FilePlus2 aria-hidden="true" size={18} strokeWidth={1.5} />}>Tulis artikel</PageAction>
+      <TableToolbar
+        search={{ placeholder: "Cari judul artikel…" }}
+        filters={[{ param: "status", label: "Status", options: [{ value: "draf", label: "Draf" }, { value: "terbit", label: "Terbit" }] }]}
+        exportModule="artikel"
+        create={{ label: "Tulis artikel", href: "/admin/artikel/baru", icon: <FilePlus2 aria-hidden="true" size={18} strokeWidth={1.5} /> }}
+      />
 
       {error && (
         <div role="alert" className="rounded-[20px] bg-admin-rose-soft p-4 text-[14px] text-admin-rose-ink">
@@ -32,7 +44,7 @@ export default async function ArtikelPage() {
       )}
 
       {!error && !data?.length && (
-        <p className="rounded-[var(--admin-radius-card)] bg-admin-surface p-8 text-center text-[15px] text-admin-text-secondary">Belum ada artikel.</p>
+        <p className="rounded-[var(--admin-radius-card)] bg-admin-surface p-8 text-center text-[15px] text-admin-text-secondary">{q || status ? "Tidak ada artikel yang cocok dengan pencarian atau saringan." : "Belum ada artikel."}</p>
       )}
 
       {!!data?.length && (
@@ -59,9 +71,7 @@ export default async function ArtikelPage() {
                 <td data-label="Terbit" className="whitespace-nowrap text-admin-text-secondary">{formatDate(article.published_at) ?? "—"}</td>
                 <td data-label="Diperbarui" className="whitespace-nowrap text-admin-text-secondary">{formatDate(article.updated_at) ?? "—"}</td>
                 <td className="text-right">
-                  <Link href={`/admin/artikel/${article.slug}`} aria-label={`Ubah ${article.title}`} title="Ubah" className={rowActionClass}>
-                    <Pencil aria-hidden="true" size={18} strokeWidth={1.5} />
-                  </Link>
+                  <RowActions itemName={article.title} editHref={`/admin/artikel/${article.slug}`} onDelete={deleteArticleAction.bind(null, article.slug)} />
                 </td>
               </tr>
             ))}

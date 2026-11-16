@@ -3,7 +3,8 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { requireAdminMember } from "@/lib/server/admin-guard";
 import ProgramRowActions from "@/components/admin/ProgramRowActions";
-import { PageAction } from "@/components/admin/PageHeader";
+import { TableToolbar } from "@/components/admin/ui/table-toolbar";
+import { ilikePattern } from "@/lib/ilike";
 import { DataTable } from "@/components/admin/ui/data-table";
 
 export const dynamic = "force-dynamic";
@@ -18,21 +19,21 @@ const formatRupiah = (value: unknown) => {
   }).format(number);
 };
 
-export default async function ProgramPage() {
+export default async function ProgramPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const supabase = await requireAdminMember();
-  const { data: programs } = await supabase
-    .from("programs")
-    .select("*")
-    .order("title", { ascending: true });
+  const { q } = await searchParams;
+  let request = supabase.from("programs").select("*").order("title", { ascending: true });
+  if (q) request = request.ilike("title", ilikePattern(q));
+  const { data: programs } = await request;
 
   const rows = programs ?? [];
 
   return (
     <div className="w-full space-y-5">
-      <PageAction href="/admin/program/create" icon={<Plus aria-hidden="true" size={18} strokeWidth={1.5} />}>Tambah program</PageAction>
+      <TableToolbar search={{ placeholder: "Cari program…" }} exportModule="program" create={{ label: "Tambah program", href: "/admin/program/create" }} />
 
       {rows.length === 0
-        ? <p className="rounded-[var(--admin-radius-card)] bg-admin-surface p-8 text-center text-[15px] text-admin-text-secondary">Belum ada program. Tambahkan program lalu isi detailnya.</p>
+        ? <p className="rounded-[var(--admin-radius-card)] bg-admin-surface p-8 text-center text-[15px] text-admin-text-secondary">{q ? "Tidak ada program yang cocok dengan pencarian." : "Belum ada program. Tambahkan program lalu isi detailnya."}</p>
         : <DataTable caption="Program" stackOnMobile>
           <thead>
             <tr>

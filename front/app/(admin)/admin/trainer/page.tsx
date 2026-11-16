@@ -25,6 +25,9 @@ export default async function TrainerPage() {
       fields={fields}
       initialRows={data ?? []}
       displayField="name"
+      searchPlaceholder="Cari trainer…"
+      exportModule="trainer"
+      createLabel="Tambah trainer"
       emptyText="Tidak ada trainer yang terdaftar."
     />
   );

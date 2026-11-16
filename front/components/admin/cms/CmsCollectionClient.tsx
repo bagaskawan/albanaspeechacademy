@@ -20,8 +20,10 @@ import { TextareaLine } from "@/components/ui/style-line/TextareaLine";
 import { SelectLine } from "@/components/ui/SelectLine";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { TimePicker } from "@/components/ui/TimePicker";
-import { PageAction } from "@/components/admin/PageHeader";
-import { DataTable, rowActionClass, rowDangerActionClass } from "@/components/admin/ui/data-table";
+import { TableToolbar, matchesQuery, type ToolbarFilter } from "@/components/admin/ui/table-toolbar";
+import { RowActions, useIsAdminSuper } from "@/components/admin/ui/row-actions";
+import { useSearchParams } from "next/navigation";
+import { DataTable } from "@/components/admin/ui/data-table";
 
 export type CmsFieldType =
   | "text"
@@ -77,6 +79,14 @@ interface CmsCollectionClientProps {
   createDefaults?: Record<string, Row>;
   /** Override the dialog max width, e.g. "max-w-lg". */
   maxWidth?: string;
+  /** Toolbar (admin-ui-patterns §8.2): search box placeholder; omit to hide Cari. */
+  searchPlaceholder?: string;
+  /** Saring options; `param` is the row field compared as a string. */
+  filters?: ToolbarFilter[];
+  /** Module key for /api/admin/export/[module]; omit to hide Ekspor. */
+  exportModule?: string;
+  /** Tambah label, e.g. "Tambah batch". */
+  createLabel?: string;
   /** Tampilkan baris sebagai grid bento yang bisa diklik, bukan tabel. */
   bento?: boolean;
   /** Pilihan member untuk field bertipe "member". */
@@ -200,6 +210,10 @@ export default function CmsCollectionClient({
   openCreateInitially,
   createDefaults,
   maxWidth,
+  searchPlaceholder,
+  filters = [],
+  exportModule,
+  createLabel,
   bento,
   members,
 }: CmsCollectionClientProps) {
@@ -263,9 +277,13 @@ export default function CmsCollectionClient({
 
   const fieldId = (field: CmsField) => `${table}-${field.name}`;
 
-  const visibleRows = groupField
-    ? rows.filter((row) => String(row[groupField.name]) === activeGroup)
-    : rows;
+  const params = useSearchParams();
+  const query = params.get("q") ?? "";
+  const canDelete = useIsAdminSuper();
+  const visibleRows = rows.filter((row) =>
+    (!groupField || String(row[groupField.name]) === activeGroup)
+    && matchesQuery(row[displayField], query)
+    && filters.every((filter) => !params.get(filter.param) || String(row[filter.param]) === params.get(filter.param)));
 
   const openCreate = () => {
     setEditingRow(null);
@@ -858,16 +876,12 @@ export default function CmsCollectionClient({
 
   return (
     <div className="w-full space-y-5">
-      <PageAction onClick={openCreate} icon={<Plus aria-hidden="true" size={18} strokeWidth={1.5} />}>{`Tambah ${title.toLowerCase()}`}</PageAction>
-
-      <Button
-        type="button"
-        onClick={openCreate}
-        aria-label={`Tambah ${title}`}
-        className="md:hidden fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full p-0 shadow-lg"
-      >
-        <Plus size={22} className="size-[22px]" />
-      </Button>
+      <TableToolbar
+        search={searchPlaceholder ? { placeholder: searchPlaceholder } : undefined}
+        filters={filters}
+        exportModule={exportModule}
+        create={{ label: createLabel ?? `Tambah ${title.toLowerCase()}`, onClick: openCreate }}
+      />
 
       <p role="status" aria-live="polite" className="sr-only">
         {liveMessage}
@@ -1013,7 +1027,7 @@ export default function CmsCollectionClient({
                       {label === "—" ? "Tanpa nama" : label}
                     </p>
                   </div>
-                  <button
+                  {canDelete && <button
                     type="button"
                     onClick={() => setDeleteTarget(row)}
                     title="Hapus"
@@ -1021,7 +1035,7 @@ export default function CmsCollectionClient({
                     className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white opacity-100 md:opacity-0 backdrop-blur transition-opacity hover:bg-red-600 focus:opacity-100 md:group-hover:opacity-100 cursor-pointer"
                   >
                     <Trash2 size={14} />
-                  </button>
+                  </button>}
                 </div>
               );
             })}
@@ -1078,14 +1092,7 @@ export default function CmsCollectionClient({
                     </td>
                   )}
                   <td className="text-right">
-                    <div className="inline-flex items-center gap-1">
-                      <button type="button" onClick={() => openEdit(row)} aria-label={`Ubah ${displayValue(fields.find((field) => field.name === displayField) ?? tableFields[0], row)}`} title="Ubah" className={rowActionClass}>
-                        <Pencil aria-hidden="true" size={18} strokeWidth={1.5} />
-                      </button>
-                      <button type="button" onClick={() => setDeleteTarget(row)} aria-label="Hapus" title="Hapus" className={rowDangerActionClass}>
-                        <Trash2 aria-hidden="true" size={18} strokeWidth={1.5} />
-                      </button>
-                    </div>
+                    <RowActions itemName={displayRowTitle(fields, displayField, row)} onEdit={() => openEdit(row)} onDelete={() => handleDelete(row)} />
                   </td>
                 </tr>
               ))}
@@ -1118,20 +1125,7 @@ export default function CmsCollectionClient({
               </div>
               <div className="flex flex-wrap items-center gap-1.5 mt-auto pt-1">
                 {renderActiveToggle(row)}
-                <button
-                  type="button"
-                  onClick={() => openEdit(row)}
-                  className="ml-auto h-8 px-3 rounded-full bg-admin-lilac-soft border border-admin-lilac-dot/30 text-admin-lilac-ink text-[11px] font-bold flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer"
-                >
-                  <Pencil size={12} /> Ubah
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDeleteTarget(row)}
-                  className="h-8 px-3 rounded-full bg-admin-rose-soft border border-admin-rose-dot/30 text-admin-danger text-[11px] font-bold flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer"
-                >
-                  <Trash2 size={12} /> Hapus
-                </button>
+                <span className="ml-auto"><RowActions itemName={displayRowTitle(fields, displayField, row)} onEdit={() => openEdit(row)} onDelete={() => handleDelete(row)} /></span>
               </div>
             </Card>
           ))}

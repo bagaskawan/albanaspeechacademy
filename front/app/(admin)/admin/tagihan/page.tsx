@@ -1,6 +1,7 @@
 import { requireAdminMember } from "@/lib/server/admin-guard";
 import { academyBillingClient } from "@/lib/server/academy-billing";
 import { resolveInvoice } from "./actions";
+import { TableToolbar } from "@/components/admin/ui/table-toolbar";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,7 @@ export default async function BillingPage() {
     .order("received_at", { ascending: false }).limit(200);
   if (error) throw new Error("Tagihan belum bisa dimuat.");
   return <div className="space-y-6">
+    <TableToolbar exportModule="tagihan" />
     {!data?.length ? <p>Belum ada pendaftaran dan tagihan.</p> : <div className="grid gap-5">
       {data.map((row) => <article key={row.id} className="rounded-xl border border-rule bg-card p-5">
         <div className="flex flex-wrap justify-between gap-2"><h2 className="font-semibold">#{row.id} · {row.full_name}</h2><time className="text-sm text-muted">{new Date(row.received_at).toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })} WIB</time></div>

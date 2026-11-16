@@ -36,8 +36,8 @@ export async function saveArticleAction(input: SaveArticleInput): Promise<SaveAr
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Sesi admin tidak ditemukan. Muat ulang halaman." };
 
-  const { data: member } = await supabase.from("members").select("role").eq("id", user.id).maybeSingle();
-  if (member?.role !== "admin") return { ok: false, error: "Halaman ini hanya untuk admin." };
+  const { data: admin } = await supabase.from("admin_users").select("user_id").eq("user_id", user.id).maybeSingle();
+  if (!admin) return { ok: false, error: "Halaman ini hanya untuk admin." };
 
   const normalized = normalizeArticleBlocks(input.blocks);
   if (normalized.error) return { ok: false, error: normalized.error };
@@ -111,4 +111,16 @@ export async function saveArticleAction(input: SaveArticleInput): Promise<SaveAr
   revalidatePath(`/artikel/${created.slug}`);
   revalidatePath("/admin/artikel");
   return { ok: true, slug: created.slug, updatedAt: created.updated_at, publishedAt: created.published_at };
+}
+
+/** Row delete from the article list (plan 3.17). RLS also limits deletes to adminsuper. */
+export async function deleteArticleAction(slug: string): Promise<{ error?: string }> {
+  const { requireAdminMember } = await import("@/lib/server/admin-guard");
+  const supabase = await requireAdminMember("adminsuper");
+  if (!SLUG_PATTERN.test(slug)) return { error: "Artikel tidak dikenal." };
+  const { error } = await supabase.from("articles").delete().eq("slug", slug);
+  if (error) return { error: "Artikel gagal dihapus." };
+  revalidatePath("/admin/artikel");
+  revalidatePath("/artikel");
+  return {};
 }
