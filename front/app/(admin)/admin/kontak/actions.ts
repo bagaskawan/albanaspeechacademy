@@ -37,6 +37,8 @@ export async function saveContacts(formData: FormData) {
     }
 
     revalidatePath("/admin/kontak");
+
+    revalidatePath("/admin/settings");
     revalidatePath("/");
     return { success: true };
   } catch (err: unknown) {

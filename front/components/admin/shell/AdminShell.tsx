@@ -169,7 +169,7 @@ function AccountMenu({ account, role }: { account: string | null; role: string }
       <DropdownMenuSeparator className="mx-2 bg-admin-line" />
       <div className="py-1">
         <DropdownMenuItem asChild className={menuItem}>
-          <Link href="/admin/profil-akademi"><Settings aria-hidden="true" size={18} strokeWidth={1.5} /> Pengaturan</Link>
+          <Link href="/admin/settings"><Settings aria-hidden="true" size={18} strokeWidth={1.5} /> Pengaturan</Link>
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={signOut} className={`${menuItem} !text-admin-danger data-[highlighted]:bg-admin-rose-soft`}>
           <LogOut aria-hidden="true" size={18} strokeWidth={1.5} className="text-admin-danger" /> Keluar
@@ -229,7 +229,7 @@ function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInv
               animate={{ height: "auto", opacity: 1, transition: { duration: 0.2, ease: ease.out } }}
               exit={{ height: 0, opacity: 0, transition: { duration: 0.16, ease: ease.out } }}
             >
-              {group.modules.map((item) => <li key={item.href} className={!isOpen ? onlyCompact : undefined}>
+              {group.modules.filter((item) => !item.hidden).map((item) => <li key={item.href} className={!isOpen ? onlyCompact : undefined}>
                 <NavItem item={item} active={item.href === activeHref} layoutGroup={layoutGroup} labelClass={label} tooltip={compactish} onNavigate={onNavigate}
                   badge={item.href === "/admin/tagihan" && pendingInvoices > 0 ? pendingInvoices : 0} />
               </li>)}

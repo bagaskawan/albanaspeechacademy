@@ -25,6 +25,8 @@ export async function saveAcademyProfile(formData: FormData) {
     }
 
     revalidatePath("/admin/profil-akademi");
+
+    revalidatePath("/admin/settings");
     revalidatePath("/");
     return { success: true };
   } catch (err: unknown) {

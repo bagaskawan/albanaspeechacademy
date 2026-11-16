@@ -6,7 +6,11 @@ export type AdminNavIcon =
   | "article" | "media" | "gallery" | "quote" | "partner"
   | "academy" | "contact" | "bank";
 
-export type AdminNavModule = { label: string; href: string; icon: AdminNavIcon; description: string };
+export type AdminNavModule = {
+  label: string; href: string; icon: AdminNavIcon; description: string;
+  /** Reachable page (title, breadcrumb) that is not a sidebar item, e.g. /admin/settings from the account menu. */
+  hidden?: boolean;
+};
 
 export type AdminNavGroup = {
   id: "dashboard" | "pendaftaran" | "kelas" | "konten" | "pengaturan";
@@ -51,6 +55,7 @@ export const adminNavGroups: AdminNavGroup[] = [
       { label: "Profil akademi", href: "/admin/profil-akademi", icon: "academy", description: "Nama akademi, metode belajar, dan ketentuan penjadwalan ulang." },
       { label: "Kontak", href: "/admin/kontak", icon: "contact", description: "Kanal kontak resmi yang tampil di situs publik." },
       { label: "Rekening", href: "/admin/rekening", icon: "bank", description: "Rekening tujuan transfer tagihan pendaftaran. Hanya satu yang aktif." },
+      { label: "Pengaturan", href: "/admin/settings", icon: "academy", description: "Profil akademi, kanal kontak, dan rekening pembayaran dalam satu tempat.", hidden: true },
     ],
   },
 ];

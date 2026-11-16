@@ -55,6 +55,8 @@ export async function saveBankAccount(formData: FormData): Promise<ActionState> 
     }
 
     revalidatePath("/admin/rekening");
+
+    revalidatePath("/admin/settings");
     return { success: true };
   } catch (err: unknown) {
     return { success: false, error: err instanceof Error ? err.message : "Gagal menyimpan rekening." };
@@ -86,6 +88,8 @@ export async function activateBankAccount(id: number): Promise<ActionState> {
     }
 
     revalidatePath("/admin/rekening");
+
+    revalidatePath("/admin/settings");
     return { success: true };
   } catch (err: unknown) {
     return { success: false, error: err instanceof Error ? err.message : "Gagal mengaktifkan rekening." };
@@ -106,6 +110,8 @@ export async function deleteBankAccount(id: number): Promise<ActionState> {
     }
 
     revalidatePath("/admin/rekening");
+
+    revalidatePath("/admin/settings");
     return { success: true };
   } catch (err: unknown) {
     return { success: false, error: err instanceof Error ? err.message : "Gagal menghapus rekening." };

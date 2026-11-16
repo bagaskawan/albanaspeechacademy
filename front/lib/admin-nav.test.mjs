@@ -53,3 +53,11 @@ test("every module has a one-line description and Dashboard has no shortcuts", (
   }
   assert.ok(adminNavGroups[0].description);
 });
+
+test("/admin/settings resolves to Pengaturan but stays out of the sidebar", () => {
+  const nav = resolveAdminNav("/admin/settings");
+  assert.equal(nav.group.id, "pengaturan");
+  assert.equal(nav.module?.label, "Pengaturan");
+  assert.equal(nav.module?.hidden, true);
+  assert.equal(nav.isDetail, false);
+});
