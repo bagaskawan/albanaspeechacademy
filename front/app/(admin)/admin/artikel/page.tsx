@@ -2,8 +2,8 @@ import React from "react";
 import Link from "next/link";
 import { FilePlus2, Pencil } from "lucide-react";
 import { requireAdminMember } from "@/lib/server/admin-guard";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/card";
+import { PageAction } from "@/components/admin/PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -23,19 +23,7 @@ export default async function ArtikelPage() {
 
   return (
     <div className="w-full space-y-5">
-      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <div>
-          <h1 className="text-lg font-black uppercase tracking-wider text-text-primary">Artikel</h1>
-          <p className="mt-0.5 max-w-2xl text-xs text-text-secondary">
-            Draf dan artikel yang sudah terbit. Hanya artikel terbit yang tampil di situs publik.
-          </p>
-        </div>
-        <Button asChild className="h-10 shrink-0 rounded-full bg-admin-ink px-5 text-[11px] font-bold uppercase tracking-wider text-admin-on-ink hover:bg-admin-ink-soft">
-          <Link href="/admin/artikel/baru">
-            <FilePlus2 size={14} /> Tulis artikel
-          </Link>
-        </Button>
-      </div>
+      <PageAction href="/admin/artikel/baru" icon={<FilePlus2 aria-hidden="true" size={18} strokeWidth={1.5} />}>Tulis artikel</PageAction>
 
       {error && (
         <div role="alert" className="rounded-xl bg-admin-rose-soft p-3 text-xs font-semibold text-admin-rose-ink">

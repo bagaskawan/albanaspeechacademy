@@ -54,12 +54,6 @@ export default function KontakClient({ initialContacts }: KontakClientProps) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-admin-ink">Kanal Kontak Resmi</h1>
-        <p className="mt-1 text-sm text-admin-text-secondary">
-          Informasi kontak yang tampil di beranda, footer situs, dan dipakai untuk konfirmasi pendaftaran peserta.
-        </p>
-      </div>
 
       {statusMessage && (
         <div

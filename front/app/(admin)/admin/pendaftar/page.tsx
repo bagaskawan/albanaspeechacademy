@@ -11,7 +11,6 @@ export default async function PendaftarPage() {
   if (error) throw new Error("Pendaftar belum bisa dimuat.");
 
   return <div className="space-y-6">
-    <div><h1 className="text-3xl font-bold">Pendaftar Albana</h1><p className="mt-2 text-admin-text-secondary">Pendaftaran yang masuk melalui formulir Albana. Status pembayaran diperiksa di Tagihan.</p></div>
     <div className="overflow-x-auto rounded-2xl border border-admin-line bg-admin-surface">
       <table className="w-full min-w-[720px] text-left text-sm">
         <thead className="bg-admin-surface-muted text-admin-text-secondary"><tr><th className="px-5 py-4">Masuk</th><th className="px-5 py-4">Nama</th><th className="px-5 py-4">Program</th><th className="px-5 py-4">Pembayaran</th></tr></thead>

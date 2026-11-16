@@ -57,6 +57,18 @@ export function AdminPageActions({ children }: { children: React.ReactNode }) {
   return target ? createPortal(children, target) : null;
 }
 
+const pageActionClass = "inline-flex h-12 shrink-0 items-center gap-2 rounded-full bg-admin-ink px-5 text-[15px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink disabled:opacity-60 max-md:size-12 max-md:justify-center max-md:px-0";
+
+/** Primary page action (§3.2): black labelled pill in the header; a round icon button below 768 px. */
+export function PageAction({ href, onClick, icon, children }: { href?: string; onClick?: () => void; icon: React.ReactNode; children: string }) {
+  const content = <>{icon}<span className="max-md:sr-only">{children}</span></>;
+  return <AdminPageActions>
+    {href
+      ? <Link href={href} className={pageActionClass}>{content}</Link>
+      : <button type="button" onClick={onClick} className={pageActionClass}>{content}</button>}
+  </AdminPageActions>;
+}
+
 /** Detail pages name themselves in the breadcrumb (Grup ⟶ Modul ⟶ judul); falls back to "Detail". */
 export function AdminPageTitle({ children }: { children: React.ReactNode }) {
   const target = useSyncExternalStore(noopSubscribe, () => document.getElementById(TITLE_ID), () => null);

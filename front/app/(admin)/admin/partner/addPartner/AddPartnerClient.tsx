@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft,
   AlertCircle,
   Loader2,
   Building2,
@@ -26,6 +25,7 @@ import { savePartnerAction } from "@/lib/actions/partner-actions";
 import { toast } from "sonner";
 import { InputLine } from "@/components/ui/style-line/InputLine";
 import { TextareaLine } from "@/components/ui/style-line/TextareaLine";
+import { AdminPageTitle } from "@/components/admin/PageHeader";
 
 interface Partner {
   id: string;
@@ -364,24 +364,7 @@ export default function AddPartnerClient({ initialPartner, venues = [] }: AddPar
       {/* ═══ TOP HEADER ═══ */}
       <div className="flex items-center justify-between border-b border-border-default/60 pb-4">
         <div className="flex items-center gap-3">
-          <Link
-            href="/admin/partner"
-            className="w-9 h-9 rounded-full border border-border-default flex items-center justify-center hover:bg-bg-well text-text-secondary hover:text-text-primary transition-colors cursor-pointer shrink-0"
-            title="Kembali ke Daftar Partner"
-          >
-            <ArrowLeft size={16} />
-          </Link>
-          <div>
-            <span className="text-[9px] uppercase tracking-[0.25em] font-bold text-text-muted">
-              [ KOMUNITAS ]
-            </span>
-            <h1 className="text-2xl font-bold tracking-tight text-text-primary mt-0.5">
-              {initialPartner ? "Edit Partner & Kolaborator" : "Tambah Partner Baru"}
-            </h1>
-            <p className="text-xs text-text-secondary mt-0.5">
-              Kelola informasi profil kemitraan, kontak perwakilan, dan kanal promosi.
-            </p>
-          </div>
+          <AdminPageTitle>{initialPartner ? "Ubah partner" : "Tambah partner"}</AdminPageTitle>
         </div>
 
         <div>

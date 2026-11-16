@@ -20,6 +20,7 @@ import { TextareaLine } from "@/components/ui/style-line/TextareaLine";
 import { SelectLine } from "@/components/ui/SelectLine";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { TimePicker } from "@/components/ui/TimePicker";
+import { PageAction } from "@/components/admin/PageHeader";
 
 export type CmsFieldType =
   | "text"
@@ -857,19 +858,7 @@ export default function CmsCollectionClient({
 
   return (
     <div className="w-full space-y-5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-lg font-black tracking-wider text-text-primary uppercase">{title}</h1>
-          <p className="text-xs text-text-secondary mt-0.5 max-w-2xl">{description}</p>
-        </div>
-        <Button
-          type="button"
-          onClick={openCreate}
-          className="hidden md:inline-flex h-10 shrink-0 rounded-full px-5 text-[11px] font-bold uppercase tracking-wider"
-        >
-          <Plus size={8} /> Tambah
-        </Button>
-      </div>
+      <PageAction onClick={openCreate} icon={<Plus aria-hidden="true" size={18} strokeWidth={1.5} />}>{`Tambah ${title.toLowerCase()}`}</PageAction>
 
       <Button
         type="button"

@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { saveBankAccount, activateBankAccount, deleteBankAccount } from "./actions";
+import { PageAction } from "@/components/admin/PageHeader";
+import { Plus } from "lucide-react";
 
 export type BankAccount = {
   id: number;
@@ -100,22 +102,7 @@ export default function RekeningClient({ accounts, isAdminSuper }: RekeningClien
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-admin-ink">Rekening Pembayaran</h1>
-          <p className="mt-1 text-sm text-admin-text-secondary">
-            Kelola data rekening tujuan transfer pembayaran pendaftaran peserta Albana.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={openCreateModal}
-          className="inline-flex items-center justify-center rounded-xl bg-admin-ink px-4 py-2.5 text-sm font-semibold text-admin-on-ink shadow-sm hover:bg-admin-ink-soft transition-colors"
-        >
-          + Tambah Rekening
-        </button>
-      </div>
+      <PageAction onClick={openCreateModal} icon={<Plus aria-hidden="true" size={18} strokeWidth={1.5} />}>Tambah rekening</PageAction>
 
       {/* Messages */}
       {errorMessage && (

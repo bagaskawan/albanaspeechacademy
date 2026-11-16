@@ -43,12 +43,6 @@ export default function ProfilAkademiClient({ initialProfile }: ProfilAkademiCli
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-admin-ink">Profil Akademi</h1>
-        <p className="mt-1 text-sm text-admin-text-secondary">
-          Nama resmi akademi, metode pengajaran yang ditampilkan di beranda, dan ketentuan penjadwalan ulang bagi peserta.
-        </p>
-      </div>
 
       {statusMessage && (
         <div

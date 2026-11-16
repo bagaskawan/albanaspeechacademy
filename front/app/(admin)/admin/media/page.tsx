@@ -19,8 +19,7 @@ export default async function MediaPage() {
   const batches = batchesResult.data ?? [];
   const media = mediaResult.data ?? [];
   const settings = Object.fromEntries((settingsResult.data ?? []).map((item) => [item.key, item.value]));
-  return <main className="mx-auto max-w-5xl space-y-8 p-5 sm:p-8">
-    <div><h1 className="text-2xl font-bold">Media Albana</h1><p className="mt-2 text-sm text-muted">Kelola foto dan video per program. Berkas draf hanya terlihat oleh admin; terbitkan setelah diperiksa.</p></div>
+  return <div className="max-w-5xl space-y-8">
     <div className="grid gap-6 lg:grid-cols-2">
       <AlbanaMediaUpload programs={programs} batches={batches} />
       <form action={addYoutube} className="grid content-start gap-4 rounded-xl border border-rule bg-card p-5">
@@ -52,5 +51,5 @@ export default async function MediaPage() {
         </article>)}
       </div>}
     </section>
-  </main>;
+  </div>;
 }

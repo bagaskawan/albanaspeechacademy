@@ -9,7 +9,6 @@ import {
   Calendar,
   X,
   Upload,
-  ArrowLeft,
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
@@ -20,6 +19,7 @@ import { saveGalleryAlbumAction } from "@/lib/actions/gallery-actions";
 import { toast } from "sonner";
 import { InputLine } from "@/components/ui/style-line/InputLine";
 import { TextareaLine } from "@/components/ui/style-line/TextareaLine";
+import { AdminPageTitle } from "@/components/admin/PageHeader";
 
 export interface EventItem {
   id: string;
@@ -281,24 +281,7 @@ export default function AddGalleryClient({
       {/* ═══ TOP HEADER ═══ */}
       <div className="flex items-center justify-between border-b border-border-default/60 pb-4">
         <div className="flex items-center gap-3">
-          <Link
-            href="/admin/galeri"
-            className="w-9 h-9 rounded-full border border-border-default flex items-center justify-center hover:bg-bg-well text-text-secondary hover:text-text-primary transition-colors cursor-pointer shrink-0"
-            title="Kembali ke Galeri"
-          >
-            <ArrowLeft size={16} />
-          </Link>
-          <div>
-            <span className="text-[9px] uppercase tracking-[0.25em] font-bold text-text-muted">
-              [ KOMUNITAS ]
-            </span>
-            <h1 className="text-2xl font-bold tracking-tight text-text-primary mt-0.5">
-              {initialAlbum ? "Edit Album Dokumentasi" : "Tambah Album Dokumentasi"}
-            </h1>
-            <p className="text-xs text-text-secondary mt-0.5">
-              Kelola arsip foto kegiatan, Google Drive folder, dan kategori komunitas.
-            </p>
-          </div>
+          <AdminPageTitle>{initialAlbum ? "Ubah album" : "Tambah album"}</AdminPageTitle>
         </div>
 
         <div>

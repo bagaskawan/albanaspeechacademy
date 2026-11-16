@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Plus, Package } from "lucide-react";
 import { requireAdminMember } from "@/lib/server/admin-guard";
 import ProgramRowActions from "@/components/admin/ProgramRowActions";
+import { PageAction } from "@/components/admin/PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -27,20 +28,7 @@ export default async function ProgramPage() {
 
   return (
     <div className="w-full space-y-5 pb-24 md:pb-0">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-lg font-black tracking-wider text-text-primary uppercase">Program</h1>
-          <p className="text-xs text-text-secondary mt-0.5 max-w-2xl">
-            Kelola nama, deskripsi, harga, dan materi program. Slug mengikuti nama program secara otomatis.
-          </p>
-        </div>
-        <Link
-          href="/admin/program/create"
-          className="hidden md:inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full bg-zinc-900 px-5 text-[11px] font-bold uppercase tracking-wider text-white transition-colors hover:bg-zinc-800 dark:text-zinc-900 dark:hover:bg-yellow-200"
-        >
-          <Plus size={14} /> Tambah Program
-        </Link>
-      </div>
+      <PageAction href="/admin/program/create" icon={<Plus aria-hidden="true" size={18} strokeWidth={1.5} />}>Tambah program</PageAction>
 
       <Link
         href="/admin/program/create"
