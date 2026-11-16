@@ -792,6 +792,7 @@ Kotak centang bulat 22 px. Saat ≥ 1 terpilih, **kapsul hitam mengambang** munc
 | Keamanan | Sel yang diawali `=`, `+`, `-`, `@`, tab, atau CR diberi awalan `'` (mencegah injeksi rumus). Tidak ada token, kunci, atau `idempotency_key` dalam berkas. |
 | Batas | 5.000 baris per ekspor; bila lebih, tombol menampilkan pesan agar saringan dipersempit. |
 | Umpan balik | Tombol berubah "Menyiapkan…" dengan spinner; selesai = unduhan dimulai + toast "Ekspor siap". |
+| Data kosong | Bila daftar yang tampil kosong (termasuk hasil cari/saring kosong), tombol Ekspor **nonaktif**: tepi `--admin-line`, ikon `--admin-text-faint`, kursor `not-allowed`, tooltip "Tidak ada data untuk diekspor". Prop `exportDisabled` pada `TableToolbar`. |
 
 
 ## 9. Memuat, kosong, galat

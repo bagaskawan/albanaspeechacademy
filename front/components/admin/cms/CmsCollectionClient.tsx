@@ -885,6 +885,7 @@ export default function CmsCollectionClient({
         search={searchPlaceholder ? { placeholder: searchPlaceholder } : undefined}
         filters={filters}
         exportModule={exportModule}
+        exportDisabled={visibleRows.length === 0}
         create={{ label: createLabel ?? `Tambah ${title.toLowerCase()}`, onClick: openCreate }}
       />
 

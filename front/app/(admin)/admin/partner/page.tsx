@@ -24,7 +24,7 @@ export default async function PartnerPage({ searchParams }: { searchParams: Prom
   const showForm = tambah === "1" || Boolean(editing);
 
   return <div className="space-y-6">
-    <TableToolbar search={{ placeholder: "Cari partner…" }} exportModule="partner" create={{ label: "Tambah partner", href: "/admin/partner?tambah=1" }} />
+    <TableToolbar search={{ placeholder: "Cari partner…" }} exportModule="partner" exportDisabled={!data?.length} create={{ label: "Tambah partner", href: "/admin/partner?tambah=1" }} />
 
     {showForm && <form action={savePartner} className="grid max-w-2xl gap-4 rounded-[var(--admin-radius-card)] bg-admin-surface p-[var(--admin-space-card)]">
       <h2 className="text-[17px] font-medium">{editing ? `Ubah ${editing.name}` : "Tambah partner"}</h2>

@@ -31,7 +31,7 @@ export default async function ProgramPage({ searchParams }: { searchParams: Prom
 
   return (
     <div className="w-full space-y-5">
-      <TableToolbar search={{ placeholder: "Cari program…" }} exportModule="program" create={{ label: "Tambah program", href: "/admin/program/create" }} />
+      <TableToolbar search={{ placeholder: "Cari program…" }} exportModule="program" exportDisabled={rows.length === 0} create={{ label: "Tambah program", href: "/admin/program/create" }} />
 
       {rows.length === 0
         ? (q ? <EmptyState searching title="Tidak ada program yang cocok" description="Coba kata kunci lain." /> : <EmptyState title="Belum ada program" description="Tambahkan program, lalu isi harga dan materinya." />)

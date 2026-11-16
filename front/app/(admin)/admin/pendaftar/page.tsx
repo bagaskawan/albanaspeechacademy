@@ -20,7 +20,7 @@ export default async function PendaftarPage({ searchParams }: { searchParams: Pr
   if (error) throw new Error("Pendaftar belum bisa dimuat.");
 
   // Menu Pendaftaran: Ekspor only — registrations come from the public form (plan 3.17).
-  const toolbar = <TableToolbar search={{ placeholder: "Cari nama atau email…" }} exportModule="pendaftar" />;
+  const toolbar = <TableToolbar search={{ placeholder: "Cari nama atau email…" }} exportModule="pendaftar" exportDisabled={!data?.length} />;
   if (!data?.length) return <>{toolbar}{q
     ? <EmptyState searching title="Tidak ada pendaftar yang cocok" description="Coba nama atau email lain." />
     : <EmptyState title="Belum ada pendaftar" description="Pendaftaran dari formulir publik akan muncul di sini." />}</>;

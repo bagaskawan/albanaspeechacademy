@@ -19,7 +19,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
   const { data, error } = await request;
   if (error) throw new Error("Tagihan belum bisa dimuat.");
   return <div className="space-y-6">
-    <TableToolbar search={{ placeholder: "Cari nama atau email…" }} exportModule="tagihan" />
+    <TableToolbar search={{ placeholder: "Cari nama atau email…" }} exportModule="tagihan" exportDisabled={!data?.length} />
     {!data?.length ? (q
       ? <EmptyState searching title="Tidak ada tagihan yang cocok" description="Coba nama atau email lain." />
       : <EmptyState title="Belum ada tagihan" description="Tagihan terbentuk otomatis saat peserta mendaftar." />) : <div className="grid gap-5">

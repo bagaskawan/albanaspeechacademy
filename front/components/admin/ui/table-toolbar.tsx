@@ -16,10 +16,12 @@ const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-
 const roundTool = `relative inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-admin-surface text-admin-ink transition-colors hover:bg-admin-surface-muted ${focusRing}`;
 
 /** Table toolbar template (admin-ui-patterns §8.2): Cari · Saring · Ekspor · Tambah, fixed order, state in the URL. */
-export function TableToolbar({ search, filters = [], exportModule, create }: {
+export function TableToolbar({ search, filters = [], exportModule, exportDisabled = false, create }: {
   search?: { placeholder: string };
   filters?: ToolbarFilter[];
   exportModule?: string;
+  /** True when the list shown (after search/filters) is empty: nothing to export. */
+  exportDisabled?: boolean;
   create?: { label: string; href?: string; onClick?: () => void; icon?: React.ReactNode };
 }) {
   const router = useRouter();
@@ -101,8 +103,9 @@ export function TableToolbar({ search, filters = [], exportModule, create }: {
         </DropdownMenuContent>
       </DropdownMenu>}
 
-      {exportModule && <button type="button" onClick={() => void runExport()} disabled={exporting} aria-label="Ekspor CSV"
-        className={`inline-flex h-12 shrink-0 items-center gap-2 rounded-full border border-admin-line-strong px-5 text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface disabled:opacity-60 max-md:size-12 max-md:justify-center max-md:px-0 ${focusRing}`}>
+      {exportModule && <button type="button" onClick={() => void runExport()} disabled={exporting || exportDisabled} aria-label="Ekspor CSV"
+        title={exportDisabled ? "Tidak ada data untuk diekspor" : "Ekspor CSV"}
+        className={`inline-flex h-12 shrink-0 items-center gap-2 rounded-full border border-admin-line-strong px-5 text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface disabled:cursor-not-allowed disabled:border-admin-line disabled:text-admin-text-faint disabled:hover:bg-transparent max-md:size-12 max-md:justify-center max-md:px-0 ${focusRing}`}>
         {exporting ? <Loader2 aria-hidden="true" size={18} className="animate-spin" /> : <Download aria-hidden="true" size={18} strokeWidth={1.5} />}
         <span className="max-md:sr-only">{exporting ? "Menyiapkan…" : "Ekspor"}</span>
       </button>}

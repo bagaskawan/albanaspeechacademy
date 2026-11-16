@@ -35,6 +35,7 @@ export default async function ArtikelPage({ searchParams }: { searchParams: Prom
         search={{ placeholder: "Cari judul artikel…" }}
         filters={[{ param: "status", label: "Status", options: [{ value: "draf", label: "Draf" }, { value: "terbit", label: "Terbit" }] }]}
         exportModule="artikel"
+        exportDisabled={!data?.length}
         create={{ label: "Tulis artikel", href: "/admin/artikel/baru", icon: <FilePlus2 aria-hidden="true" size={18} strokeWidth={1.5} /> }}
       />
 
