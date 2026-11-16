@@ -1602,9 +1602,9 @@ body:has(.admin-shell) {
 .admin-shell :is(input, textarea, select, [role="combobox"])[aria-invalid="true"] { border-color: var(--color-danger); }
 .admin-shell div.border-b:has(> input),
 .admin-shell div.border-b:has(> textarea) { border-bottom: 0; }
-/* White forms (settings): white fields with a visible hairline; more specific than the rule above. */
+/* Settings forms: white card, grey fields with a visible hairline; more specific than the rule above. */
 .admin-shell .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select) {
-  background: var(--admin-canvas);
+  background: var(--admin-surface-muted);
   border: 1px solid var(--admin-line-strong);
   transition: border-color var(--dur-hover) ease, box-shadow var(--dur-hover) ease;
 }
