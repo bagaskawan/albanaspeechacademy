@@ -1,6 +1,6 @@
 # Pola UI admin — Monochrome Soft
 
-**Status:** rancangan, 16 November 2026; revisi navigasi sidebar, kepala halaman, dan tabel pada tanggal yang sama. Belum diterapkan. Dokumen ini **menggantikan arah visual** [design system admin](admin-design-system.md) untuk CMS: gaya baru mengikuti gambar referensi yang disetujui pemilik — kanvas putih monokrom dengan nada lembut sebagai pelengkap, font Poppins, satu sidebar berisi item pil, tombol ikon bulat, dan kartu besar berbentuk lunak.
+**Status:** rancangan, 16 November 2026; revisi navigasi sidebar, kepala halaman, dan tabel pada tanggal yang sama. Belum diterapkan. Dokumen ini **menggantikan arah visual** [design system admin](admin-design-system.md) untuk CMS: gaya baru mengikuti gambar referensi yang disetujui pemilik — kanvas putih monokrom dengan nada lembut sebagai pelengkap, font Plus Jakarta Sans, satu sidebar berisi item pil, tombol ikon bulat, dan kartu besar berbentuk lunak.
 
 | Urusan | Sumber |
 | --- | --- |
@@ -21,7 +21,7 @@ Tenang, padat informasi, dan terasa seperti alat kerja yang dirawat. Ruang abu m
 | Navigasi atas berupa pil putih, aktif hitam | Item sidebar berbentuk pil; aktif hitam teks putih. Header hanya berisi logo, tema, dan pengguna (§3.1) |
 | Rail kiri berisi tombol bulat putih, aktif hitam | Diganti satu sidebar berisi grup dan sub-menu (§3.1) |
 | Breadcrumb abu dengan ikon map dan panah panjang | Breadcrumb `Grup ⟶ Modul` |
-| Judul besar ringan | Judul halaman Poppins 400, 44–48 px |
+| Judul besar ringan | Judul halaman Plus Jakarta Sans 400, 40–44 px |
 | Tombol ikon bulat di kanan judul | Saring, cari, tanggal, aksi utama |
 | Kartu hitam dengan kartu bertumpuk dan chip kuning | **Kartu sorotan**: satu per layar, untuk pekerjaan paling mendesak |
 | Kartu putih dengan ikon berbingkai bulat + angka raksasa | Kartu metrik dan panel daftar |
@@ -75,7 +75,7 @@ Aturan pakai:
 
 ### 2.2 Tipografi
 
-Poppins untuk seluruh admin. Muat bobot **300, 400, 500, 600** hanya pada route group `(admin)` dan `(auth)`; situs publik tetap Plus Jakarta Sans + Inter. Fallback: `ui-sans-serif, system-ui, sans-serif`.
+Plus Jakarta Sans untuk seluruh admin (revisi 16 November 2026, sebelumnya Poppins). Muat bobot **300, 400, 500, 600** lewat `next/font/google` pada route group `(admin)` dan `(auth)` sebagai `--font-admin`. Fallback: `ui-sans-serif, system-ui, sans-serif`.
 
 | Peran | Ukuran / tinggi baris | Bobot | Contoh |
 | --- | --- | --- | --- |
@@ -778,7 +778,7 @@ Ikon masuk `scale 0.8→1` `--ease-spring` 320 ms; teks fade 200 ms.
 ## 12. Implementasi
 
 - Token di §2 dideklarasikan pada `.admin-shell` dan `.dark .admin-shell` di `app/globals.css`, menggantikan token admin biru yang ada di sana. Situs publik tidak terdampak.
-- Poppins dimuat sekali untuk route group `(admin)` dan `(auth)` — melalui `next/font/google` di layout server pembungkus, atau mekanisme Google Fonts yang sudah dipakai — dan dipasang sebagai `--font-admin` pada `.admin-shell`.
+- Plus Jakarta Sans dimuat sekali untuk route group `(admin)` dan `(auth)` — melalui `next/font/google` di layout server pembungkus, atau mekanisme Google Fonts yang sudah dipakai — dan dipasang sebagai `--font-admin` pada `.admin-shell`.
 - Komponen `components/ui/*` tetap dipakai; gaya admin diterapkan lewat scope, bukan salinan komponen.
 - Kerangka: header logo/tema/pengguna (§3.1) dan satu sidebar navigasi (§3.2) di `components/admin/shell/AdminShell.tsx`; daftar grup dan modul berupa konstanta `lib/admin-nav.ts` (tabel `privilege_*` sudah dihapus).
 
@@ -786,7 +786,7 @@ Ikon masuk `scale 0.8→1` `--ease-spring` 320 ms; teks fade 200 ms.
 
 - [ ] Satu kartu sorotan hitam paling banyak; kuning maksimal tiga unsur; mint hanya untuk berhasil.
 - [ ] Biru hanya pada logo.
-- [ ] Poppins di semua teks admin; judul 400, bukan tebal.
+- [ ] Plus Jakarta Sans di semua teks admin; judul 400, bukan tebal.
 - [ ] Semua tombol ikon bulat; semua tombol teks dan input berbentuk pil.
 - [ ] Teks kecil memakai `--text-secondary` (bukan `--text-faint`).
 - [ ] Templat T1–T4; aksi utama di tombol bulat hitam kanan judul.
