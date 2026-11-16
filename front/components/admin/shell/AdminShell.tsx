@@ -116,7 +116,7 @@ export function AdminShell({ children, pendingInvoices, account, role }: ShellPr
           <SidebarPanel {...sidebarProps} mode={compact === null ? "auto" : compact ? "compact" : "full"} layoutGroup="sidebar" onToggleCompact={toggleCompact} />
         </aside>}
 
-        <div className="min-w-0 flex-1 px-[var(--admin-gutter)] pb-10 pt-6 lg:pt-8">
+        <div className="min-w-0 flex-1 px-[var(--admin-gutter)] pb-10 pt-6 max-md:pb-28 lg:pt-8">
           <div className="mx-auto max-w-[1440px]">
             {!standalone && <PageHeader group={nav.group} module={nav.module} isDetail={nav.isDetail} pathname={pathname} />}
             <main id="admin-main" className="min-w-0">{children}</main>

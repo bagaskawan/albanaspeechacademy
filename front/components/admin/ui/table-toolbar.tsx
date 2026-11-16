@@ -70,8 +70,8 @@ export function TableToolbar({ search, filters = [], exportModule, create }: {
   const createContent = create && <>{create.icon ?? <Plus aria-hidden="true" size={20} strokeWidth={1.75} />}<span className="max-md:sr-only">{create.label}</span></>;
 
   return <AdminPageActions>
-    <div className="flex flex-wrap items-center gap-2">
-      {search && <label className="relative flex h-12 w-full items-center sm:w-[280px]">
+    <div className="flex w-full items-center gap-2 md:w-auto">
+      {search && <label className="relative flex h-12 min-w-0 flex-1 items-center md:w-[280px] md:flex-none">
         <span className="sr-only">Cari</span>
         <Search aria-hidden="true" size={18} strokeWidth={1.5} className="pointer-events-none absolute left-4 text-admin-text-secondary" />
         <input
@@ -80,7 +80,7 @@ export function TableToolbar({ search, filters = [], exportModule, create }: {
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={(event) => { if (event.key === "Escape") setQuery(""); }}
           placeholder={search.placeholder}
-          className="h-12 w-full rounded-full border-0 bg-admin-surface pl-11 pr-4 text-[16px] text-admin-ink md:text-[14px] placeholder:text-admin-text-secondary focus-visible:outline-2 focus-visible:outline-admin-ink"
+          className="admin-search"
         />
       </label>}
 

@@ -1620,6 +1620,26 @@ body:has(.admin-shell) {
 :is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select):hover { border-color: var(--admin-text-faint); }
 :is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select)[aria-invalid="true"] { border-color: var(--admin-danger); background: var(--admin-rose-soft); }
 :is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select):disabled { background: var(--admin-canvas); border-color: var(--admin-line); color: var(--admin-text-faint); }
+/* Table toolbar search (TableToolbar): pill with a leading icon; beats the generic admin input padding. */
+:is(.admin-shell, body:has(.admin-shell)) input.admin-search:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]) {
+  width: 100%;
+  height: 48px;
+  min-height: 48px;
+  border: 1px solid var(--admin-line-strong);
+  border-radius: 999px;
+  background: var(--admin-surface-muted);
+  padding: 0 16px 0 44px;
+  color: var(--admin-ink);
+  font-size: 14px;
+}
+:is(.admin-shell, body:has(.admin-shell)) input.admin-search:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):focus-visible {
+  outline: none;
+  border-color: var(--admin-ink);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-ink) 12%, transparent);
+}
+@media (max-width: 767px) {
+  :is(.admin-shell, body:has(.admin-shell)) input.admin-search:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]) { font-size: 16px; }
+}
 /* < 768 px: 16 px fields so iOS Safari does not zoom the page when a field gets focus. */
 @media (max-width: 767px) {
   .admin-shell :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select),
@@ -1664,14 +1684,16 @@ body:has(.admin-shell) {
 
   /* < 768 px: each row becomes a card; cells show their column label from data-label. */
   @media (max-width: 767px) {
-    .admin-table-stack, .admin-table-stack tbody, .admin-table-stack tr, .admin-table-stack td { display: block; }
+    /* Compact card: title top-left, actions top-right, then one "label · value" line per column. */
+    .admin-table-stack, .admin-table-stack tbody { display: block; }
     .admin-table-stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-    .admin-table-stack tbody tr { margin-bottom: 8px; border-radius: 20px; background: var(--admin-surface); padding: 12px 16px; }
+    .admin-table-stack tbody tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; margin-bottom: 8px; border-radius: 20px; background: var(--admin-surface); padding: 14px 16px 10px; }
     .admin-table-stack tbody tr:hover { background: var(--admin-surface); }
-    .admin-table-stack tbody td { height: auto; padding: 6px 0; border: 0; text-align: left; }
-    .admin-table-stack tbody td:first-child { padding: 0 0 6px; font-size: 15px; font-weight: 500; }
+    .admin-table-stack tbody td { display: flex; min-width: 0; height: auto; align-items: center; justify-content: space-between; gap: 12px; grid-column: 1 / -1; padding: 6px 0; border: 0; text-align: right; font-size: 14px; }
+    .admin-table-stack tbody td:first-child { display: block; grid-column: 1; grid-row: 1; margin-bottom: 6px; padding: 0 0 10px; border-bottom: 1px solid var(--admin-line); text-align: left; font-size: 15px; font-weight: 500; }
+    .admin-table-stack tbody td:not([data-label]):last-child { grid-column: 2; grid-row: 1; align-self: start; margin: -6px -8px 6px 0; padding: 0 0 10px; border-bottom: 1px solid var(--admin-line); }
     .admin-table-stack tbody td[data-label]:not(:first-child)::before {
-      content: attr(data-label); display: block; color: var(--admin-text-secondary); font-size: 13px;
+      content: attr(data-label); flex-shrink: 0; color: var(--admin-text-secondary); font-size: 13px; text-align: left; font-family: var(--font-admin-display); font-weight: 400; font-variant-numeric: normal;
     }
   }
 }

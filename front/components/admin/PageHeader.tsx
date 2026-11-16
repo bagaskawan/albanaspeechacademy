@@ -35,7 +35,7 @@ export function PageHeader({ group, module, isDetail, pathname }: { group: Admin
           {description && <p className="mt-2 max-w-[60ch] text-[14px] leading-[1.5] text-admin-text-secondary">{description}</p>}
         </div>
       </m.div>
-      <div id={ACTIONS_ID} className="flex items-center gap-3 empty:hidden" />
+      <div id={ACTIONS_ID} className="flex items-center gap-3 empty:hidden max-md:w-full" />
     </div>
     <hr className="mt-6 border-admin-line" />
   </div>;
