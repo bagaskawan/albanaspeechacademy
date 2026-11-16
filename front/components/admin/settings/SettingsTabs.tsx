@@ -51,8 +51,8 @@ export function SettingsTabs({ tabs, panels, initialTab }: { tabs: SettingsTab[]
   }
 
   return <SettingsFormsContext.Provider value={registry}>
-    <div className="mx-auto max-w-[1200px] pb-28">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-admin-line pb-8">
+    <div className="mx-auto max-w-[1200px] pb-28 lg:flex lg:h-[calc(100dvh-72px-4.5rem)] lg:flex-col lg:pb-0">
+      <header className="flex shrink-0 flex-wrap items-center justify-between gap-4 border-b border-admin-line pb-8">
         <div className="flex min-w-0 items-center gap-4">
           <Link href="/admin" aria-label="Kembali ke dashboard" title="Kembali ke dashboard"
             className={`inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-admin-line-strong text-admin-ink transition-colors hover:bg-admin-surface ${focusRing}`}>
@@ -74,8 +74,8 @@ export function SettingsTabs({ tabs, panels, initialTab }: { tabs: SettingsTab[]
         </div>
       </header>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-10">
-        <div role="tablist" aria-label="Bagian pengaturan" aria-orientation="vertical" className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
+      <div className="mt-8 grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[300px_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:gap-10">
+        <div role="tablist" aria-label="Bagian pengaturan" aria-orientation="vertical" className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:self-start lg:overflow-visible lg:pb-0">
           {tabs.map((tab) => {
             const current = tab.id === active.id;
             return <button
@@ -107,16 +107,17 @@ export function SettingsTabs({ tabs, panels, initialTab }: { tabs: SettingsTab[]
           id={`settings-panel-${tab.id}`}
           aria-labelledby={`settings-tab-${tab.id}`}
           hidden={tab.id !== active.id}
-          className="min-w-0 rounded-[var(--admin-radius-card)] bg-admin-canvas p-[var(--admin-space-card)] ring-1 ring-admin-line lg:col-start-2 lg:row-start-1"
+          className="min-w-0 rounded-[var(--admin-radius-card)] bg-admin-canvas p-[var(--admin-space-card)] ring-1 ring-admin-line lg:col-start-2 lg:row-start-1 lg:flex lg:min-h-0 lg:flex-col lg:pb-0"
         >
-          <div className="mb-6 flex items-center gap-4 border-b border-admin-line pb-6">
+          <div className="mb-6 flex shrink-0 items-center gap-4 border-b border-admin-line pb-6">
             <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-admin-line-strong">{tab.icon}</span>
             <div className="min-w-0">
               <h2 className="text-[20px] font-semibold">{tab.label}</h2>
               <p className="text-[14px] text-admin-text-secondary">{tab.hint}</p>
             </div>
           </div>
-          {panels[tab.id]}
+          {/* The only scrolling area on wide screens; bottom padding clears the floating save bar. */}
+          <div className="lg:-mx-2 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:px-2 lg:pb-28">{panels[tab.id]}</div>
         </section>)}
       </div>
 
