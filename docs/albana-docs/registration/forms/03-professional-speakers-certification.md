@@ -142,26 +142,26 @@ Jawaban:
 
 ## D. INVESTASI PROGRAM & KONFIRMASI KEHADIRAN
 
-### Peninjauan paket sebelum checkout (tambahan alur)
+### Tawaran paket di akhir formulir (tambahan alur situs)
 
-Setelah pertanyaan peserta terisi dan sebelum biaya serta metode pembayaran ditetapkan, tampilkan pilihan berikut **hanya jika** CMS memiliki penawaran bundling aktif yang mencakup program ini dan kedua batch dapat didaftari. Pilihan pada [tahap awal](00-tahap-awal.md) menjadi pilihan awal, tetapi peserta boleh mengubahnya di sini.
+Setelah pertanyaan peserta terisi dan tepat sebelum metode pembayaran, tampilkan satu kartu pilihan **hanya jika** CMS mengaktifkan paket Speaker + Sertifikasi dan program Speaker punya batch yang dibuka. Bawaan: tidak.
 
-- **Tetap Sertifikasi Professional Speakers by BNSP saja.** Peserta mengambil uji kompetensi sertifikasi tanpa pelatihan Speaker dalam paket ini.
-- **Ambil Paket Bundling Pelatihan dan Sertifikasi BNSP.** Peserta mengambil pelatihan Speaker dan uji kompetensi sertifikasi dalam satu paket. Bundling bukan jaminan lulus sertifikasi.
+- **Tidak, sertifikasi ini saja.** Biaya uji kompetensi yang berlaku.
+- **Tambah Pelatihan Public Speaking for Speakers.** Tampilkan batch Speaker yang sedang dibuka beserta jadwal sesinya, **tambahan biaya** (harga paket − biaya Sertifikasi; contoh dari gambar: Rp2.900.000 − Rp2.000.000 = Rp900.000), total paket, dan penjelasan paket dari CMS. Paket tidak menjamin kelulusan sertifikasi.
 
-Di samping tiap pilihan, tampilkan penjelasan bundling dari CMS, isi paket, batch dan jadwal masing-masing kegiatan, persyaratan sertifikasi yang berlaku, serta biaya final dari katalog aktif. Tampilkan selisih biaya jika keduanya tersedia. Setelah peserta memilih, perbarui ringkasan biaya, nominal DP atau lunas, dan nama paket pada checkout. Minta peserta meninjau ringkasan itu sebelum **Kirim pendaftaran**. Tanpa penawaran valid, lanjutkan sertifikasi biasa. Nominal pada butir 16–17 di bawah hanya contoh dari gambar.
+Pilihan peserta langsung memperbarui ringkasan biaya dan nominal lunas atau DP. Peserta yang menambah masuk ke batch Speaker yang sedang dibuka. Tanpa penawaran yang memenuhi syarat, kartu ini tidak tampil. Aturan lengkap: [tawaran paket di akhir formulir](../registration-contract.md#tawaran-paket-di-akhir-formulir).
 
 ### 16. Informasi Biaya Sertifikasi
 
 **Program:** Uji Kompetensi Sertifikasi Professional Speakers by BNSP
 
-**Biaya uji kompetensi sertifikasi pada gambar: Rp2.000.000**
+**Biaya uji kompetensi sertifikasi pada gambar: Rp2.000.000** — dipakai sebagai biaya awal program Sertifikasi di CMS.
 
 ### 17. Informasi Paket Bundling
 
-**Biaya bundling pelatihan dan sertifikasi pada gambar: Rp2.900.000**
+**Biaya bundling pelatihan dan sertifikasi pada gambar: Rp2.900.000** — dipakai sebagai harga paket awal di CMS.
 
-Gambar tidak memperlihatkan pilihan paket tambahan di formulir lanjutan ini. Pilihan ulang di atas merupakan rancangan tambahan; nominal sertifikasi dan bundling tidak boleh dipertukarkan.
+Pada Google Forms, kedua nominal hanya ditampilkan sebagai teks dan peserta tidak memilih paket di formulir ini. Di situs, butir ini digantikan kartu tawaran di atas; nominal sertifikasi dan paket tidak boleh dipertukarkan.
 
 ### 18. Informasi Pembayaran
 

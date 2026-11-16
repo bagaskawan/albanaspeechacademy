@@ -150,9 +150,9 @@ _Silakan pilih akun sosial media yang Anda miliki._
 
 ## D. INVESTASI PROGRAM & KONFIRMASI KEHADIRAN
 
-### Peninjauan paket sebelum checkout (tambahan alur)
+### Tawaran paket
 
-Saat ini belum ada bundling untuk Public Speaking Series yang terdokumentasi. Lanjutkan sebagai pendaftaran Series biasa. Jika kelak CMS mengaktifkan bundling yang mencakup Series dan kedua batch dapat didaftari, tampilkan pilihan tetap Series saja atau ambil bundling beserta isi, jadwal, persyaratan, dan harga finalnya sebelum metode pembayaran. Perubahan pilihan memperbarui ringkasan checkout; tanpa penawaran yang valid, jangan tampilkan pilihan bundling.
+Public Speaking Series **tidak menampilkan tawaran paket**. Setelah pertanyaan peserta, formulir langsung ke biaya dan metode pembayaran. Lihat [tawaran paket di akhir formulir](../registration-contract.md#tawaran-paket-di-akhir-formulir).
 
 ### 17. Informasi Biaya Pelatihan
 

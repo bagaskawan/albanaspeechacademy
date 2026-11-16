@@ -4,21 +4,26 @@
 
 ### Tahap awal pada contoh formulir
 
-Gambar sumber memperlihatkan [tahap awal bersama](./forms/00-tahap-awal.md) sebelum formulir per program: flyer dan video pengantar, pertanyaan centang **Saatnya tampil lebih berpengaruh**, lalu pilihan tunggal **Formulir Pendaftaran**. Empat pilihan ditampilkan, termasuk sertifikasi dan bundling. Folder `forms/` memiliki tiga formulir lanjutan; gambar tidak memperlihatkan formulir khusus untuk bundling. Tahap awal ini adalah acuan isi dari contoh Google Forms, bukan pernyataan bahwa alur tersebut sudah diterapkan di situs.
+Gambar sumber memperlihatkan [tahap awal bersama](./forms/00-tahap-awal.md) sebelum formulir per program: flyer dan video pengantar, pertanyaan centang **Saatnya tampil lebih berpengaruh**, lalu pilihan tunggal **Formulir Pendaftaran** dengan empat pilihan, termasuk Paket Bundling. Tahap ini hanya acuan isi dari Google Forms dan **tidak dibangun di situs**: peserta memilih program dari halaman program, dan paket ditawarkan di akhir formulir.
 
-### Peninjauan paket sebelum checkout
+### Tawaran paket di akhir formulir
 
-Setelah pertanyaan program terisi, tetapi sebelum checkout atau pengiriman pendaftaran, peserta dapat meninjau ulang pilihan awal. Tampilkan pilihan tunggal **tetap pada program biasa** atau **ambil bundling** hanya jika CMS memiliki penawaran aktif yang ditempatkan pada program tersebut dan kedua batch dapat didaftari. Saat ini contoh yang terdokumentasi memasangkan [pelatihan Speaker](./forms/02-speaker-training.md) dengan [sertifikasi BNSP](./forms/03-professional-speakers-certification.md); [Public Speaking Series](./forms/01-public-speaking-series.md) tidak memiliki penawaran bundling saat ini. Jika bundling dipilih sejak tahap awal, tandai bundling sebagai pilihan awal di sini. Peserta tetap dapat kembali ke program biasa sebelum mengirim pendaftaran.
+Menggantikan "peninjauan paket sebelum checkout" dan pilihan bundling di tahap awal. Rancangan: [Program tetap, Batch ringkas, dan tawaran paket](../plans/2026-11-16-program-batch-bundling-design.md) — menunggu persetujuan, belum diterapkan di kode.
 
-CMS perlu menyediakan penawaran per pasangan program: judul, dua program, penjelasan isi paket, harga, aturan DP, dan status aktif. Penjelasan harus menyebut apa yang didapat peserta; untuk paket Speaker–BNSP, jelaskan bahwa sertifikasi adalah uji kompetensi, bukan jaminan lulus. Sebelum peserta menetapkan pilihan, tampilkan jadwal tiap kegiatan, persyaratan yang berlaku, biaya program biasa dan bundling, serta selisihnya. Perubahan pilihan harus memperbarui nama paket, biaya, dan nominal lunas atau DP pada ringkasan checkout; simpan hanya pilihan final yang dikonfirmasi peserta. Jangan memakai harga pada gambar sebagai harga aktif. Jika tidak ada penawaran valid untuk program itu, lewati pilihan bundling dan lanjutkan program biasa.
+- Hanya pada formulir [pelatihan Speaker](./forms/02-speaker-training.md) dan [sertifikasi BNSP](./forms/03-professional-speakers-certification.md). [Public Speaking Series](./forms/01-public-speaking-series.md) tidak menampilkan tawaran.
+- Letak: setelah semua pertanyaan peserta, tepat sebelum metode pembayaran. Satu kartu pilihan tunggal; bawaan **tidak**.
+- Tampil hanya bila CMS mengaktifkan paket, harga paket sah, dan **kedua** program punya batch yang dibuka dengan sesi pertama belum lewat. Bila tidak, formulir langsung ke metode pembayaran.
+- Isi kartu: nama program tambahan, **batch dan jadwal sesinya**, tambahan biaya, total paket, penghematan bila ada, dan penjelasan paket dari CMS. Untuk sertifikasi, sebut bahwa itu uji kompetensi dan paket tidak menjamin kelulusan.
+- Tambahan biaya = harga paket − biaya program yang sedang didaftari. Total paket sama dari kedua arah.
+- Peserta yang menerima tawaran masuk ke batch yang sedang dibuka pada program pasangan; tidak ada jadwal paket terpisah.
+- Ringkasan **Biaya**, **Transfer sekarang**, dan **Sisa** langsung mengikuti pilihan paket serta lunas/DP. DP memakai persen paket.
+- Saat dikirim, server menghitung ulang harga dari Program dan penawaran, memeriksa kedua batch, lalu menyimpan satu pendaftaran dengan dua butir batch dan satu tagihan. Bila harga atau ketersediaan berubah, kiriman ditolak dan formulir menampilkan nilai terbaru.
 
-Pengaturan radio Ya/Tidak per Program, penempatan bundling tingkat program sekarang atau batch kelak, dan alur input Batch dengan nilai awal dijabarkan dalam [rancangan CMS Program, Batch, dan Bundling](cms-program-batch-bundling.md).
-
-Editor Program sekarang memiliki radio bundling dan isian penjelasan paket. Penawaran yang ditampilkan di situs masih pada tingkat program; penempatan per batch belum diaktifkan. Pilihan ulang tersedia pada langkah pembayaran. Tahap awal dengan flyer dari gambar sumber belum menjadi halaman situs.
+Jangan memakai harga pada gambar sebagai harga aktif; nilai berlaku dibaca dari CMS. Pengaturan admin dijabarkan di [CMS Program, Batch, dan tawaran paket](cms-program-batch-bundling.md).
 
 ### Alur pendaftaran situs
 
-Peserta memilih Program, melihat biayanya (Batch otomatis dari admin). Tampilkan nama program, nomor atau nama batch, biaya dalam rupiah, dan seluruh pertemuan dalam WIB sebelum peserta mengisi data.
+Peserta memilih Program, melihat biayanya (Batch otomatis: batch yang sedang dibuka pada program itu). Tampilkan nama program, nama batch, biaya dalam rupiah dari Program, alamat dari Kontak, dan seluruh pertemuan dalam WIB sebelum peserta mengisi data.
 
 Satu halaman, tanpa akun, dengan satu tombol **Kirim pendaftaran**. Peserta mengisi identitas, latar belakang dan informasi teknis, memilih lunas atau DP 20%, lalu mencentang persetujuan penggunaan data untuk mengurus pendaftaran.
 

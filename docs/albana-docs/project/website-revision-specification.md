@@ -30,20 +30,23 @@ Alur halaman dimulai dari **Pengenalan Program** terlebih dahulu, lalu disusun s
 
 ### 4. Struktur Halaman Program Training
 - Setiap program wajib memuat tiga komponen utama: **Detail Program**, **Foto Acara/Batch**, dan **Video Promosi/Testimoni** yang meyakinkan.
-- Secara Makro terbagi menjadi
-	1. **Public Training** terdiri:
+- Secara makro terbagi menjadi:
+	1. **Public Training** — tiga program tetap, masing-masing dengan batch:
 		  * **Public Speaking Series**
-		  * **Public Speaking for Speaker** *(dapat menawarkan bundling dengan Sertifikasi jika diaktifkan di CMS)*
-		  * **Sertifikasi** *(dapat menawarkan bundling dengan Speaker jika diaktifkan di CMS)*
-	2. **Inhouse Training** *(Alur bersifat private call / konsultasi langsung untuk klien swasta & korporat)*:
+		  * **Public Speaking for Speakers**
+		  * **Sertifikasi Pembicara Profesional (BNSP)**
+	2. **Inhouse Training** *(alur private call / konsultasi langsung untuk klien swasta & korporat; tanpa batch dan tanpa formulir pendaftaran)*:
 		- Menampilkan **Dokumentasi Kegiatan**
 		- Daftar **Our Partner**.
+- Landing page menampilkan **tiga** program Public Training. Paket bundling **bukan** program keempat.
+- **Program bersifat tetap** (tidak ditambah atau dihapus dari CMS) dan menyimpan biaya, harga coret, DP, rincian biaya, serta naskah pertanyaan. **Batch** adalah turunan program dan hanya berisi **nama batch** (mis. "ASA Batch 9") dan **jadwal sesi**; alamat pelaksanaan diambil dari menu Kontak.
+- **Paket Speaker + Sertifikasi** ditawarkan **di akhir formulir** pendaftaran, dua arah: pendaftar Speaker ditawari menambah Sertifikasi, pendaftar Sertifikasi ditawari menambah pelatihan Speaker. Satu harga paket di CMS; tambahan yang ditampilkan = harga paket − biaya program yang didaftari. Peserta yang menerima tawaran masuk ke batch yang sedang dibuka pada program pasangan. Series tidak memiliki tawaran paket.
 
-Opsi bundling di Program bergantung pada radio Ya/Tidak dan penawaran aktif di CMS. Untuk saat ini penempatannya per program; rancangan penempatan per batch dan input batch yang lebih singkat ada di [rancangan CMS Program, Batch, dan Bundling](../registration/cms-program-batch-bundling.md). Series belum memiliki bundling saat ini.
+Rincian ada di [rancangan Program tetap, Batch ringkas, dan tawaran paket](../plans/2026-11-16-program-batch-bundling-design.md) dan [CMS Program, Batch, dan tawaran paket](../registration/cms-program-batch-bundling.md). Rancangan ini menunggu persetujuan dan belum diterapkan di kode.
 
 ### 5. Alur Pendaftaran & Konfirmasi Pembayaran (Public Training)
 1. Pengunjung mengisi formulir pendaftaran langsung di website hingga selesai.
-   * Sebelum checkout, pengunjung dapat meninjau ulang pilihan program biasa atau bundling jika CMS menawarkan bundling untuk program tersebut. Rincian dan total mengikuti pilihan terakhir.
+   * Tepat sebelum metode pembayaran, formulir Speaker dan Sertifikasi menampilkan **satu tawaran paket** bila CMS mengaktifkannya dan program pasangan punya batch yang dibuka. Bawaannya "tidak". Rincian biaya, DP, dan total langsung mengikuti pilihan peserta.
 2. Setelah data berhasil disimpan ke sistem, pengunjung diarahkan ke halaman **Konfirmasi Pendaftaran & Pembayaran Manual** dengan tata letak dua kolom:
    * **Kolom Kiri:**
      * Notifikasi status pendaftaran berhasil diproses.

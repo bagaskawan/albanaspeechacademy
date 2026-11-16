@@ -150,14 +150,14 @@ _Silakan pilih akun sosial media yang Anda miliki._
 
 ## D. INVESTASI PROGRAM & KONFIRMASI KEHADIRAN
 
-### Peninjauan paket sebelum checkout (tambahan alur)
+### Tawaran paket di akhir formulir (tambahan alur situs)
 
-Setelah pertanyaan peserta terisi dan sebelum biaya serta metode pembayaran ditetapkan, tampilkan pilihan berikut **hanya jika** CMS memiliki penawaran bundling aktif yang mencakup program ini dan kedua batch dapat didaftari. Pilihan pada [tahap awal](00-tahap-awal.md) menjadi pilihan awal, tetapi peserta boleh mengubahnya di sini.
+Setelah pertanyaan peserta terisi dan tepat sebelum metode pembayaran, tampilkan satu kartu pilihan **hanya jika** CMS mengaktifkan paket Speaker + Sertifikasi dan program Sertifikasi punya batch yang dibuka. Bawaan: tidak.
 
-- **Tetap Pelatihan Basic to Advance Public Speaking saja.** Peserta mengikuti pelatihan Speaker tanpa mengambil uji kompetensi sertifikasi BNSP.
-- **Ambil Paket Bundling Pelatihan dan Sertifikasi BNSP.** Peserta mengambil pelatihan Speaker dan uji kompetensi sertifikasi dalam satu paket. Bundling bukan jaminan lulus sertifikasi.
+- **Tidak, pelatihan ini saja.** Biaya program Speaker yang berlaku.
+- **Tambah Sertifikasi Pembicara Profesional (BNSP).** Tampilkan batch Sertifikasi yang sedang dibuka beserta jadwal sesinya, **tambahan biaya** (harga paket − biaya Speaker; contoh dari gambar: Rp2.900.000 − Rp1.300.000 = Rp1.600.000), total paket, dan penjelasan paket dari CMS. Sebutkan bahwa sertifikasi adalah uji kompetensi dan paket tidak menjamin kelulusan.
 
-Di samping tiap pilihan, tampilkan penjelasan bundling dari CMS, isi paket, batch dan jadwal masing-masing kegiatan, persyaratan sertifikasi yang berlaku, serta biaya final dari katalog aktif. Tampilkan selisih biaya jika keduanya tersedia. Setelah peserta memilih, perbarui ringkasan biaya, nominal DP atau lunas, dan nama paket pada checkout. Minta peserta meninjau ringkasan itu sebelum **Kirim pendaftaran**. Tanpa penawaran valid, lanjutkan pelatihan biasa. Harga contoh di bawah tidak menentukan harga bundling yang berlaku.
+Pilihan peserta langsung memperbarui ringkasan biaya dan nominal lunas atau DP. Peserta yang menambah masuk ke batch Sertifikasi yang sedang dibuka. Tanpa penawaran yang memenuhi syarat, kartu ini tidak tampil. Aturan lengkap: [tawaran paket di akhir formulir](../registration-contract.md#tawaran-paket-di-akhir-formulir). Harga contoh di bawah tidak menentukan harga yang berlaku.
 
 ### 17. Informasi Biaya Pelatihan
 
