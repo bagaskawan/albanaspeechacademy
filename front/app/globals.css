@@ -1430,6 +1430,12 @@ body:has(.admin-shell) {
 .dark .admin-shell,
 .dark body:has(.admin-shell) { color-scheme: dark; }
 
+.admin-skeleton {
+  background: linear-gradient(90deg, var(--admin-surface-muted) 0%, var(--admin-canvas) 50%, var(--admin-surface-muted) 100%) 0 0 / 200% 100%;
+  animation: admin-shimmer 1.4s linear infinite;
+}
+@keyframes admin-shimmer { to { background-position: -200% 0; } }
+
 .admin-pattern-empty { background: var(--admin-pattern-empty); }
 
 @media (max-width: 767px) {

@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { loginAdmin } from "./actions";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -15,7 +17,7 @@ export default function LoginPage() {
     try {
       const result = await loginAdmin(String(form.get("email") ?? ""), String(form.get("password") ?? ""));
       if (result.error) setError(result.error);
-      else window.location.assign("/admin");
+      else { router.replace("/admin"); router.refresh(); }
     } catch {
       setError("Gagal masuk. Coba lagi.");
     } finally {
