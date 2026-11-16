@@ -384,38 +384,88 @@ Selamat pagi, Alan                                              (⌕) (◐)
 
 Primitif: `components/ui/dialog.tsx`, `alert-dialog.tsx`, `DeleteConfirmDialog.tsx`.
 
-### 6.1 Wadah
+### 6.1 Modal atau halaman baru
 
-| Kebutuhan | Wadah | Lebar |
+Setiap form admin memakai salah satu dari dua wadah. Pilih dengan aturan berikut, dari atas ke bawah; aturan pertama yang cocok menentukan.
+
+| # | Bila form… | Wadah |
 | --- | --- | --- |
-| Konfirmasi | Dialog konfirmasi | 440 px |
-| Form ≤ 5 field | Dialog S | 520 px |
-| Form 6–12 field | Dialog M | 680 px |
-| Unggah / pratinjau media | Dialog L | 920 px |
-| Membaca detail sambil melihat daftar | Panel samping T3 | 520 px |
-| Baris berulang, editor, > 1 layar | Halaman T2 | — |
+| 1 | memuat editor teks kaya, baris berulang (sesi, materi, benefit), unggah lebih dari satu berkas, atau lebih dari satu bagian bernomor | **Halaman baru** (T2) |
+| 2 | punya lebih dari **6 field** | **Halaman baru** (T2) |
+| 3 | perlu dibuka dari bookmark atau dibagikan tautannya (mis. ubah artikel) | **Halaman baru** (T2) |
+| 4 | selain itu (≤ 6 field sederhana: teks, angka, rupiah, pilihan, satu unggah) | **Modal** |
 
-### 6.2 Anatomi
+Konfirmasi (hapus, verifikasi) selalu modal konfirmasi, bukan form.
+
+**Lebar modal** (desktop):
+
+| Ukuran | Lebar | Pakai |
+| --- | --- | --- |
+| `sm` | 440 px | Konfirmasi; form 1–2 field |
+| `md` | 560 px | Form 3–6 field — **bawaan** |
+| `lg` | 720 px | Form 3–6 field yang punya pasangan field berdampingan panjang, atau satu unggah gambar dengan pratinjau |
+
+**Lebar halaman form**: kartu form `max-w-[760px]` untuk form satu kolom, `max-w-[960px]` bila ada bagian dua kolom. Kartu rata kiri di area konten, tidak dipusatkan.
+
+Contoh pemetaan modul saat ini:
+
+| Form | Field | Wadah |
+| --- | --- | --- |
+| Rekening (bank, nomor, atas nama) | 3 | Modal `md` |
+| Partner (nama, logo, urutan) | 3 | Modal `md` |
+| Trainer (nama, keahlian, foto, bio) | 4 | Modal `lg` (ada unggah foto) |
+| Testimoni | 5 | Modal `md` |
+| Kontak, Profil akademi | 4 / 3 | Panel di halaman Pengaturan (bukan modal) |
+| Program (deskripsi, harga, materi berulang) | > 6 + baris berulang | Halaman baru |
+| Batch (sesi berulang) | > 6 + baris berulang | Halaman baru |
+| Artikel (editor) | editor | Halaman baru |
+
+### 6.2 Anatomi modal
 
 ```text
 ╭──────────────────────────────────────────────────╮
-│  ◯  Tambah trainer                          (×)  │  ← ikon berbingkai + judul 22/500
-│     Profil tampil di beranda setelah disimpan.   │
-│                                                  │
-│  Nama                                            │
+│  (■)  Buat voucher baru                     (×)  │  ← ikon dalam bulatan hitam 44 px + judul 20/600
+│       Tambahkan kode voucher promosi baru.       │    + subjudul 14 --admin-text-secondary
+│ ──────────────────────────────────────────────── │  ← garis --admin-line
+│  Kode voucher *                                  │
 │  ( ____________________________________ )        │
-│  …                                               │
-│                                                  │
-│                      [Batal]   [■ Simpan]        │  ← pil, kanan
+│  Tipe diskon            Nilai diskon *           │  ← dua kolom bila field pendek berpasangan
+│  ( ________________ )   ( ________________ )     │
+│  Maksimal penggunaan                             │
+│  ( ____________________________________ )        │
+│  Isi 0 jika kuota tidak dibatasi.                │
+│ ──────────────────────────────────────────────── │
+│  (       Batal       )  (■     Simpan       )    │  ← dua pil sama lebar, tinggi 48 px
 ╰──────────────────────────────────────────────────╯
 ```
 
-- Radius 32 px, latar `--surface`, bayangan dialog, backdrop `rgba(14,14,14,0.45)` + `backdrop-filter: blur(4px)` (blur pada backdrop saja, bukan animasi).
-- Tombol tutup bulat 44 px `--surface-muted`.
-- Kepala dan kaki tetap; badan menggulir; tinggi maksimal `min(760px, 100dvh − 48px)`.
-- **Konfirmasi merusak** memakai kartu hitam: dialog `--ink` berteks putih, tombol aksi berlatar `--danger`, Batal pil `--ink-soft`. Kontras warna langsung membedakannya dari dialog biasa.
-- **Konfirmasi verifikasi** memakai dialog putih dengan angka display tagihan di tengah dan tombol **Ya, verifikasi** hitam.
-- < 640 px: lembar bawah, radius atas 32 px, pegangan geser 40×4 px di atas.
+- **Wadah:** radius 32 px, latar `--admin-canvas`, bayangan `--admin-shadow-overlay`, backdrop `rgba(14,14,14,0.45)` + `backdrop-filter: blur(4px)`.
+- **Kepala:** bulatan 44 px `--admin-ink` berisi ikon putih 20 px, judul 20/600, subjudul satu kalimat 14 `--admin-text-secondary`, tombol tutup bulat 40 px bergaris `--admin-line`.
+- **Badan:** padding 24 px (ponsel 20 px), jarak antarfield 20 px. Kepala dan kaki tetap; badan menggulir sendiri; tinggi maksimal `min(760px, 100dvh − 48px)`.
+- **Kaki:** dua pil sama lebar. **Batal** bergaris `--admin-line-strong` di kiri, aksi utama `--admin-ink` di kanan, label berupa kata kerja ("Simpan rekening", "Buat voucher").
+- **Konfirmasi merusak:** kartu `--admin-ink` berteks putih; tombol aksi berlatar `--admin-danger`, Batal pil `--admin-ink-soft`.
+- **Konfirmasi verifikasi:** modal putih dengan angka display tagihan di tengah dan tombol **Ya, verifikasi** hitam.
+
+**< 640 px — lembar bawah** (seperti contoh ponsel pemilik):
+
+```text
+│ (konten halaman, diredupkan)                │
+╭─────────────────────────────────────────────╮
+│                  ──────                     │  ← pegangan 40×4 px
+│  (■)  Buat voucher baru                (×)  │
+│ ─────────────────────────────────────────── │
+│  …field, selalu satu kolom…                 │
+│ ─────────────────────────────────────────── │
+│  (■          Simpan               )         │  ← aksi utama di atas, lebar penuh
+│  (           Batal                )         │  ← Batal di bawahnya, lebar penuh
+╰─────────────────────────────────────────────╯   ← menempel ke tepi bawah, padding aman bawah
+```
+
+- Lebar penuh, radius atas 28 px, menempel ke tepi bawah, `padding-bottom: max(20px, env(safe-area-inset-bottom))`.
+- Tinggi maksimal `92dvh`; badan menggulir sendiri.
+- Kaki menumpuk: aksi utama di atas, Batal di bawah, keduanya lebar penuh 48 px. Jempol paling dekat dengan aksi utama.
+- Bisa diseret turun lewat pegangan untuk menutup (dengan aturan "Buang perubahan?" yang sama).
+- Semua field menjadi satu kolom.
 
 ### 6.3 Gerak
 
@@ -448,28 +498,57 @@ Primitif: `field.tsx`, `label.tsx`, `input.tsx`, `textarea.tsx`, `select.tsx`, `
 ### 7.1 Anatomi field
 
 ```text
-Nama program                                    ← 13/500, --text-secondary, 8px ke kontrol
+Nama program *                                  ← label 13/500 --admin-ink, tanda * --admin-danger, 8 px ke kontrol
 ╭───────────────────────────────────────────╮
-│  Public Speaking Series                   │   ← pil 52px, --surface-muted, tanpa border
+│  Public Speaking Series                   │   ← pil 48 px, latar --admin-surface-muted, tepi 1 px --admin-line-strong
 ╰───────────────────────────────────────────╯
-Tampil sebagai judul kartu di beranda.          ← 13/400, --text-secondary
+Tampil sebagai judul kartu di beranda.          ← petunjuk 13/400 --admin-text-secondary
 ```
 
-Field **tanpa border** dalam keadaan diam — bidang abu di atas kartu putih sudah cukup memisahkan, seperti kolom cari di gambar.
+- Kartu form selalu **putih** (`--admin-canvas`) dengan tepi 1 px `--admin-line-strong`; field di dalamnya **abu** dengan tepi tipis yang terlihat. Kontras abu-di-atas-putih memisahkan field tanpa bayangan.
+- Input satu baris berbentuk pil (radius 999 px, tinggi 48 px). Textarea radius 20 px, minimal 3 baris.
+- Label huruf biasa ("Kode voucher", bukan "KODE VOUCHER"); field wajib ditandai `*` merah dan `aria-required`.
 
 ### 7.2 Keadaan
 
 | Keadaan | Bidang | Tepi | Gerak |
 | --- | --- | --- | --- |
-| Diam | `--surface-muted` | Tidak ada | — |
-| Hover | `--surface-muted` | 1 px `--line-strong` | 140 ms |
-| Fokus | `--surface` | 2 px `--ink` + ring 4 px `rgba(11,11,11,0.08)` | Ring tumbuh dari 0, 180 ms |
-| Terisi | `--surface-muted` | Tidak ada | — |
-| Galat | `--danger-bg` | 2 px `--danger` | Pesan masuk `translateY(-4px)→0` 180 ms |
-| Nonaktif | `--canvas` | Tidak ada | Teks `--text-faint`; alasan di petunjuk |
+| Diam | `--admin-surface-muted` | 1 px `--admin-line-strong` | — |
+| Hover | `--admin-surface-muted` | 1 px `--admin-text-faint` | 140 ms |
+| Fokus | `--admin-surface-muted` | 1 px `--admin-ink` + halo 3 px `--admin-ink` 12% | 140 ms |
+| Galat | `--admin-rose-soft` | 1 px `--admin-danger` | Pesan masuk `translateY(-4px)→0` 180 ms |
+| Nonaktif | `--admin-canvas` | 1 px `--admin-line` | Teks `--admin-text-faint`; alasan di petunjuk |
 | Hanya baca | Transparan | Tidak ada | Untuk slug |
 
-Ruang pesan galat dicadangkan (min-height 20 px). Label tetap terlihat; placeholder hanya contoh format.
+Ruang pesan galat dicadangkan (min-height 20 px). Placeholder hanya contoh format, bukan pengganti label.
+
+### 7.2a Lebar field dan kolom ganda
+
+Form memakai grid `FieldGrid`: satu kolom di ponsel, **dua kolom mulai 640 px** (modal) atau 768 px (halaman). Setiap field memilih lebarnya:
+
+| Lebar | Pakai |
+| --- | --- |
+| Penuh (`span="full"`) — bawaan | Teks bebas, nama, URL, alamat, textarea, unggah, pilihan yang labelnya panjang |
+| Setengah (`span="half"`) | Pasangan yang dibaca bersama: tipe + nilai diskon, harga + harga coret, tanggal + jam, bank + nomor rekening, kota + kode pos |
+| Sempit (`span="narrow"`, 160 px) | Persen, jumlah, urutan, kuota — angka pendek yang tidak perlu lebar penuh |
+
+Aturan:
+
+1. Field setengah **selalu berpasangan** dalam satu baris; jangan tinggalkan setengah baris kosong.
+2. Urutan baca kiri→kanan, lalu ke bawah; pasangan harus masuk akal dibaca bersama.
+3. Di bawah titik patah, semua field menjadi penuh, sesuai urutan sumber.
+4. Halaman form dibagi menjadi **bagian bernomor** (`FormSection`: lingkaran nomor 28 px + judul 15/600 + garis bawah), maksimal 5 bagian. Kaki halaman: **Batal** (pil bergaris) dan aksi utama (pil hitam) rata kanan; di ponsel keduanya lebar penuh menumpuk dengan aksi utama di atas.
+
+### 7.2b Komponen
+
+Semua form admin memakai komponen di `components/admin/ui/form/`, bukan menulis kelas sendiri:
+
+| Komponen | Isi |
+| --- | --- |
+| `FormDialog` | Modal §6.2 di desktop, lembar bawah di < 640 px. Prop: `open`, `onOpenChange`, `icon`, `title`, `description`, `size` (`sm`/`md`/`lg`), `submitLabel`, `pending`, `onSubmit` |
+| `FormPage` + `FormSection` | Kartu halaman form dengan bagian bernomor dan kaki aksi. Prop `width` (`single` 760 / `double` 960) |
+| `FieldGrid` + `Field` | Grid §7.2a dan anatomi §7.1: label, `*`, kontrol, petunjuk, galat. Prop `span` |
+| Kelas `admin-input` | Gaya kontrol §7.2 untuk `input`, `textarea`, `select` di dalam `Field` |
 
 ### 7.3 Validasi
 

@@ -1602,12 +1602,24 @@ body:has(.admin-shell) {
 .admin-shell :is(input, textarea, select, [role="combobox"])[aria-invalid="true"] { border-color: var(--color-danger); }
 .admin-shell div.border-b:has(> input),
 .admin-shell div.border-b:has(> textarea) { border-bottom: 0; }
-/* Settings forms: white card, grey fields with a visible hairline; more specific than the rule above. */
+/* Admin forms (admin-ui-patterns §7.1–§7.2): white card, grey pill fields with a visible hairline.
+   More specific than the rule above so it wins inside .admin-form-plain (FormDialog, FormPage, settings). */
 .admin-shell .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select) {
-  background: var(--admin-surface-muted);
+  width: 100%;
+  min-height: 48px;
   border: 1px solid var(--admin-line-strong);
+  border-radius: 999px;
+  background: var(--admin-surface-muted);
+  padding: 0 18px;
+  color: var(--admin-ink);
+  font-size: 15px;
   transition: border-color var(--dur-hover) ease, box-shadow var(--dur-hover) ease;
 }
+.admin-shell .admin-form-plain textarea { border-radius: 20px; padding: 12px 18px; }
+.admin-shell .admin-form-plain :is(input, textarea, select)::placeholder { color: var(--admin-text-faint); }
+.admin-shell .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select):hover { border-color: var(--admin-text-faint); }
+.admin-shell .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select)[aria-invalid="true"] { border-color: var(--admin-danger); background: var(--admin-rose-soft); }
+.admin-shell .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select):disabled { background: var(--admin-canvas); border-color: var(--admin-line); color: var(--admin-text-faint); }
 /* Thinner focus than the 2 px outline elsewhere: 1 px ink border + a soft 3 px halo (still clearly visible). */
 .admin-shell .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select):focus-visible {
   outline: none;

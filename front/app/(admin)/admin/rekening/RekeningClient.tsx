@@ -5,6 +5,9 @@ import { saveBankAccount, activateBankAccount, deleteBankAccount } from "./actio
 import { DataTable, StatusChip } from "@/components/admin/ui/data-table";
 import { TableToolbar } from "@/components/admin/ui/table-toolbar";
 import { RowActions, rowPillClass } from "@/components/admin/ui/row-actions";
+import { FormDialog } from "@/components/admin/ui/form/FormDialog";
+import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
+import { Landmark } from "lucide-react";
 
 export type BankAccount = {
   id: number;
@@ -176,98 +179,33 @@ export default function RekeningClient({ accounts }: RekeningClientProps) {
       </div>
 
       {/* Modal Dialog */}
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-admin-surface p-6 shadow-xl">
-            <h2 className="text-lg font-bold text-admin-ink">
-              {editingAccount ? "Ubah Data Rekening" : "Tambah Rekening Baru"}
-            </h2>
-            <p className="mt-1 text-xs text-admin-text-secondary">
-              Pastikan nama bank, nomor rekening, dan atas nama sesuai dengan rekening resmi Albana.
-            </p>
-
-            <form onSubmit={handleFormSubmit} className="mt-4 space-y-4">
-              {editingAccount && <input type="hidden" name="id" value={editingAccount.id} />}
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary" htmlFor="bank">
-                  Nama Bank
-                </label>
-                <input
-                  id="bank"
-                  name="bank"
-                  type="text"
-                  required
-                  placeholder="Contoh: BCA, Mandiri, BSI"
-                  defaultValue={editingAccount?.bank || ""}
-                  className="mt-1 block w-full rounded-xl border border-admin-line px-3 py-2 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary" htmlFor="account_number">
-                  Nomor Rekening
-                </label>
-                <input
-                  id="account_number"
-                  name="account_number"
-                  type="text"
-                  required
-                  placeholder="Contoh: 4497062020"
-                  defaultValue={editingAccount?.account_number || ""}
-                  className="mt-1 block w-full rounded-xl border border-admin-line px-3 py-2 text-sm font-mono text-admin-ink focus:border-admin-ink focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary" htmlFor="holder">
-                  Atas Nama Pemilik
-                </label>
-                <input
-                  id="holder"
-                  name="holder"
-                  type="text"
-                  required
-                  placeholder="Contoh: ASA Albana CV"
-                  defaultValue={editingAccount?.holder || ""}
-                  className="mt-1 block w-full rounded-xl border border-admin-line px-3 py-2 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  id="active"
-                  name="active"
-                  type="checkbox"
-                  value="true"
-                  defaultChecked={editingAccount ? editingAccount.active : accounts.length === 0}
-                  className="h-4 w-4 rounded border-admin-line text-admin-ink focus:ring-admin-ink"
-                />
-                <label htmlFor="active" className="text-sm text-admin-text-secondary">
-                  Jadikan sebagai rekening aktif utama
-                </label>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="rounded-xl border border-admin-line px-4 py-2 text-sm font-medium text-admin-text-secondary hover:bg-admin-surface-muted"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="rounded-xl bg-admin-ink px-4 py-2 text-sm font-semibold text-admin-on-ink hover:bg-admin-ink-soft disabled:opacity-50"
-                >
-                  {isPending ? "Menyimpan..." : "Simpan Rekening"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <FormDialog
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        icon={<Landmark aria-hidden="true" size={20} strokeWidth={1.5} />}
+        title={editingAccount ? "Ubah rekening" : "Tambah rekening"}
+        description="Pastikan nama bank, nomor, dan atas nama sesuai rekening resmi Albana."
+        submitLabel="Simpan rekening"
+        pending={isPending}
+        onSubmit={handleFormSubmit}
+      >
+        {editingAccount && <input type="hidden" name="id" value={editingAccount.id} />}
+        <FieldGrid>
+          <Field label="Nama bank" htmlFor="bank" required span="half">
+            <input id="bank" name="bank" type="text" required aria-required="true" placeholder="BCA, Mandiri, BSI" defaultValue={editingAccount?.bank || ""} />
+          </Field>
+          <Field label="Nomor rekening" htmlFor="account_number" required span="half">
+            <input id="account_number" name="account_number" type="text" inputMode="numeric" required aria-required="true" placeholder="4497062020" defaultValue={editingAccount?.account_number || ""} className="font-mono" />
+          </Field>
+          <Field label="Atas nama" htmlFor="holder" required>
+            <input id="holder" name="holder" type="text" required aria-required="true" placeholder="ASA Albana CV" defaultValue={editingAccount?.holder || ""} />
+          </Field>
+          <label htmlFor="active" className="flex cursor-pointer items-center gap-3 rounded-[20px] border border-admin-line-strong p-4 text-[14px] text-admin-ink sm:col-span-2">
+            <input id="active" name="active" type="checkbox" value="true" defaultChecked={editingAccount ? editingAccount.active : accounts.length === 0} className="size-5 accent-[var(--admin-ink)]" />
+            <span>Jadikan rekening aktif utama<span className="block text-[13px] text-admin-text-secondary">Rekening aktif lain otomatis dinonaktifkan.</span></span>
+          </label>
+        </FieldGrid>
+      </FormDialog>
     </div>
   );
 }
