@@ -71,6 +71,10 @@ export function HomeScroll() {
           if (trigger.isActive) window.dispatchEvent(new CustomEvent("home:chapter", { detail: id }));
         } }));
       }
+      document.querySelectorAll(".accent-serif:not(.is-drawn)").forEach((mark) => {
+        const kind = mark.closest<HTMLElement>("[data-motion]")?.dataset.motion;
+        if (reduced || (kind !== "heading" && kind !== "chapter")) mark.classList.add("is-drawn");
+      });
       document.querySelectorAll<HTMLElement>("main [data-motion]").forEach((element) => {
         if (seen.has(element)) return;
         seen.add(element);
@@ -91,7 +95,7 @@ export function HomeScroll() {
         }
         if (element.dataset.motion === "chapter" && !reduced && window.innerWidth >= 1024) {
           animations.push(ScrollTrigger.create({ trigger: element, start: "top 90%", end: "top 35%", scrub: 0.6,
-            animation: gsap.fromTo(element, { scale: 0.86, opacity: 0.2, xPercent: -4, transformOrigin: "left bottom" }, { scale: 1, opacity: 1, xPercent: 0, ease: "none", immediateRender: false }) }));
+            animation: gsap.fromTo(element, { scale: 0.86, opacity: 0.2, xPercent: -4, transformOrigin: "left bottom" }, { scale: 1, opacity: 1, xPercent: 0, ease: "none", immediateRender: true }) }));
           return;
         }
         if (element.getBoundingClientRect().top < window.innerHeight * 0.85) initialVisible.add(element);
