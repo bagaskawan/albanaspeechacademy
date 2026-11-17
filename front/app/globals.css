@@ -1658,7 +1658,7 @@ body:has(.admin-shell) {
   background: var(--admin-surface-muted);
   padding: 0 18px;
   color: var(--admin-ink);
-  font-size: 15px;
+  font-size: 12px;
   transition: border-color var(--dur-hover) ease, box-shadow var(--dur-hover) ease;
 }
 :is(.admin-shell, body:has(.admin-shell)) .admin-form-plain textarea { border-radius: 20px; padding: 12px 18px; }

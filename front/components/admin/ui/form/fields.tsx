@@ -29,13 +29,13 @@ export function Field({ label, htmlFor, required = false, hint, error, span = "f
   children: React.ReactNode;
 }) {
   return <div className={`min-w-0 ${spans[breakpoint][span]}`}>
-    <label htmlFor={htmlFor} className="mb-2 block text-[13px] font-medium text-admin-ink">
+    <label htmlFor={htmlFor} className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-admin-text-secondary">
       {label}{required && <span aria-hidden="true" className="ml-0.5 text-admin-danger">*</span>}
     </label>
     <div className={span === "narrow" ? "max-w-[160px]" : undefined}>{children}</div>
     {error
-      ? <p role="alert" className="mt-1.5 min-h-5 text-[13px] text-admin-danger">{error}</p>
-      : hint && <p className="mt-1.5 text-[13px] text-admin-text-secondary">{hint}</p>}
+      ? <p role="alert" className="mt-1.5 min-h-5 text-[12px] text-admin-danger">{error}</p>
+      : hint && <p className="mt-1.5 text-[12px] text-admin-text-secondary">{hint}</p>}
   </div>;
 }
 

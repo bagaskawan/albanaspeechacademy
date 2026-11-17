@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus, Trash2, ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { InputLine } from "@/components/ui/style-line/InputLine";
-import { TextareaLine } from "@/components/ui/style-line/TextareaLine";
+import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
 import { INHOUSE_SLUG } from "@/lib/bundle";
 
 const formatNumber = (digits: string) =>
@@ -131,7 +130,7 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto pb-20">
+    <form onSubmit={handleSubmit} className="admin-form-plain space-y-6 max-w-4xl mx-auto pb-20">
       <div className="flex items-center gap-3 pb-4 border-b border-border-default/60">
         <Link
           href="/admin/program"
@@ -167,69 +166,81 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
             </h2>
           </div>
 
-          <div className="space-y-4">
-            <InputLine
-              label="Nama Program"
-              name="title"
-              required
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="Misal: Public Speaking Fundamental"
-            />
+          <div className="space-y-5">
+            <FieldGrid columns={1}>
+              <Field label="Nama Program" htmlFor="title" required>
+                <input
+                  id="title"
+                  name="title"
+                  required
+                  value={formData.title}
+                  onChange={handleChange}
+                  placeholder="Misal: Public Speaking Fundamental"
+                />
+              </Field>
 
-            <TextareaLine
-              label="Deskripsi Program"
-              name="description"
-              required
-              rows={4}
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Jelaskan tujuan dan gambaran program ini..."
-            />
+              <Field label="Deskripsi Program" htmlFor="description" required>
+                <textarea
+                  id="description"
+                  name="description"
+                  required
+                  rows={4}
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Jelaskan tujuan dan gambaran program ini..."
+                />
+              </Field>
+            </FieldGrid>
 
             {!isInhouse && <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <InputLine
-                  label="Biaya"
-                  name="price_idr"
-                  required
-                  prefixText="Rp"
-                  inputMode="numeric"
-                  value={formatNumber(formData.price_idr)}
-                  onChange={handleMoneyChange}
-                  placeholder="1.300.000"
-                />
-                <InputLine
-                  label="Harga Coret / Asli (Opsional)"
-                  name="original_price_idr"
-                  prefixText="Rp"
-                  inputMode="numeric"
-                  value={formatNumber(formData.original_price_idr)}
-                  onChange={handleMoneyChange}
-                  placeholder="1.500.000"
-                />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <InputLine
-                  label="DP (%)"
-                  name="dp_percent"
-                  type="number"
-                  min={1}
-                  max={99}
-                  value={formData.dp_percent}
-                  onChange={handleChange}
-                  placeholder="20"
-                  hint="Kosongkan bila DP tidak ditawarkan."
-                />
-              </div>
-              <TextareaLine
-                label="Rincian Biaya (Opsional)"
-                name="fee_details"
-                rows={2}
-                value={formData.fee_details}
-                onChange={handleChange}
-                placeholder="Termasuk modul, konsumsi, dan sertifikat."
-              />
+              <FieldGrid columns={2} breakpoint="md">
+                <Field label="Biaya" htmlFor="price_idr" required span="half" breakpoint="md">
+                  <input
+                    id="price_idr"
+                    name="price_idr"
+                    required
+                    inputMode="numeric"
+                    value={formatNumber(formData.price_idr)}
+                    onChange={handleMoneyChange}
+                    placeholder="1.300.000"
+                  />
+                </Field>
+                <Field label="Harga Coret / Asli (Opsional)" htmlFor="original_price_idr" span="half" breakpoint="md">
+                  <input
+                    id="original_price_idr"
+                    name="original_price_idr"
+                    inputMode="numeric"
+                    value={formatNumber(formData.original_price_idr)}
+                    onChange={handleMoneyChange}
+                    placeholder="1.500.000"
+                  />
+                </Field>
+              </FieldGrid>
+
+              <FieldGrid columns={1}>
+                <Field label="DP (%)" htmlFor="dp_percent" hint="Kosongkan bila DP tidak ditawarkan.">
+                  <input
+                    id="dp_percent"
+                    name="dp_percent"
+                    type="number"
+                    min={1}
+                    max={99}
+                    value={formData.dp_percent}
+                    onChange={handleChange}
+                    placeholder="20"
+                  />
+                </Field>
+                <Field label="Rincian Biaya (Opsional)" htmlFor="fee_details">
+                  <textarea
+                    id="fee_details"
+                    name="fee_details"
+                    rows={2}
+                    value={formData.fee_details}
+                    onChange={handleChange}
+                    placeholder="Termasuk modul, konsumsi, dan sertifikat."
+                  />
+                </Field>
+              </FieldGrid>
             </>}
           </div>
         </div>
@@ -248,30 +259,38 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
             Naskah pertanyaan di halaman daftar untuk program ini. Kosongkan bila cukup memakai naskah bawaan jenis formulir program ini.
           </p>
 
-          <TextareaLine
-            label="Pertanyaan pengalaman sebelumnya"
-            name="form_prior_experience"
-            rows={2}
-            value={formData.form_prior_experience}
-            onChange={handleChange}
-            placeholder="Apakah pernah mengikuti pelatihan Public Speaking sebelumnya?"
-          />
-          <TextareaLine
-            label="Pertanyaan tujuan mengikuti program"
-            name="form_goal"
-            rows={2}
-            value={formData.form_goal}
-            onChange={handleChange}
-            placeholder="Apa tujuan utama mengikuti program ini?"
-          />
-          <TextareaLine
-            label="Pertanyaan tantangan"
-            name="form_challenge"
-            rows={2}
-            value={formData.form_challenge}
-            onChange={handleChange}
-            placeholder="Apa tantangan terbesar Anda dalam aktivitas Public Speaking?"
-          />
+          <FieldGrid columns={1}>
+            <Field label="Pertanyaan pengalaman sebelumnya" htmlFor="form_prior_experience">
+              <textarea
+                id="form_prior_experience"
+                name="form_prior_experience"
+                rows={2}
+                value={formData.form_prior_experience}
+                onChange={handleChange}
+                placeholder="Apakah pernah mengikuti pelatihan Public Speaking sebelumnya?"
+              />
+            </Field>
+            <Field label="Pertanyaan tujuan mengikuti program" htmlFor="form_goal">
+              <textarea
+                id="form_goal"
+                name="form_goal"
+                rows={2}
+                value={formData.form_goal}
+                onChange={handleChange}
+                placeholder="Apa tujuan utama mengikuti program ini?"
+              />
+            </Field>
+            <Field label="Pertanyaan tantangan" htmlFor="form_challenge">
+              <textarea
+                id="form_challenge"
+                name="form_challenge"
+                rows={2}
+                value={formData.form_challenge}
+                onChange={handleChange}
+                placeholder="Apa tantangan terbesar Anda dalam aktivitas Public Speaking?"
+              />
+            </Field>
+          </FieldGrid>
         </div>}
 
         <div className="space-y-4 pt-4 border-t border-border-default/40">
