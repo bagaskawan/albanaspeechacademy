@@ -2,13 +2,13 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Revisi 2 — 17 November 2026.** Revisi 1 hanya memuat Tugas 1–7 (audit UI admin). Revisi ini memasukkan empat spesifikasi tambahan pemilik: modul Media dihapus, `/admin/program` dirombak menjadi pusat pengelolaan Program, pipeline dokumentasi gambar dan video, serta beranda dipecah per program.
+**Revisi 3 — 17 November 2026.** Revisi 1 memuat Tugas 1–7 (audit UI admin). Revisi 2 menambah hapus Media, rombak Program, pipeline dokumentasi, dan beranda. **Revisi 3** mengganti gaya isian target dari Model A (pil 48 px) menjadi **komponen shadcn/ui yang sudah terpasang**, dan menetapkan **satu header per halaman form**. Tugas 1 Revisi 2 sudah dieksekusi di commit `34fefe7`; Tugas 1 di bawah ini adalah pengerjaan ulangnya.
 
-**Goal:** Satu gaya isian (Model A) untuk seluruh form admin; daftar tagihan berbentuk tabel dengan modal Detail; semua modal admin menjadi bottom sheet di ponsel; modul Media hilang dan galeri dokumentasi pindah ke form tiap sub-program; sidebar menjadi Dashboard · Pendaftaran · Program · Konten; dan beranda menampilkan Public Training per program plus satu blok In House Training.
+**Goal:** Satu gaya isian (**shadcn/ui**: `Input`, `Textarea`, `Select`, `Label`) untuk seluruh form admin dan satu header per halaman form; daftar tagihan berbentuk tabel dengan modal Detail; semua modal admin menjadi bottom sheet di ponsel; modul Media hilang dan galeri dokumentasi pindah ke form tiap sub-program; sidebar menjadi Dashboard · Pendaftaran · Program · Konten; dan beranda menampilkan Public Training per program plus satu blok In House Training.
 
 **Architecture:**
 
-- **Gaya isian** sudah ada sebagai satu aturan CSS (`.admin-form-plain` di `app/globals.css`) plus `Field`/`FieldGrid`. Refactor memindahkan setiap form admin ke pasangan itu, lalu mengubah tipografinya sekali di dua tempat.
+- **Gaya isian** memakai komponen shadcn/ui yang sudah ada di repo (`components.json`, style `radix-nova`): `components/ui/Input.tsx`, `textarea.tsx`, `select.tsx`, `label.tsx`. `.admin-shell` sudah memetakan token shadcn ke token admin (`--input` → `--admin-line`, `--ring` → `--admin-ink`), jadi tampilannya monokrom tanpa komponen baru. Yang harus dibuang adalah aturan CSS isian global admin dan `.admin-form-plain`: keduanya tidak berada di layer, sehingga selalu menang atas kelas utilitas shadcn.
 - **Bottom sheet** sudah ada di `FormDialog`. Cangkangnya diangkat menjadi `AdminSheet` dan dipakai semua dialog admin.
 - **Media** tidak punya layar sendiri lagi. Tabel `media_assets`, `POST /api/upload` (Sharp → WebP), dan `GET /api/media/[id]` (signed URL bucket privat) tetap menjadi lapisan penyimpanan; yang hilang adalah modul CMS-nya. Editor galeri menempel di form tiap program.
 - **`/admin/program`** menjadi satu layar: Public Training (tiga program tetap, batch, tawaran paket) dan In House Training (Gallery Kegiatan dan Our Partner).
@@ -23,8 +23,8 @@
 
 | # | Keputusan |
 | --- | --- |
-| K1 | `InputLine`, `TextareaLine`, dan `SelectLine` **tidak dipakai lagi di admin**. Semua form admin memakai **Model A**: `Field`/`FieldGrid` dengan kontrol polos yang distyle `.admin-form-plain` (tinggi 48 px, radius 999 px, latar `--admin-surface-muted`), persis seperti modal Rekening yang sudah ada. |
-| K2 | Tipografi isian: label **11 px kapital tebal**, teks isian **12 px** di desktop dan **16 px di bawah 768 px**. |
+| K1 | *(Revisi 3)* `InputLine`, `TextareaLine`, `SelectLine`, dan Model A (`.admin-form-plain`, pil 48 px) **tidak dipakai lagi di admin**. Semua form admin memakai **shadcn/ui**: `Input`, `Textarea`, `Select` (Radix), dan `Label`, disusun dengan `Field`/`FieldGrid`. |
+| K2 | *(Revisi 3)* Tipografi isian mengikuti shadcn: label **14 px medium, huruf kalimat** (bukan kapital); teks isian **14 px di desktop dan 16 px di bawah 768 px** (bawaan `text-base md:text-sm`, mencegah zoom Safari iOS). Menggantikan 11/12 px Revisi 2. |
 | K3 | Tagihan desktop: **satu baris per tagihan**, kolom Dibuat · Nama · Program–batch · Tahap · Total · Status · Aksi. Tombol **Detail** membuka modal berisi data pendaftar dan seluruh tagihannya. |
 | K4 | Semua modal admin menjadi **bottom sheet di bawah 640 px**. |
 | K5 | Grup **Pengaturan hilang dari sidebar**. `/admin/profil-akademi`, `/admin/kontak`, dan `/admin/rekening` **dialihkan** ke `/admin/settings` dengan tab yang sesuai. |
@@ -35,6 +35,7 @@
 | K10 | Per program: **maksimal 20 foto** (peringatan mulai 15) dan **1–2 tautan YouTube** unlisted atau private. |
 | K11 | Beranda **Public Training**: judul makro + intro, lalu **satu seksi per program** berisi nama, deskripsi, galeri dokumentasi (foto dan video), serta CTA **Daftar** dan **Lihat Jadwal**. |
 | K12 | Beranda **In House Training**: judul makro + intro, galeri dokumentasi kegiatan, dan grid logo **Our Partner**. Seksi Dokumentasi dan Partners Strip yang berdiri sendiri **dilebur** ke blok ini. |
+| K13 | **Satu header per halaman form.** Header shell (judul modul + tombol kembali + breadcrumb) dipertahankan; header buatan form sendiri (`[ PENGATURAN PROGRAM ] Edit Program` beserta tombol kembali keduanya) dihapus. Label modul **"Program & Batch" menjadi "Program"**. |
 
 ## Keputusan pembangun rencana (koreksi bila keliru)
 
@@ -44,11 +45,13 @@
 | P2 | Foto dan video yang ditambahkan dari form program **langsung terbit** (`published = true`); tidak ada gerbang draf per berkas. | Admin memilihnya sendiri di form program itu, jadi langkah terbit terpisah hanya menambah gesekan. Pemilik bisa minta gerbang draf kembali. |
 | P3 | Kartu In House Training di `/admin/program` menampilkan ringkasan (**N foto**, **N logo**) dengan tombol **Kelola** ke `/admin/galeri` dan `/admin/partner`. Kedua rute tetap sebagai halaman, tetapi keluar dari sidebar. | Keduanya sudah punya CMS yang bekerja. Membangun ulang keduanya di dalam kartu berarti menulis dua layar baru tanpa tambahan kemampuan. Program tetap menjadi satu-satunya pintu masuk, sesuai K8. |
 | P4 | Batas resolusi minimum unggahan **tidak lagi dapat diubah dari CMS** setelah modul Media hilang. `/api/upload` memakai nilai bawaan 1280×720 dan sisi pendek video 720 bila baris `system_settings` tidak ada. | Satu-satunya editornya adalah halaman Media. Perilaku fallback itu sudah ada di kode. |
+| P5 | Tinggi isian admin **40 px di desktop dan 44 px di bawah 768 px**, lewat satu aturan `@layer components` berbasis `data-slot`. | Bawaan `Input` di repo ini `h-8` (32 px): rapi, tetapi di bawah target sentuh admin. Satu aturan berlapis lebih aman daripada menulis kelas tinggi di puluhan isian, dan kelas per isian tetap bisa menimpanya. |
+| P6 | Form Program memakai `FormPage` + `FormSection` yang sudah ada, menggantikan kartu, header, dan footer buatannya sendiri. | Satu pola halaman form untuk seluruh admin; `FormPage` sudah memberi kartu putih, seksi bernomor, serta Batal + Simpan di kanan bawah. |
 
 ## Global Constraints
 
 - Semua perintah dari `front/`. Baca `front/AGENTS.md`; untuk API Next.js baca `node_modules/next/dist/docs/`.
-- Nilai tipografi isian, tepat: label `text-[11px] font-bold uppercase tracking-wider`, petunjuk dan pesan galat `text-[12px]`, teks isian `12px` dengan `16px` di `max-width: 767px`.
+- Isian admin memakai **shadcn/ui**, tepat: `import { Input } from "@/components/ui/Input"` (huruf besar **I**, sesuai nama berkas; build Linux peka huruf), `Textarea` dari `@/components/ui/textarea`, `Label` dari `@/components/ui/label`, `Select`/`SelectTrigger`/`SelectValue`/`SelectContent`/`SelectItem` dari `@/components/ui/select`. Label 14 px medium huruf kalimat; petunjuk dan galat `text-[13px]`; teks isian bawaan shadcn (`text-base md:text-sm`). Checkbox dan radio tetap kontrol bawaan dengan `accent-[var(--admin-ink)]`.
 - `input.admin-search` (TableToolbar) **tidak diubah**: tetap 14 px, 16 px di bawah 768 px. Itu kolom cari, bukan isian form, dan punya paragrafnya sendiri di pola UI admin §8.2.
 - Token admin saja di dalam `.admin-shell`: `--admin-*`. Tidak ada warna biru, tidak ada kelas `zinc-*`, dan tidak ada token situs publik (`border-rule`, `bg-card`, `text-muted`, `button-primary`).
 - Beranda memakai token situs publik seperti sekarang; jangan membawa token `--admin-*` ke sana.
@@ -70,11 +73,11 @@
 
 Tiga gaya hidup berdampingan di admin aktif:
 
-| Gaya | Bentuk | Dipakai oleh |
-| --- | --- | --- |
-| **A — `.admin-form-plain` (target)** | Pil 48 px, radius 999, latar abu, label `Field`, kontrol polos | `FormDialog`, `FormPage` → modal Rekening, modal Batch dan Paket |
-| B — `InputLine`/`TextareaLine`/`SelectLine` | Garis bawah, label 11 px kapital, teks 12 px, **fokus biru `#2F5C86`** | `components/admin/ProgramForm.tsx`, `components/admin/cms/CmsCollectionClient.tsx` → Trainer, Testimoni, Galeri |
-| C — kelas buatan sendiri | `rounded-xl border px-3.5 py-2.5 text-sm`, label 12 px kapital | `kontak/KontakClient.tsx`, `profil-akademi/ProfilAkademiClient.tsx` (keduanya membungkus `admin-form-plain` lalu menimpanya), `partner/page.tsx`, `media/page.tsx`, `media/AlbanaMediaUpload.tsx` |
+| Gaya                                        | Bentuk                                                                 | Dipakai oleh                                                                                                                                                                                      |
+| ------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A — `.admin-form-plain` (dibuang, Revisi 3)        | Pil 48 px, radius 999, latar abu, label `Field`, kontrol polos         | `FormDialog`, `FormPage` → modal Rekening, modal Batch dan Paket                                                                                                                                  |
+| B — `InputLine`/`TextareaLine`/`SelectLine` | Garis bawah, label 11 px kapital, teks 12 px, **fokus biru `#2F5C86`** | `components/admin/ProgramForm.tsx`, `components/admin/cms/CmsCollectionClient.tsx` → Trainer, Testimoni, Galeri                                                                                   |
+| C — kelas buatan sendiri                    | `rounded-xl border px-3.5 py-2.5 text-sm`, label 12 px kapital         | `kontak/KontakClient.tsx`, `profil-akademi/ProfilAkademiClient.tsx` (keduanya membungkus `admin-form-plain` lalu menimpanya), `partner/page.tsx`, `media/page.tsx`, `media/AlbanaMediaUpload.tsx` |
 
 ### Lainnya
 
@@ -89,9 +92,9 @@ Tiga gaya hidup berdampingan di admin aktif:
 
 ## Review Focus
 
-1. **Safari iOS nge-zoom saat isian difokus.** Teks 12 px harus tetap 16 px di bawah 768 px; media query harus berada **sesudah** deklarasi 12 px di `globals.css`. → Tugas 1, diukur di 390 px.
+1. **Safari iOS nge-zoom saat isian difokus.** Teks isian harus 16 px di bawah 768 px. Bawaan shadcn `text-base md:text-sm` sudah memberikannya; jangan menimpanya dengan kelas ukuran font per isian. → Tugas 1, diukur di 390 px.
 2. **Pemilih tanggal dan jam bawaan pada 12 px.** `type="date"` dan `type="time"` di modal Batch bisa memotong ikon atau teksnya. → Tugas 1.
-3. **`SelectLine` diganti `<select>` polos.** Harus ikut gaya admin, tidak berfokus biru, dan tetap bisa dipakai dari papan tuts. → Tugas 2.
+3. **`SelectLine` diganti `Select` shadcn.** Harus ikut token admin, tidak berfokus biru, tetap bisa dipakai dari papan tuts (Radix menangani panah, ketik-cari, dan Escape), dan isinya tidak terpotong saat dibuka di dalam bottom sheet. → Tugas 2.
 4. **Bottom sheet konfirmasi hapus di layar 360 px.** Tombol Hapus tidak boleh jatuh di bawah lipatan dan sheet tidak boleh mengunci gulir halaman setelah ditutup. → Tugas 4.
 5. **Pendaftaran tanpa tagihan hilang dari tabel per-tagihan.** → tes `invoiceRows` dengan daftar tagihan kosong, Tugas 5.
 6. **Breadcrumb dan judul halaman setelah grup Pengaturan hilang dari sidebar.** `resolveAdminNav` membaca daftar yang sama. → tes di Tugas 6.
@@ -101,55 +104,100 @@ Tiga gaya hidup berdampingan di admin aktif:
 10. **CTA Daftar pada program tanpa batch dibuka.** Tombol tidak boleh menuju formulir yang kemudian menolak. → Tugas 10, memakai `registrationUrl` yang sudah `null` dalam keadaan itu.
 11. **Program tanpa foto atau tanpa video.** Seksi beranda tidak boleh menyisakan kerangka galeri kosong, dan tata letaknya tidak boleh rusak. → Tugas 10, diperiksa pada Series yang belum punya media.
 12. **Alamat lama yang di-bookmark.** `/admin/media` hilang, `/admin/galeri` dan `/admin/partner` keluar dari sidebar tetapi tetap hidup. `/admin/media` harus memberi 404 yang wajar, bukan galat server. → Tugas 7.
+13. **CSS isian global admin menimpa kelas shadcn.** Tailwind 4 menaruh utilitas di `@layer utilities`, sedangkan aturan isian admin dan `.admin-form-plain` ada di luar layer, sehingga selalu menang tanpa peduli spesifisitas. Bila satu aturan tertinggal, `Input` shadcn tampil seperti gaya lama dan `Textarea` tetap berbentuk pil. → Tugas 1 Step 2, diukur lewat `getComputedStyle`.
+14. **Cincin fokus shadcn memakai `--ring`.** Harus tetap monokrom karena `.admin-shell` memetakannya ke `--admin-ink`, di mode terang **dan** gelap; dialog yang di-portal ke luar `.admin-shell` dijangkau lewat `body:has(.admin-shell)`. → Tugas 1 Step 2 dan 7.
 
 ---
 
-### Task 1: Tipografi isian dan form Program ke Model A
+### Task 1: Isian admin ke shadcn/ui dan header tunggal di form Program
+
+**Status:** pengerjaan ulang. Versi Revisi 2 dari tugas ini sudah di-commit di `34fefe7` (Model A, label 11 px kapital, teks 12 px). Hasilnya terlihat di tangkapan layar pemilik: dua header bertumpuk di layar edit Program, dan `Textarea` berbentuk pil dengan sudut 999 px. Tugas ini membongkar Model A dan memasang shadcn.
 
 **Files:**
-- Modify: `front/app/globals.css` (blok `.admin-form-plain`, sekitar baris 1653–1699)
-- Modify: `front/components/admin/ui/form/fields.tsx` (`Field`)
+- Modify: `front/app/globals.css` — hapus aturan isian global admin (sekitar baris 1633–1650: `.admin-shell :is(input…, textarea, select, [role="combobox"])`, `:focus-visible`-nya, `[aria-invalid]`-nya, dan dua aturan `div.border-b:has(> input|textarea)`) serta seluruh blok `.admin-form-plain` (sekitar 1653–1699). **Pertahankan** `input.admin-search` dan media query 16 px-nya.
+- Modify: `front/components/admin/ui/form/fields.tsx` (`Field` memakai `Label` shadcn; `FormPage` tanpa `admin-form-plain`)
+- Modify: `front/components/admin/ui/form/FormDialog.tsx` (tanpa `admin-form-plain`)
 - Modify: `front/components/admin/ProgramForm.tsx`
+- Modify: `front/app/(admin)/admin/rekening/RekeningClient.tsx`
+- Modify: `front/components/admin/program/ProgramBatchBoard.tsx`
+- Modify: `front/lib/admin-nav.ts`, `front/lib/admin-nav.test.mjs`
 
 **Interfaces:**
-- Produces: `.admin-form-plain` dengan teks isian 12 px (16 px < 768 px); `Field` dengan label `text-[11px] font-bold uppercase tracking-wider` dan petunjuk/galat `text-[12px]`. Bentuk props `Field`, `FieldGrid`, `FormSection`, `FormPage` **tidak berubah**.
-- Consumes: `INHOUSE_SLUG` dari `@/lib/bundle`.
+- Produces: `Field({ label, htmlFor, required, hint, error, span, breakpoint, children })` — props **tidak berubah**; label dirender dengan `Label` shadcn. `FieldGrid`, `FormSection`, `FormPage`, `FormDialog` — props tidak berubah. Modul nav `/admin/program` berlabel `"Program"`.
+- Consumes: `Input`, `Textarea`, `Label` dari `components/ui/`; `AdminPageTitle` dari `@/components/admin/PageHeader`; `INHOUSE_SLUG` dari `@/lib/bundle`.
 
-- [ ] **Step 1: Ubah tipografi di `globals.css`**
+- [ ] **Step 1: Tes label modul (gagal dulu)**
 
-Pada aturan `:is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input…, textarea, select)`: `font-size: 15px` → `font-size: 12px`. Tinggi 48 px, radius 999 px, latar, dan padding tidak diubah. Media query `@media (max-width: 767px)` yang menaikkan ke 16 px **tetap di posisinya sekarang, sesudah aturan itu**; jangan dipindahkan.
+Di `lib/admin-nav.test.mjs`, ubah asersi yang ada `resolveAdminNav("/admin/program").module?.label` dari `"Program & Batch"` menjadi `"Program"`, begitu juga daftar modul grup `kelas` menjadi `["Program", "Trainer"]`.
 
-- [ ] **Step 2: Ubah label `Field`**
+Run: `node --test lib/admin-nav.test.mjs`
+Expected: FAIL — `actual: 'Program & Batch'`.
 
-Di `components/admin/ui/form/fields.tsx`, label `Field`: `text-[13px] font-medium text-admin-ink` → `text-[11px] font-bold uppercase tracking-wider text-admin-text-secondary`. Paragraf galat dan petunjuk: `text-[13px]` → `text-[12px]`.
+Lalu di `lib/admin-nav.ts` ganti label modul `"Program & Batch"` menjadi `"Program"`. Run lagi → PASS. Label grup (`Kelas`) baru diubah di Tugas 6.
 
-- [ ] **Step 3: Pindahkan `ProgramForm` ke Model A**
+- [ ] **Step 2: Buang CSS isian lama, pasang tinggi shadcn**
 
-Hapus impor `InputLine` dan `TextareaLine`. Bungkus form dengan `admin-form-plain`. Ganti tiap isian dengan `Field` + `<input>`/`<textarea>` polos, `id` dan `htmlFor` sama seperti nama kolomnya. Susun dengan `FieldGrid columns={2} breakpoint="md"` untuk pasangan Biaya/Harga coret, `columns={1}` untuk sisanya. Pertahankan persis: `isInhouse` menyembunyikan Biaya, Harga coret, DP, Rincian biaya, dan seluruh seksi Formulir Pendaftaran; nomor seksi Materi `{isInhouse ? 2 : 3}`; semua validasi dan pesan galat yang ada; `handleMoneyChange` dan `formatNumber`. Jangan ubah header, footer, atau seksi Materi & Benefit.
+Hapus aturan yang disebut di daftar Files. Lalu tambahkan, **di dalam `@layer components`** supaya kelas per isian masih bisa menimpanya (P5):
 
-- [ ] **Step 4: Periksa**
+```css
+@layer components {
+  /* Admin fields are shadcn controls: 44 px below 768 px (touch), 40 px from 768 px. */
+  :is(.admin-shell, body:has(.admin-shell)) :is([data-slot="input"], [data-slot="select-trigger"]) { height: 2.75rem; }
+  @media (min-width: 768px) {
+    :is(.admin-shell, body:has(.admin-shell)) :is([data-slot="input"], [data-slot="select-trigger"]) { height: 2.5rem; }
+  }
+}
+```
 
-Run: `npx tsc --noEmit && npx eslint components/admin/ProgramForm.tsx components/admin/ui/form/fields.tsx && npm run build`
-Expected: tanpa galat, build selesai.
+Periksa `data-slot` pada `SelectTrigger` di `components/ui/select.tsx`; sesuaikan selektornya bila namanya lain. Periksa juga blok `.admin-shell` terang **dan** gelap (sekitar baris 1380–1430) memetakan `--input`, `--ring`, `--border`, `--muted-foreground`, dan `--destructive` ke token admin; tambahkan yang belum ada supaya cincin fokus tidak pernah biru.
 
-- [ ] **Step 5: Ukur di peramban**
+- [ ] **Step 3: `Field`, `FormPage`, `FormDialog`**
 
-Buka `/admin/program/public-speaking-for-speakers/edit`, `/admin/program/inhouse-training/edit`, dan modal Tambah batch di `/admin/program`, pada 1280 px lalu 390 px:
-- label 11 px kapital; teks isian 12 px pada 1280 px dan **16 px pada 390 px** — baca `getComputedStyle(el).fontSize`, jangan ditaksir;
-- isian Inhouse tetap tersembunyi;
-- `type="date"` dan `type="time"` di modal batch tidak terpotong dan masih bisa dipilih (Review Focus 2);
+`Field`: ganti `<label className="mb-2 block text-[11px] font-bold uppercase …">` dengan `<Label htmlFor={htmlFor}>` shadcn, bungkus anak dengan `grid gap-2`; tanda wajib tetap `*` merah `aria-hidden`. Petunjuk `text-[13px] text-admin-text-secondary`, galat `text-[13px] text-admin-danger` dengan `role="alert"`. `FormPage` dan `FormDialog`: hapus kelas `admin-form-plain` dari `<form>`.
+
+- [ ] **Step 4: Form Program — satu header, `FormPage`, shadcn**
+
+Di `components/admin/ProgramForm.tsx`:
+- **hapus** blok header buatan sendiri: tombol kembali bulat, teks `[ PENGATURAN PROGRAM ]`, dan `<h1>Edit Program</h1>`, beserta impor `ArrowLeft` dan `Link` bila tidak dipakai lagi. Header shell (judul modul **Program** + tombol kembali) sudah ada di atasnya (K13);
+- render `<AdminPageTitle>{initialData.title}</AdminPageTitle>` supaya breadcrumb berakhir dengan nama program;
+- ganti kartu, footer, dan tombol buatan sendiri dengan `FormPage` (`cancelHref="/admin/program"`, `submitLabel="Simpan program"`, `pending={isSubmitting}`, `onSubmit={handleSubmit}`) dan `FormSection` bernomor (P6): **1 Informasi utama**, **2 Formulir pendaftaran** (tidak dirender untuk Inhouse), **3 Materi & benefit** (nomor 2 untuk Inhouse);
+- semua `<input>` jadi `<Input>`, semua `<textarea>` jadi `<Textarea rows={3}>` — termasuk Deskripsi, yang sekarang berbentuk pil dan dicoret di tangkapan layar. Pasangan Biaya / Harga coret memakai `FieldGrid columns={2} breakpoint="md"`; DP memakai `span="narrow"`;
+- isian daftar materi juga `Input`; tombol hapus materi memakai `rowDangerActionClass`, tombol tambah materi memakai pil sekunder admin;
+- banner galat di atas form memakai token admin (`bg-admin-rose-soft text-admin-danger`, `role="alert"`);
+- pertahankan persis: `isInhouse`, validasi dan pesan galatnya, `handleMoneyChange`, `formatNumber`, dan payload simpan.
+
+- [ ] **Step 5: Pengguna Model A lainnya**
+
+Begitu `.admin-form-plain` hilang, kontrol polos di dalamnya kehilangan gaya. Ganti ke shadcn pada:
+- `RekeningClient.tsx`: ketiga `<input>` → `<Input>`; checkbox "Jadikan rekening aktif" tetap;
+- `ProgramBatchBoard.tsx`: nama batch, harga paket, DP paket → `<Input>`; penjelasan paket → `<Textarea>`; tanggal/jam di `SessionRows` → `<Input type="date|time">`; checkbox tetap.
+
+- [ ] **Step 6: Periksa**
+
+Run: `node --test lib/admin-nav.test.mjs && npx tsc --noEmit && npx eslint app/globals.css components/admin/ui/form components/admin/ProgramForm.tsx "app/(admin)/admin/rekening/RekeningClient.tsx" components/admin/program/ProgramBatchBoard.tsx lib/admin-nav.ts && npm run build`
+Expected: PASS, tanpa galat, build selesai. Lalu `grep -rn "admin-form-plain" front/app/globals.css front/components/admin/ui front/components/admin/ProgramForm.tsx front/components/admin/program "front/app/(admin)/admin/rekening"` → tidak ada hasil.
+
+- [ ] **Step 7: Ukur di peramban**
+
+`/admin/program/public-speaking-series/edit`, `/admin/program/inhouse-training/edit`, modal Tambah batch dan Paket di `/admin/program`, dan modal Rekening di `/admin/settings?tab=rekening`, pada 1280 px lalu 390 px, mode terang lalu gelap:
+- **hanya satu header**: judul shell "Program" dengan tombol kembali; tidak ada `[ PENGATURAN PROGRAM ]` maupun "Edit Program"; breadcrumb berakhir dengan nama program;
+- Deskripsi berupa `Textarea` sudut `rounded-lg`, bukan pil — baca `getComputedStyle(el).borderRadius`, harus jauh di bawah `999px` (Review Focus 13);
+- tinggi `Input` 40 px pada 1280 px dan 44 px pada 390 px; ukuran font 14 px dan 16 px — baca `getComputedStyle`, jangan ditaksir (Review Focus 1);
+- cincin fokus monokrom di terang dan gelap, tidak biru (Review Focus 14);
+- `type="date"` dan `type="time"` di modal batch tidak terpotong (Review Focus 2);
+- isian Inhouse tetap tersembunyi; simpan Program masih bekerja;
 - tidak ada gulir mendatar pada 360 px.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
-git add front/app/globals.css front/components/admin/ui/form/fields.tsx front/components/admin/ProgramForm.tsx
-git commit -m "style(admin): tipografi isian 11/12 px dan form Program memakai Model A (admin-ui-1)"
+git add front/app/globals.css front/components/admin/ui/form front/components/admin/ProgramForm.tsx "front/app/(admin)/admin/rekening/RekeningClient.tsx" front/components/admin/program/ProgramBatchBoard.tsx front/lib/admin-nav.ts front/lib/admin-nav.test.mjs
+git commit -m "style(admin): isian admin pakai shadcn/ui, satu header di form Program (admin-ui-1)"
 ```
 
 ---
 
-### Task 2: CmsCollectionClient ke Model A
+### Task 2: CmsCollectionClient ke shadcn/ui
 
 **Files:**
 - Modify: `front/components/admin/cms/CmsCollectionClient.tsx`
@@ -163,15 +211,15 @@ Berkas ini melayani Trainer, Testimoni, dan Galeri, jadi satu perubahan menyeles
 - [ ] **Step 1: Ganti renderer isian**
 
 Hapus impor `InputLine`, `TextareaLine`, dan `SelectLine`. Di fungsi perender isian (sekitar baris 660–880):
-- `type="select"` → `Field` + `<select>` polos dengan `<option>` dari `options`/`labels`;
-- `type="textarea"` → `Field` + `<textarea>`;
-- sisanya → `Field` + `<input>` dengan `type` yang sesuai (`text`, `number`, `date`, `url`).
+- `type="select"` → `Field` + shadcn `Select` (`SelectTrigger` dengan `id` yang sama dengan `htmlFor`, `SelectValue`, `SelectContent`, satu `SelectItem` per opsi dari `options`/`labels`);
+- `type="textarea"` → `Field` + `Textarea`;
+- sisanya → `Field` + `Input` dengan `type` yang sesuai (`text`, `number`, `date`, `url`).
 
 `Field` menerima `label`, `htmlFor`, `required`, `hint` (dari `field.help`), dan `error`. Jangan ubah tipe isian khusus yang sudah punya UI sendiri: `sessions`, `gallery`, `consent`, `member`, `boolean`, `price`.
 
-- [ ] **Step 2: Wadah form memakai `admin-form-plain`**
+- [ ] **Step 2: Wadah form tanpa token lama**
 
-Tambahkan kelas `admin-form-plain` pada `<form>` di dalam `DialogContent`, dan ganti `bg-bg-card border-border-default` pada `DialogContent` menjadi `bg-admin-canvas` tanpa kelas border legacy.
+Hapus `admin-form-plain` dari `<form>` bila ada, dan ganti `bg-bg-card border-border-default` pada `DialogContent` menjadi `bg-admin-canvas` tanpa kelas border legacy (Tugas 4 kemudian mengganti `DialogContent` dengan `AdminSheet`).
 
 - [ ] **Step 3: Periksa**
 
@@ -181,7 +229,7 @@ Expected: tanpa galat.
 - [ ] **Step 4: Ukur di peramban**
 
 `/admin/trainer`, `/admin/testimoni`, `/admin/galeri`; buka form Tambah dan Ubah pada 1280 px dan 390 px:
-- isian dan select memakai pil abu 48 px, label 11 px kapital;
+- isian dan select memakai shadcn: sudut `rounded-lg`, tinggi 40/44 px, label 14 px huruf kalimat;
 - **fokus select tidak biru**, dan select bisa dibuka serta dipilih dari papan tuts (Review Focus 3);
 - validasi yang gagal masih menampilkan `role="alert"` dan memindahkan fokus ke isian pertama yang salah;
 - simpan dan hapus satu baris uji di Testimoni, lalu kembalikan.
@@ -190,12 +238,12 @@ Expected: tanpa galat.
 
 ```bash
 git add front/components/admin/cms/CmsCollectionClient.tsx
-git commit -m "style(admin): form CMS Trainer, Testimoni, dan Galeri memakai Model A (admin-ui-2)"
+git commit -m "style(admin): form CMS Trainer, Testimoni, dan Galeri memakai shadcn/ui (admin-ui-2)"
 ```
 
 ---
 
-### Task 3: Kontak, Profil akademi, dan Partner ke Model A
+### Task 3: Kontak, Profil akademi, dan Partner ke shadcn/ui
 
 **Files:**
 - Modify: `front/app/(admin)/admin/kontak/KontakClient.tsx`
@@ -206,11 +254,11 @@ Form Media **tidak** dikerjakan di sini: modulnya dihapus pada Tugas 7.
 
 - [ ] **Step 1: Kontak dan Profil akademi**
 
-Keduanya sudah membungkus `admin-form-plain` lalu menimpanya. Hapus kelas isian buatan sendiri (`mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none`) dan `<label>` buatan sendiri, ganti dengan `Field` + kontrol polos di dalam `FieldGrid columns={1}`. Pertahankan persis: `formatPhoneNumber`, state `saved` dan `dirty`, `useSettingsForm`, blok `statusMessage`, dan tombol simpan yang hanya tampil saat `!inSettings`.
+Hapus `admin-form-plain` dari `<form>`, kelas isian buatan sendiri (`mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none`), dan `<label>` buatan sendiri; ganti dengan `Field` + `Input`/`Textarea` di dalam `FieldGrid columns={1}`. Pertahankan persis: `formatPhoneNumber`, state `saved` dan `dirty`, `useSettingsForm`, blok `statusMessage`, dan tombol simpan yang hanya tampil saat `!inSettings`.
 
 - [ ] **Step 2: Partner**
 
-Hapus konstanta `field`. Bungkus `<form action={savePartner}>` dengan `admin-form-plain`, ganti ketiga `<label className="grid gap-2 …">` menjadi `Field` + `<input>`, dan pakai token kartu admin yang sudah dipakai halaman itu.
+Hapus konstanta `field`. Ganti ketiga `<label className="grid gap-2 …">` menjadi `Field` + `Input`, dan pakai token kartu admin yang sudah dipakai halaman itu.
 
 - [ ] **Step 3: Periksa**
 
@@ -225,7 +273,7 @@ Expected: tanpa galat.
 
 ```bash
 git add "front/app/(admin)/admin/kontak" "front/app/(admin)/admin/profil-akademi" "front/app/(admin)/admin/partner/page.tsx"
-git commit -m "style(admin): Kontak, Profil akademi, dan Partner memakai Model A (admin-ui-3)"
+git commit -m "style(admin): Kontak, Profil akademi, dan Partner memakai shadcn/ui (admin-ui-3)"
 ```
 
 ---
@@ -430,6 +478,7 @@ Satu tugas untuk seluruh perubahan sidebar supaya `admin-nav.ts` dan tesnya tida
 **Files:**
 - Modify: `front/lib/admin-nav.ts`, `front/lib/admin-nav.test.mjs`
 - Modify: `front/components/admin/shell/AdminShell.tsx`
+- Modify: `front/components/admin/PageHeader.tsx` (breadcrumb tidak mengulang label yang sama)
 - Create: `front/app/(admin)/admin/profil-akademi/panel.tsx`, `front/app/(admin)/admin/kontak/panel.tsx`, `front/app/(admin)/admin/rekening/panel.tsx`
 - Modify: `front/app/(admin)/admin/profil-akademi/page.tsx`, `front/app/(admin)/admin/kontak/page.tsx`, `front/app/(admin)/admin/rekening/page.tsx`
 - Modify: `front/app/(admin)/admin/settings/page.tsx`
@@ -442,7 +491,7 @@ Satu tugas untuk seluruh perubahan sidebar supaya `admin-nav.ts` dan tesnya tida
 | --- | --- | --- |
 | `dashboard` | Dashboard | — |
 | `pendaftaran` | Pendaftaran | Pendaftar · Tagihan |
-| `kelas` | **Program** | Program & Batch · Trainer |
+| `kelas` | **Program** | Program · Trainer |
 | `konten` | Konten | Artikel · Testimoni |
 | `pengaturan` | Pengaturan | **`sidebarHidden: true`** |
 
@@ -480,7 +529,10 @@ Expected: FAIL — `sidebarHidden` belum ada, label masih "Kelas", dan Galeri/Pa
 
 Tambahkan `sidebarHidden?: boolean` ke tipe `AdminNavGroup` dan pasang `sidebarHidden: true` pada grup `pengaturan`. Ganti label grup `kelas` menjadi `"Program"` dan deskripsinya. Pindahkan modul `Galeri` dan `Partner` dari grup `konten` ke grup `kelas` dengan `hidden: true`, dan hapus modul `Media`. Run tes → PASS.
 
-- [ ] **Step 3: `AdminShell` menyaring grup**
+- [ ] **Step 3: `AdminShell` menyaring grup, breadcrumb tanpa ulangan**
+
+Di `PageHeader.tsx`: grup dan modul kini sama-sama berlabel "Program". Bila `group.label === module.label`, breadcrumb menampilkan label itu sekali, jadi layar edit menjadi `Program ⟶ Public Speaking Series`, bukan `Program ⟶ Program ⟶ …`.
+
 
 Ganti `const [dashboard, ...groups] = adminNavGroups;` menjadi bentuk yang juga membuang grup ber-`sidebarHidden`. Tidak ada perubahan lain; menu akun sudah menautkan `/admin/settings`.
 
@@ -700,7 +752,7 @@ Satu seksi di form program, berjudul **Dokumentasi**:
 - daftar video: tiap baris menampilkan judul dan tautan, dengan tombol hapus; isian **URL YouTube** + **Judul** memanggil `addProgramVideo`, nonaktif saat `videoFull`, dengan petunjuk "Gunakan tautan unlisted atau private.";
 - `alt` wajib untuk foto — pakai satu isian "Keterangan gambar" yang berlaku untuk seluruh berkas pada unggahan itu, dan tolak di klien bila kosong.
 
-Semua isian memakai Model A.
+Semua isian memakai shadcn `Input`/`Textarea`; input berkas memakai `Input type="file"` shadcn.
 
 - [ ] **Step 7: Sambungkan ke form program**
 
@@ -874,10 +926,10 @@ git commit -m "feat(web): beranda memuat Public Training per program dan blok In
 
 - [ ] **Step 1: Pola UI admin**
 
-- §7.1: tipografi isian baru (label 11 px kapital tebal, teks 12 px, 16 px di bawah 768 px) dan catatan bahwa `input.admin-search` tetap 14 px.
-- §7: `InputLine`, `TextareaLine`, dan `SelectLine` dinyatakan tidak dipakai di admin, beserta alasannya (fokus biru dan label yang berbeda). Sebut **Model A** sebagai nama pola targetnya, dengan modal Rekening sebagai contoh acuan.
+- §7.1: tipografi isian shadcn (label 14 px medium huruf kalimat, teks 14 px desktop dan 16 px di bawah 768 px) dan tinggi isian 40/44 px (P5) dan catatan bahwa `input.admin-search` tetap 14 px.
+- §7: `InputLine`, `TextareaLine`, `SelectLine`, dan Model A (`.admin-form-plain`) dinyatakan tidak dipakai di admin, beserta alasannya (fokus biru, label berbeda, `Textarea` pil). Pola target: **shadcn/ui** (`Input`, `Textarea`, `Select`, `Label`) di dalam `Field`, dengan modal Rekening sebagai contoh acuan. Catat juga aturan **satu header per halaman form** (K13).
 - §6.2: bottom sheet berlaku untuk **semua** modal admin lewat `AdminSheet`; `components/ui/dialog.tsx` hanya untuk modul komunitas lama.
-- §8.2: hapus baris Pengaturan dan Media dari matriks modul; tambahkan baris Program & Batch yang memuat In House; catat bahwa Galeri dan Partner tidak ada di sidebar dan dimasuki dari Program.
+- §8.2: hapus baris Pengaturan dan Media dari matriks modul; tambahkan baris Program yang memuat In House; catat bahwa Galeri dan Partner tidak ada di sidebar dan dimasuki dari Program.
 - §8.3: bentuk tabel tagihan, kolomnya, dan tombol Detail.
 - Bagian baru **Dokumentasi program**: batas 20 foto dan 2 video, kompresi WebP otomatis, dan bahwa editor galeri berada di form program.
 
@@ -908,7 +960,7 @@ Run: `node --test lib/*.test.mjs` — catat hasil sebenarnya; dua kegagalan pre-
 
 ```bash
 git add docs/albana-docs/design/admin-ui-patterns.md docs/albana-docs/data/database-schema.md docs/albana-docs/project/website-revision-specification.md docs/albana-docs/plans/2026-11-16-redesign-restructure-implementation-plan.md front/AGENTS.md
-git commit -m "docs: Model A, bottom sheet, tabel tagihan, dokumentasi program, dan susunan beranda (admin-ui-11)"
+git commit -m "docs: shadcn/ui, bottom sheet, tabel tagihan, dokumentasi program, dan susunan beranda (admin-ui-11)"
 ```
 
 ---
@@ -917,7 +969,7 @@ git commit -m "docs: Model A, bottom sheet, tabel tagihan, dokumentasi program, 
 
 | Butir permintaan | Tugas |
 | --- | --- |
-| R1.1 Samakan gaya semua isian form admin (Model A) | 1, 2, 3 |
+| R1.1 Samakan gaya semua isian form admin (shadcn/ui, Revisi 3) | 1, 2, 3, 8 |
 | R1.2 Rapikan tagihan desktop menjadi tabel | 5 |
 | R1.3 Modal menjadi bottom sheet di ponsel | 4 |
 | R1.4 Hapus menu Pengaturan dari sidebar | 6 |
@@ -928,11 +980,13 @@ git commit -m "docs: Model A, bottom sheet, tabel tagihan, dokumentasi program, 
 | R2.4 Multiple upload 15–20 foto dan 1–2 YouTube | 8 |
 | R2.5 Beranda Public Training per program | 10 |
 | R2.6 Beranda In House Training: galeri kegiatan dan Our Partner | 10 |
+| R3.1 Satu header di layar form; "Program & Batch" menjadi "Program" | 1, 6 |
+| R3.2 Semua isian mengikuti shadcn/ui yang rapi | 1, 2, 3, 8 |
 
 ## Urutan eksekusi dan ketergantungan
 
 ```text
-1 ──► 2 ──► 3        (Model A; 1 memberi Field dan tipografinya)
+1 ──► 2 ──► 3        (shadcn; 1 membuang CSS lama dan memberi Field berlabel shadcn)
 1 ──────────► 8      (8 menambah seksi Dokumentasi ke ProgramForm yang 1 tulis ulang)
 4 ──────────► 5, 8   (5 dan 8 memakai AdminSheet)
 6 ──────────► 7      (7 menghapus rute yang 6 keluarkan dari menu)
