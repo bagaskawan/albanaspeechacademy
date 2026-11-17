@@ -6,7 +6,7 @@ export function TestimonialChapter({ testimonials }: { testimonials: HomeTestimo
   if (!testimonials.length) return null;
 
   return (
-    <section id="hasil" className="section" aria-labelledby="hasil-title">
+    <section id="hasil" className="section tone-mist" aria-labelledby="hasil-title">
       <Container className="max-w-7xl">
         <SectionIntro
           eyebrow="[ CERITA PESERTA ]"
@@ -18,20 +18,18 @@ export function TestimonialChapter({ testimonials }: { testimonials: HomeTestimo
           titleId="hasil-title"
           description="Cerita singkat dari peserta yang sudah berlatih bersama Albana."
         />
-        <ul className="mt-8 grid gap-4 lg:grid-cols-[2fr_1fr_1fr]">
+        <ul className="mt-8 grid gap-x-10 gap-y-8 lg:grid-cols-[2fr_1fr_1fr]">
           {testimonials.map((item, index) => (
             <li
               key={item.id}
               data-motion="rise"
-              className={`rounded-card border border-rule p-6 ${
-                index === 0 ? "bg-panel-soft md:p-9" : "bg-card"
-              }`}
+              className={index === 0 ? "" : "border-t border-[var(--tone-rule)] pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0"}
             >
-              <blockquote className={index === 0 ? "font-display text-2xl leading-snug" : "leading-relaxed"}>
-                “{item.quote}”
+              <blockquote className={index === 0 ? "type-display" : "leading-relaxed"}>
+                <span className="font-[family-name:var(--font-serif)]" aria-hidden="true">“</span>{item.quote}<span className="font-[family-name:var(--font-serif)]" aria-hidden="true">”</span>
               </blockquote>
-              <p className="mt-6 border-t border-rule pt-4 font-semibold">{item.attribution}</p>
-              {item.roleLabel ? <p className="text-sm text-muted">{item.roleLabel}</p> : null}
+              <p className="mt-6 border-t border-[var(--tone-rule)] pt-4 font-semibold">{item.attribution}</p>
+              {item.roleLabel ? <p className="text-sm text-[var(--tone-muted)]">{item.roleLabel}</p> : null}
             </li>
           ))}
         </ul>

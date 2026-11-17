@@ -28,13 +28,13 @@ export async function HomePage() {
         <BenefitBand hero={data.hero} />
         <ProgramChapter programs={data.programs} inhouse={data.inhouse} />
         <AboutSection />
-        <LearningMethodChapter />
+        <LearningMethodChapter moments={data.moments} />
         <LegalitySection />
         <TestimonialChapter testimonials={data.testimonials} />
         <TrainerSection />
-        <ScheduleSection />
+        <ScheduleSection programs={data.programs} moments={data.moments} />
         <RegistrationStepsSection />
-        <ClosingSection />
+        <ClosingSection moments={data.moments} />
       </main>
       <SiteFooter />
     </>
