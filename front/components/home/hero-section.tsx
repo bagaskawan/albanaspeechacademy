@@ -11,23 +11,24 @@ export function HeroSection({ hero }: { hero: HomeData["hero"] }) {
     <section id="beranda" aria-labelledby="hero-title" className="tone-canvas pt-6 md:pt-8">
       <Container className="max-w-7xl">
         <div
-          data-motion="media"
           className="tone-night relative min-h-[min(88svh,52rem)] overflow-hidden max-lg:min-h-[36rem]"
         >
           {hero.photo ? (
-            <Image
-              fill
-              preload
-              src={hero.photo.src}
-              alt={hero.photo.alt}
-              sizes="(min-width:1280px) 1280px, 100vw"
-              className="object-cover"
-            />
+            <div data-motion="media" className="absolute inset-0 overflow-hidden">
+              <Image
+                fill
+                preload
+                src={hero.photo.src}
+                alt={hero.photo.alt}
+                sizes="(min-width:1280px) 1280px, 100vw"
+                className="object-cover"
+              />
+            </div>
           ) : null}
           {/* 0.60 at 45%: lead text >= 4.5:1 on worst-case white pixel (5.05:1) */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-[linear-gradient(to_top,rgb(7_15_28/0.88)_0%,rgb(7_15_28/0.60)_45%,transparent_75%)]"
+            className="absolute inset-0 bg-[linear-gradient(to_top,rgb(7_15_28/0.88)_0%,rgb(7_15_28/0.60)_55%,transparent_90%)] lg:bg-[linear-gradient(to_top,rgb(7_15_28/0.88)_0%,rgb(7_15_28/0.60)_45%,transparent_75%)]"
           />
 
           <div className="absolute inset-x-0 bottom-0 max-w-[44rem] space-y-4 p-6 text-white md:p-12">
