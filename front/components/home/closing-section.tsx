@@ -15,7 +15,7 @@ export async function ClosingSection({ moments }: { moments: HomeMedia[] }) {
   if (!hasBatch && !whatsapp && !contacts.length) return null;
   return <section id="kontak" className="tone-night py-14 md:py-24" aria-labelledby="kontak-title"><Container className="max-w-7xl">
     {moments.length >= 6 ? <div data-bento className="mb-12 grid grid-cols-3 gap-1 md:mb-16">{moments.slice(3, 6).map((photo) => <div key={photo.id} data-motion="media" className="relative aspect-[4/5] overflow-hidden bg-[var(--tone-tile)]"><Image src={photo.src} alt={photo.alt} fill sizes="(min-width: 1280px) 400px, 33vw" className="object-cover" /></div>)}</div> : null}
-    {hasBatch || whatsapp ? <div data-motion="rise" className="border-b border-[var(--tone-rule)] pb-12 md:pb-16">
+    {hasBatch || whatsapp ? <div className="border-b border-[var(--tone-rule)] pb-12 md:pb-16">
       <h2 id="kontak-title" data-motion="heading" className="max-w-[14ch] font-display text-4xl leading-tight font-semibold tracking-tight md:text-6xl">Usulan apa yang ingin <em className="accent-serif">kamu latih</em>?</h2>
       <p className="mt-5 max-w-xl text-lg">Ceritakan situasinya — presentasi, memandu acara, atau pelatihan tim. Kami bantu memilih program yang pas.</p>
       <div className="mt-7 flex flex-wrap items-center gap-5"><a className="inline-flex min-h-11 items-center bg-white px-6 py-2.5 font-display text-sm font-semibold text-[var(--color-accent-strong)] transition-colors hover:bg-white/90" href="#jadwal">Lihat jadwal</a>{whatsapp ? <a className="min-h-11 content-center underline underline-offset-4" href={contactHref(whatsapp)} target="_blank" rel="noopener noreferrer">Chat lewat WhatsApp</a> : null}</div>

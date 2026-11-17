@@ -30,7 +30,7 @@ export async function LearningMethodChapter({ moments }: { moments: HomeMedia[] 
         <div><h3 className="type-title">{item.title}</h3><p className="mt-3 text-[var(--tone-muted)]">{item.description}</p></div>
         <div className="h-1.5 bg-[var(--tone-tile)] md:col-span-2"><div data-motion="bar" className="h-full origin-left bg-[var(--tone-accent)]" style={{ width: `${item.value}%` }} /></div>
       </div>
-      {photo ? <figure><div data-motion="media" className="relative aspect-[4/3] overflow-hidden bg-[var(--tone-tile)]"><Image src={photo.src} alt={photo.alt} fill sizes="(min-width: 768px) 28vw, 90vw" className="object-cover" /></div><figcaption className="eyebrow mt-2">{photo.alt}</figcaption></figure> : null}
+      {photo ? <figure><div data-motion="media" className="relative aspect-[4/3] overflow-hidden bg-[var(--tone-tile)]"><Image src={photo.src} alt="" fill sizes="(min-width: 768px) 28vw, 90vw" className="object-cover" /></div><figcaption className="eyebrow mt-2">{photo.alt}</figcaption></figure> : null}
     </li>; })}</ol>
     <div className="mt-10 border-t border-[var(--tone-rule)] pt-6"><h3 className="eyebrow">Kerangka pengembangan</h3><ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{levels.map(([title, description]) => <li key={title} data-motion="slide" className="border-l-2 border-[var(--tone-accent)] pl-4"><strong className="block">{title}</strong><span className="text-sm text-[var(--tone-muted)]">{description}</span></li>)}</ol></div>
     <div className="mt-10"><h3 className="eyebrow">Bidang pelatihan</h3><p data-motion="rise" className="mt-3 max-w-4xl leading-loose text-[var(--tone-muted)]">{topics.join(" · ")}</p></div>

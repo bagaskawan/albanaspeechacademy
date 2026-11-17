@@ -94,6 +94,7 @@ export function HomeScroll() {
           return;
         }
         if (element.dataset.motion === "chapter" && !reduced && window.innerWidth >= 1024) {
+          element.querySelectorAll(".accent-serif").forEach((m) => m.classList.add("is-drawn"));
           animations.push(ScrollTrigger.create({ trigger: element, start: "top 90%", end: "top 35%", scrub: 0.6,
             animation: gsap.fromTo(element, { scale: 0.86, opacity: 0.2, xPercent: -4, transformOrigin: "left bottom" }, { scale: 1, opacity: 1, xPercent: 0, ease: "none", immediateRender: true }) }));
           return;

@@ -35,18 +35,18 @@ export async function TrainerSection() {
   return (
     <section
       id="trainer"
-      className="section"
+      className="section tone-canvas"
       aria-labelledby="trainer-title"
     >
       <Container className="max-w-7xl">
         <p className="eyebrow">[ TRAINER ]</p>
         <h2
           id="trainer-title"
-          className="mt-3 max-w-[24ch] text-[2rem] leading-[1.05] font-semibold tracking-[-0.045em] text-balance md:text-[2.5rem] lg:text-[3rem]"
+          className="mt-3 max-w-[24ch] type-display text-balance"
         >
           Kenali <em className="accent-serif">yang akan mendampingimu</em>
         </h2>
-        <p className="mt-3 max-w-[42em] leading-[1.6] text-muted">
+        <p className="mt-3 max-w-[42em] leading-[1.6] text-[var(--tone-muted)]">
           Praktisi yang sehari-hari berbicara di depan audiens — di radio, panggung, ruang kelas, dan ruang rapat.
         </p>
 

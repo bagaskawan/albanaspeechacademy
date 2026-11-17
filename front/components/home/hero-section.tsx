@@ -25,7 +25,7 @@ export function HeroSection({ hero }: { hero: HomeData["hero"] }) {
               />
             </div>
           ) : null}
-          {/* 0.60 at 45%: lead text >= 4.5:1 on worst-case white pixel (5.05:1) */}
+          {/* 0.60 at 55% (<lg) / 45% (lg+): lead text >= 4.5:1 on worst-case white pixel (5.05:1) */}
           <div
             aria-hidden="true"
             className="absolute inset-0 bg-[linear-gradient(to_top,rgb(7_15_28/0.88)_0%,rgb(7_15_28/0.60)_55%,transparent_90%)] lg:bg-[linear-gradient(to_top,rgb(7_15_28/0.88)_0%,rgb(7_15_28/0.60)_45%,transparent_75%)]"
