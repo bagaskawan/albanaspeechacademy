@@ -1,35 +1,36 @@
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { HomeScroll } from "@/lib/motion/scroll";
+import { readHomeData } from "@/lib/server/home-data";
 import { AboutSection } from "./about-section";
 import { BenefitBand } from "./benefit-band";
 import { ClosingSection } from "./closing-section";
-import { DocumentationSection } from "./documentation-section";
 import { HeroSection } from "./hero-section";
 import { LearningMethodChapter } from "./learning-method-chapter";
-import { PracticePreviewSection } from "./practice-preview-section";
-import { PartnersStrip } from "./partners-strip";
-import { ProgramShowcaseSection } from "./program-showcase-section";
+import { LegalitySection } from "./legality-section";
+import { PreviewBanner } from "./preview-banner";
+import { ProgramChapter } from "./program-chapter";
+import { RegistrationStepsSection } from "./registration-steps-section";
+import { ScheduleSection } from "./schedule-section";
 import { TestimonialChapter } from "./testimonial-chapter";
 import { TrainerSection } from "./trainer-section";
-import { ScheduleSection } from "./schedule-section";
-import { RegistrationStepsSection } from "./registration-steps-section";
 
-export function HomePage() {
+export async function HomePage() {
+  const data = await readHomeData();
+
   return (
     <>
       <SiteHeader home />
       <main id="main-content">
         <HomeScroll />
-        <HeroSection />
-        <BenefitBand />
-        <ProgramShowcaseSection />
-        <PracticePreviewSection />
+        <PreviewBanner preview={data.preview} />
+        <HeroSection hero={data.hero} />
+        <BenefitBand hero={data.hero} />
+        <ProgramChapter programs={data.programs} inhouse={data.inhouse} />
         <AboutSection />
         <LearningMethodChapter />
-        <PartnersStrip />
-        <TestimonialChapter />
-        <DocumentationSection />
+        <LegalitySection />
+        <TestimonialChapter testimonials={data.testimonials} />
         <TrainerSection />
         <ScheduleSection />
         <RegistrationStepsSection />
