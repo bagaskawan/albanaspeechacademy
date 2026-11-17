@@ -15,9 +15,10 @@ import {
   DialogContent,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { InputLine } from "@/components/ui/style-line/InputLine";
-import { TextareaLine } from "@/components/ui/style-line/TextareaLine";
-import { SelectLine } from "@/components/ui/SelectLine";
+import { Field } from "@/components/admin/ui/form/fields";
+import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { TimePicker } from "@/components/ui/TimePicker";
 import { TableToolbar, matchesQuery, type ToolbarFilter } from "@/components/admin/ui/table-toolbar";
@@ -539,7 +540,9 @@ export default function CmsCollectionClient({
     const value = form[field.name];
     const id = fieldId(field);
     const error = fieldErrors[field.name];
-    const common = { id, label: field.label, error, required: field.required, hint: field.help };
+    const fieldProps = { label: field.label, htmlFor: id, required: field.required, hint: field.help, error };
+    const selectTriggerClass =
+      "w-full rounded-lg border border-input bg-transparent px-3 py-1 text-base font-normal text-admin-ink shadow-none md:text-sm dark:bg-input/30";
 
     if (field.type === "sessions") {
       const sessions = (value as Session[]) ?? [];
@@ -664,40 +667,42 @@ export default function CmsCollectionClient({
     }
 
     if (field.type === "select") {
+      const current = String(value ?? "");
       return (
-        <SelectLine
-          id={id}
-          label={field.label}
-          value={String(value ?? "")}
-          onValueChange={(next) => setValue(field, next)}
-          options={(field.options ?? []).map((option) => ({
-            value: option,
-            label: field.labels?.[option] ?? option,
-          }))}
-          placeholder="Pilih…"
-          hint={field.help}
-          error={error}
-          required={field.required}
-        />
+        <Field {...fieldProps}>
+          <Select value={current} onValueChange={(next) => setValue(field, next)}>
+            <SelectTrigger id={id} aria-invalid={error ? true : undefined} className={selectTriggerClass}>
+              <SelectValue placeholder="Pilih…" />
+            </SelectTrigger>
+            <SelectContent>
+              {(field.options ?? []).map((option) => (
+                <SelectItem key={option} value={option}>
+                  {field.labels?.[option] ?? option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
       );
     }
 
     if (field.type === "member") {
+      const current = String(value ?? "");
       return (
-        <SelectLine
-          id={id}
-          label={field.label}
-          value={String(value ?? "")}
-          onValueChange={(next) => setValue(field, next)}
-          options={(members ?? []).map((member) => ({
-            value: member.id,
-            label: member.name,
-          }))}
-          placeholder="Pilih dari data member…"
-          hint={field.help}
-          error={error}
-          required={field.required}
-        />
+        <Field {...fieldProps}>
+          <Select value={current} onValueChange={(next) => setValue(field, next)}>
+            <SelectTrigger id={id} aria-invalid={error ? true : undefined} className={selectTriggerClass}>
+              <SelectValue placeholder="Pilih dari data member…" />
+            </SelectTrigger>
+            <SelectContent>
+              {(members ?? []).map((member) => (
+                <SelectItem key={member.id} value={member.id}>
+                  {member.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
       );
     }
 
@@ -706,16 +711,15 @@ export default function CmsCollectionClient({
       const tags = raw.split(",").map((tag) => tag.trim()).filter(Boolean);
       return (
         <div className="space-y-2">
-          <InputLine
-            id={id}
-            label={field.label}
-            hint={field.help}
-            required={field.required}
-            error={error}
-            value={raw}
-            placeholder={field.placeholder ?? "Pisahkan dengan koma, mis. Public Speaking, MC"}
-            onChange={(event) => setValue(field, event.target.value)}
-          />
+          <Field {...fieldProps}>
+            <Input
+              id={id}
+              aria-invalid={error ? true : undefined}
+              value={raw}
+              placeholder={field.placeholder ?? "Pisahkan dengan koma, mis. Public Speaking, MC"}
+              onChange={(event) => setValue(field, event.target.value)}
+            />
+          </Field>
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {tags.map((tag) => (
@@ -837,19 +841,22 @@ export default function CmsCollectionClient({
       const words = countWords(String(value ?? ""));
       return (
         <div className="space-y-1">
-          <TextareaLine
-            {...common}
-            value={String(value ?? "")}
-            onChange={(event) => setValue(field, event.target.value)}
-            rows={5}
-            placeholder={field.placeholder}
-          />
+          <Field {...fieldProps}>
+            <Textarea
+              id={id}
+              aria-invalid={error ? true : undefined}
+              value={String(value ?? "")}
+              onChange={(event) => setValue(field, event.target.value)}
+              rows={5}
+              placeholder={field.placeholder}
+            />
+          </Field>
           {(field.minWords || field.maxWords) && (
             <p
-              className={`text-[10px] font-semibold ${
+              className={`text-[12px] font-medium ${
                 field.maxWords && words > field.maxWords
-                  ? "text-destructive"
-                  : "text-text-secondary"
+                  ? "text-admin-danger"
+                  : "text-admin-text-secondary"
               }`}
             >
               {words} kata · {field.minWords ?? 0}–{field.maxWords} kata
@@ -861,26 +868,37 @@ export default function CmsCollectionClient({
 
     if (field.type === "price") {
       return (
-        <InputLine
-          {...common}
-          inputMode="numeric"
-          prefixText="Rp"
-          value={String(value ?? "")}
-          onChange={(event) => setValue(field, event.target.value.replace(/\D/g, ""))}
-          placeholder={field.placeholder ?? "1.500.000"}
-        />
+        <Field {...fieldProps}>
+          <div className="relative flex items-center">
+            <span aria-hidden="true" className="pointer-events-none absolute left-3 text-sm text-admin-text-secondary">
+              Rp
+            </span>
+            <Input
+              id={id}
+              aria-invalid={error ? true : undefined}
+              inputMode="numeric"
+              className="pl-9"
+              value={String(value ?? "")}
+              onChange={(event) => setValue(field, event.target.value.replace(/\D/g, ""))}
+              placeholder={field.placeholder ?? "1.500.000"}
+            />
+          </div>
+        </Field>
       );
     }
 
     return (
-      <InputLine
-        {...common}
-        type={field.type === "number" ? "number" : field.type === "datetime" ? "datetime-local" : "text"}
-        value={String(value ?? "")}
-        onChange={(event) => setValue(field, event.target.value)}
-        min={field.type === "number" ? 0 : undefined}
-        placeholder={field.placeholder}
-      />
+      <Field {...fieldProps}>
+        <Input
+          id={id}
+          aria-invalid={error ? true : undefined}
+          type={field.type === "number" ? "number" : field.type === "datetime" ? "datetime-local" : "text"}
+          value={String(value ?? "")}
+          onChange={(event) => setValue(field, event.target.value)}
+          min={field.type === "number" ? 0 : undefined}
+          placeholder={field.placeholder}
+        />
+      </Field>
     );
   };
 
@@ -905,7 +923,7 @@ export default function CmsCollectionClient({
       )}
 
       <Dialog open={isFormOpen} onOpenChange={(open) => { if (!open) closeForm(); }}>
-        <DialogContent className={`admin-dialog-motion ${maxWidth ?? (twoColumns ? "max-w-4xl" : "max-w-2xl")} bg-bg-card border-border-default`}>
+        <DialogContent className={`admin-dialog-motion ${maxWidth ?? (twoColumns ? "max-w-4xl" : "max-w-2xl")} bg-admin-canvas`}>
           <DialogIconHeader
             icon={editingRow ? <Pencil size={18} /> : <Plus size={18} />}
             title={editingRow ? `Ubah ${title}` : `Tambah ${title}`}
