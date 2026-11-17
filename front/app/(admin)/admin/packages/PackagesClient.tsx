@@ -239,8 +239,8 @@ export default function PackagesClient({
                                   </div>
                                 </td>
                                 <td className="py-3.5 px-5 border-r border-border-default/40 font-bold text-text-primary">
-                                  <div>{pkg.price}</div>
-                                  {pkg.original_price && <div className="text-[10px] text-text-muted line-through font-normal">{pkg.original_price}</div>}
+                                  <div className="whitespace-nowrap">{pkg.price}</div>
+                                  {pkg.original_price && <del className="block whitespace-nowrap text-xs font-normal text-text-secondary">{pkg.original_price}</del>}
                                 </td>
                                 <td className="py-3.5 px-5 border-r border-border-default/40">
                                   {pkg.is_highlighted ? (
@@ -379,10 +379,10 @@ export default function PackagesClient({
                               {pkg.subtitle && (
                                 <p className="text-xs text-text-secondary mt-0.5 font-medium">{pkg.subtitle}</p>
                               )}
-                              <div className="mt-2.5 flex items-baseline gap-2">
-                                <span className="text-lg font-black text-text-primary">{pkg.price}</span>
+                              <div className="mt-2.5">
+                                <div className="text-lg font-black text-text-primary">{pkg.price}</div>
                                 {pkg.original_price && (
-                                  <span className="text-xs text-text-muted line-through font-medium">{pkg.original_price}</span>
+                                  <del className="block text-xs font-normal text-text-secondary">{pkg.original_price}</del>
                                 )}
                               </div>
                             </div>

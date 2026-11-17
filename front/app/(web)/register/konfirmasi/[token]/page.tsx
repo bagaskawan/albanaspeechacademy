@@ -21,6 +21,13 @@ export default async function ConfirmationPage({ params }: { params: Promise<{ t
     .select("id,offer_title,payment_method,price_idr_at_signup,received_at")
     .eq("id", id).single();
   if (error || !registration) notFound();
+  const { data: items, error: itemsError } = await client.from("academy_registration_items")
+    .select("batch_slug,batches(title)").eq("registration_id", id).order("batch_slug");
+  if (itemsError || !items?.length) notFound();
+  const batchNames = items.map((item) => {
+    const batch = Array.isArray(item.batches) ? item.batches[0] : item.batches;
+    return batch?.title ?? item.batch_slug;
+  }).join(" + ");
   const { data: invoices, error: invoiceError } = await client.from("academy_invoices")
     .select("id,stage,subtotal_idr,unique_code,total_idr,status,bank_accounts(bank,account_number,holder)")
     .eq("registration_id", id).order("id", { ascending: false });
@@ -48,9 +55,9 @@ export default async function ConfirmationPage({ params }: { params: Promise<{ t
       </header>
       <div className="grid gap-8 py-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(19rem,0.9fr)] lg:gap-12">
         <section aria-labelledby="receipt-heading">
-          <p className="text-sm font-semibold uppercase tracking-widest text-accent">Pendaftaran berhasil diproses</p>
-          <h2 id="receipt-heading" className="mt-2 text-xl font-semibold">{registration.offer_title}</h2>
-          <p className="mt-2 text-sm text-muted">Akun dan kepesertaan diaktifkan setelah admin memverifikasi pembayaran.</p>
+          <p className="text-sm font-semibold uppercase tracking-widest text-accent">Pendaftaranmu sudah kami terima.</p>
+          <h2 id="receipt-heading" className="mt-2 text-xl font-semibold">{registration.offer_title} – {batchNames}</h2>
+          <p className="mt-2 text-sm text-muted">Admin akan memverifikasi pembayaran sebelum mengonfirmasi kepesertaanmu.</p>
           <dl className="mt-8 border border-rule bg-card p-5 sm:p-7">
             <div className="flex justify-between gap-3 font-semibold"><dt>Tagihan #{invoice.id}</dt><dd>{stage}</dd></div>
             <div className="mt-6 flex justify-between gap-3 text-sm"><dt>Subtotal</dt><dd>{rupiah(subtotal)}</dd></div>
@@ -59,11 +66,11 @@ export default async function ConfirmationPage({ params }: { params: Promise<{ t
           </dl>
           {invoice.status === "pending" ? <>
             <ol className="mt-8 grid gap-3 border-y border-rule py-5 text-sm">
-              <li><strong>01.</strong> Transfer tepat {rupiah(total)}, termasuk kode unik.</li>
-              <li><strong>02.</strong> Ambil tangkapan layar bukti transfer.</li>
-              <li><strong>03.</strong> Kirim bukti ke WhatsApp admin dengan tombol di bawah.</li>
+              <li><strong>1.</strong> Transfer tepat sebesar total di atas.</li>
+              <li><strong>2.</strong> Simpan bukti transfer.</li>
+              <li><strong>3.</strong> Kirim bukti lewat WhatsApp.</li>
             </ol>
-            {whatsappHref ? <a className="button-primary mt-6 flex min-h-12 items-center justify-center text-center" href={whatsappHref} target="_blank" rel="noopener noreferrer">Kirim bukti transfer ke WhatsApp</a> : <p className="mt-6 text-sm text-muted">Nomor WhatsApp admin belum tersedia di data kontak. Hubungi Albana melalui kanal resmi untuk mengirim bukti transfer.</p>}
+            {whatsappHref ? <a className="button-primary mt-6 flex min-h-12 items-center justify-center text-center" href={whatsappHref} target="_blank" rel="noopener noreferrer">Kirim Bukti Transfer ke WhatsApp</a> : <p className="mt-6 text-sm text-muted">Nomor WhatsApp admin belum tersedia di data kontak. Hubungi Albana melalui kanal resmi untuk mengirim bukti transfer.</p>}
           </> : <p className="mt-7 border-l-4 border-accent pl-4">Status tagihan: {invoice.status === "verified" ? "sudah diverifikasi" : invoice.status === "rejected" ? "perlu ditinjau ulang" : "dibatalkan"}. Hubungi admin jika membutuhkan bantuan.</p>}
           <p className="mt-12 text-xs text-muted">Pembayaran diverifikasi manual oleh admin Albana.</p>
         </section>

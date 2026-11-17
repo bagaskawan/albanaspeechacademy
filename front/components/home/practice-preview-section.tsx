@@ -1,28 +1,18 @@
 import Image from "next/image";
 import { Container } from "@/components/layout/container";
-import { SectionIntro } from "./section-intro";
+import { academyRequest } from "@/lib/server/academy-api";
 
-const previews = [
-  { src: "/images/preview/simulasi-panggung.jpg", alt: "Contoh visual simulasi berbicara di depan audiens" },
-  { src: "/images/preview/diskusi-kelompok.jpg", alt: "Contoh visual diskusi dan umpan balik kelompok" },
-] as const;
+type Media = { id: number; alt_text: string | null };
 
-export function PracticePreviewSection() {
-  return (
-    <section className="section" aria-labelledby="proses-title">
-      <Container className="max-w-7xl">
-        <SectionIntro eyebrow="Proses latihan" title="Belajar dimulai saat kamu mencoba" titleId="proses-title" description="Dari mencoba berbicara hingga menerima masukan, setiap sesi memberi ruang untuk berlatih." />
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
-          {previews.map((preview) => (
-            <figure key={preview.src} className="m-0">
-              <div className="relative aspect-[4/3] overflow-hidden bg-panel-soft">
-                <Image src={preview.src} alt={`${preview.alt}; bukan dokumentasi kelas Albana`} fill sizes="(min-width: 768px) 48vw, 100vw" className="object-cover" />
-              </div>
-              <figcaption className="mt-2 text-xs text-muted">Contoh visual — bukan dokumentasi kelas Albana</figcaption>
-            </figure>
-          ))}
-        </div>
-      </Container>
-    </section>
-  );
+export async function PracticePreviewSection() {
+  let media: Media | null = null;
+  try {
+    const rows = await academyRequest("media_assets?select=id,alt_text&kind=eq.image&published=eq.true&consent_at=not.is.null&order=created_at.desc&limit=1");
+    if (Array.isArray(rows)) media = rows[0] ?? null;
+  } catch { /* The labelled dummy stays visible until a consented image is available. */ }
+  const src = media ? `/api/media/${media.id}` : "/images/preview/simulasi-panggung.jpg";
+  const caption = media?.alt_text || "Contoh visual — bukan dokumentasi kelas Albana.";
+  return <section className="pb-12 md:pb-20" aria-label="Bukti proses"><Container className="max-w-7xl">
+    <figure data-motion="media"><div className="relative aspect-[16/7] overflow-hidden bg-panel-soft max-sm:aspect-[4/3]"><Image src={src} alt={caption} fill sizes="(min-width: 1280px) 1280px, 100vw" className="object-cover" /></div><figcaption className="mt-2 text-sm text-muted">{caption}</figcaption></figure>
+  </Container></section>;
 }

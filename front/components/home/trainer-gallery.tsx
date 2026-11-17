@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, m } from "motion/react";
+import { MotionProvider } from "@/components/motion/MotionProvider";
 
 export type Trainer = {
   slug: string;
@@ -9,6 +11,12 @@ export type Trainer = {
   role: string;
   bio?: string;
   image?: string;
+};
+const highlights: Record<string, string[]> = {
+  "alan-albana": ["Penyiar RRI sejak 2015", "Penulis buku Ice Breaking", "S2 Komunikasi Pendidikan UNISBA"],
+  nurachman: ["Public speaking dan grafologi", "Manajemen SDM", "Pemateri perbankan dan universitas"],
+  "andhan-indah": ["Female MC of The Year Hipapi Indonesia", "Trainer komunikasi LIPI", "Public Relations UNPAD"],
+  "abo-priatna": ["MC acara nasional dan korporat", "Announcer dan podcaster", "Certified Bilingual MC"],
 };
 
 function TrainerPortrait({ trainer, sizes, fit = "cover" }: { trainer: Trainer; sizes: string; fit?: "cover" | "contain" }) {
@@ -32,14 +40,13 @@ export function TrainerGallery({ trainers }: { trainers: Trainer[] }) {
     const dialog = dialogRef.current;
     if (!dialog) return;
     if (selectedTrainer && !dialog.open) dialog.showModal();
-    if (!selectedTrainer && dialog.open) dialog.close();
   }, [selectedTrainer]);
 
   return (
     <>
       <ul className="mt-8 grid list-none grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
         {trainers.map((trainer) => (
-          <li key={trainer.slug}>
+          <li key={trainer.slug} data-motion="slide">
             <button
               type="button"
               aria-haspopup="dialog"
@@ -57,13 +64,14 @@ export function TrainerGallery({ trainers }: { trainers: Trainer[] }) {
                   {trainer.name}
                 </span>
                 <span className="eyebrow mt-1.5 block text-center">{trainer.role}</span>
+                <span className="mt-3 block text-center text-sm font-semibold text-accent underline underline-offset-4">Lihat profil</span>
               </span>
             </button>
           </li>
         ))}
       </ul>
 
-      <dialog
+      <MotionProvider><dialog
         ref={dialogRef}
         aria-labelledby="trainer-dialog-title"
         className="m-auto max-h-[calc(100dvh-2rem)] w-[min(56rem,calc(100vw-2rem))] overflow-y-auto rounded-panel border border-rule bg-card p-0 text-ink backdrop:bg-ink/60"
@@ -75,8 +83,9 @@ export function TrainerGallery({ trainers }: { trainers: Trainer[] }) {
           triggerRef.current?.focus();
         }}
       >
+        <AnimatePresence onExitComplete={() => dialogRef.current?.close()}>
         {selectedTrainer ? (
-          <div className="grid md:grid-cols-2">
+          <m.div key={selectedTrainer.slug} initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.25 }} className="grid md:grid-cols-2">
             <div className="relative aspect-[3/4] w-full self-start overflow-hidden border-b border-rule bg-panel-soft md:border-b-0 md:border-r">
               <TrainerPortrait trainer={selectedTrainer} sizes="(min-width: 768px) 28rem, 90vw" fit="contain" />
             </div>
@@ -98,10 +107,12 @@ export function TrainerGallery({ trainers }: { trainers: Trainer[] }) {
               </h3>
               <p className="eyebrow mt-2">{selectedTrainer.role}</p>
               <p className="mt-4 leading-[1.6] text-muted">{selectedTrainer.bio ?? "Profil lengkap belum tersedia."}</p>
+              {highlights[selectedTrainer.slug] ? <ul className="mt-5 grid gap-2 border-t border-rule pt-4 text-sm">{highlights[selectedTrainer.slug].map((point) => <li key={point}>{point}</li>)}</ul> : null}
             </div>
-          </div>
+          </m.div>
         ) : null}
-      </dialog>
+        </AnimatePresence>
+      </dialog></MotionProvider>
     </>
   );
 }

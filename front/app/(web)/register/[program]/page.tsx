@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 
 async function ProgramRegistration({ params }: { params: Promise<{ program: string }> }) {
   const { program } = await params;
+  if (program === "inhouse-training") permanentRedirect("/program/inhouse-training");
   if (program === "basic-to-advance") permanentRedirect("/register/public-speaking-for-speakers");
   const selection = await readProgramRegistration(program);
   if (selection.status === "missing") notFound();

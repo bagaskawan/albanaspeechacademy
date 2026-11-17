@@ -97,7 +97,7 @@ export function ProgramDetailPage({ card, media, consultationHref, partners = []
         </section>
 
         {card.slug === "inhouse-training" ? <section className="mt-12 border-t border-rule pt-10" aria-labelledby="partners-title">
-          <p className="eyebrow">Kolaborasi</p><h2 id="partners-title" className="mt-2 text-2xl font-semibold">Our Partner</h2>
+          <p className="eyebrow">Kolaborasi</p><h2 id="partners-title" className="mt-2 text-2xl font-semibold">Pernah melatih</h2>
           {partners.length ? <ul className="mt-6 grid gap-4 sm:grid-cols-2">{partners.map((partner) => <li key={partner.id} className="flex min-h-28 items-center gap-4 border border-rule bg-card p-4">
             {partner.logo_url ? <img src={partner.logo_url} alt="" loading="lazy" className="max-h-16 max-w-28 object-contain" /> : null}
             <span className="font-semibold">{partner.name}</span>
@@ -173,7 +173,7 @@ export function ProgramNotFound() {
           <p className="mt-4 max-w-[42em] text-muted">
             Program yang kamu cari tidak tersedia atau belum diterbitkan.
           </p>
-          <Link className="button-primary mt-7" href="/#program-pilihan">
+          <Link className="button-primary mt-7" href="/#program">
             Lihat semua program
             <span aria-hidden="true">→</span>
           </Link>

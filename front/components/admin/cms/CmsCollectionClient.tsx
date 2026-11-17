@@ -238,6 +238,11 @@ export default function CmsCollectionClient({
   const [activatingKey, setActivatingKey] = useState<string | null>(null);
 
   const uploadGalleryFile = async (field: CmsField, file: File) => {
+    const consentField = fields.find((item) => item.type === "consent");
+    if (consentField && !form[consentField.name]) {
+      toast.error("Catat izin publikasi sebelum mengunggah foto.");
+      return;
+    }
     if (!file.type.startsWith("image/")) {
       toast.error("Hanya file gambar yang diizinkan!");
       return;

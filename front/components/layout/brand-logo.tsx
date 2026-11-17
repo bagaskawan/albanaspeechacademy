@@ -4,12 +4,14 @@ type BrandLogoProps = {
   className?: string;
   imageClassName?: string;
   src?: string;
+  sizes?: string;
 };
 
 export function BrandLogo({
   className = "",
   imageClassName = "scale-[1.8]",
   src = "/images/alan-albana-transparent.png",
+  sizes = "100px",
 }: BrandLogoProps) {
   return (
     <span className={`relative block aspect-[120/46] overflow-hidden ${className}`}>
@@ -18,7 +20,7 @@ export function BrandLogo({
         className={`object-contain ${imageClassName}`}
         fill
         priority
-        sizes="100px"
+        sizes={sizes}
         src={src}
       />
     </span>

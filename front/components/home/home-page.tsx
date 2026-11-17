@@ -1,33 +1,39 @@
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
-import { SectionReveal } from "@/components/ui/section-reveal";
-import { AlanIntroSection } from "./alan-intro-section";
-import { ContactSection } from "./contact-section";
+import { HomeScroll } from "@/lib/motion/scroll";
+import { AboutSection } from "./about-section";
+import { BenefitBand } from "./benefit-band";
+import { ClosingSection } from "./closing-section";
 import { DocumentationSection } from "./documentation-section";
 import { HeroSection } from "./hero-section";
-import { LearningMethodSection } from "./learning-method-section";
+import { LearningMethodChapter } from "./learning-method-chapter";
 import { PracticePreviewSection } from "./practice-preview-section";
+import { PartnersStrip } from "./partners-strip";
 import { ProgramShowcaseSection } from "./program-showcase-section";
-import { TestimonialSection } from "./testimonial-section";
+import { TestimonialChapter } from "./testimonial-chapter";
 import { TrainerSection } from "./trainer-section";
-import { TrainingFormatSection } from "./training-format-section";
+import { ScheduleSection } from "./schedule-section";
+import { RegistrationStepsSection } from "./registration-steps-section";
 
 export function HomePage() {
   return (
     <>
-      <SiteHeader />
+      <SiteHeader home />
       <main id="main-content">
-        <SectionReveal />
+        <HomeScroll />
         <HeroSection />
+        <BenefitBand />
         <ProgramShowcaseSection />
         <PracticePreviewSection />
-        <LearningMethodSection />
-        <AlanIntroSection />
-        <TrainerSection />
+        <AboutSection />
+        <LearningMethodChapter />
+        <PartnersStrip />
+        <TestimonialChapter />
         <DocumentationSection />
-        <TestimonialSection />
-        <TrainingFormatSection />
-        <ContactSection />
+        <TrainerSection />
+        <ScheduleSection />
+        <RegistrationStepsSection />
+        <ClosingSection />
       </main>
       <SiteFooter />
     </>

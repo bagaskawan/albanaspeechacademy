@@ -9,7 +9,6 @@ export const metadata: Metadata = {
   },
 };
 
-import SmoothScroll from "@/components/ui/SmoothScroll";
 import PageTransitionLoader from "@/components/ui/PageTransitionLoader";
 import TopProgressBar from "@/components/ui/TopProgressBar";
 import ThemeScript from "@/components/ui/ThemeScript";
@@ -38,7 +37,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <TopProgressBar />
         <PageTransitionLoader />
-        <SmoothScroll>{children}</SmoothScroll>
+        {children}
         <Toaster />
       </body>
     </html>

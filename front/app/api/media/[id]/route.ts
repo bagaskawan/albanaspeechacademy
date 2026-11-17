@@ -7,10 +7,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const { id } = await params;
   if (!/^[1-9]\d{0,14}$/.test(id)) return new Response(null, { status: 404 });
   const storage = academyBillingClient();
-  const { data: asset, error } = await storage.from("media_assets").select("provider,object_key,published")
+  const { data: asset, error } = await storage.from("media_assets").select("provider,object_key,published,consent_at")
     .eq("id", Number(id)).maybeSingle();
   if (error || !asset || asset.provider !== "supabase_storage") return new Response(null, { status: 404 });
-  if (!asset.published) {
+  if (!asset.published || !asset.consent_at) {
     const session = await createClient();
     const { data: { user } } = await session.auth.getUser();
     if (!user) return new Response(null, { status: 404 });

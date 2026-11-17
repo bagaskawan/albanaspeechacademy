@@ -101,7 +101,7 @@ Hasil ditolak bila memuat salah satu di bawah ini.
 
 **Isi:** testimoni, nama peserta, angka alumni, rating bintang, logo klien, atau sertifikat yang tidak berasal dari database. Ikon emoji. Kutipan tokoh terkenal. Seksi FAQ, harga paket “Basic/Pro/Premium”, atau countdown yang tidak diminta.
 
-**Visual:** gradien ungu/merah muda, blob, glassmorphism, kartu melayang dengan bayangan besar, ikon 3D, ilustrasi orang generik, foto stok, teks di atas foto, carousel otomatis, marquee, kursor khusus, partikel, efek ketik.
+**Visual:** gradien ungu/merah muda, blob, glassmorphism, kartu melayang dengan bayangan besar, ikon 3D, ilustrasi orang generik, foto stok tanpa label dummy, teks di atas foto, carousel otomatis, marquee di luar hero, kursor khusus, partikel, efek ketik.
 
 **Struktur:** seksi tambahan di luar dokumen ini; dua tombol utama dalam satu seksi; tab atau carousel yang menyembunyikan program; kartu dengan tinggi berbeda dalam satu deret.
 
@@ -122,18 +122,18 @@ Anchor: `#program`, `#tentang`, `#trainer`, `#jadwal`, `#kontak`. **Tentang** me
 
 **Naskah**
 
-- Logo resmi (elemen pertama, paling besar di kolom kiri)
-- H1: **Albana ▓Speech▓ Academy** — stabilo pada “Speech”
+- Baris fokus: **Presentasi · Diskusi · MC**
+- H1 berisi logo resmi Albana Speech Academy, besar dan terpusat; tidak ada teks nama merek terpisah
 - Lead: **Saat tim menunggu usulanmu, bagaimana kamu memulai? Di kelas public speaking ini, kamu berlatih membuka presentasi, menjelaskan pilihan, dan menjawab pertanyaan di depan orang lain.**
 - CTA utama: **Lihat jadwal** → `#jadwal`
-- CTA sekunder: **Lihat cara belajar** → `#tentang`
-- Baris fokus: **Presentasi · Diskusi · MC**
 
-**Media:** satu foto kegiatan atau poster video di kolom kanan. Selama memakai dummy, caption: **“Contoh visual — bukan dokumentasi kelas Albana.”** Fallback potret Alan diberi caption **“Alan Albana, founder Albana Speech Academy.”** Video tidak autoplay; tombol putar berlabel **“Putar video kegiatan”**.
+**Media:** deret foto berjalan di bagian bawah hero. Gunakan gambar dummy lokal sampai dokumentasi berizin tersedia dari database. Caption: **“Contoh visual — bukan dokumentasi kelas Albana.”**
 
-**Gerak (muat halaman, satu arah):** logo `opacity` 400 ms → H1 **G1** + **G2** → lead dan CTA **G3** (mulai saat baris pertama H1 terlihat, tidak menunggu selesai) → media **G4** bersamaan dengan H1. Baris fokus muncul terakhir, kata per kata, jeda 120 ms.
+**Tampilan:** hero memenuhi tinggi layar. Tema terang berlatar putih dengan logo biru; tema gelap berlatar navy dengan logo putih. Teks hero memakai Plus Jakarta Sans.
 
-**Saat digulir keluar:** media menyusut halus `scale 1→0.96` terikat gulir (G5) sampai hero hilang; teks diam. Ini bukan parallax: tidak ada dua lapisan yang bergerak dengan kecepatan berbeda.
+**Gerak (muat halaman):** baris fokus, logo, lead, dan CTA masuk berurutan dengan fade pendek. Deret foto bergerak linear dan berulang; berhenti bila pengguna memilih reduced motion.
+
+**Header:** seluruh header tersembunyi di awal. Saat pengunjung menggulir melewati titik tengah hero, header muncul dengan fade dan geser pendek; saat kembali ke atas titik itu, header tersembunyi lagi.
 
 ### 3.2 Pita manfaat
 
@@ -441,7 +441,7 @@ Field memakai line style akademi. Pesan galat tepat di bawah field. Tombol **Kem
 - [ ] Tidak ada satu pun butir §1.4.
 - [ ] Setiap kelompok beranimasi saat digulir turun **dan** naik, dengan arah yang benar.
 - [ ] Bilah 70/20/10 dan garis tiga langkah mengikuti posisi gulir dan kosong lagi saat digulir balik.
-- [ ] Header bersembunyi saat turun, muncul saat naik; tidak pernah hilang saat fokus keyboard di dalamnya.
+- [ ] Header muncul halus setelah gulir melewati setengah hero dan tersembunyi lagi saat kembali ke atas; navigasi tetap dapat dipakai dengan keyboard ketika tampil.
 - [ ] Reduced motion: fade satu arah, tanpa scrub, tanpa Lenis.
 - [ ] Gulir naik-turun cepat di ponsel kelas menengah tanpa tersendat.
 - [ ] Teks dan tombol terbaca dan dapat diklik dengan JavaScript dimatikan.

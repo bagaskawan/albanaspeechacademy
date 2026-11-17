@@ -9,6 +9,12 @@ type TrainerRow = {
   bio: string | null;
   photo_url: string | null;
 };
+const roles: Record<string, string> = {
+  "alan-albana": "Founder · Master Trainer BNSP",
+  nurachman: "Motivator · Penulis 50 buku",
+  "andhan-indah": "Trainer Public Speaking · MC",
+  "abo-priatna": "Trainer MC · Host",
+};
 
 export async function TrainerSection() {
   let trainers: Trainer[] = [];
@@ -18,13 +24,14 @@ export async function TrainerSection() {
       trainers = (rows as TrainerRow[]).map((trainer) => ({
         slug: trainer.slug,
         name: trainer.name,
-        role: trainer.expertise?.length ? trainer.expertise.join(" · ") : "Trainer",
+        role: roles[trainer.slug] ?? (trainer.expertise?.length ? trainer.expertise.join(" · ") : "Trainer"),
         bio: trainer.bio ?? undefined,
         image: trainer.photo_url ?? undefined,
       }));
     }
   } catch { /* Section stays available when the catalog is offline. */ }
 
+  if (!trainers.length) return null;
   return (
     <section
       id="trainer"
@@ -32,22 +39,18 @@ export async function TrainerSection() {
       aria-labelledby="trainer-title"
     >
       <Container className="max-w-7xl">
-        <p className="eyebrow">Pendamping latihan</p>
+        <p className="eyebrow">[ TRAINER ]</p>
         <h2
           id="trainer-title"
           className="mt-3 max-w-[24ch] text-[2rem] leading-[1.05] font-semibold tracking-[-0.045em] text-balance md:text-[2.5rem] lg:text-[3rem]"
         >
-          Temui praktisi yang mendampingi proses belajarmu
+          Kenali <mark className="bg-highlight text-ink">yang akan mendampingimu</mark>
         </h2>
         <p className="mt-3 max-w-[42em] leading-[1.6] text-muted">
-          Setiap trainer hadir sesuai kebutuhan program. Buka profil untuk melihat informasi yang sudah tersedia.
+          Praktisi yang sehari-hari berbicara di depan audiens — di radio, panggung, ruang kelas, dan ruang rapat.
         </p>
 
-        {trainers.length ? (
-          <TrainerGallery trainers={trainers} />
-        ) : (
-          <p className="mt-8 leading-[1.6] text-muted">Data trainer belum tersedia.</p>
-        )}
+        <TrainerGallery trainers={trainers} />
       </Container>
     </section>
   );

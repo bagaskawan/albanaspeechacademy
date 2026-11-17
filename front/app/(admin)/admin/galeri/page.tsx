@@ -13,7 +13,8 @@ const fields: CmsField[] = [
     placeholder: "Pilih Foto Sampul",
     help: "Maksimal 5MB (JPG, PNG, WEBP).",
   },
-  { name: "title", label: "Nama gambar" },
+  { name: "title", label: "Keterangan gambar", required: true, help: "Jelaskan apa yang tampak di foto; teks ini juga menjadi alt gambar." },
+  { name: "consent_verified_at", label: "Izin publikasi", type: "consent", required: true },
 ];
 
 export default async function GaleriPage() {

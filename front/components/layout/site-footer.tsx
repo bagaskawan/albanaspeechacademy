@@ -1,22 +1,24 @@
 import Link from "next/link";
 import { readPublishedContacts } from "@/lib/server/public-contacts";
+import { academyRequest } from "@/lib/server/academy-api";
 import { academyChannels } from "./academy-channels";
 import { BrandLogo } from "./brand-logo";
 import { Container } from "./container";
 
-const footerLinks = [
-  { href: "/#program", label: "Program" },
-  { href: "/#cara-ngajar", label: "Cara ngajar" },
-  { href: "/#trainer", label: "Trainer" },
-  { href: "/#kontak", label: "Hubungi kami" },
-  // { href: "/artikel", label: "Artikel" },
-] as const;
-
 export async function SiteFooter({ className = "" }: { className?: string } = {}) {
   let contacts: Awaited<ReturnType<typeof readPublishedContacts>> = [];
   try { contacts = await readPublishedContacts(); } catch { /* No stale contact link on failure. */ }
+  let trainersAvailable = false;
+  try { const rows = await academyRequest("trainers?select=slug&limit=1"); trainersAvailable = Array.isArray(rows) && rows.length > 0; } catch { /* Hide broken anchor. */ }
+  const footerLinks = [
+    { href: "/#program", label: "Program" },
+    { href: "/#tentang", label: "Tentang" },
+    ...(trainersAvailable ? [{ href: "/#trainer", label: "Trainer" }] : []),
+    { href: "/#jadwal", label: "Jadwal" },
+    ...(contacts.length ? [{ href: "/#kontak", label: "Kontak" }] : []),
+  ];
   return (
-    <footer className={`bg-accent-strong text-canvas [&_a:focus-visible]:outline-canvas ${className}`.trim()}>
+    <footer className={`border-t border-canvas/30 bg-accent-strong text-canvas [&_a:focus-visible]:outline-canvas ${className}`.trim()}>
       <Container>
         <div className="flex flex-col items-center py-12 text-center md:py-16">
           <Link
@@ -77,7 +79,7 @@ export async function SiteFooter({ className = "" }: { className?: string } = {}
             })}
           </div>
 
-          <p className="mt-6 text-sm text-canvas/75">© 2026 Albana Speech Academy</p>
+          <p className="mt-6 text-sm text-canvas/75">© 2026 Albana Speech Academy · CV Asa Albana</p>
         </div>
       </Container>
     </footer>

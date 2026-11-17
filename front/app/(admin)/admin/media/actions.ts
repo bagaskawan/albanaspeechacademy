@@ -39,9 +39,10 @@ export async function setMediaPublished(form: FormData) {
   if (!Number.isSafeInteger(id) || id < 1) throw new Error("Media tidak valid.");
   const published = form.get("published") === "true";
   const client = academyBillingClient();
-  const { data: asset, error: readError } = await client.from("media_assets").select("kind,alt_text").eq("id", id).single();
+  const { data: asset, error: readError } = await client.from("media_assets").select("kind,alt_text,consent_at").eq("id", id).single();
   if (readError || !asset || published && asset.kind === "image" && !asset.alt_text) throw new Error("Gambar wajib memiliki teks alternatif.");
-  const { error } = await client.from("media_assets").update({ published }).eq("id", id);
+  if (published && form.get("consent") !== "yes") throw new Error("Izin publikasi media harus dikonfirmasi.");
+  const { error } = await client.from("media_assets").update({ published, consent_at: published ? asset.consent_at ?? new Date().toISOString() : asset.consent_at }).eq("id", id);
   if (error) throw new Error("Status media gagal diubah.");
   revalidatePath("/admin/media");
   revalidatePath("/program/[slug]", "page");

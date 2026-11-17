@@ -19,6 +19,9 @@ export default function ThemeScript() {
                 } else {
                   document.documentElement.classList.remove('dark');
                 }
+                if (location.pathname === '/' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                  document.documentElement.classList.add('motion-ready');
+                }
               } catch (e) {}
             })();
           `,

@@ -55,7 +55,7 @@ Prinsip yang harus tetap terbaca meski konten berubah:
 | Garis halus | `#D8E4F0` | Pemisah grid di atas putih; dekoratif, bukan tepi kontrol. |
 | Garis kuat | `#7895B8` | Tepi input/select (3,09:1 di atas putih) dan pembatas bidang yang perlu lebih jelas; gunakan hemat. |
 
-Token biru utama dipilih dari rentang biru yang tampak pada gambar logo; token lain adalah turunan desain untuk hierarki dan aksesibilitas. Gunakan **aset logo asli** untuk masthead dan footer; jangan mengganti bentuk atau mewarnai ulang logo dari CSS. Bila klien memberikan brand guide resmi, cocokkan kembali token dengan nilai yang disahkan. Semua token biru tetap berada dalam satu keluarga; tidak ada kuning, hijau, merah, ungu, atau pastel hangat sebagai aksen dekoratif. Warna semantik untuk error/sukses formulir boleh berbeda karena menyampaikan status, bukan identitas merek.
+Token biru utama dipilih dari rentang biru yang tampak pada gambar logo; token lain adalah turunan desain untuk hierarki dan aksesibilitas. Gunakan **aset logo asli** untuk masthead dan footer; jangan mengubah bentuknya. Raster logo biru yang tersedia hanya 121×47 px, sehingga hero terang memakai siluet alfa dari aset logo putih resmi beresolusi tinggi dengan warna biru dasar `#26599A`. Ganti dengan aset logo biru resmi beresolusi tinggi bila tersedia. Bila klien memberikan brand guide resmi, cocokkan kembali token dengan nilai yang disahkan. Semua token biru tetap berada dalam satu keluarga; tidak ada kuning, hijau, merah, ungu, atau pastel hangat sebagai aksen dekoratif. Warna semantik untuk error/sukses formulir boleh berbeda karena menyampaikan status, bukan identitas merek.
 
 ### Proporsi dan pasangan warna
 

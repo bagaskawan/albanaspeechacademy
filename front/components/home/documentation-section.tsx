@@ -11,7 +11,7 @@ const previewGallery: DocumentationItem[] = [
 export async function DocumentationSection() {
   let gallery: DocumentationItem[] = [];
   try {
-    const rows = await academyRequest("gallery?select=id,image_url,title&order=id");
+    const rows = await academyRequest("gallery?select=id,image_url,title&consent_verified_at=not.is.null&order=id.desc");
     if (Array.isArray(rows)) gallery = rows as DocumentationItem[];
   } catch { /* Section stays available when the catalog is offline. */ }
 
@@ -19,9 +19,9 @@ export async function DocumentationSection() {
     <section id="dokumentasi" className="section" aria-labelledby="dokumentasi-title">
       <Container className="max-w-7xl">
         <SectionIntro
-          description={gallery.length ? "Lihat suasana latihan, praktik, dan umpan balik dari kegiatan yang telah dipublikasikan." : "Media di bawah adalah contoh tata letak; dokumentasi kelas Albana akan menggantikannya setelah dipilih untuk tayang."}
-          eyebrow="Gambaran kelas"
-          title="Kenali ritme latihan lewat gambaran berikut"
+          description={gallery.length ? "Praktik, umpan balik, dan momen di atas panggung dari kegiatan Albana." : "Contoh visual — bukan dokumentasi kelas Albana."}
+          eyebrow="[ DOKUMENTASI ]"
+          title={<>Seperti inilah <mark className="bg-highlight text-ink">suasana latihannya</mark></>}
           titleId="dokumentasi-title"
         />
 

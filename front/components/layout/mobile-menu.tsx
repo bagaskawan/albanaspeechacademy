@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, m } from "motion/react";
 
 type NavigationItem = {
   href: string;
@@ -18,6 +19,10 @@ export function MobileMenu({ items }: MobileMenuProps) {
 
   useEffect(() => {
     if (!isOpen) return;
+    const header = triggerRef.current?.closest("header");
+    header?.setAttribute("data-menu-open", "");
+    header?.removeAttribute("data-hidden");
+    const frame = requestAnimationFrame(() => document.querySelector<HTMLAnchorElement>("#mobile-navigation a")?.focus());
 
     function closeOnEscape(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
@@ -26,7 +31,11 @@ export function MobileMenu({ items }: MobileMenuProps) {
     }
 
     document.addEventListener("keydown", closeOnEscape);
-    return () => document.removeEventListener("keydown", closeOnEscape);
+    return () => {
+      cancelAnimationFrame(frame);
+      header?.removeAttribute("data-menu-open");
+      document.removeEventListener("keydown", closeOnEscape);
+    };
   }, [isOpen]);
 
   return (
@@ -39,13 +48,18 @@ export function MobileMenu({ items }: MobileMenuProps) {
         aria-controls="mobile-navigation"
         onClick={() => setIsOpen((current) => !current)}
       >
-        <span>Menu</span>
+        <span>{isOpen ? "Tutup menu" : "Buka menu"}</span>
         <span aria-hidden="true">{isOpen ? "−" : "+"}</span>
       </button>
 
+      <AnimatePresence initial={false}>
       {isOpen ? (
-        <nav
+        <m.nav
           id="mobile-navigation"
+          initial={{ opacity: 0, x: 16 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 16 }}
+          transition={{ duration: 0.2 }}
           className="absolute inset-x-0 top-full z-50 grid gap-1 rounded-panel border border-rule bg-card p-2"
           aria-label="Navigasi seluler"
         >
@@ -59,8 +73,9 @@ export function MobileMenu({ items }: MobileMenuProps) {
               {item.label}
             </Link>
           ))}
-        </nav>
+        </m.nav>
       ) : null}
+      </AnimatePresence>
     </div>
   );
 }

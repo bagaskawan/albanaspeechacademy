@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -82,11 +81,10 @@ export function AdminShell({ children, pendingInvoices, account, role }: ShellPr
 
   return <AdminRoleProvider value={role}><TooltipProvider delayDuration={200}>
     <div className="min-h-screen text-admin-ink">
-      {/* §3.1 Header: identity and account only — never module navigation. */}
+      {/* §3.1 Header: account controls only — never module navigation. */}
       <Dialog.Root open={drawerOpen} onOpenChange={setDrawerOpen}>
         <header className="sticky top-0 z-40 flex h-[72px] items-center gap-3 border-b border-admin-line bg-admin-canvas px-4 lg:px-6">
           <Dialog.Trigger aria-label="Buka menu" className={`${roundButton} lg:hidden`}><Menu aria-hidden="true" size={20} strokeWidth={1.5} /></Dialog.Trigger>
-          <LogoLink />
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle className={roundButton} />
             <AccountMenu account={account} role={role} />
@@ -125,27 +123,6 @@ export function AdminShell({ children, pendingInvoices, account, role }: ShellPr
       </div>
     </div>
   </TooltipProvider></AdminRoleProvider>;
-}
-
-function LogoLink() {
-  return <Link href="/admin" aria-label="Albana CMS, ke Dashboard" className={`inline-flex items-center rounded-xl py-1 transition-opacity hover:opacity-80 ${focusRing}`}>
-    <Image
-      src="/logo-blue.png"
-      alt="Albana CMS"
-      width={121}
-      height={47}
-      className="h-8 w-auto object-contain block dark:hidden"
-      priority
-    />
-    <Image
-      src="/logo-white.png"
-      alt="Albana CMS"
-      width={1602}
-      height={629}
-      className="h-8 w-auto object-contain hidden dark:block"
-      priority
-    />
-  </Link>;
 }
 
 const roleLabels: Record<string, string> = { adminsuper: "Super admin", admin: "Admin" };

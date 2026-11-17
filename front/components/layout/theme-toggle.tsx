@@ -16,7 +16,7 @@ export function ThemeToggle({ className }: { className?: string } = {}) {
     <button
       type="button"
       onClick={toggle}
-      className={className ?? "inline-flex size-11 items-center justify-center border border-control bg-card text-ink hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"}
+      className={className ?? "inline-flex size-11 items-center justify-center border border-control bg-card text-ink hover:bg-surface dark:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"}
       aria-label={dark ? "Aktifkan tema terang" : "Aktifkan tema gelap"}
       title={dark ? "Tema terang" : "Tema gelap"}
     >

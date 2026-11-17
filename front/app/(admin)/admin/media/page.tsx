@@ -55,7 +55,8 @@ export default async function MediaPage({ searchParams }: { searchParams: Promis
             <p className="mt-1 break-all text-sm text-muted">{asset.alt_text || asset.object_key}</p>
             <p className="mt-1 text-xs text-muted">{asset.batch_slug || "Semua batch"} · {asset.published ? "Terbit" : "Draf"}</p></div>
           <div className="flex items-center gap-3"><a className="text-sm font-semibold underline" href={asset.provider === "youtube" ? asset.object_key : `/api/media/${asset.id}`} target="_blank" rel="noopener noreferrer">Pratinjau</a>
-            <form action={setMediaPublished}><input type="hidden" name="id" value={asset.id} /><input type="hidden" name="published" value={asset.published ? "false" : "true"} />
+            <form action={setMediaPublished} className="grid gap-2"><input type="hidden" name="id" value={asset.id} /><input type="hidden" name="published" value={asset.published ? "false" : "true"} />
+              {!asset.published ? <label className="flex max-w-56 items-start gap-2 text-xs"><input type="checkbox" name="consent" value="yes" required className="mt-0.5" /><span>Izin publikasi media ini sudah dicatat.</span></label> : null}
               <button type="submit" className="button-secondary">{asset.published ? "Tarik" : "Terbitkan"}</button></form></div>
         </article>)}
       </div>}

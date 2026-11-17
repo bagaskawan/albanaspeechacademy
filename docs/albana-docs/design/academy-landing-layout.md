@@ -73,35 +73,32 @@ Desktop: judul 7 kolom kiri, pengantar 4 kolom kanan (1 kolom kosong di antarany
 
 ### 1A Hero
 
-Desktop (≥ 1024 px), grid 5 : 7:
+Hero memakai satu komposisi terpusat pada desktop dan ponsel:
 
 ```text
-┌───────────────────────────────┬──────────────────────────────────────┐
-│ [logo Albana, tinggi 56–72px] │                                      │
-│                               │                                      │
-│ Albana ▓Speech▓               │        FOTO / POSTER VIDEO           │
-│ Academy                       │        kegiatan, rasio 16:10         │
-│                               │                                      │
-│ Saat tim menunggu usulanmu,   │                                      │
-│ bagaimana kamu memulai? …     │                                      │
-│                               │                                      │
-│ [Lihat jadwal] [Cara belajar] │                                      │
-│                               ├──────────────────────────────────────┤
-│ Presentasi · Diskusi · MC     │ caption satu baris / penanda dummy   │
-└───────────────────────────────┴──────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│                     Presentasi · Diskusi · MC                       │
+│                         [LOGO ALBANA BESAR]                         │
+│                  Saat tim menunggu usulanmu, …                       │
+│                           [Lihat jadwal]                            │
+│                                                                      │
+│  ← FOTO DUMMY · FOTO DUMMY · FOTO DUMMY · FOTO DUMMY · FOTO DUMMY →   │
+│            Contoh visual — bukan dokumentasi kelas Albana           │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
-Ponsel (< 768 px), satu kolom, urutan tetap: logo → H1 → uraian → CTA (bertumpuk, lebar penuh) → baris fokus → media 4:3 → caption.
+Ponsel (< 768 px) memakai urutan yang sama. Foto membentuk pita mendatar di dasar hero; teks dan CTA tidak ditumpuk di atas foto.
+
+Hero dimulai dari tepi atas viewport tanpa header. Tema terang memakai latar putih, logo biru, dan Plus Jakarta Sans; tema gelap memakai latar navy dan logo putih. Header muncul halus setelah pengunjung menggulir setengah tinggi hero.
 
 | Elemen | Aturan |
 | --- | --- |
-| Logo | Elemen pertama dan utama (spesifikasi §I.2). Tinggi 72 px desktop, 56 px tablet, 48 px ponsel; jarak ke H1 32 px. Tidak diulang di dalam media. |
-| H1 | Token display; stabilo hanya pada “Speech”. Maksimal 3 baris di 320 px. |
-| Uraian | Satu paragraf, ≤ 3 baris desktop. |
-| CTA | Utama **Lihat jadwal** → `#jadwal`; sekunder **Lihat cara belajar** → `#tentang`. |
-| Media | Satu frame. Rasio dikunci di wadah agar tidak ada pergeseran layout. Video tidak autoplay. |
-| Tinggi | Hero + pita manfaat muat dalam satu layar 1440×900; di ponsel CTA terlihat tanpa menggulir pada 390×844. |
-| Gerak | W1 (judul per baris), W2 (stabilo), W3 (media) — satu komposisi. [Design system §10](academy-design-system.md). |
+| Logo | H1 berisi logo resmi terpusat, lebar maksimal 340 px desktop dan 256 px ponsel. Siluet logo resolusi tinggi menjaga ketajaman pada tema terang. |
+| Uraian | Satu paragraf, 16 px dengan lebar maksimal 34 rem. |
+| CTA | **Lihat jadwal** → `#jadwal`, tinggi minimal 44 px. |
+| Media | Deret gambar dummy lokal dengan caption penanda; nantinya bersumber dari dokumentasi berizin di database. |
+| Tinggi | Minimal `100dvh`; CTA hero terlihat tanpa menggulir pada 390×844. Hero menyesuaikan tinggi bila layar lebih pendek. |
+| Gerak | Isi masuk berurutan; pita foto berjalan perlahan dan diam saat reduced motion. |
 
 ### 1B Pita manfaat
 
