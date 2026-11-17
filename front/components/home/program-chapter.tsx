@@ -13,7 +13,7 @@ export function ProgramChapter({
   inhouse: HomeData["inhouse"];
 }) {
   return (
-    <section id="program" className="section" aria-labelledby="program-title">
+    <section id="program" className="section tone-canvas" aria-labelledby="program-title">
       <Container className="max-w-7xl">
         <SectionIntro
           eyebrow="[ PROGRAM ]"
@@ -28,13 +28,19 @@ export function ProgramChapter({
         />
 
         <div className="mt-12">
-          <h3 className="text-2xl font-semibold tracking-[-0.02em] md:text-3xl">
-            Public Training
-          </h3>
+          <div className="flex items-baseline justify-between gap-4 border-b border-[var(--tone-rule)] pb-4">
+            <h3 className="type-mega" data-motion="chapter">
+              Public <br className="sm:hidden" />
+              Training
+            </h3>
+            {programs !== "failed" ? (
+              <p className="eyebrow shrink-0">{String(programs.length).padStart(2, "0")} program</p>
+            ) : null}
+          </div>
 
           {programs === "failed" ? (
-            <div className="mt-6 rounded-panel border border-rule bg-card p-6 md:p-8" aria-live="polite">
-              <p className="text-muted">Program belum bisa dimuat.</p>
+            <div className="mt-6 border border-[var(--tone-rule)] bg-[var(--tone-tile)] p-6 md:p-8" aria-live="polite">
+              <p className="text-[var(--tone-muted)]">Program belum bisa dimuat.</p>
               <RetryButton />
             </div>
           ) : (
