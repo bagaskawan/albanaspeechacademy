@@ -181,6 +181,8 @@ Latar seksi bergeser lewat empat nada turunan palet yang ada, tanpa warna merek 
 
 Nilai adalah titik awal; yang mengikat adalah tesnya: `--tone-ink` dan `--tone-muted` di atas `--tone-bg` serta `--tone-tile` ≥ **4.5:1**, `--tone-accent` di atas `--tone-bg` ≥ **3:1**. Bila tes gagal, geser nilainya; jangan melonggarkan tesnya. Urutan nada beranda: hero (foto) → canvas → canvas (Program) → night (Inhouse) → sand (Tentang, Cara belajar) → canvas (Legalitas) → mist (Testimoni) → canvas (Trainer) → mist (Jadwal) → canvas (Tiga langkah) → night (Penutup). Nada yang sama tidak berurutan, kecuali canvas pada pita manfaat dan pembuka Program.
 
+Legalitas (`.tone-canvas`) berupa daftar bergaris dua kolom — nama dokumen · nomor · penerbit — tanpa kartu dan ikon.
+
 ### Keputusan bentuk untuk profesional dan eksekutif muda
 
 **Zero radius pada seluruh situs terlalu kaku** untuk pengalaman belajar dan pendaftaran yang ditujukan juga kepada profesional muda. Pertahankan sudut siku pada kerangka editorial—hero, bidang foto, garis pembagi, pita warna, dan footer—agar identitasnya tetap tegas. Beri pembulatan kecil hanya pada bagian yang disentuh atau menjadi kelompok tugas. Ini menjaga kesan terarah tanpa membuat akademi terasa seperti dashboard.

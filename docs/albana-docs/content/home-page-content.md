@@ -258,7 +258,7 @@ Tujuh bidang ini adalah cakupan keahlian, **bukan** program yang dijual. Jangan 
 - Kerangka empat tingkat: panah antartingkat tergambar `scaleX` berurutan, lalu label **G6**.
 - Chip bidang **G3** dalam satu kelompok (jeda 40 ms).
 
-**Media:** satu foto per baris 70/20/10 (tiga foto berbeda, 4:5 atau 3:2 sesuai kolom), caption di bawah foto. Foto contoh tidak boleh berulang antarbaris maupun dengan hero dan bento. Bab ini bernada **sand**; angka 70/20/10 memakai ukuran `mega`.
+**Media:** satu foto per baris 70/20/10 (tiga foto berbeda, 4:3), caption di bawah foto. Foto contoh tidak boleh berulang antarbaris maupun dengan hero dan bento. Bab ini bernada **sand**; angka 70/20/10 memakai ukuran `mega`.
 
 ### 5.3 Pernah melatih
 
