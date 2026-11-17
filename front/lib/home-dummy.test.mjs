@@ -4,7 +4,10 @@ import { HOME_DUMMY } from "./home-dummy.ts";
 
 const bentos = [...HOME_DUMMY.programs.map((p) => p.media), HOME_DUMMY.inhouse.media];
 const photos = (list) => list.filter((m) => m.kind === "image");
-const srcs = (list) => photos(list).map((m) => m.src);
+// foto + poster video; video tanpa poster tidak punya gambar
+const srcs = (list) => list.map((m) => (m.kind === "image" ? m.src : m.poster)).filter(Boolean);
+const hero = HOME_DUMMY.hero.photo.src;
+const moments = srcs(HOME_DUMMY.moments);
 
 test("tidak ada foto berulang dalam satu bento", () => {
   for (const media of bentos) {
@@ -13,14 +16,22 @@ test("tidak ada foto berulang dalam satu bento", () => {
   }
 });
 
+test("hero tidak muncul di bento mana pun", () => {
+  for (const media of bentos) assert.ok(!srcs(media).includes(hero));
+});
+
+test("bento saling lepas pada src (foto dan poster)", () => {
+  const all = bentos.flatMap(srcs);
+  assert.equal(new Set(all).size, all.length);
+});
+
 test("hero, bento, dan moments tidak memakai foto yang sama", () => {
-  const moments = srcs(HOME_DUMMY.moments);
   assert.ok(moments.length >= 6);
-  assert.ok(!moments.includes(HOME_DUMMY.hero.photo.src));
+  assert.equal(new Set(moments).size, moments.length);
+  assert.ok(!moments.includes(hero));
   const bentoSrcs = new Set(bentos.flatMap(srcs));
   for (const src of moments) assert.ok(!bentoSrcs.has(src), src);
-  const all = new Set([...bentoSrcs, ...moments]);
-  assert.ok(all.size >= 18);
+  assert.ok(new Set([hero, ...bentoSrcs, ...moments]).size >= 18);
 });
 
 test("semua foto contoh berlabel", () => {

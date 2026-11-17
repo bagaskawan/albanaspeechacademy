@@ -48,13 +48,49 @@ const UNSPLASH_PHOTOS = [
   { id: "1528605105345-5344ea20e269", alt: "Pria berdiri di depan sekelompok orang" },
   // https://unsplash.com/photos/a-woman-standing-at-a-podium-holding-a-microphone-X0iAUm_mJmA
   { id: "1715610237622-748477adf2e4", alt: "Perempuan di podium memegang mikrofon" },
+  // https://unsplash.com/photos/a-group-of-people-in-a-room-with-a-projector-screen-1-aA2Fadydc
+  { id: "1524178232363-1fb2b075b655", alt: "Sekelompok orang di ruangan dengan layar proyektor" },
+  // https://unsplash.com/photos/man-standing-in-front-of-people-sitting-beside-table-with-laptop-computers-gMsnXqILjp4
+  { id: "1542744173-8e7e53415bb0", alt: "Pria memandu peserta yang duduk dengan laptop" },
+  // https://unsplash.com/photos/woman-speaking-at-brick-walled-conference-wn7dOzUh3Rs
+  { id: "1576085898323-218337e3e43c", alt: "Perempuan berbicara di podium ruangan berdinding bata" },
+  // https://unsplash.com/photos/a-group-of-people-sitting-in-chairs-in-a-room-7hxOWrk-8RI
+  { id: "1638957835514-224c57ffe617", alt: "Sekelompok orang duduk di kursi dalam ruangan" },
+  // https://unsplash.com/photos/man-standing-in-stage-beside-blue-curtain-lVTtqIY6pL0
+  { id: "1560439513-74b037a25d84", alt: "Pria berdiri di panggung dekat tirai biru" },
+  // https://unsplash.com/photos/man-presenting-charts-to-colleagues-in-a-meeting-rOvpex8XDeU
+  { id: "1758691736490-03d39c292d7a", alt: "Pria memaparkan grafik kepada rekan dalam rapat" },
+  // https://unsplash.com/photos/person-standing-in-front-of-brown-lectern-gYf49RB7bvE
+  { id: "1515603403036-f3d35f75ca52", alt: "Orang berdiri di depan mimbar cokelat" },
+  // https://unsplash.com/photos/a-man-standing-in-front-of-a-group-of-people-3kc_75Rdgyk
+  { id: "1646579886135-068c73800308", alt: "Pria berdiri di depan sekelompok orang" },
+  // https://unsplash.com/photos/a-large-group-of-people-sitting-in-a-room-uS96C8JD17c
+  { id: "1733222764895-9bf3a19162fe", alt: "Kelompok besar orang duduk dalam ruangan" },
+  // https://unsplash.com/photos/man-presenting-to-colleagues-in-a-modern-office-setting-SvYifX5HkeQ
+  { id: "1758691736548-073bc97cdff4", alt: "Pria presentasi kepada rekan di kantor modern" },
+  // https://unsplash.com/photos/people-in-conference-with-projector-screen-in-front-xeEukPZjZi0
+  { id: "1560439514-0fc9d2cd5e1b", alt: "Peserta konferensi dengan layar proyektor di depan" },
+  // https://unsplash.com/photos/a-woman-explaining-something-to-a-group-of-people-XH8chLuj02g
+  { id: "1664382953481-141e97ad9825", alt: "Perempuan menjelaskan sesuatu kepada sekelompok orang" },
+  // https://unsplash.com/photos/young-man-giving-a-presentation-in-a-classroom-setting-nqyDjSTwCTo
+  { id: "1781722526001-d3197c7a8088", alt: "Pemuda presentasi di ruang kelas" },
+  // https://unsplash.com/photos/people-listening-to-presenter-in-classroom-b-k28YDVJxU
+  { id: "1792783221454-304e20182d00", alt: "Peserta kelas menyimak presenter di dekat layar" },
+  // https://unsplash.com/photos/teacher-lecturing-students-in-a-classroom-setting-14jNrPntbgk
+  { id: "1758270704925-fa59d93119c1", alt: "Pengajar menerangkan materi di ruang kelas" },
+  // https://unsplash.com/photos/teacher-asking-a-question-to-students-in-a-classroom-BBetMyb5ePA
+  { id: "1758270704021-361c165d68fd", alt: "Pengajar mengajukan pertanyaan kepada kelas" },
+  // https://unsplash.com/photos/business-people-in-a-modern-conference-room-during-a-presentation-l0E0Y1TdzxE
+  { id: "1758691736067-b309ee3ef7b9", alt: "Presentasi di ruang konferensi modern" },
+  // https://unsplash.com/photos/woman-presenting-to-audience-in-a-modern-office-meeting-room--Lzdk59aldE
+  { id: "1758691736664-0b83e4f1215e", alt: "Perempuan presentasi di ruang rapat modern" },
 ] as const;
 
 const SAMPLE_SUFFIX = " — contoh visual, bukan dokumentasi kelas Albana";
 
 let nextId = -1;
 function previewPhoto(index: number): HomeMedia {
-  const item = PREVIEW_IMAGES[index % PREVIEW_IMAGES.length];
+  const item = PREVIEW_IMAGES[index];
   return {
     id: nextId--,
     kind: "image",
@@ -75,12 +111,12 @@ function unsplashPhoto(index: number): HomeMedia {
   };
 }
 
-function previewVideo(title: string): HomeMedia {
+function previewVideo(title: string, posterIndex: number): HomeMedia {
   return {
     id: nextId--,
     kind: "video",
     src: "",
-    poster: "/images/preview/simulasi-panggung.jpg",
+    poster: PREVIEW_IMAGES[posterIndex].src,
     alt: `${title} — sematan YouTube tampil setelah data asli tersedia`,
   };
 }
@@ -125,13 +161,13 @@ export const HOME_DUMMY: HomeData = {
         },
       },
       media: [
-        previewPhoto(0),
-        previewPhoto(1),
-        previewPhoto(2),
-        previewPhoto(3),
-        previewPhoto(4),
-        previewPhoto(5),
-        previewVideo("Video kegiatan Public Speaking Series"),
+        unsplashPhoto(0),
+        unsplashPhoto(1),
+        unsplashPhoto(2),
+        unsplashPhoto(3),
+        unsplashPhoto(4),
+        unsplashPhoto(5),
+        previewVideo("Video kegiatan Public Speaking Series", 1),
       ],
     },
     {
@@ -160,12 +196,12 @@ export const HOME_DUMMY: HomeData = {
       },
       bundleNote: "Tersedia paket dengan Sertifikasi",
       media: [
-        previewPhoto(3),
-        previewPhoto(4),
-        previewPhoto(5),
-        previewPhoto(0),
-        previewPhoto(1),
-        previewVideo("Video kegiatan Public Speaking for Speakers"),
+        unsplashPhoto(6),
+        unsplashPhoto(7),
+        unsplashPhoto(8),
+        unsplashPhoto(9),
+        unsplashPhoto(10),
+        previewVideo("Video kegiatan Public Speaking for Speakers", 2),
       ],
     },
     {
@@ -183,11 +219,11 @@ export const HOME_DUMMY: HomeData = {
         batch: null,
       },
       media: [
-        previewPhoto(2),
-        previewPhoto(5),
-        previewPhoto(0),
-        previewPhoto(3),
-        previewVideo("Video kegiatan Sertifikasi Pembicara Profesional"),
+        unsplashPhoto(11),
+        unsplashPhoto(12),
+        unsplashPhoto(13),
+        unsplashPhoto(14),
+        previewVideo("Video kegiatan Sertifikasi Pembicara Profesional", 3),
       ],
     },
   ],
@@ -203,13 +239,13 @@ export const HOME_DUMMY: HomeData = {
     },
     whatsappHref: "#kontak",
     media: [
-      previewPhoto(1),
-      previewPhoto(2),
-      previewPhoto(4),
       previewPhoto(5),
-      previewPhoto(0),
-      previewPhoto(3),
-      previewVideo("Video dokumentasi Inhouse Training"),
+      unsplashPhoto(15),
+      unsplashPhoto(16),
+      unsplashPhoto(17),
+      unsplashPhoto(18),
+      unsplashPhoto(19),
+      previewVideo("Video dokumentasi Inhouse Training", 4),
     ],
     partners: Array.from({ length: 6 }, (_, index) => ({
       id: -(index + 100),
@@ -237,5 +273,5 @@ export const HOME_DUMMY: HomeData = {
       roleLabel: "Contoh testimoni",
     },
   ],
-  moments: UNSPLASH_PHOTOS.map((_, index) => unsplashPhoto(index)),
+  moments: Array.from({ length: UNSPLASH_PHOTOS.length - 20 }, (_, index) => unsplashPhoto(index + 20)),
 };
