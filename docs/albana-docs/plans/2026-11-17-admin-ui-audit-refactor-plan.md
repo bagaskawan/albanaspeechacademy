@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Revisi 3 — 17 November 2026.** Revisi 1 memuat Tugas 1–7 (audit UI admin). Revisi 2 menambah hapus Media, rombak Program, pipeline dokumentasi, dan beranda. **Revisi 3** mengganti gaya isian target dari Model A (pil 48 px) menjadi **komponen shadcn/ui yang sudah terpasang**, dan menetapkan **satu header per halaman form**. Tugas 1 Revisi 2 sudah dieksekusi di commit `34fefe7`; Tugas 1 di bawah ini adalah pengerjaan ulangnya.
+**Revisi 4 — 17 November 2026.** Revisi 1 memuat Tugas 1–7 (audit UI admin). Revisi 2 menambah hapus Media, rombak Program, pipeline dokumentasi, dan beranda. Revisi 3 memindahkan isian ke shadcn/ui dan menetapkan satu header per form; Tugas 1–4 Revisi 3 **sudah dieksekusi** (`3f6048c`, `10e0e83`, `9e981e7`, `0d67e12`) dan Tugas 5 sedang berjalan. **Revisi 4** menetapkan **desain acuan** pemilik — form "Tambah Paket Baru" — untuk ukuran halaman form dan isian: pil 48 px, label 13 px huruf kalimat, fokus tipis, padding textarea yang benar, serta isian Rupiah, persen, dan telepon berformat. Pekerjaannya ada di **Tugas 5a** (baru), yang dijalankan sesudah Tugas 5 dan sebelum Tugas 6. Pedoman lengkapnya sudah ditulis ulang di [pola UI admin §7](../design/admin-ui-patterns.md#7-formulir).
 
 **Goal:** Satu gaya isian (**shadcn/ui**: `Input`, `Textarea`, `Select`, `Label`) untuk seluruh form admin dan satu header per halaman form; daftar tagihan berbentuk tabel dengan modal Detail; semua modal admin menjadi bottom sheet di ponsel; modul Media hilang dan galeri dokumentasi pindah ke form tiap sub-program; sidebar menjadi Dashboard · Pendaftaran · Program · Konten; dan beranda menampilkan Public Training per program plus satu blok In House Training.
 
@@ -23,8 +23,8 @@
 
 | # | Keputusan |
 | --- | --- |
-| K1 | *(Revisi 3)* `InputLine`, `TextareaLine`, `SelectLine`, dan Model A (`.admin-form-plain`, pil 48 px) **tidak dipakai lagi di admin**. Semua form admin memakai **shadcn/ui**: `Input`, `Textarea`, `Select` (Radix), dan `Label`, disusun dengan `Field`/`FieldGrid`. |
-| K2 | *(Revisi 3)* Tipografi isian mengikuti shadcn: label **14 px medium, huruf kalimat** (bukan kapital); teks isian **14 px di desktop dan 16 px di bawah 768 px** (bawaan `text-base md:text-sm`, mencegah zoom Safari iOS). Menggantikan 11/12 px Revisi 2. |
+| K1 | *(Revisi 4)* `InputLine`, `TextareaLine`, `SelectLine`, dan `.admin-form-plain` tidak dipakai di admin. Primitifnya **shadcn/ui** (`Input`, `Textarea`, `Select`, `Label`, `Checkbox`), tetapi halaman **selalu** memakai kontrol admin di `components/admin/ui/form/controls.tsx` (`AdminInput`, `AdminTextarea`, `AdminSelect`, `PriceInput`, `PercentInput`, `PhoneInput`, `CheckboxCard`) yang memberi geometri desain acuan. |
+| K2 | *(Revisi 4)* Ukuran mengikuti desain acuan (pola UI admin §7.0–§7.2): isian **pil 48 px**, latar `--admin-surface`, tepi 1 px `--admin-line`; label **13 px medium huruf kalimat**; teks isian **14 px desktop, 16 px di bawah 768 px**; petunjuk dan galat 12 px; judul halaman 30 px (24 px ponsel); judul bagian 16 px tebal kapital. Menggantikan 14 px / rounded-lg / 40 px dari Revisi 3. |
 | K3 | Tagihan desktop: **satu baris per tagihan**, kolom Dibuat · Nama · Program–batch · Tahap · Total · Status · Aksi. Tombol **Detail** membuka modal berisi data pendaftar dan seluruh tagihannya. |
 | K4 | Semua modal admin menjadi **bottom sheet di bawah 640 px**. |
 | K5 | Grup **Pengaturan hilang dari sidebar**. `/admin/profil-akademi`, `/admin/kontak`, dan `/admin/rekening` **dialihkan** ke `/admin/settings` dengan tab yang sesuai. |
@@ -36,6 +36,10 @@
 | K11 | Beranda **Public Training**: judul makro + intro, lalu **satu seksi per program** berisi nama, deskripsi, galeri dokumentasi (foto dan video), serta CTA **Daftar** dan **Lihat Jadwal**. |
 | K12 | Beranda **In House Training**: judul makro + intro, galeri dokumentasi kegiatan, dan grid logo **Our Partner**. Seksi Dokumentasi dan Partners Strip yang berdiri sendiri **dilebur** ke blok ini. |
 | K13 | **Satu header per halaman form.** Header shell (judul modul + tombol kembali + breadcrumb) dipertahankan; header buatan form sendiri (`[ PENGATURAN PROGRAM ] Edit Program` beserta tombol kembali keduanya) dihapus. Label modul **"Program & Batch" menjadi "Program"**. |
+| K14 | **Desain acuan**: tangkapan layar form "Tambah Paket Baru" (render admin lama, 1920 px, skala 1×). Ukuran diambil dari yang **tampil** di gambar, bukan dari `components/admin/PackageForm.tsx`, karena kelas di berkas itu tertimpa CSS global saat gambar dibuat. |
+| K15 | **Fokus isian tipis**: tepi 1 px `--admin-ink` + cincin 2 px `--admin-ink` 8%, tanpa `outline`. Tombol tetap `outline` 2 px. |
+| K16 | **Textarea tidak menempel ke atas**: padding 14 px atas-bawah, 18 px kiri-kanan, tinggi baris 1.6, minimal 104 px. |
+| K17 | **Isian berformat**: Rupiah dengan awalan "Rp" dan titik ribuan; persen dengan akhiran "%"; telepon `0812-3456-7890`. Kursor tidak melompat ke ujung saat menyunting di tengah. |
 
 ## Keputusan pembangun rencana (koreksi bila keliru)
 
@@ -45,13 +49,15 @@
 | P2 | Foto dan video yang ditambahkan dari form program **langsung terbit** (`published = true`); tidak ada gerbang draf per berkas. | Admin memilihnya sendiri di form program itu, jadi langkah terbit terpisah hanya menambah gesekan. Pemilik bisa minta gerbang draf kembali. |
 | P3 | Kartu In House Training di `/admin/program` menampilkan ringkasan (**N foto**, **N logo**) dengan tombol **Kelola** ke `/admin/galeri` dan `/admin/partner`. Kedua rute tetap sebagai halaman, tetapi keluar dari sidebar. | Keduanya sudah punya CMS yang bekerja. Membangun ulang keduanya di dalam kartu berarti menulis dua layar baru tanpa tambahan kemampuan. Program tetap menjadi satu-satunya pintu masuk, sesuai K8. |
 | P4 | Batas resolusi minimum unggahan **tidak lagi dapat diubah dari CMS** setelah modul Media hilang. `/api/upload` memakai nilai bawaan 1280×720 dan sisi pendek video 720 bila baris `system_settings` tidak ada. | Satu-satunya editornya adalah halaman Media. Perilaku fallback itu sudah ada di kode. |
-| P5 | Tinggi isian admin **40 px di desktop dan 44 px di bawah 768 px**, lewat satu aturan `@layer components` berbasis `data-slot`. | Bawaan `Input` di repo ini `h-8` (32 px): rapi, tetapi di bawah target sentuh admin. Satu aturan berlapis lebih aman daripada menulis kelas tinggi di puluhan isian, dan kelas per isian tetap bisa menimpanya. |
+| P5 | *(Revisi 4)* Tinggi isian **48 px di semua lebar**, ditulis di kelas kontrol admin. Aturan `@layer components` berbasis `data-slot` dari Revisi 3 (44/40 px) **dihapus**. | 48 px berasal dari desain acuan dan sudah memenuhi target sentuh 44 px, jadi tidak perlu dua tinggi. Kelas di satu komponen lebih mudah dilacak daripada aturan CSS global. |
 | P6 | Form Program memakai `FormPage` + `FormSection` yang sudah ada, menggantikan kartu, header, dan footer buatannya sendiri. | Satu pola halaman form untuk seluruh admin; `FormPage` sudah memberi kartu putih, seksi bernomor, serta Batal + Simpan di kanan bawah. |
+| P7 | `PhoneInput` mengubah awalan `+62`/`62` menjadi `0` dan menyimpan nilai **berformat** (`0812-3456-7890`). | Kanal kontak Albana nomor Indonesia; validasi server Kontak sudah menerima tanda hubung, dan `contactHref` membuang non-digit saat membuat tautan `wa.me`. Nomor luar negeri tidak didukung — sebutkan di petunjuk isian. |
+| P8 | Formulir **publik** (`components/register/`, `formatWhatsapp` di `lib/registration-form.ts`) **tidak** diubah. | Revisi ini tentang admin; formulir publik punya pedoman desain akademi sendiri. |
 
 ## Global Constraints
 
 - Semua perintah dari `front/`. Baca `front/AGENTS.md`; untuk API Next.js baca `node_modules/next/dist/docs/`.
-- Isian admin memakai **shadcn/ui**, tepat: `import { Input } from "@/components/ui/Input"` (huruf besar **I**, sesuai nama berkas; build Linux peka huruf), `Textarea` dari `@/components/ui/textarea`, `Label` dari `@/components/ui/label`, `Select`/`SelectTrigger`/`SelectValue`/`SelectContent`/`SelectItem` dari `@/components/ui/select`. Label 14 px medium huruf kalimat; petunjuk dan galat `text-[13px]`; teks isian bawaan shadcn (`text-base md:text-sm`). Checkbox dan radio tetap kontrol bawaan dengan `accent-[var(--admin-ink)]`.
+- Isian admin, tepat: **selalu** lewat `components/admin/ui/form/controls.tsx` (`AdminInput`, `AdminTextarea`, `AdminSelect`, `PriceInput`, `PercentInput`, `PhoneInput`, `CheckboxCard`); jangan memakai `Input`/`Textarea` shadcn langsung di halaman, dan jangan menulis kelas isian sendiri. Primitif shadcn diimpor di `controls.tsx` saja: `Input` dari `@/components/ui/Input` (huruf besar **I**, sesuai nama berkas; build Linux peka huruf). Semua ukuran mengikuti pola UI admin §7.0–§7.2 (revisi 17 November 2026).
 - `input.admin-search` (TableToolbar) **tidak diubah**: tetap 14 px, 16 px di bawah 768 px. Itu kolom cari, bukan isian form, dan punya paragrafnya sendiri di pola UI admin §8.2.
 - Token admin saja di dalam `.admin-shell`: `--admin-*`. Tidak ada warna biru, tidak ada kelas `zinc-*`, dan tidak ada token situs publik (`border-rule`, `bg-card`, `text-muted`, `button-primary`).
 - Beranda memakai token situs publik seperti sekarang; jangan membawa token `--admin-*` ke sana.
@@ -106,6 +112,10 @@ Tiga gaya hidup berdampingan di admin aktif:
 12. **Alamat lama yang di-bookmark.** `/admin/media` hilang, `/admin/galeri` dan `/admin/partner` keluar dari sidebar tetapi tetap hidup. `/admin/media` harus memberi 404 yang wajar, bukan galat server. → Tugas 7.
 13. **CSS isian global admin menimpa kelas shadcn.** Tailwind 4 menaruh utilitas di `@layer utilities`, sedangkan aturan isian admin dan `.admin-form-plain` ada di luar layer, sehingga selalu menang tanpa peduli spesifisitas. Bila satu aturan tertinggal, `Input` shadcn tampil seperti gaya lama dan `Textarea` tetap berbentuk pil. → Tugas 1 Step 2, diukur lewat `getComputedStyle`.
 14. **Cincin fokus shadcn memakai `--ring`.** Harus tetap monokrom karena `.admin-shell` memetakannya ke `--admin-ink`, di mode terang **dan** gelap; dialog yang di-portal ke luar `.admin-shell` dijangkau lewat `body:has(.admin-shell)`. → Tugas 1 Step 2 dan 7.
+15. **Kursor melompat ke ujung pada isian berformat.** Menyunting `1.500.000` di tengah lalu memformat ulang memindahkan kursor ke akhir bila tidak dipulihkan; itu membuat isian harga dan telepon tidak bisa diperbaiki tanpa menghapus semuanya. → `caretFromDigits` dan tesnya, Tugas 5a.
+16. **Tempel nilai Rupiah dengan desimal.** `1.500.000,00` tidak boleh menjadi `150.000.000` karena koma dan nol desimalnya ikut digabung. → tes `rupiahDigits`, Tugas 5a.
+17. **`AdminPageTitle` tanpa target.** Saat ini tidak ada elemen `id="admin-page-title"` di mana pun, jadi judul yang dikirim form Program tidak tampil sama sekali. → Tugas 5a menambah slotnya di `PageHeader`.
+18. **Cincin fokus terlalu pudar untuk dilihat.** Cincin 8% hanya tambahan; penanda utamanya tepi 1 px `--admin-ink` yang kontrasnya ≥ 3:1 terhadap latar putih (WCAG 1.4.11). → diukur di Tugas 5a.
 
 ---
 
@@ -471,6 +481,249 @@ git commit -m "feat(admin): tagihan jadi tabel dengan modal detail (admin-ui-5)"
 
 ---
 
+### Task 5a: Halaman form dan isian mengikuti desain acuan (Revisi 4)
+
+**Kenapa:** Tugas 1–3 Revisi 3 memasang shadcn dengan bentuk bawaannya (rounded-lg, 40/44 px, label 14 px, `ring-3` pada textarea, textarea `py-2`). Pemilik memilih form "Tambah Paket Baru" sebagai acuan: pil 48 px, label 13 px, fokus tipis, textarea yang teksnya tidak menempel ke atas, dan isian harga/telepon berformat. Ukuran tepatnya ada di [pola UI admin §7.0–§7.4](../design/admin-ui-patterns.md#70-halaman-form-t2--ukuran); tugas ini menerapkannya.
+
+**Files:**
+- Create: `front/lib/input-format.ts`, `front/lib/input-format.test.mjs`
+- Create: `front/components/admin/ui/form/controls.tsx`
+- Modify: `front/components/admin/ui/form/fields.tsx` (`Field`, `FormSection`, `FormPage`)
+- Modify: `front/components/admin/PageHeader.tsx` (slot judul halaman detail, ukuran §7.0)
+- Modify: `front/app/globals.css` (hapus aturan tinggi `data-slot` dari Revisi 3, sekitar baris 1636–1640)
+- Modify — ganti setiap `Input`/`Textarea`/`Select`/`<input>`/`<textarea>`/`<select>` isian dengan kontrol admin:
+  - `front/components/admin/ProgramForm.tsx` (Biaya dan Harga coret → `PriceInput`; DP → `PercentInput`; sisanya `AdminInput`/`AdminTextarea`; `FormPage width="double"`)
+  - `front/components/admin/program/ProgramBatchBoard.tsx` (nama batch, sesi tanggal/jam → `AdminInput`; harga paket → `PriceInput`; DP paket → `PercentInput`; penjelasan → `AdminTextarea`; "Buka pendaftaran" dan "Tawarkan paket" → `CheckboxCard` nada `mint`)
+  - `front/app/(admin)/admin/rekening/RekeningClient.tsx` (nomor rekening `AdminInput` digit saja `font-mono`; "Jadikan rekening aktif" → `CheckboxCard` nada `mint`)
+  - `front/components/admin/cms/CmsCollectionClient.tsx` (semua isian dan select; tipe `price` → `PriceInput`)
+  - `front/app/(admin)/admin/kontak/KontakClient.tsx` (WhatsApp → `PhoneInput`, buang `formatPhoneNumber` lokal)
+  - `front/app/(admin)/admin/profil-akademi/ProfilAkademiClient.tsx`
+  - `front/app/(admin)/admin/partner/page.tsx`
+  - `front/components/admin/article/ArticleEditor.tsx` (kepala ganda saja — lihat Step 7)
+
+**Interfaces:**
+- Produces:
+
+```ts
+// lib/input-format.ts — murni, tanpa impor
+export const MAX_RUPIAH_DIGITS = 12;
+export const MAX_PHONE_DIGITS = 13;
+/** Teks bebas → string digit Rupiah: buang bagian setelah koma, buang non-digit, buang nol di depan, potong 12 digit. "" bila tidak ada digit. */
+export function rupiahDigits(text: string): string;
+/** "1500000" → "1.500.000"; "" → "". */
+export function formatThousands(digits: string): string;
+/** Teks bebas → maksimal 2 digit, tanpa nol di depan. */
+export function percentDigits(text: string): string;
+/** Teks bebas → nomor Indonesia berformat 4-4-sisa: +62/62 → 0, awalan 8 → 08, maksimal 13 digit. */
+export function formatPhone(text: string): string;
+/** Posisi kursor di `formatted` sesudah digit ke-`digitsBefore`; 0 bila digitsBefore = 0. */
+export function caretFromDigits(formatted: string, digitsBefore: number): number;
+```
+
+```tsx
+// components/admin/ui/form/controls.tsx ("use client")
+export const adminFieldClass: string;      // geometri dan keadaan §7.1–§7.2, dipakai bersama
+export function AdminInput(props: React.ComponentProps<"input">): React.JSX.Element;
+export function AdminTextarea(props: React.ComponentProps<"textarea">): React.JSX.Element;
+export function AdminSelect(props: {
+  id: string; value: string; onValueChange: (value: string) => void;
+  options: { value: string; label: string }[]; placeholder?: string;
+  required?: boolean; disabled?: boolean; "aria-invalid"?: boolean;
+}): React.JSX.Element;
+export function PriceInput(props: Omit<React.ComponentProps<"input">, "value" | "onChange" | "type"> & {
+  value: string;                            // string digit, mis. "1500000"
+  onValueChange: (digits: string) => void;
+}): React.JSX.Element;
+export function PercentInput(props: Omit<React.ComponentProps<"input">, "value" | "onChange" | "type"> & {
+  value: string; onValueChange: (digits: string) => void;
+}): React.JSX.Element;
+export function PhoneInput(props: Omit<React.ComponentProps<"input">, "value" | "onChange" | "type"> & {
+  value: string; onValueChange: (formatted: string) => void;
+}): React.JSX.Element;
+export function CheckboxCard(props: {
+  id: string; checked: boolean; onCheckedChange: (checked: boolean) => void;
+  title: string; description?: string; tone?: "neutral" | "mint" | "peach"; disabled?: boolean;
+}): React.JSX.Element;
+```
+
+- Consumes: `Input` dari `@/components/ui/Input`, `Textarea` dari `@/components/ui/textarea`, `Select*` dari `@/components/ui/select`, `Checkbox` dari `@/components/ui/checkbox`, `cn` dari `@/lib/utils`.
+
+- [ ] **Step 1: Tulis tes pemformat yang gagal**
+
+```js
+import assert from "node:assert/strict";
+import test from "node:test";
+import {
+  MAX_PHONE_DIGITS, MAX_RUPIAH_DIGITS,
+  caretFromDigits, formatPhone, formatThousands, percentDigits, rupiahDigits,
+} from "./input-format.ts";
+
+test("rupiahDigits: digit saja, buang desimal, nol depan, dan potong 12 digit", () => {
+  assert.equal(rupiahDigits("1500000"), "1500000");
+  assert.equal(rupiahDigits("Rp 1.500.000"), "1500000");
+  assert.equal(rupiahDigits("1.500.000,00"), "1500000");
+  assert.equal(rupiahDigits("007"), "7");
+  assert.equal(rupiahDigits("0"), "0");
+  assert.equal(rupiahDigits("abc"), "");
+  assert.equal(rupiahDigits(""), "");
+  assert.equal(rupiahDigits("1234567890123"), "123456789012");
+  assert.equal(MAX_RUPIAH_DIGITS, 12);
+});
+
+test("formatThousands memakai titik id-ID", () => {
+  assert.equal(formatThousands("1500000"), "1.500.000");
+  assert.equal(formatThousands("999"), "999");
+  assert.equal(formatThousands("1000"), "1.000");
+  assert.equal(formatThousands(""), "");
+});
+
+test("percentDigits: maksimal dua digit", () => {
+  assert.equal(percentDigits("20"), "20");
+  assert.equal(percentDigits("20%"), "20");
+  assert.equal(percentDigits("150"), "15");
+  assert.equal(percentDigits("05"), "5");
+  assert.equal(percentDigits("x"), "");
+});
+
+test("formatPhone: nomor Indonesia 4-4-sisa", () => {
+  assert.equal(formatPhone("081234567890"), "0812-3456-7890");
+  assert.equal(formatPhone("+62 812 3456 7890"), "0812-3456-7890");
+  assert.equal(formatPhone("6281234567890"), "0812-3456-7890");
+  assert.equal(formatPhone("812345"), "0812-345");
+  assert.equal(formatPhone("0812345678901"), "0812-3456-78901");
+  assert.equal(formatPhone("08123456789012345"), "0812-3456-78901");
+  assert.equal(formatPhone("0812"), "0812");
+  assert.equal(formatPhone(""), "");
+  assert.equal(MAX_PHONE_DIGITS, 13);
+});
+
+test("caretFromDigits meletakkan kursor sesudah digit ke-n", () => {
+  assert.equal(caretFromDigits("1.500.000", 0), 0);
+  assert.equal(caretFromDigits("1.500.000", 1), 1);
+  assert.equal(caretFromDigits("1.500.000", 2), 3);   // sesudah "1.5"
+  assert.equal(caretFromDigits("1.500.000", 7), 9);   // ujung
+  assert.equal(caretFromDigits("0812-3456-7890", 5), 6); // sesudah "0812-3"
+  assert.equal(caretFromDigits("0812", 9), 4);           // lebih dari jumlah digit -> ujung
+});
+```
+
+- [ ] **Step 2: Jalankan, pastikan gagal**
+
+Run: `node --test lib/input-format.test.mjs`
+Expected: FAIL dengan `ERR_MODULE_NOT_FOUND` untuk `./input-format.ts`.
+
+- [ ] **Step 3: Implementasi `lib/input-format.ts`**
+
+Fungsi murni sesuai Interfaces, tanpa impor (supaya `node --test` memuatnya langsung). `formatThousands` memakai regex pengelompokan tiga digit dari kanan, **bukan** `Number(...).toLocaleString`, supaya 12 digit tidak kehilangan presisi dan hasilnya tidak bergantung locale mesin. `formatPhone`: ambil digit; awalan `62` → ganti dengan `0`; awalan `8` → tambahkan `0`; potong 13 digit; kelompokkan `[0,4)`, `[4,8)`, sisanya, digabung `-`, tanpa tanda hubung di ujung.
+
+- [ ] **Step 4: Jalankan, pastikan lulus**
+
+Run: `node --test lib/input-format.test.mjs`
+Expected: PASS 5 tes.
+
+- [ ] **Step 5: `controls.tsx`**
+
+`adminFieldClass` (satu string, dipakai `AdminInput`, `AdminTextarea`, dan pemicu `AdminSelect`):
+
+```text
+h-12 w-full rounded-full border border-admin-line bg-admin-surface px-[18px]
+text-base md:text-sm text-admin-ink placeholder:text-admin-text-faint
+transition-[border-color,box-shadow,background-color] duration-150
+hover:border-admin-line-strong
+outline-none focus-visible:border-admin-ink focus-visible:bg-admin-canvas
+focus-visible:ring-2 focus-visible:ring-admin-ink/8
+aria-invalid:border-admin-danger aria-invalid:bg-admin-rose-soft
+aria-invalid:focus-visible:ring-admin-danger/15
+disabled:cursor-not-allowed disabled:border-admin-line disabled:bg-admin-canvas disabled:text-admin-text-faint
+```
+
+- `AdminInput`: `<Input className={cn(adminFieldClass, className)} {...props} />`. `cn` (tailwind-merge) membuat kelas ini menang atas `h-8 rounded-lg bg-transparent px-3` bawaan shadcn.
+- `AdminTextarea`: `cn(adminFieldClass, "h-auto min-h-[104px] rounded-[20px] py-[14px] leading-[1.6] resize-y", className)` — `py-[14px]` menggantikan `py-2` bawaan, itulah yang membuat teks tidak menempel ke atas (K16).
+- `AdminSelect`: `SelectTrigger id={id} className={cn(adminFieldClass, "justify-between")}`, `SelectContent className="rounded-[20px]"`, `SelectItem className="h-10 text-sm"`. Teruskan `aria-invalid` dan `aria-required` ke pemicu.
+- `PriceInput`: pembungkus `relative`; `<span aria-hidden className="pointer-events-none absolute left-[18px] top-1/2 -translate-y-1/2 text-sm font-medium text-admin-text-secondary">Rp</span>`; `AdminInput` dengan `pl-[46px] tabular-nums`, `inputMode="numeric"`, `autoComplete="off"`, `value={formatThousands(value)}`. `onChange`: hitung digit di kiri `selectionStart`, panggil `onValueChange(rupiahDigits(next))`, lalu pada `requestAnimationFrame` pulihkan kursor dengan `caretFromDigits(formatted, digitsBefore)`. Backspace tepat di belakang titik: pindahkan kursor satu ke kiri lebih dulu, lalu hapus digit itu.
+- `PercentInput`: `AdminInput` dengan `pr-[40px] tabular-nums`, `inputMode="numeric"`, nilai `percentDigits`, dan `<span aria-hidden>%</span>` di kanan 18 px.
+- `PhoneInput`: `AdminInput type="tel" inputMode="tel" autoComplete="tel" placeholder="0812-3456-7890"`, nilai `formatPhone`, pemulihan kursor sama dengan `PriceInput`.
+- `CheckboxCard`: `<label htmlFor={id}>` sebagai kartu (`flex min-h-14 cursor-pointer items-center gap-3 rounded-[20px] border px-5`), `Checkbox` shadcn `size-[18px]` dengan `data-[state=checked]:bg-admin-ink data-[state=checked]:border-admin-ink`, judul `text-sm font-medium`, keterangan `text-[12px]`. Nada: `neutral` → `border-admin-line bg-admin-canvas`, tercentang `border-admin-ink`; `mint` → `bg-admin-mint-soft text-admin-mint-ink`; `peach` → `bg-admin-peach-soft text-admin-peach-ink`. Fokus kotak: `focus-visible:ring-2 focus-visible:ring-admin-ink/8`.
+
+- [ ] **Step 6: `fields.tsx` dan `globals.css`**
+
+- `Field`: `Label` dengan `className="text-[13px] font-medium text-admin-ink"`; galat dan petunjuk `text-[12px]`; jarak `gap-2`; `aria-required` diteruskan oleh pemanggil.
+- `FieldGrid`: `gap-x-5 gap-y-5`.
+- `FormSection`: lencana `size-7 rounded-full bg-admin-surface-muted text-[13px] font-bold` (tanpa tepi); judul `text-[15px] md:text-[16px] font-bold uppercase tracking-[0.04em]`; header `mb-6 flex items-center gap-3 border-b border-admin-line pb-4`; antar bagian `border-t border-admin-line pt-8 first:border-0 first:pt-0`.
+- `FormPage`: kartu `rounded-[28px] border border-admin-line bg-admin-canvas p-10 max-md:rounded-[24px] max-md:p-5`; `pageWidths = { single: "max-w-[760px]", double: "max-w-[1120px]" }`; kaki `mt-8 border-t border-admin-line pt-6`; **Batal** `h-12 rounded-full bg-admin-surface px-6 text-[15px] font-semibold text-admin-ink hover:bg-admin-surface-muted` tanpa tepi; **Simpan** `h-12 rounded-full bg-admin-ink px-6 text-[15px] font-semibold text-admin-on-ink` dengan ikon `Save` 18 px.
+- `globals.css`: hapus blok `@layer components { … [data-slot="input"], [data-slot="select-trigger"] … }` dari Revisi 3. `input.admin-search` tidak disentuh.
+
+- [ ] **Step 7: Satu kepala per halaman form**
+
+`PageHeader.tsx`, hanya saat `isDetail`:
+- tombol kembali `size-11 rounded-full border border-admin-line-strong bg-admin-canvas`, ikon 18 px;
+- eyebrow `[ {module.label} ]` dengan `text-[11px] font-semibold uppercase tracking-[0.2em] text-admin-text-secondary`;
+- judul `text-[24px] md:text-[30px] font-bold tracking-[-0.02em] leading-[1.15]` berisi **slot** `<span id="admin-page-title" />` yang diisi `AdminPageTitle`, dengan label modul sebagai cadangan yang disembunyikan begitu slot berisi (`peer` + `peer-[:not(:empty)]:hidden`). Ini memperbaiki `AdminPageTitle` yang sekarang tidak punya target (Review Focus 17);
+- deskripsi modul tidak ditampilkan.
+
+Halaman daftar (`isDetail = false`) tidak berubah.
+
+Halaman form mengirim judulnya: `ProgramForm` → `<AdminPageTitle>Ubah {initialData.title}</AdminPageTitle>`; `ArticleEditor` → `Tulis artikel` atau `Ubah artikel`.
+
+`ArticleEditor.tsx`: hapus kepala buatannya sendiri (tautan kembali bulat dan teks `[ ARTIKEL ] / …`) karena kepala shell sudah memberikannya. Status simpan (`statusText`), "Terbit …", dan tautan "Lihat publik" dipindah ke `AdminPageActions` di sisi kanan kepala shell, dengan teks `text-[13px] text-admin-text-secondary` dan token admin (buang `border-border-default`, `text-text-*`, `bg-bg-well`). Penjaga `leaveGuard` tetap dipasang pada tautan kembali shell lewat `onClick` yang sama — bila tidak bisa, catat sebagai keputusan di ledger dan pertahankan perilaku "Buang perubahan?" lewat `beforeunload`.
+
+- [ ] **Step 8: Ganti isian di semua form admin aktif**
+
+Untuk setiap berkas di daftar Files, ganti kontrolnya ke kontrol admin. Aturan pemetaan:
+
+| Sekarang | Ganti dengan |
+| --- | --- |
+| `<Input …>` / `<input type="text|email|url|number|date|time">` | `<AdminInput …>` |
+| `<Textarea …>` / `<textarea>` | `<AdminTextarea rows={3} …>` |
+| `<Select>…</Select>` / `<select>` | `<AdminSelect …>` |
+| Harga (state berupa string digit, ditampilkan lewat `formatNumber`/`grouped`) | `<PriceInput value={digits} onValueChange={…}>` — hapus `formatNumber`, `grouped`, `handleMoneyChange`, `digits` lokal yang tidak terpakai lagi |
+| Persen DP | `<PercentInput>` dengan `span="narrow"` |
+| WhatsApp/telepon | `<PhoneInput>` — hapus `formatPhoneNumber` lokal di `KontakClient` |
+| Kartu centang buatan sendiri (`rounded-[20px] border … p-4` + `<input type="checkbox">`) | `<CheckboxCard>` |
+
+Pertahankan semua `id`/`htmlFor`, `name` (form berbasis `FormData` seperti Rekening dan Partner membutuhkannya — beri `PriceInput` dan `PhoneInput` `<input type="hidden" name=…>` berisi nilai bersih bila formnya dikirim lewat `FormData`), validasi, `aria-invalid`, dan logika simpan.
+
+- [ ] **Step 9: Periksa**
+
+Run: `node --test lib/input-format.test.mjs lib/admin-nav.test.mjs && npx tsc --noEmit && npx eslint lib/input-format.ts components/admin/ui/form components/admin/PageHeader.tsx components/admin/ProgramForm.tsx components/admin/program components/admin/cms/CmsCollectionClient.tsx components/admin/article/ArticleEditor.tsx "app/(admin)/admin/rekening" "app/(admin)/admin/kontak" "app/(admin)/admin/profil-akademi" "app/(admin)/admin/partner/page.tsx" && npm run build`
+Expected: PASS, tanpa galat, build selesai.
+
+Lalu pastikan tidak ada isian yang lolos: `grep -rnE "<(input|textarea|select)\b|from \"@/components/ui/(Input|textarea|select)\"" front/components/admin front/app/\(admin\)/admin/{program,rekening,kontak,profil-akademi,partner,tagihan,settings} | grep -v "type=\"hidden\"\|type=\"checkbox\"\|type=\"file\"\|controls.tsx"` → tidak ada hasil.
+
+- [ ] **Step 10: Ukur di peramban**
+
+Pada `/admin/program/public-speaking-series/edit` (halaman form) dan modal Rekening, 1280 px lalu 390 px, mode terang lalu gelap. Baca nilai dengan `getComputedStyle`, jangan ditaksir:
+
+| Yang diukur | 1280 px | 390 px |
+| --- | --- | --- |
+| Tinggi `AdminInput` | 48px | 48px |
+| `border-radius` `AdminInput` | ≥ 24px (pil) | sama |
+| `font-size` teks isian | 14px | **16px** |
+| `font-size` label | 13px | 13px |
+| `padding-top` `AdminTextarea` | 14px | 14px |
+| `border-radius` `AdminTextarea` | 20px | 20px |
+| `font-size` judul halaman | 30px | 24px |
+| `font-size` judul bagian | 16px | 15px |
+| `padding` kartu form | 40px | 20px |
+| Fokus isian | tepi `--admin-ink` 1px + `box-shadow` 2px pudar, **tanpa `outline`** | sama |
+
+Lalu periksa perilaku:
+- **satu kepala**: `[ PROGRAM ]` + "Ubah Public Speaking Series" + tombol kembali; tidak ada kepala kedua di form Program maupun editor Artikel;
+- Biaya: ketik `1500000` → tampil `1.500.000`; tempel `Rp 2.000.000,00` → `2.000.000`; letakkan kursor di antara `1` dan `.500` lalu ketik `2` → `12.500.000` dengan kursor tetap sesudah `2` (Review Focus 15, 16);
+- WhatsApp di `/admin/settings?tab=kontak`: tempel `+62 812 3456 7890` → `0812-3456-7890`, simpan, muat ulang, nilainya tetap;
+- `CheckboxCard` "Buka pendaftaran" bisa dicentang dengan klik di mana pun pada kartu dan dengan Spasi;
+- simpan Program, Rekening, Kontak, dan satu batch masih bekerja; kembalikan data uji;
+- tidak ada gulir mendatar pada 360 px.
+
+- [ ] **Step 11: Commit**
+
+```bash
+git add front/lib/input-format.ts front/lib/input-format.test.mjs front/components/admin/ui/form front/components/admin/PageHeader.tsx front/app/globals.css front/components/admin/ProgramForm.tsx front/components/admin/program front/components/admin/cms/CmsCollectionClient.tsx front/components/admin/article/ArticleEditor.tsx "front/app/(admin)/admin/rekening" "front/app/(admin)/admin/kontak" "front/app/(admin)/admin/profil-akademi" "front/app/(admin)/admin/partner/page.tsx"
+git commit -m "style(admin): halaman form dan isian mengikuti desain acuan, isian Rupiah dan telepon berformat (admin-ui-5a)"
+```
+
+---
+
 ### Task 6: Navigasi — Program, Konten, dan Pengaturan
 
 Satu tugas untuk seluruh perubahan sidebar supaya `admin-nav.ts` dan tesnya tidak ditulis dua kali.
@@ -752,7 +1005,7 @@ Satu seksi di form program, berjudul **Dokumentasi**:
 - daftar video: tiap baris menampilkan judul dan tautan, dengan tombol hapus; isian **URL YouTube** + **Judul** memanggil `addProgramVideo`, nonaktif saat `videoFull`, dengan petunjuk "Gunakan tautan unlisted atau private.";
 - `alt` wajib untuk foto — pakai satu isian "Keterangan gambar" yang berlaku untuk seluruh berkas pada unggahan itu, dan tolak di klien bila kosong.
 
-Semua isian memakai shadcn `Input`/`Textarea`; input berkas memakai `Input type="file"` shadcn.
+Semua isian memakai kontrol admin dari Tugas 5a (`AdminInput`, `AdminTextarea`); input berkas tetap `<input type="file">` bawaan dengan tombol pil admin, karena `adminFieldClass` tidak cocok untuk pemilih berkas.
 
 - [ ] **Step 7: Sambungkan ke form program**
 
@@ -926,6 +1179,9 @@ git commit -m "feat(web): beranda memuat Public Training per program dan blok In
 
 - [ ] **Step 1: Pola UI admin**
 
+Bab 7 (§7.0–§7.4) **sudah ditulis ulang** pada Revisi 4. Langkah ini hanya memastikan isinya cocok dengan kode setelah Tugas 5a dan menulis bagian yang belum ada di bawah.
+
+
 - §7.1: tipografi isian shadcn (label 14 px medium huruf kalimat, teks 14 px desktop dan 16 px di bawah 768 px) dan tinggi isian 40/44 px (P5) dan catatan bahwa `input.admin-search` tetap 14 px.
 - §7: `InputLine`, `TextareaLine`, `SelectLine`, dan Model A (`.admin-form-plain`) dinyatakan tidak dipakai di admin, beserta alasannya (fokus biru, label berbeda, `Textarea` pil). Pola target: **shadcn/ui** (`Input`, `Textarea`, `Select`, `Label`) di dalam `Field`, dengan modal Rekening sebagai contoh acuan. Catat juga aturan **satu header per halaman form** (K13).
 - §6.2: bottom sheet berlaku untuk **semua** modal admin lewat `AdminSheet`; `components/ui/dialog.tsx` hanya untuk modul komunitas lama.
@@ -982,11 +1238,18 @@ git commit -m "docs: shadcn/ui, bottom sheet, tabel tagihan, dokumentasi program
 | R2.6 Beranda In House Training: galeri kegiatan dan Our Partner | 10 |
 | R3.1 Satu header di layar form; "Program & Batch" menjadi "Program" | 1, 6 |
 | R3.2 Semua isian mengikuti shadcn/ui yang rapi | 1, 2, 3, 8 |
+| R4.1 Ukuran font halaman form mengikuti desain acuan | 5a |
+| R4.2 Fokus isian tidak terlalu tebal | 5a |
+| R4.3 Teks textarea tidak terlalu ke atas | 5a |
+| R4.4 Isian harga dan nomor telepon berformat | 5a |
+| R4.5 Pedoman form input direvisi | sudah: pola UI admin §7 (revisi 17 November 2026); Tugas 11 hanya memeriksa sisanya |
 
 ## Urutan eksekusi dan ketergantungan
 
 ```text
-1 ──► 2 ──► 3        (shadcn; 1 membuang CSS lama dan memberi Field berlabel shadcn)
+1 ──► 2 ──► 3        (sudah dieksekusi: shadcn bawaan)
+1, 2, 3, 4 ──► 5a    (5a mengganti bentuk bawaan shadcn dengan desain acuan di semua form yang 1–3 sentuh)
+5a ─────────► 8      (editor galeri memakai kontrol admin)
 1 ──────────► 8      (8 menambah seksi Dokumentasi ke ProgramForm yang 1 tulis ulang)
 4 ──────────► 5, 8   (5 dan 8 memakai AdminSheet)
 6 ──────────► 7      (7 menghapus rute yang 6 keluarkan dari menu)
@@ -996,7 +1259,7 @@ git commit -m "docs: shadcn/ui, bottom sheet, tabel tagihan, dokumentasi program
 11 terakhir
 ```
 
-Jalankan berurutan 1 → 11. Tugas 9 boleh dipindah lebih awal setelah Tugas 6 bila perlu.
+Jalankan berurutan: 5 (sedang berjalan) → **5a** → 6 → 7 → 8 → 9 → 10 → 11. Tugas 9 boleh dipindah lebih awal setelah Tugas 6 bila perlu.
 
 ## Catatan verifikasi
 

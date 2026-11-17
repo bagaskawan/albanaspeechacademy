@@ -342,6 +342,7 @@ Menampilkan 1–20 dari 46                                         ( ‹ ) ( ›
 - Kolom kanan (4 dari 12) lengket: **kartu sorotan hitam “Kesiapan”** berisi daftar yang masih kurang sebagai kartu bertumpuk; tombol kuning ■→ melompat ke field terkait. Bila semua lengkap, kartu sorotan berubah menjadi mint dengan teks **“Siap dibuka”**.
 - Bilah simpan: titik status + teks, **Batal** (pil putih), **Simpan** (pil hitam). Lengket di atas saat menggulir.
 - < 1024 px: kartu kesiapan pindah ke atas sebagai kartu ringkas yang dapat dilipat; bilah simpan menempel di bawah layar.
+- **Ukuran tipografi, kepala, kartu, bagian, dan isian halaman form mengikuti §7.0** (revisi 17 November 2026). Bila uraian di atas berbeda dengan §7.0, §7.0 yang berlaku.
 
 ### T3 — Detail di panel samping
 
@@ -526,34 +527,104 @@ Contoh pemetaan modul saat ini:
 
 ## 7. Formulir
 
-Primitif: `field.tsx`, `label.tsx`, `input.tsx`, `textarea.tsx`, `select.tsx`, `DatePicker.tsx`, `TimePicker.tsx`, `checkbox.tsx`, `radio-group.tsx`, `switch.tsx`. Gaya diterapkan pada scope `.admin-shell`; kontrol `style-line` publik tidak disentuh.
+**Revisi 17 November 2026 (acuan desain).** Ukuran di bab ini diukur dari tangkapan layar form **"Tambah Paket Baru"** yang dipilih pemilik sebagai acuan (render admin lama pada 1920 px, skala 1×). Kode sumber form itu (`components/admin/PackageForm.tsx`) **bukan** acuan: kelasnya (`h-10 rounded-xl text-xs`, label 11 px) tertimpa CSS global saat tangkapan itu dibuat, jadi yang dipakai adalah ukuran yang tampil.
+
+Primitif dari shadcn/ui yang sudah terpasang (`components/ui/Input.tsx`, `textarea.tsx`, `select.tsx`, `label.tsx`, `checkbox.tsx`), **selalu lewat kontrol admin** di `components/admin/ui/form/controls.tsx` (§7.2b). Halaman dan form admin tidak memakai `Input`/`Textarea` shadcn secara langsung, tidak memakai `style-line`, dan tidak menulis kelas isian sendiri.
+
+### 7.0 Halaman form (T2) — ukuran
+
+```text
+(←)  [ PROGRAM ]                                                  ← satu-satunya kepala halaman (kepala shell)
+     Ubah Public Speaking Series
+──────────────────────────────────────────────────────────────────────
+╭─ kartu putih · radius 28 · padding 40 ────────────────────────────╮
+│ (1) INFORMASI UTAMA                                                │
+│ ────────────────────────────────────────────────────────────────── │
+│ Nama program *                                                     │
+│ (  Public Speaking Series                                      )   │
+│                                                                    │
+│ Deskripsi                                                          │
+│ ╭────────────────────────────────────────────────────────────╮     │
+│ │  Bicara, Berkarya, Berpenghasilan                          │     │
+│ │                                                            │     │
+│ ╰────────────────────────────────────────────────────────────╯     │
+│                                                                    │
+│ Biaya *                           Harga coret                      │
+│ (  Rp  1.500.000              )   (  Rp  1.800.000             )   │
+│ DP                                                                 │
+│ (  20                    %  )                                      │
+│ ────────────────────────────────────────────────────────────────── │
+│ (2) FORMULIR PENDAFTARAN                                           │
+│ …                                                                  │
+│ ────────────────────────────────────────────────────────────────── │
+│                                          ( Batal )  ( ▣ Simpan )   │
+╰────────────────────────────────────────────────────────────────────╯
+```
+
+| Elemen | ≥ 768 px | < 768 px | Kelas |
+| --- | --- | --- | --- |
+| Eyebrow modul | 11 / 600, kapital, spasi huruf 0.2em, `--admin-text-secondary`, dalam kurung siku `[ PROGRAM ]` | sama | `text-[11px] font-semibold uppercase tracking-[0.2em]` |
+| Judul halaman | 30 / 700, spasi −0.02em, tinggi baris 1.15 | 24 / 700 | `text-[24px] md:text-[30px] font-bold tracking-[-0.02em] leading-[1.15]` |
+| Tombol kembali | 44 px bulat, tepi 1 px `--admin-line-strong`, latar `--admin-canvas`, ikon 18 px | sama | `size-11` |
+| Jarak kepala → kartu | garis 1 px `--admin-line`, lalu 32 px | 24 px | |
+| Kartu form | radius 28, padding 40, tepi 1 px `--admin-line`, latar `--admin-canvas` | radius 24, padding 20 | `rounded-[28px] border p-10 max-md:rounded-[24px] max-md:p-5` |
+| Lebar kartu | `single` 760 px · `double` 1120 px | lebar penuh | `FormPage width` |
+| Lencana nomor bagian | 28 px bulat, latar `--admin-surface-muted`, angka 13 / 700 | sama | `size-7` |
+| Judul bagian | 16 / 700, kapital, spasi 0.04em | 15 / 700 | `text-[15px] md:text-[16px] font-bold uppercase tracking-[0.04em]` |
+| Garis bawah judul bagian | 1 px `--admin-line`; 24 px ke field pertama | sama | |
+| Antar bagian | garis 1 px `--admin-line` + 32 px di atasnya | sama | |
+| Label | 13 / 500 `--admin-ink`, huruf kalimat, `*` `--admin-danger` | sama | `text-[13px] font-medium` |
+| Label → kontrol | 8 px | sama | `gap-2` |
+| Teks isian | 14 / 400 `--admin-ink` | **16 / 400** (mencegah zoom Safari iOS) | `text-base md:text-sm` |
+| Placeholder | sama dengan teks isian, `--admin-text-faint` | sama | |
+| Petunjuk dan galat | 12 / 400; galat `--admin-danger` | sama | `text-[12px]` |
+| Antar field | 20 px vertikal, 20 px antar kolom | 20 px | `gap-5` |
+| Tombol kaki | tinggi 48, 15 / 600, rata kanan | lebar penuh, menumpuk, aksi utama di atas | |
+
+Satu halaman form punya **satu** kepala: kepala shell (§3.3). Form tidak boleh merender judul, eyebrow, atau tombol kembali sendiri. Judul spesifik halaman (mis. "Ubah Public Speaking Series") dikirim lewat `AdminPageTitle`; tanpa itu, judul jatuh ke label modul. Status simpan dan aksi sekunder masuk lewat `AdminPageActions` di sisi kanan kepala.
 
 ### 7.1 Anatomi field
 
 ```text
-Nama program *                                  ← label 13/500 --admin-ink, tanda * --admin-danger, 8 px ke kontrol
-╭───────────────────────────────────────────╮
-│  Public Speaking Series                   │   ← pil 48 px, latar --admin-surface-muted, tepi 1 px --admin-line-strong
-╰───────────────────────────────────────────╯
-Tampil sebagai judul kartu di beranda.          ← petunjuk 13/400 --admin-text-secondary
+Nama program *                                   ← label 13/500 --admin-ink · * --admin-danger · 8 px ke kontrol
+╭──────────────────────────────────────────╮
+│  Public Speaking Series                  │     ← pil 48 px · latar --admin-surface · tepi 1 px --admin-line
+╰──────────────────────────────────────────╯       padding kiri-kanan 18 px · teks 14 px (16 px < 768 px)
+Tampil sebagai judul kartu di beranda.           ← petunjuk 12/400 --admin-text-secondary
 ```
 
-- Kartu form selalu **putih** (`--admin-canvas`) dengan tepi 1 px `--admin-line-strong`; field di dalamnya **abu** dengan tepi tipis yang terlihat. Kontras abu-di-atas-putih memisahkan field tanpa bayangan.
-- Input satu baris berbentuk pil (radius 999 px, tinggi 48 px). Textarea radius 20 px, minimal 3 baris.
-- Label huruf biasa ("Kode voucher", bukan "KODE VOUCHER"); field wajib ditandai `*` merah dan `aria-required`.
+| Bagian | Nilai |
+| --- | --- |
+| Tinggi isian satu baris dan `SelectTrigger` | **48 px** di semua lebar (`h-12`), jadi sekaligus memenuhi target sentuh 44 px |
+| Radius isian satu baris | 999 px (pil) |
+| Padding isian | 0 18 px (`px-[18px]`) |
+| Textarea | radius **20 px**; padding **14 px atas-bawah, 18 px kiri-kanan** (`px-[18px] py-[14px]`); tinggi baris 1.6; tinggi minimal **104 px** (tiga baris); `resize-y`. Baris pertama teks berada 14 px di bawah tepi atas — **tidak menempel ke atas** |
+| Latar | `--admin-surface` (abu sangat muda) di atas kartu putih |
+| Tepi | 1 px `--admin-line` |
+| Teks | 14 / 400 `--admin-ink`; 16 px di bawah 768 px |
+
+- Kartu form selalu **putih**; isian **abu sangat muda** dengan tepi tipis. Kontras abu-di-atas-putih memisahkan isian tanpa bayangan.
+- Label huruf kalimat ("Kode voucher", bukan "KODE VOUCHER"); hanya judul bagian yang kapital.
+- Isian wajib: `*` merah di label dan `aria-required="true"` pada kontrol.
+- Placeholder hanya contoh format ("0812-3456-7890", "Misal: Batch Desember"), tidak pernah pengganti label.
 
 ### 7.2 Keadaan
 
-| Keadaan | Bidang | Tepi | Gerak |
-| --- | --- | --- | --- |
-| Diam | `--admin-surface-muted` | 1 px `--admin-line-strong` | — |
-| Hover | `--admin-surface-muted` | 1 px `--admin-text-faint` | 140 ms |
-| Fokus | `--admin-surface-muted` | 1 px `--admin-ink` + halo 3 px `--admin-ink` 12% | 140 ms |
-| Galat | `--admin-rose-soft` | 1 px `--admin-danger` | Pesan masuk `translateY(-4px)→0` 180 ms |
-| Nonaktif | `--admin-canvas` | 1 px `--admin-line` | Teks `--admin-text-faint`; alasan di petunjuk |
-| Hanya baca | Transparan | Tidak ada | Untuk slug |
+| Keadaan | Latar | Tepi | Cincin | Gerak |
+| --- | --- | --- | --- | --- |
+| Diam | `--admin-surface` | 1 px `--admin-line` | — | — |
+| Hover | `--admin-surface` | 1 px `--admin-line-strong` | — | 140 ms |
+| **Fokus** | `--admin-canvas` | 1 px `--admin-ink` | **2 px `--admin-ink` 8%** | 140 ms |
+| Galat | `--admin-rose-soft` | 1 px `--admin-danger` | saat fokus: 2 px `--admin-danger` 15% | pesan masuk `translateY(-4px)→0` 180 ms |
+| Nonaktif | `--admin-canvas` | 1 px `--admin-line` | — | teks `--admin-text-faint`, `cursor-not-allowed`, alasan di petunjuk |
+| Hanya baca | transparan | tidak ada | — | untuk slug dan nilai turunan |
 
-Ruang pesan galat dicadangkan (min-height 20 px). Placeholder hanya contoh format, bukan pengganti label.
+Kelas fokus yang tepat: `focus-visible:border-admin-ink focus-visible:bg-admin-canvas focus-visible:ring-2 focus-visible:ring-admin-ink/8 outline-none`.
+
+- **Fokus isian tipis**: tepi 1 px berganti hitam ditambah cincin 2 px yang sangat pudar. Jangan pakai `outline` 2 px, jangan pakai `ring-3` bawaan shadcn, dan jangan pakai halo 3 px 12% dari pedoman lama — semuanya terlalu tebal untuk isian yang berdempetan.
+- **Fokus tombol berbeda**: tombol dan tautan tetap `outline` 2 px `--admin-ink` dengan offset 2 px, karena tombol tidak punya tepi yang bisa berganti warna.
+- Fokus harus tetap terlihat: kontras tepi hitam terhadap latar putih ≥ 3:1 (WCAG 1.4.11). Cincin pudar hanya tambahan, bukan satu-satunya penanda.
+- Ruang pesan galat dicadangkan (`min-h-5`) supaya tata letak tidak meloncat.
 
 ### 7.2a Lebar field dan kolom ganda
 
@@ -562,46 +633,121 @@ Form memakai grid `FieldGrid`. **Modal `sm` dan `md` selalu satu kolom** (`colum
 | Lebar | Pakai |
 | --- | --- |
 | Penuh (`span="full"`) — bawaan | Teks bebas, nama, URL, alamat, textarea, unggah, pilihan yang labelnya panjang |
-| Setengah (`span="half"`) | Pasangan yang dibaca bersama: tipe + nilai diskon, harga + harga coret, tanggal + jam, bank + nomor rekening, kota + kode pos |
-| Sempit (`span="narrow"`, 160 px) | Persen, jumlah, urutan, kuota — angka pendek yang tidak perlu lebar penuh |
+| Setengah (`span="half"`) | Pasangan yang dibaca bersama: harga + harga coret, tanggal + jam, bank + nomor rekening |
+| Sempit (`span="narrow"`, 160 px) | Persen, jumlah, urutan, kuota — angka pendek |
 
 Aturan:
 
 1. Field setengah **selalu berpasangan** dalam satu baris; jangan tinggalkan setengah baris kosong.
-2. Urutan baca kiri→kanan, lalu ke bawah; pasangan harus masuk akal dibaca bersama.
+2. Urutan baca kiri→kanan, lalu ke bawah.
 3. Di bawah titik patah, semua field menjadi penuh, sesuai urutan sumber.
-4. Halaman form dibagi menjadi **bagian bernomor** (`FormSection`: lingkaran nomor 28 px + judul 15/600 + garis bawah), maksimal 5 bagian. Kaki halaman: **Batal** (pil bergaris) dan aksi utama (pil hitam) rata kanan; di ponsel keduanya lebar penuh menumpuk dengan aksi utama di atas.
+4. Halaman form dibagi menjadi **bagian bernomor** (`FormSection`, ukuran §7.0), maksimal 5 bagian. Kaki halaman: **Batal** (pil abu `--admin-surface`, tanpa tepi) dan aksi utama (pil hitam dengan ikon simpan) rata kanan; di ponsel keduanya lebar penuh menumpuk dengan aksi utama di atas.
 
 ### 7.2b Komponen
 
 Semua form admin memakai komponen di `components/admin/ui/form/`, bukan menulis kelas sendiri:
 
-| Komponen | Isi |
-| --- | --- |
-| `FormDialog` | Modal §6.2 di desktop, lembar bawah di < 640 px. Prop: `open`, `onOpenChange`, `icon`, `title`, `description`, `size` (`sm`/`md`/`lg`), `submitLabel`, `pending`, `onSubmit` |
-| `FormPage` + `FormSection` | Kartu halaman form dengan bagian bernomor dan kaki aksi. Prop `width` (`single` 760 / `double` 960) |
-| `FieldGrid` + `Field` | Grid §7.2a dan anatomi §7.1: label, `*`, kontrol, petunjuk, galat. Prop `span` |
-| Kelas `admin-input` | Gaya kontrol §7.2 untuk `input`, `textarea`, `select` di dalam `Field` |
+| Komponen | Berkas | Isi |
+| --- | --- | --- |
+| `FormDialog` | `FormDialog.tsx` | Modal §6.2 di desktop, lembar bawah di < 640 px |
+| `FormPage` + `FormSection` | `fields.tsx` | Kartu halaman form §7.0, bagian bernomor, kaki aksi. Prop `width` (`single` 760 / `double` 1120) |
+| `FieldGrid` + `Field` | `fields.tsx` | Grid §7.2a dan anatomi §7.1: label, `*`, kontrol, petunjuk, galat |
+| `AdminInput` | `controls.tsx` | `Input` shadcn dengan geometri §7.1 dan keadaan §7.2. Untuk teks, email, URL, angka biasa, tanggal, jam |
+| `AdminTextarea` | `controls.tsx` | `Textarea` shadcn, radius 20, padding 14/18, minimal 104 px |
+| `AdminSelect` | `controls.tsx` | `Select` shadcn; pemicu sama dengan `AdminInput`, daftar di popover radius 20, butir 40 px 14/400 |
+| `PriceInput` | `controls.tsx` | Rupiah §7.4 |
+| `PercentInput` | `controls.tsx` | Persen §7.4 |
+| `PhoneInput` | `controls.tsx` | Nomor telepon/WhatsApp §7.4 |
+| `CheckboxCard` | `controls.tsx` | Kotak centang berkartu §7.4 |
+| Pemformat | `lib/input-format.ts` | Fungsi murni untuk Rupiah, persen, telepon, dan posisi kursor; dites `node --test` |
 
 ### 7.3 Validasi
 
 1. Saat blur: periksa field itu.
 2. Saat mengetik pada field galat: hapus galat begitu sah.
-3. Saat simpan: periksa semua; gulir dan fokus ke galat pertama; banner “3 isian perlu diperbaiki”.
+3. Saat simpan: periksa semua; gulir dan fokus ke galat pertama; banner "3 isian perlu diperbaiki".
 4. Field yang belum disentuh tidak divalidasi sebelum simpan pertama.
 
 ### 7.4 Kontrol khusus
 
+#### Rupiah — `PriceInput`
+
+```text
+Biaya *
+(  Rp  1.500.000                          )
+   ↑ awalan "Rp" 14/500 --admin-text-secondary, 18 px dari kiri, aria-hidden
+```
+
+- Awalan **"Rp"** di dalam pil, tidak bisa disunting; isian bergeser `pl-[46px]`.
+- Pemisah ribuan titik saat mengetik (`id-ID`); **tanpa** desimal; `inputMode="numeric"`, `autoComplete="off"`, `tabular-nums`.
+- Nilai di state adalah **string digit** (`"1500000"`); simpan sebagai integer (`Number(digits)`), atau `null` bila kosong pada isian opsional.
+- Maksimal 12 digit (Rp999.999.999.999).
+
+| Diketik atau ditempel | Tampil | Disimpan |
+| --- | --- | --- |
+| `1500000` | `1.500.000` | `1500000` |
+| `Rp 1.500.000` | `1.500.000` | `1500000` |
+| `1.500.000,00` | `1.500.000` | `1500000` (bagian setelah koma dibuang, **bukan** digabung) |
+| `007` | `7` | `7` |
+| `abc` atau kosong | kosong | `null` / galat "wajib" bila wajib |
+| 13 digit | dipotong menjadi 12 digit | |
+
+#### Persen — `PercentInput`
+
+- Pil sempit (`span="narrow"`), akhiran **"%"** di kanan 18 px, `aria-hidden`.
+- Hanya digit, maksimal 2 digit; sah 1–99; kosong berarti tanpa DP.
+- Di bawahnya petunjuk hasil bila biaya diketahui: "= Rp300.000 saat DP".
+
+#### Telepon dan WhatsApp — `PhoneInput`
+
+- `type="tel"`, `inputMode="tel"`, `autoComplete="tel"`, placeholder `0812-3456-7890`.
+- Format nomor Indonesia saat mengetik: hanya digit; awalan `+62` atau `62` menjadi `0`; nomor yang dimulai `8` diberi `0` di depan; maksimal 13 digit; dikelompokkan 4-4-sisa dengan tanda hubung.
+- Disimpan seperti yang tampil (`0812-3456-7890`); tautan `wa.me` dibuat dari digitnya oleh `contactHref`.
+
+| Diketik atau ditempel | Tampil |
+| --- | --- |
+| `081234567890` | `0812-3456-7890` |
+| `+62 812 3456 7890` | `0812-3456-7890` |
+| `6281234567890` | `0812-3456-7890` |
+| `812345` | `0812-345` |
+| `0812345678901` (13 digit) | `0812-3456-78901` |
+| 14 digit atau lebih | dipotong di 13 digit |
+
+#### Posisi kursor pada isian berformat
+
+Rupiah dan telepon memformat ulang setiap ketikan. Kursor **tidak boleh melompat ke ujung** saat menyunting di tengah: hitung jumlah digit di kiri kursor sebelum format, lalu letakkan kursor sesudah digit ke-n yang sama pada teks hasil format (`caretFromDigits`). Hapus (Backspace) tepat di belakang pemisah menghapus digit sebelumnya, bukan pemisahnya.
+
+#### Kontrol lain
+
 | Data | Kontrol |
 | --- | --- |
-| Rupiah | Pil dengan awalan “Rp” abu; pemisah ribuan saat mengetik; `inputMode="numeric"`; simpan integer |
-| Persen DP | Pil sempit 120 px dengan akhiran “%”; di sampingnya chip hasil: **= Rp300.000** |
-| Pilihan 2–4 (Bundling Ya/Tidak, jenis formulir) | **Pil segmen** dalam kapsul `--surface-muted`; pilihan aktif pil `--ink` yang meluncur (gerak sama dengan item aktif sidebar) |
-| Pilihan > 4 | Select berbentuk pil; daftar di popover radius 24 px |
-| Ya/tidak berdampak | `switch` 52×32 px, aktif `--ink`; teks akibat di sampingnya |
-| Tanggal + jam sesi | Tiga pil berderet: tanggal · mulai · selesai, akhiran “WIB” |
-| Teks 20–30 kata | Textarea radius 20 px + penghitung chip di pojok kanan bawah (kuning bila di luar rentang) |
-| Isian bersyarat | Muncul `opacity` + `translateY(-8px)→0` 220 ms; nilai disimpan saat disembunyikan |
+| Nomor rekening | `AdminInput` `inputMode="numeric"`, hanya digit, **tanpa** pengelompokan (format bank berbeda-beda), `font-mono tabular-nums` |
+| Pilihan 2–4 | Pil segmen dalam kapsul `--admin-surface-muted`; pilihan aktif pil `--admin-ink` |
+| Pilihan > 4 | `AdminSelect` |
+| Tanggal dan jam | `AdminInput type="date"` / `type="time"`; jadwal sesi berderet tanggal · mulai · selesai |
+| Teks panjang | `AdminTextarea`; penghitung karakter di kanan bawah bila ada batas |
+| Ya/tidak dengan akibat | `CheckboxCard` |
+
+#### `CheckboxCard`
+
+```text
+╭──────────────────────────────────────────────────────╮
+│  ☑  Buka pendaftaran                                 │   ← min 56 px · radius 20 · padding 0 20 px
+│     Membuka batch ini menutup batch lain.            │      judul 14/500 · keterangan 12/400
+╰──────────────────────────────────────────────────────╯
+```
+
+| Bagian | Nilai |
+| --- | --- |
+| Kotak | `Checkbox` shadcn 18 px; tercentang latar `--admin-ink` |
+| Kartu | tinggi minimal 56 px, radius 20, tepi 1 px `--admin-line`, latar `--admin-canvas`; tercentang tepi `--admin-ink` |
+| Nada | `neutral` (bawaan); `mint` untuk status aktif/terbit (latar `--admin-mint-soft`, teks `--admin-mint-ink`); `peach` untuk sorotan (latar `--admin-peach-soft`, teks `--admin-peach-ink`) |
+| Seluruh kartu | dapat diklik (`<label htmlFor>`) |
+
+#### Tombol tambah dan daftar kosong di dalam form
+
+- **Tambah baris** (mis. "+ Tambah materi"): pil lebar penuh 48 px, tepi putus-putus 1 px `--admin-line-strong`, teks 14 / 600 `--admin-ink`, ikon 16 px.
+- **Daftar kosong** di dalam bagian: kotak putus-putus radius 20, padding 32 px, teks 13 / 400 `--admin-text-secondary` rata tengah.
 
 ### 7.5 Baris berulang
 
