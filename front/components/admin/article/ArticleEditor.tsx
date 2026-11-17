@@ -7,8 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { DialogIconHeader } from "@/components/ui/DialogIconHeader";
+import { AdminSheet } from "@/components/admin/ui/AdminSheet";
 import {
   articleHasText,
   splitTitleBlock,
@@ -245,33 +244,32 @@ export default function ArticleEditor({ article }: { article: ArticleEditorData 
       </Button>
 
       {/* Modal Popup Warning Perubahan Belum Tersimpan */}
-      <Dialog open={showLeaveConfirm} onOpenChange={setShowLeaveConfirm}>
-        <DialogContent className="max-w-md bg-admin-surface dark:bg-zinc-950 border-0 sm:border border-zinc-200 dark:border-zinc-800 p-6 rounded-none sm:rounded-[24px]">
-          <DialogIconHeader
-            icon={<AlertTriangle size={18} />}
-            title="Perubahan Belum Tersimpan"
-            description="Ada perubahan artikel yang belum tersimpan. Tinggalkan halaman ini? Perubahan yang belum disimpan akan hilang."
-            tone="amber"
-          />
-
-          <div className="flex flex-row justify-end gap-3 pt-4 px-1">
-            <Button
+      <AdminSheet
+        open={showLeaveConfirm}
+        onOpenChange={setShowLeaveConfirm}
+        size="sm"
+        icon={<AlertTriangle aria-hidden="true" size={20} strokeWidth={1.5} />}
+        title="Perubahan Belum Tersimpan"
+        description="Ada perubahan artikel yang belum tersimpan. Tinggalkan halaman ini? Perubahan yang belum disimpan akan hilang."
+        footer={
+          <>
+            <button
               type="button"
               onClick={() => setShowLeaveConfirm(false)}
-              className="px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-full cursor-pointer h-auto shadow-none"
+              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
             >
               Batal
-            </Button>
-            <Button
+            </button>
+            <button
               type="button"
               onClick={handleConfirmLeave}
-              className="px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-amber-600 hover:bg-amber-700 rounded-full cursor-pointer h-auto border-0 shadow-sm"
+              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full bg-admin-ink text-[15px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
             >
               Tinggalkan
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+            </button>
+          </>
+        }
+      />
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { createContext, useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Pencil, Trash2 } from "lucide-react";
-import { DeleteConfirmDialog } from "@/components/ui/DeleteConfirmDialog";
+import { AdminSheet } from "./AdminSheet";
 import { rowActionClass, rowDangerActionClass } from "./data-table";
 
 // The shell knows the admin role once per request; row actions read it here instead of every page.
@@ -35,20 +35,39 @@ export function RowActions({ itemName, editHref, onEdit, onDelete, extra }: {
       <button type="button" onClick={() => setConfirming(true)} aria-label={`Hapus ${itemName}`} title="Hapus" className={rowDangerActionClass}>
         <Trash2 aria-hidden="true" size={18} strokeWidth={1.5} />
       </button>
-      <DeleteConfirmDialog
-        isOpen={confirming}
+      <AdminSheet
+        open={confirming}
         onOpenChange={setConfirming}
+        size="sm"
+        tone="danger"
+        icon={<Trash2 aria-hidden="true" size={20} strokeWidth={1.5} />}
         title={`Hapus ${itemName}?`}
         description="Tindakan ini tidak dapat dibatalkan."
-        confirmLabel="Hapus"
-        onConfirm={async () => {
-          setConfirming(false);
-          const result = await onDelete();
-          if (!result) return;
-          if (result.error) { toast.error(result.error); return; }
-          toast.success(`${itemName} dihapus.`);
-          router.refresh();
-        }}
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setConfirming(false)}
+              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                setConfirming(false);
+                const result = await onDelete();
+                if (!result) return;
+                if (result.error) { toast.error(result.error); return; }
+                toast.success(`${itemName} dihapus.`);
+                router.refresh();
+              }}
+              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full bg-admin-danger text-[15px] font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
+            >
+              Hapus
+            </button>
+          </>
+        }
       />
     </>}
   </div>;

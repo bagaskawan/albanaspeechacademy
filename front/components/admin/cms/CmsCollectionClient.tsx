@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { Check, Image as ImageIcon, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
@@ -8,13 +8,7 @@ import { compressImage } from "@/lib/file-compress";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DeleteConfirmDialog } from "@/components/ui/DeleteConfirmDialog";
-import { DialogIconHeader } from "@/components/ui/DialogIconHeader";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { AdminSheet } from "@/components/admin/ui/AdminSheet";
 import { Field } from "@/components/admin/ui/form/fields";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/textarea";
@@ -286,6 +280,7 @@ export default function CmsCollectionClient({
 
   const params = useSearchParams();
   const query = params.get("q") ?? "";
+  const formId = useId();
   const canDelete = useIsAdminSuper();
   const visibleRows = rows.filter((row) =>
     (!groupField || String(row[groupField.name]) === activeGroup)
@@ -922,76 +917,94 @@ export default function CmsCollectionClient({
         </div>
       )}
 
-      <Dialog open={isFormOpen} onOpenChange={(open) => { if (!open) closeForm(); }}>
-        <DialogContent className={`admin-dialog-motion ${maxWidth ?? (twoColumns ? "max-w-4xl" : "max-w-2xl")} bg-admin-canvas`}>
-          <DialogIconHeader
-            icon={editingRow ? <Pencil size={18} /> : <Plus size={18} />}
-            title={editingRow ? `Ubah ${title}` : `Tambah ${title}`}
-            description={formHint ?? `Lengkapi informasi ${title.toLowerCase()} di bawah ini.`}
-          />
-
-          <form onSubmit={handleSubmit} noValidate className="flex min-h-0 flex-1 flex-col">
-            <div className="min-h-0 flex-1 overflow-y-auto space-y-4 pr-1">
-              {error && (
-                <div role="alert" className="p-3 rounded-xl text-xs font-semibold bg-admin-rose-soft text-admin-rose-ink">
-                  {error}
-                </div>
-              )}
-
-              {fields
-                .filter((field) => field.type === "gallery")
-                .map((field) => (
-                  <div key={field.name}>{renderField(field)}</div>
-                ))}
-
-              <div className={twoColumns ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "grid grid-cols-1 gap-4"}>
-                {fields.filter((field) => field.type !== "gallery").map((field) => (
-                  <div
-                    key={field.name}
-                    className={
-                      twoColumns && (field.type === "textarea" || field.type === "sessions")
-                        ? "md:col-span-2"
-                        : ""
-                    }
-                  >
-                    {renderField(field)}
-                  </div>
-                ))}
-              </div>
+      <AdminSheet
+        open={isFormOpen}
+        onOpenChange={(open) => { if (!open) closeForm(); }}
+        size={twoColumns ? "lg" : "md"}
+        icon={editingRow ? <Pencil aria-hidden="true" size={18} /> : <Plus aria-hidden="true" size={18} />}
+        title={editingRow ? `Ubah ${title}` : `Tambah ${title}`}
+        description={formHint ?? `Lengkapi informasi ${title.toLowerCase()} di bawah ini.`}
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={closeForm}
+              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              form={formId}
+              disabled={isSaving}
+              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center gap-2 rounded-full bg-admin-ink text-[15px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
+            >
+              {isSaving ? <Loader2 aria-hidden="true" size={16} className="animate-spin" /> : <Check aria-hidden="true" size={16} />}
+              {isSaving ? "Menyimpan…" : `Simpan ${title}`}
+            </button>
+          </>
+        }
+      >
+        <form id={formId} onSubmit={handleSubmit} noValidate className="space-y-4">
+          {error && (
+            <div role="alert" className="p-3 rounded-xl text-xs font-semibold bg-admin-rose-soft text-admin-rose-ink">
+              {error}
             </div>
+          )}
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={closeForm}
-                className="h-9 rounded-full px-5 text-xs font-bold uppercase tracking-wider text-text-secondary"
-              >
-                Batal
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSaving}
-                className="h-9 rounded-full px-5 text-xs font-bold uppercase tracking-wider"
-              >
-                {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                {isSaving ? "Menyimpan…" : `Simpan ${title}`}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+          {fields
+            .filter((field) => field.type === "gallery")
+            .map((field) => (
+              <div key={field.name}>{renderField(field)}</div>
+            ))}
 
-      <DeleteConfirmDialog
-        isOpen={deleteTarget !== null}
+          <div className={twoColumns ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "grid grid-cols-1 gap-4"}>
+            {fields.filter((field) => field.type !== "gallery").map((field) => (
+              <div
+                key={field.name}
+                className={
+                  twoColumns && (field.type === "textarea" || field.type === "sessions")
+                    ? "md:col-span-2"
+                    : ""
+                }
+              >
+                {renderField(field)}
+              </div>
+            ))}
+          </div>
+        </form>
+      </AdminSheet>
+
+      <AdminSheet
+        open={deleteTarget !== null}
         onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
-        title={`Hapus ${title}`}
+        size="sm"
+        tone="danger"
+        icon={<Trash2 aria-hidden="true" size={20} strokeWidth={1.5} />}
+        title={`Hapus ${title}?`}
         description={
           deleteTarget
             ? `Hapus "${displayRowTitle(fields, displayField, deleteTarget)}"? Tindakan ini permanen.`
             : ""
         }
-        onConfirm={() => { if (deleteTarget) void handleDelete(deleteTarget); }}
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setDeleteTarget(null)}
+              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              onClick={() => { if (deleteTarget) void handleDelete(deleteTarget); }}
+              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full bg-admin-danger text-[15px] font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
+            >
+              Hapus
+            </button>
+          </>
+        }
       />
 
       {groupField && (
