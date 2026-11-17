@@ -12,7 +12,7 @@ export async function RegistrationStepsSection() {
   let whatsapp: string | undefined;
   try { const channel = (await readPublishedContacts()).find((item) => item.kind === "whatsapp"); whatsapp = channel ? contactHref(channel) : undefined; } catch { /* Consultation link is optional. */ }
   return <section id="daftar" className="section" aria-labelledby="daftar-title"><Container className="max-w-7xl">
-    <SectionIntro eyebrow="[ CARA DAFTAR ]" title={<>Tiga langkah, <mark className="bg-highlight text-ink">lalu kita berlatih</mark></>} titleId="daftar-title" />
+    <SectionIntro eyebrow="[ CARA DAFTAR ]" title={<>Tiga langkah, <em className="accent-serif">lalu kita berlatih</em></>} titleId="daftar-title" />
     <ol className="mt-8 grid gap-6 md:grid-cols-3 md:gap-0">{steps.map(([title, description], index) => <li key={title} data-motion="slide" className="border-t border-rule py-5 md:border-r md:px-6 md:first:pl-0 md:last:border-r-0">
       <span className="font-display text-5xl font-semibold tabular-nums text-accent">{String(index + 1).padStart(2, "0")}</span>
       <h3 className="mt-5 text-xl font-semibold">{title}</h3><p className="mt-2 leading-relaxed text-muted">{description}</p>

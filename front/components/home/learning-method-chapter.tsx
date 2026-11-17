@@ -21,7 +21,7 @@ export async function LearningMethodChapter() {
     if (Array.isArray(rows) && typeof rows[0]?.teaching_method === "string") method = rows[0].teaching_method;
   } catch { /* Editorial copy remains available. */ }
   return <section id="cara-ngajar" className="section bg-panel-soft" aria-labelledby="cara-ngajar-title"><Container className="max-w-7xl">
-    <SectionIntro eyebrow="[ CARA BELAJAR ]" title={<>Kemampuan bicara tumbuh saat <mark className="bg-highlight text-ink">benar-benar dipraktikkan</mark></>} titleId="cara-ngajar-title" description={method && method !== defaultMethod ? method : "Sebagian besar waktumu dipakai untuk berbicara, bukan mendengar. Masukan trainer menajamkannya; kerangka komunikasi merapikannya."} />
+    <SectionIntro eyebrow="[ CARA BELAJAR ]" title={<>Kemampuan bicara tumbuh saat <em className="accent-serif">benar-benar dipraktikkan</em></>} titleId="cara-ngajar-title" description={method && method !== defaultMethod ? method : "Sebagian besar waktumu dipakai untuk berbicara, bukan mendengar. Masukan trainer menajamkannya; kerangka komunikasi merapikannya."} />
     <ol className="mt-8 grid gap-4">{approaches.map((item) => <li key={item.value} data-motion="rise" className="grid gap-3 border-t border-rule py-5 md:grid-cols-[7rem_14rem_1fr] md:items-start md:gap-6">
       <strong data-motion="count" data-value={item.value} className="font-display text-4xl tabular-nums text-accent">{item.value}%</strong>
       <h3 className="text-xl font-semibold">{item.title}</h3>

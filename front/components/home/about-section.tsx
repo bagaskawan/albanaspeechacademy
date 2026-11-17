@@ -27,7 +27,7 @@ export async function AboutSection() {
     if (Array.isArray(academyRows) && typeof academyRows[0]?.name === "string") academyName = academyRows[0].name;
   } catch { /* Static copy and the existing local portrait remain available. */ }
   return <section id="tentang" className="section bg-panel-soft" aria-labelledby="tentang-title"><Container className="max-w-7xl">
-    <SectionIntro eyebrow="[ TENTANG KAMI ]" title={<>Dibangun oleh <mark className="bg-highlight text-ink">praktisi panggung</mark>, untuk orang yang harus bicara</>} titleId="tentang-title" description={`${academyName} oleh CV Asa Albana melatih individu dan organisasi agar tampil lebih percaya diri, komunikatif, dan profesional — lewat praktik langsung, bukan teori panjang.`} />
+    <SectionIntro eyebrow="[ TENTANG KAMI ]" title={<>Dibangun oleh <em className="accent-serif">praktisi panggung</em>, untuk orang yang harus bicara</>} titleId="tentang-title" description={`${academyName} oleh CV Asa Albana melatih individu dan organisasi agar tampil lebih percaya diri, komunikatif, dan profesional — lewat praktik langsung, bukan teori panjang.`} />
     <div className="mt-9 grid gap-8 lg:grid-cols-[5fr_7fr] lg:gap-12">
       <div data-motion="rise" className="space-y-7">
         <div><h3 className="eyebrow">VISI</h3><p className="mt-2 text-lg leading-relaxed">Menjadi mitra terpercaya dalam pengembangan kompetensi komunikasi profesional dan kepemimpinan SDM yang berdaya saing tinggi.</p></div>
