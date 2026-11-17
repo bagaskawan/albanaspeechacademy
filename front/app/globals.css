@@ -475,6 +475,96 @@ html.lenis body {
     text-transform: uppercase;
   }
 
+  /* Nada seksi beranda: tiap seksi memasang satu nada */
+  .tone-canvas, .tone-mist, .tone-sand, .tone-night {
+    background: var(--tone-bg);
+    color: var(--tone-ink);
+  }
+  .tone-canvas {
+    --tone-bg: #ffffff; --tone-ink: #15171b; --tone-muted: #525a66;
+    --tone-rule: #dde2e9; --tone-accent: #2f5c86; --tone-tile: #f3f6f9;
+  }
+  .dark .tone-canvas {
+    --tone-bg: #0d1829; --tone-ink: #f0f5fa; --tone-muted: #a3b8d0;
+    --tone-rule: #233856; --tone-accent: #9cc4ee; --tone-tile: #132238;
+  }
+  .tone-mist {
+    --tone-bg: #e6edf4; --tone-ink: #15171b; --tone-muted: #4a5563;
+    --tone-rule: #cbd6e2; --tone-accent: #24486a; --tone-tile: #ffffff;
+  }
+  .dark .tone-mist {
+    --tone-bg: #132238; --tone-ink: #f0f5fa; --tone-muted: #a3b8d0;
+    --tone-rule: #2a4466; --tone-accent: #9cc4ee; --tone-tile: #0d1829;
+  }
+  .tone-sand {
+    --tone-bg: #efe6d6; --tone-ink: #1d1a15; --tone-muted: #5c5243;
+    --tone-rule: #d9cbb2; --tone-accent: #24486a; --tone-tile: #f8f3ea;
+  }
+  .dark .tone-sand {
+    --tone-bg: #221d16; --tone-ink: #f3ece0; --tone-muted: #c4b79f;
+    --tone-rule: #3a3125; --tone-accent: #e6d9c4; --tone-tile: #2b251c;
+  }
+  .tone-night {
+    --tone-bg: #10243f; --tone-ink: #f0f5fa; --tone-muted: #b5c7db;
+    --tone-rule: #2a4466; --tone-accent: #cbd9e7; --tone-tile: #163052;
+  }
+  .dark .tone-night {
+    --tone-bg: #070f1c; --tone-ink: #f0f5fa; --tone-muted: #a3b8d0;
+    --tone-rule: #1c2c44; --tone-accent: #cbd9e7; --tone-tile: #0f1d33;
+  }
+
+  /* Skala tipografi beranda */
+  :root {
+    --text-mega: clamp(3.25rem, 9vw, 8.5rem);
+    --text-display: clamp(2.25rem, 5vw, 4.25rem);
+    --text-title: clamp(1.5rem, 2.6vw, 2.25rem);
+    --text-lead: clamp(1.0625rem, 1.3vw, 1.25rem);
+    --text-meta: 0.75rem;
+  }
+  .type-mega {
+    font-family: var(--font-display);
+    font-size: var(--text-mega);
+    line-height: 0.92;
+    letter-spacing: -0.055em;
+    font-weight: 700;
+  }
+  .type-display {
+    font-family: var(--font-display);
+    font-size: var(--text-display);
+    line-height: 1;
+    letter-spacing: -0.045em;
+    font-weight: 600;
+  }
+  .type-title {
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    font-weight: 600;
+  }
+  .type-lead {
+    font-size: var(--text-lead);
+    line-height: 1.55;
+  }
+
+  /* Aksen serif: satu frasa per H2; animasi garis bawah ditambah di Tugas 7 */
+  .accent-serif {
+    position: relative;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--tone-accent);
+  }
+  .accent-serif::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0.04em;
+    height: 2px;
+    background: currentColor;
+    transform-origin: left;
+  }
+
   .sub-title-program {
     font-family: var(--font-display);
     font-size: 0.5rem;
@@ -1631,14 +1721,6 @@ body:has(.admin-shell) {
 }
 
 .admin-shell :is(h1, h2, h3, h4, h5, h6) { font-family: var(--font-admin-display); }
-
-@layer components {
-  /* Admin fields are shadcn controls: 44 px below 768 px (touch), 40 px from 768 px. */
-  :is(.admin-shell, body:has(.admin-shell)) :is([data-slot="input"], [data-slot="select-trigger"]) { height: 2.75rem; }
-  @media (min-width: 768px) {
-    :is(.admin-shell, body:has(.admin-shell)) :is([data-slot="input"], [data-slot="select-trigger"]) { height: 2.5rem; }
-  }
-}
 
 /* Table toolbar search (TableToolbar): pill with a leading icon; beats the generic admin input padding. */
 :is(.admin-shell, body:has(.admin-shell)) input.admin-search:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]) {
