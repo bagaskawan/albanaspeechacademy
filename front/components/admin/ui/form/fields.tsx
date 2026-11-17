@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Label } from "@/components/ui/label";
 
 // admin-ui-patterns §7.1–§7.2b. Server-safe (no hooks): usable in pages and client forms alike.
 
@@ -28,14 +29,14 @@ export function Field({ label, htmlFor, required = false, hint, error, span = "f
   breakpoint?: keyof typeof columns;
   children: React.ReactNode;
 }) {
-  return <div className={`min-w-0 ${spans[breakpoint][span]}`}>
-    <label htmlFor={htmlFor} className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-admin-text-secondary">
-      {label}{required && <span aria-hidden="true" className="ml-0.5 text-admin-danger">*</span>}
-    </label>
+  return <div className={`grid min-w-0 gap-2 ${spans[breakpoint][span]}`}>
+    <Label htmlFor={htmlFor} className="text-admin-ink">
+      {label}{required && <span aria-hidden="true" className="text-admin-danger">*</span>}
+    </Label>
     <div className={span === "narrow" ? "max-w-[160px]" : undefined}>{children}</div>
     {error
-      ? <p role="alert" className="mt-1.5 min-h-5 text-[12px] text-admin-danger">{error}</p>
-      : hint && <p className="mt-1.5 text-[12px] text-admin-text-secondary">{hint}</p>}
+      ? <p role="alert" className="min-h-5 text-[13px] text-admin-danger">{error}</p>
+      : hint && <p className="text-[13px] text-admin-text-secondary">{hint}</p>}
   </div>;
 }
 
@@ -64,7 +65,7 @@ export function FormPage({ width = "single", cancelHref, submitLabel, pending = 
   pending?: boolean;
   children: React.ReactNode;
 } & Omit<React.FormHTMLAttributes<HTMLFormElement>, "children" | "className">) {
-  return <form {...form} className={`admin-form-plain ${pageWidths[width]} rounded-[var(--admin-radius-card)] border border-admin-line-strong bg-admin-canvas p-[var(--admin-space-card)]`}>
+  return <form {...form} className={`mx-auto w-full ${pageWidths[width]} rounded-[var(--admin-radius-card)] bg-admin-canvas p-[var(--admin-space-card)]`}>
     <div className="space-y-8">{children}</div>
     <div className="mt-8 flex flex-col-reverse gap-3 border-t border-admin-line pt-6 sm:flex-row sm:justify-end">
       <Link href={cancelHref} className={`${pill} border border-admin-line-strong text-admin-ink hover:bg-admin-surface`}>Batal</Link>

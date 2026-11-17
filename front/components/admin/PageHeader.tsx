@@ -15,24 +15,24 @@ const noopSubscribe = () => () => { };
 /** Shell-level header (admin-ui-patterns §3.3): breadcrumb Grup ⟶ Modul, title, round-button slot. */
 export function PageHeader({ group, module, isDetail, pathname }: { group: AdminNavGroup; module?: AdminNavModule; isDetail: boolean; pathname: string }) {
   const title = module?.label ?? group.label;
-  const description = isDetail ? null : (module?.description ?? group.description);
+  const description = module?.description ?? group.description;
   return <div className="mb-8">
     <div className="flex flex-wrap items-end justify-between gap-4">
       {/* Keyed remount fades the new title in at once; no exit wait between modules. */}
       <m.div
         key={pathname}
-        className="flex min-w-0 items-end gap-4"
+        className="flex min-w-0 items-center gap-3.5"
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0, transition: { duration: 0.16, ease: ease.out } }}
       >
         {isDetail && module && <Link
           href={module.href}
           aria-label={`Kembali ke ${module.label}`}
-          className="mb-3 inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-admin-surface text-admin-ink transition-colors hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
-        ><ArrowLeft aria-hidden="true" size={22} strokeWidth={1.5} /></Link>}
+          className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-admin-surface text-admin-ink transition-colors hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
+        ><ArrowLeft aria-hidden="true" size={18} strokeWidth={1.5} /></Link>}
         <div className="min-w-0">
-          <h1 className="mt-2 text-[24px] font-black leading-[1.15] tracking-[-0.02em] sm:text-[28px] md:text-[40px] md:leading-[1.1]">{title}</h1>
-          {description && <p className="mt-2 max-w-[60ch] text-[14px] leading-[1.5] text-admin-text-secondary">{description}</p>}
+          <h1 className="text-[20px] font-bold leading-[1.2] tracking-[-0.02em] sm:text-[24px] md:text-[28px]">{title}</h1>
+          {description && <p className="mt-1 max-w-[60ch] text-[13px] leading-[1.5] text-admin-text-secondary sm:text-[14px]">{description}</p>}
         </div>
       </m.div>
       <div id={ACTIONS_ID} className="flex items-center gap-3 empty:hidden max-md:w-full" />

@@ -56,7 +56,7 @@ export function FormDialog({
               dragElastic={{ top: 0, bottom: 0.6 }}
               onDragEnd={(_, info) => { if (info.offset.y > 120 || info.velocity.y > 600) onOpenChange(false); }}
             >
-              <form onSubmit={onSubmit} className="admin-form-plain flex min-h-0 flex-1 flex-col">
+              <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
                 {/* Sheet handle: drag it down to close (< 640 px). */}
                 <div className="flex justify-center pt-3 sm:hidden" onPointerDown={(event) => drag.start(event)} style={{ touchAction: "none" }}>
                   <span aria-hidden="true" className="h-1 w-10 rounded-full bg-admin-line-strong" />

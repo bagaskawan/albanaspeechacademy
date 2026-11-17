@@ -1388,6 +1388,7 @@ body:has(.admin-shell) {
   --primary: var(--admin-ink);
   --primary-foreground: var(--admin-on-ink);
   --ring: var(--admin-ink);
+  --destructive: var(--admin-danger);
   --color-primary: var(--admin-ink);
   --color-primary-foreground: var(--admin-on-ink);
   --color-ring: var(--admin-ink);
@@ -1630,42 +1631,15 @@ body:has(.admin-shell) {
 }
 
 .admin-shell :is(h1, h2, h3, h4, h5, h6) { font-family: var(--font-admin-display); }
-.admin-shell :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select, [role="combobox"]) {
-  min-height: 2.75rem;
-  border: 1px solid var(--border-default);
-  border-radius: .75rem;
-  background: var(--bg-well);
-  padding: .65rem .875rem;
-  color: var(--text-primary);
-  font-family: var(--font-admin-display);
-  font-size: .875rem;
+
+@layer components {
+  /* Admin fields are shadcn controls: 44 px below 768 px (touch), 40 px from 768 px. */
+  :is(.admin-shell, body:has(.admin-shell)) :is([data-slot="input"], [data-slot="select-trigger"]) { height: 2.75rem; }
+  @media (min-width: 768px) {
+    :is(.admin-shell, body:has(.admin-shell)) :is([data-slot="input"], [data-slot="select-trigger"]) { height: 2.5rem; }
+  }
 }
-.admin-shell :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select, [role="combobox"]):focus-visible {
-  outline: 2px solid var(--admin-ink);
-  outline-offset: 2px;
-  border-color: var(--admin-ink);
-}
-.admin-shell :is(input, textarea, select, [role="combobox"])[aria-invalid="true"] { border-color: var(--color-danger); }
-.admin-shell div.border-b:has(> input),
-.admin-shell div.border-b:has(> textarea) { border-bottom: 0; }
-/* Admin forms (admin-ui-patterns §7.1–§7.2): white card, grey pill fields with a visible hairline.
-   More specific than the rule above; body:has() also reaches FormDialog, which portals outside .admin-shell. */
-:is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select) {
-  width: 100%;
-  min-height: 48px;
-  border: 1px solid var(--admin-line-strong);
-  border-radius: 999px;
-  background: var(--admin-surface-muted);
-  padding: 0 18px;
-  color: var(--admin-ink);
-  font-size: 12px;
-  transition: border-color var(--dur-hover) ease, box-shadow var(--dur-hover) ease;
-}
-:is(.admin-shell, body:has(.admin-shell)) .admin-form-plain textarea { border-radius: 20px; padding: 12px 18px; }
-:is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input, textarea, select)::placeholder { color: var(--admin-text-faint); }
-:is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select):hover { border-color: var(--admin-text-faint); }
-:is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select)[aria-invalid="true"] { border-color: var(--admin-danger); background: var(--admin-rose-soft); }
-:is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select):disabled { background: var(--admin-canvas); border-color: var(--admin-line); color: var(--admin-text-faint); }
+
 /* Table toolbar search (TableToolbar): pill with a leading icon; beats the generic admin input padding. */
 :is(.admin-shell, body:has(.admin-shell)) input.admin-search:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]) {
   width: 100%;
@@ -1685,17 +1659,6 @@ body:has(.admin-shell) {
 }
 @media (max-width: 767px) {
   :is(.admin-shell, body:has(.admin-shell)) input.admin-search:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]) { font-size: 16px; }
-}
-/* < 768 px: 16 px fields so iOS Safari does not zoom the page when a field gets focus. */
-@media (max-width: 767px) {
-  .admin-shell :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select),
-  :is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select) { font-size: 16px; }
-}
-/* Thinner focus than the 2 px outline elsewhere: 1 px ink border + a soft 3 px halo (still clearly visible). */
-:is(.admin-shell, body:has(.admin-shell)) .admin-form-plain :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea, select):focus-visible {
-  outline: none;
-  border-color: var(--admin-ink);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-ink) 12%, transparent);
 }
 
 /* Admin page enter (3.10): opacity only so nothing reflows. */

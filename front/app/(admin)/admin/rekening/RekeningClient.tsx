@@ -9,6 +9,7 @@ import { useSearchParams } from "next/navigation";
 import { RowActions, rowPillClass } from "@/components/admin/ui/row-actions";
 import { FormDialog } from "@/components/admin/ui/form/FormDialog";
 import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
+import { Input } from "@/components/ui/Input";
 import { Landmark } from "lucide-react";
 
 export type BankAccount = {
@@ -195,13 +196,13 @@ export default function RekeningClient({ accounts }: RekeningClientProps) {
         {editingAccount && <input type="hidden" name="id" value={editingAccount.id} />}
         <FieldGrid columns={1}>
           <Field label="Nama bank" htmlFor="bank" required>
-            <input id="bank" name="bank" type="text" required aria-required="true" placeholder="BCA, Mandiri, BSI" defaultValue={editingAccount?.bank || ""} />
+            <Input id="bank" name="bank" type="text" required aria-required="true" placeholder="BCA, Mandiri, BSI" defaultValue={editingAccount?.bank || ""} />
           </Field>
           <Field label="Nomor rekening" htmlFor="account_number" required>
-            <input id="account_number" name="account_number" type="text" inputMode="numeric" required aria-required="true" placeholder="4497062020" defaultValue={editingAccount?.account_number || ""} className="font-mono" />
+            <Input id="account_number" name="account_number" type="text" inputMode="numeric" required aria-required="true" placeholder="4497062020" defaultValue={editingAccount?.account_number || ""} className="font-mono" />
           </Field>
           <Field label="Atas nama" htmlFor="holder" required>
-            <input id="holder" name="holder" type="text" required aria-required="true" placeholder="ASA Albana CV" defaultValue={editingAccount?.holder || ""} />
+            <Input id="holder" name="holder" type="text" required aria-required="true" placeholder="ASA Albana CV" defaultValue={editingAccount?.holder || ""} />
           </Field>
           <label htmlFor="active" className="flex cursor-pointer items-center gap-3 rounded-[20px] border border-admin-line-strong p-4 text-[14px] text-admin-ink">
             <input id="active" name="active" type="checkbox" value="true" defaultChecked={editingAccount ? editingAccount.active : accounts.length === 0} className="size-5 accent-[var(--admin-ink)]" />

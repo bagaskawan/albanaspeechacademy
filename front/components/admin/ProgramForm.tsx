@@ -2,10 +2,13 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, ArrowLeft, Save } from "lucide-react";
-import Link from "next/link";
+import { Plus, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
+import { AdminPageTitle } from "@/components/admin/PageHeader";
+import { Field, FieldGrid, FormPage, FormSection } from "@/components/admin/ui/form/fields";
+import { rowDangerActionClass } from "@/components/admin/ui/data-table";
+import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/textarea";
 import { INHOUSE_SLUG } from "@/lib/bundle";
 
 const formatNumber = (digits: string) =>
@@ -130,46 +133,25 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="admin-form-plain space-y-6 max-w-4xl mx-auto pb-20">
-      <div className="flex items-center gap-3 pb-4 border-b border-border-default/60">
-        <Link
-          href="/admin/program"
-          className="w-9 h-9 rounded-full bg-white dark:bg-zinc-900 border border-border-default flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-bg-well transition-colors shrink-0 cursor-pointer"
-          title="Kembali ke Daftar Program"
-        >
-          <ArrowLeft size={16} />
-        </Link>
-        <div>
-          <span className="text-[9px] uppercase tracking-[0.25em] font-bold text-text-muted block">
-            [ PENGATURAN PROGRAM ]
-          </span>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-text-primary mt-0.5">
-            Edit Program
-          </h1>
-        </div>
-      </div>
-
-      <div className="bg-transparent sm:bg-bg-card border-0 sm:border border-border-default/70 p-1 sm:p-8 rounded-none sm:rounded-3xl shadow-none sm:shadow-xs space-y-8">
+    <>
+      <AdminPageTitle>{initialData.title || initialData.slug}</AdminPageTitle>
+      <FormPage
+        cancelHref="/admin/program"
+        submitLabel="Simpan program"
+        pending={isSubmitting}
+        onSubmit={handleSubmit}
+      >
         {error && (
-          <div role="alert" className="p-3 rounded-xl text-xs font-semibold bg-red-500/10 text-red-600 border border-red-500/20">
+          <div role="alert" className="rounded-2xl bg-admin-rose-soft px-4 py-3 text-[13px] font-medium text-admin-danger">
             {error}
           </div>
         )}
 
-        <div className="space-y-5">
-          <div className="flex items-center gap-2 pb-2 border-b border-border-default/40">
-            <span className="w-6 h-6 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-text-primary flex items-center justify-center font-bold text-xs">
-              1
-            </span>
-            <h2 className="text-sm font-bold text-text-primary uppercase tracking-wider">
-              Informasi Utama Program
-            </h2>
-          </div>
-
+        <FormSection number={1} title="Informasi utama">
           <div className="space-y-5">
             <FieldGrid columns={1}>
               <Field label="Nama Program" htmlFor="title" required>
-                <input
+                <Input
                   id="title"
                   name="title"
                   required
@@ -180,11 +162,11 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
               </Field>
 
               <Field label="Deskripsi Program" htmlFor="description" required>
-                <textarea
+                <Textarea
                   id="description"
                   name="description"
                   required
-                  rows={4}
+                  rows={3}
                   value={formData.description}
                   onChange={handleChange}
                   placeholder="Jelaskan tujuan dan gambaran program ini..."
@@ -195,7 +177,7 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
             {!isInhouse && <>
               <FieldGrid columns={2} breakpoint="md">
                 <Field label="Biaya" htmlFor="price_idr" required span="half" breakpoint="md">
-                  <input
+                  <Input
                     id="price_idr"
                     name="price_idr"
                     required
@@ -206,7 +188,7 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
                   />
                 </Field>
                 <Field label="Harga Coret / Asli (Opsional)" htmlFor="original_price_idr" span="half" breakpoint="md">
-                  <input
+                  <Input
                     id="original_price_idr"
                     name="original_price_idr"
                     inputMode="numeric"
@@ -218,8 +200,8 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
               </FieldGrid>
 
               <FieldGrid columns={1}>
-                <Field label="DP (%)" htmlFor="dp_percent" hint="Kosongkan bila DP tidak ditawarkan.">
-                  <input
+                <Field label="DP (%)" htmlFor="dp_percent" span="narrow" hint="Kosongkan bila DP tidak ditawarkan.">
+                  <Input
                     id="dp_percent"
                     name="dp_percent"
                     type="number"
@@ -231,10 +213,10 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
                   />
                 </Field>
                 <Field label="Rincian Biaya (Opsional)" htmlFor="fee_details">
-                  <textarea
+                  <Textarea
                     id="fee_details"
                     name="fee_details"
-                    rows={2}
+                    rows={3}
                     value={formData.fee_details}
                     onChange={handleChange}
                     placeholder="Termasuk modul, konsumsi, dan sertifikat."
@@ -243,133 +225,94 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
               </FieldGrid>
             </>}
           </div>
-        </div>
+        </FormSection>
 
-        {!isInhouse && <div className="space-y-4 pt-4 border-t border-border-default/40">
-          <div className="flex items-center gap-2 pb-2 border-b border-border-default/40">
-            <span className="w-6 h-6 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-text-primary flex items-center justify-center font-bold text-xs">
-              2
-            </span>
-            <h2 className="text-sm font-bold text-text-primary uppercase tracking-wider">
-              Formulir Pendaftaran
-            </h2>
-          </div>
+        {!isInhouse && (
+          <FormSection
+            number={2}
+            title="Formulir pendaftaran"
+            description="Naskah pertanyaan di halaman daftar untuk program ini. Kosongkan bila cukup memakai naskah bawaan jenis formulir program ini."
+          >
+            <FieldGrid columns={1}>
+              <Field label="Pertanyaan pengalaman sebelumnya" htmlFor="form_prior_experience">
+                <Textarea
+                  id="form_prior_experience"
+                  name="form_prior_experience"
+                  rows={3}
+                  value={formData.form_prior_experience}
+                  onChange={handleChange}
+                  placeholder="Apakah pernah mengikuti pelatihan Public Speaking sebelumnya?"
+                />
+              </Field>
+              <Field label="Pertanyaan tujuan mengikuti program" htmlFor="form_goal">
+                <Textarea
+                  id="form_goal"
+                  name="form_goal"
+                  rows={3}
+                  value={formData.form_goal}
+                  onChange={handleChange}
+                  placeholder="Apa tujuan utama mengikuti program ini?"
+                />
+              </Field>
+              <Field label="Pertanyaan tantangan" htmlFor="form_challenge">
+                <Textarea
+                  id="form_challenge"
+                  name="form_challenge"
+                  rows={3}
+                  value={formData.form_challenge}
+                  onChange={handleChange}
+                  placeholder="Apa tantangan terbesar Anda dalam aktivitas Public Speaking?"
+                />
+              </Field>
+            </FieldGrid>
+          </FormSection>
+        )}
 
-          <p className="text-[11px] leading-relaxed text-text-secondary">
-            Naskah pertanyaan di halaman daftar untuk program ini. Kosongkan bila cukup memakai naskah bawaan jenis formulir program ini.
-          </p>
-
-          <FieldGrid columns={1}>
-            <Field label="Pertanyaan pengalaman sebelumnya" htmlFor="form_prior_experience">
-              <textarea
-                id="form_prior_experience"
-                name="form_prior_experience"
-                rows={2}
-                value={formData.form_prior_experience}
-                onChange={handleChange}
-                placeholder="Apakah pernah mengikuti pelatihan Public Speaking sebelumnya?"
-              />
-            </Field>
-            <Field label="Pertanyaan tujuan mengikuti program" htmlFor="form_goal">
-              <textarea
-                id="form_goal"
-                name="form_goal"
-                rows={2}
-                value={formData.form_goal}
-                onChange={handleChange}
-                placeholder="Apa tujuan utama mengikuti program ini?"
-              />
-            </Field>
-            <Field label="Pertanyaan tantangan" htmlFor="form_challenge">
-              <textarea
-                id="form_challenge"
-                name="form_challenge"
-                rows={2}
-                value={formData.form_challenge}
-                onChange={handleChange}
-                placeholder="Apa tantangan terbesar Anda dalam aktivitas Public Speaking?"
-              />
-            </Field>
-          </FieldGrid>
-        </div>}
-
-        <div className="space-y-4 pt-4 border-t border-border-default/40">
-          <div className="flex items-center gap-2 pb-2 border-b border-border-default/40">
-            <span className="w-6 h-6 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-text-primary flex items-center justify-center font-bold text-xs">
-              {isInhouse ? 2 : 3}
-            </span>
-            <h2 className="text-sm font-bold text-text-primary uppercase tracking-wider">
-              Materi & Benefit
-            </h2>
-          </div>
-
-          <div className="space-y-2.5">
+        <FormSection number={isInhouse ? 2 : 3} title="Materi & benefit">
+          <div className="space-y-3">
             {materials.map((material, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-3 bg-bg-well/40 border border-border-default/70 p-3 rounded-xl"
-              >
-                <span className="text-[10px] font-bold font-mono text-text-muted w-4 shrink-0">
-                  {index + 1}
+              <div key={index} className="flex items-center gap-3">
+                <span className="w-5 shrink-0 font-mono text-xs font-medium text-admin-text-secondary">
+                  {index + 1}.
                 </span>
-                <input
+                <Input
                   type="text"
                   value={material}
                   onChange={(e) => handleMaterialChange(index, e.target.value)}
                   placeholder="Nama materi / benefit program..."
-                  className="flex-1 bg-transparent border-none focus:outline-none text-xs font-medium text-text-primary placeholder:text-text-muted"
+                  aria-label={`Materi ${index + 1}`}
                 />
                 <button
                   type="button"
                   onClick={() => handleRemoveMaterial(index)}
-                  className="text-red-500 opacity-60 hover:opacity-100 p-1.5 hover:bg-red-500/10 rounded-lg transition-opacity shrink-0 cursor-pointer"
+                  className={rowDangerActionClass}
+                  aria-label={`Hapus materi ${index + 1}`}
                   title="Hapus materi ini"
                 >
-                  <Trash2 size={15} />
+                  <Trash2 aria-hidden="true" size={18} strokeWidth={1.5} />
                 </button>
               </div>
             ))}
-          </div>
 
-          {materials.length === 0 && (
-            <div className="text-center text-xs text-text-muted py-8 border border-dashed border-border-default rounded-xl bg-bg-well/30">
-              Belum ada materi. Klik &ldquo;Tambah Materi&rdquo; untuk menambahkan daftar benefit program.
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={handleAddMaterial}
-            className="w-full py-2.5 border border-dashed border-border-default text-xs text-text-secondary hover:text-text-primary hover:border-text-primary hover:bg-bg-well/50 rounded-xl font-bold flex justify-center items-center gap-1.5 transition-all cursor-pointer"
-          >
-            <Plus size={15} />
-            <span>Tambah Materi</span>
-          </button>
-        </div>
-
-        <div className="flex justify-end gap-3 pt-4 border-t border-border-default/60">
-          <Link
-            href="/admin/program"
-            className="h-10 px-5 text-xs font-bold rounded-xl text-text-secondary bg-bg-well hover:bg-bg-well/80 border border-border-default transition-colors flex items-center justify-center cursor-pointer"
-          >
-            Batal
-          </Link>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="h-10 px-6 text-xs font-bold rounded-xl text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-yellow-100 dark:text-zinc-900 dark:hover:bg-yellow-200 transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-          >
-            {isSubmitting ? (
-              <span className="animate-pulse">Menyimpan...</span>
-            ) : (
-              <>
-                <Save size={15} />
-                <span>Simpan Program</span>
-              </>
+            {materials.length === 0 && (
+              <p className="rounded-xl border border-dashed border-admin-line px-4 py-6 text-center text-[13px] text-admin-text-secondary">
+                Belum ada materi. Klik &ldquo;Tambah materi&rdquo; untuk menambahkan daftar benefit program.
+              </p>
             )}
-          </button>
-        </div>
-      </div>
-    </form>
+
+            <div>
+              <button
+                type="button"
+                onClick={handleAddMaterial}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-admin-line-strong px-4 text-[14px] font-medium text-admin-ink transition-colors hover:bg-admin-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
+              >
+                <Plus aria-hidden="true" size={16} strokeWidth={1.5} />
+                <span>Tambah materi</span>
+              </button>
+            </div>
+          </div>
+        </FormSection>
+      </FormPage>
+    </>
   );
 }

@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { CalendarPlus, Package, Pencil, Plus, Trash2 } from "lucide-react";
 import { FormDialog } from "@/components/admin/ui/form/FormDialog";
 import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
+import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/textarea";
 import { StatusChip, rowActionClass, rowDangerActionClass } from "@/components/admin/ui/data-table";
 import { RowActions } from "@/components/admin/ui/row-actions";
 import { formatRupiah } from "@/lib/format";
@@ -84,9 +86,9 @@ function SessionRows({ sessions, onChange }: { sessions: SessionInput[]; onChang
           </button>
         </div>
         <div className="mt-2 grid gap-2 sm:grid-cols-3">
-          <input aria-label={`Tanggal sesi ${index + 1}`} type="date" required value={session.date} onChange={(event) => patch(index, { date: event.target.value })} />
-          <input aria-label={`Jam mulai sesi ${index + 1}`} type="time" required value={session.start} onChange={(event) => patch(index, { start: event.target.value })} />
-          <input aria-label={`Jam selesai sesi ${index + 1}`} type="time" required value={session.end} onChange={(event) => patch(index, { end: event.target.value })} />
+          <Input aria-label={`Tanggal sesi ${index + 1}`} type="date" required value={session.date} onChange={(event) => patch(index, { date: event.target.value })} />
+          <Input aria-label={`Jam mulai sesi ${index + 1}`} type="time" required value={session.start} onChange={(event) => patch(index, { start: event.target.value })} />
+          <Input aria-label={`Jam selesai sesi ${index + 1}`} type="time" required value={session.end} onChange={(event) => patch(index, { end: event.target.value })} />
         </div>
       </div>
     ))}
@@ -309,7 +311,7 @@ export function ProgramBatchBoard({ programs, batches, bundle, nowMs }: {
     >
       {batchDraft && <FieldGrid columns={1}>
         <Field label="Nama batch" htmlFor="batch-title" required>
-          <input
+          <Input
             id="batch-title"
             type="text"
             required
@@ -361,7 +363,7 @@ export function ProgramBatchBoard({ programs, batches, bundle, nowMs }: {
           <span>Tawarkan paket<span className="block text-[13px] text-admin-text-secondary">Tampil di akhir formulir Speaker dan Sertifikasi.</span></span>
         </label>
         <Field label="Harga paket" htmlFor="bundle-price" required>
-          <input
+          <Input
             id="bundle-price"
             type="text"
             inputMode="numeric"
@@ -371,7 +373,7 @@ export function ProgramBatchBoard({ programs, batches, bundle, nowMs }: {
           />
         </Field>
         <Field label="DP paket (%)" htmlFor="bundle-dp" hint="Kosongkan untuk memakai DP program asal." span="narrow">
-          <input
+          <Input
             id="bundle-dp"
             type="number"
             min={1}
@@ -381,7 +383,7 @@ export function ProgramBatchBoard({ programs, batches, bundle, nowMs }: {
           />
         </Field>
         <Field label="Penjelasan" htmlFor="bundle-description" hint="Satu kalimat, maksimal 300 karakter.">
-          <textarea
+          <Textarea
             id="bundle-description"
             rows={3}
             maxLength={300}
