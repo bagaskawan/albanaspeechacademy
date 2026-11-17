@@ -50,12 +50,13 @@ Gerak beranda bersifat **dua arah**: setiap kelompok masuk saat digulir ke bawah
 | Kode | Nama | Apa yang bergerak | Nilai | Pemakaian |
 | --- | --- | --- | --- | --- |
 | **G1** | Ucap | Judul naik per baris dari balik masker | `yPercent 105→0`, 700 ms, `--ease-expo`, jeda 80 ms antarbaris | H1, setiap H2 |
-| **G2** | Tekan | Stabilo menyapu di belakang satu frasa | `scaleX 0→1`, origin kiri, 450 ms, `--ease-out`, mulai 200 ms setelah baris terkait | Satu frasa per H2 |
+| **G2** | Tekan | Garis bawah frasa serif tergambar (`.accent-serif`, lihat [sistem desain](../design/academy-design-system.md#aksen-serif-pengganti-stabilo)) | `scaleX 0→1`, origin kiri, 450 ms, `--ease-out`, mulai 200 ms setelah G1 judulnya selesai; judul tanpa gerak dan reduced motion langsung memperlihatkan garis | Satu frasa per H2 |
 | **G3** | Angkat | Kelompok isi muncul searah gulir | `opacity 0→1` + `y ±28px→0`, 600 ms, `--ease-out`, jeda 70 ms antar-anak | Paragraf, kartu, daftar |
 | **G4** | Bingkai | Media terbuka dari wadah bermasker | wadah `yPercent 12→0` + gambar `scale 1.12→1`, 900 ms, `--ease-expo` | Foto dan poster video |
 | **G5** | Isi | Nilai mengikuti posisi gulir (*scrub*) | `scaleX 0→1` terikat jarak gulir, `scrub: 0.6` | Bilah 70/20/10, garis kemajuan bab |
 | **G6** | Geser | Deret horizontal masuk berurutan | `opacity 0→1` + `x ±32px→0`, 500 ms, jeda 90 ms | Trainer, tiga langkah, pita manfaat |
 | **G7** | Hitung | Angka naik ke nilai akhir | 900 ms, `--ease-out`, `tabular-nums`, lebar dikunci | Hanya angka bersumber (70/20/10, persen DP) |
+| **G8** | Skala bab | Kata bab ukuran `mega` membesar terikat gulir (*scrub*) | `scale 0.86→1`, `opacity 0.2→1`, `xPercent -4→0`, origin kiri bawah, `scrub: 0.6`, dari `top 90%` ke `top 35%`; hanya ≥ 1024 px dan bukan reduced motion, selain itu G1 | Kata “Public Training” dan “Inhouse Training” |
 
 **Arah.** Saat masuk dari bawah (gulir turun), `y` dan `x` dimulai dari nilai positif. Saat masuk dari atas (gulir naik), dari nilai negatif. Implementasi dengan GSAP ScrollTrigger yang sudah terpasang:
 
@@ -101,7 +102,7 @@ Hasil ditolak bila memuat salah satu di bawah ini.
 
 **Isi:** testimoni, nama peserta, angka alumni, rating bintang, logo klien, atau sertifikat yang tidak berasal dari database. Ikon emoji. Kutipan tokoh terkenal. Seksi FAQ, harga paket “Basic/Pro/Premium”, atau countdown yang tidak diminta.
 
-**Visual:** gradien ungu/merah muda, blob, glassmorphism, kartu melayang dengan bayangan besar, ikon 3D, ilustrasi orang generik, foto stok tanpa label dummy, teks di atas foto, carousel otomatis, marquee di luar hero, kursor khusus, partikel, efek ketik.
+**Visual:** gradien ungu/merah muda, blob, glassmorphism, kartu melayang dengan bayangan besar, ikon 3D, ilustrasi orang generik, foto stok tanpa label dummy, teks di atas foto **kecuali hero**, yang memakai lapisan gelap dengan kontras ≥ 4.5:1 (di tempat lain caption berada di bawah foto), carousel otomatis, marquee di luar hero, kursor khusus, partikel, efek ketik.
 
 **Struktur:** seksi tambahan di luar dokumen ini; dua tombol utama dalam satu seksi; tab atau carousel yang menyembunyikan program; kartu dengan tinggi berbeda dalam satu deret.
 
@@ -127,11 +128,11 @@ Anchor: `#program`, `#tentang`, `#trainer`, `#jadwal`, `#kontak`. **Tentang** me
 - Lead: **Saat tim menunggu usulanmu, bagaimana kamu memulai? Di kelas public speaking ini, kamu berlatih membuka presentasi, menjelaskan pilihan, dan menjawab pertanyaan di depan orang lain.**
 - CTA utama: **Lihat jadwal** → `#jadwal`
 
-**Media:** deret foto berjalan di bagian bawah hero. Gunakan gambar dummy lokal sampai dokumentasi berizin tersedia dari database. Caption: **“Contoh visual — bukan dokumentasi kelas Albana.”**
+**Media:** satu foto penuh sebagai latar hero. Gunakan gambar dummy lokal sampai dokumentasi berizin tersedia dari database. Caption: **“Contoh visual — bukan dokumentasi kelas Albana.”**
 
-**Tampilan:** hero memenuhi tinggi layar. Tema terang berlatar putih dengan logo biru; tema gelap berlatar navy dengan logo putih. Teks hero memakai Plus Jakarta Sans.
+**Tampilan:** hero memenuhi tinggi layar dengan foto penuh. Isi (logo H1, baris fokus, lead, CTA) berada di **kiri bawah**, putih di atas lapisan gelap; strip fakta berada **di bawah foto**, bukan di atasnya. Lapisan gelap adalah satu-satunya gradien di beranda: di bawah `lg` opasitas 0.88 di 0%, 0.60 di 55%, transparan di 90%; di `lg` ke atas 0.88 di 0%, 0.60 di 45%, transparan di 75%. Kontras lead terhitung ≥ 4.5:1 (5.05:1 pada kasus terburuk, putih). Tema terang dan gelap memakai tampilan yang sama; logo putih. Teks hero memakai Plus Jakarta Sans.
 
-**Gerak (muat halaman):** baris fokus, logo, lead, dan CTA masuk berurutan dengan fade pendek. Deret foto bergerak linear dan berulang; berhenti bila pengguna memilih reduced motion.
+**Gerak (muat halaman):** baris fokus, logo, lead, dan CTA masuk berurutan dengan fade pendek. Foto latar masuk dengan **G4**; tidak ada deret foto berjalan.
 
 **Header:** seluruh header tersembunyi di awal. Saat pengunjung menggulir melewati titik tengah hero, header muncul dengan fade dan geser pendek; saat kembali ke atas titik itu, header tersembunyi lagi.
 
@@ -257,6 +258,8 @@ Tujuh bidang ini adalah cakupan keahlian, **bukan** program yang dijual. Jangan 
 - Kerangka empat tingkat: panah antartingkat tergambar `scaleX` berurutan, lalu label **G6**.
 - Chip bidang **G3** dalam satu kelompok (jeda 40 ms).
 
+**Media:** satu foto per baris 70/20/10 (tiga foto berbeda, 4:5 atau 3:2 sesuai kolom), caption di bawah foto. Foto contoh tidak boleh berulang antarbaris maupun dengan hero dan bento. Bab ini bernada **sand**; angka 70/20/10 memakai ukuran `mega`.
+
 ### 5.3 Pernah melatih
 
 **Naskah:** label **Pernah melatih**; daftar dari `academy_partners` terbit.
@@ -277,6 +280,8 @@ Tujuh bidang ini adalah cakupan keahlian, **bukan** program yang dijual. Jangan 
 
 Isi kartu dari `testimonials` terbit: kutipan `quote` (20–30 kata), nama `attribution`, peran `role_label`, foto `photo_url` bila ada. Testimoni terbaru (`id` terbesar) tampil sebagai kutipan unggulan yang lebih besar; dua berikutnya sebagai pendukung.
 
+Foto peserta hanya dari `photo_url` nyata; data contoh tidak memakai wajah dan tampil tanpa foto. Bab ini bernada **mist**.
+
 **Keadaan kosong:** bagian 6.1 hilang; eyebrow bab menjadi **[ DOKUMENTASI ]** dan H2 di 6.2 menjadi judul bab.
 
 **Gerak:** kutipan unggulan masuk per baris (**G1** dengan masker, jeda 60 ms) — satu-satunya tempat G1 dipakai pada isi, karena kutipan adalah “suara” peserta. Kartu pendukung **G3**.
@@ -288,7 +293,7 @@ Isi kartu dari `testimonials` terbit: kutipan `quote` (20–30 kata), nama `attr
 - H2: **Seperti inilah ▓suasana latihannya▓**
 - Lead: **Praktik, umpan balik, dan momen di atas panggung dari kegiatan Albana.**
 - Caption per media dari data; tanpa caption, alt saja.
-- Tombol bila > 5 media: **Lihat semua dokumentasi**
+- Tombol bila > 5 media: **Lihat semua dokumentasi** (di bento tampil sebagai tombol teks bergaris bawah dengan jumlah: **Lihat semua dokumentasi ({total})**; deret thumbnail kecil di bawah bento dihapus)
 - Dialog: tombol tutup berlabel **“Tutup”**; navigasi **“Sebelumnya”** / **“Berikutnya”**.
 
 **Keadaan kosong:** seksi dan tautannya hilang. Dummy memakai penanda **“Contoh visual — bukan dokumentasi kelas Albana.”** pada setiap media.
@@ -343,6 +348,8 @@ Panel per program dari `batches`:
 | Tidak ada batch sama sekali | **“Jadwal kelas berikutnya belum tersedia.”** + **Chat lewat WhatsApp** |
 | Gagal memuat | **“Jadwal belum bisa dimuat.”** + **Coba lagi** |
 
+**Media:** setiap panel program menampilkan thumbnail 16:9 — gambar pertama program, fallback ke foto `moments` bila program tanpa gambar. Bab ini bernada **mist**; panel tanpa kartu melayang, sudut 0–4 px.
+
 Jadwal pada poster lama bukan sumber data. Jangan menulis tanggal atau harga di naskah.
 
 **Gerak:** panel **G3**; baris sesi **G6** berurutan dari atas (jeda 60 ms) — seperti kalender yang terisi. Nominal **G7** sekali. Tombol daftar tidak dianimasikan selain hover.
@@ -385,6 +392,8 @@ Tampil hanya bila ada batch terbit atau kontak WhatsApp tersedia.
 - Lead: **Ceritakan situasinya — presentasi, memandu acara, atau pelatihan tim. Kami bantu memilih program yang pas.**
 - Tombol utama: **Lihat jadwal**
 - Tautan: **Chat lewat WhatsApp**
+
+**Media:** bab bernada **night**. Di atas ajakan ada strip 3 foto berbeda berrasio 4:5 (G4), caption di bawah foto. Tombol **Lihat jadwal** di bab ini putih dengan teks navy.
 
 **Gerak:** bidang biru tua terbuka dari bawah (**G4** pada wadah seksi), lalu H2 **G1 + G2**. Ini gerak khas terakhir halaman.
 

@@ -126,6 +126,24 @@ Aturan yang membuat skala ini terbaca premium:
 
 Teks kapital dipakai untuk label, navigasi, tombol pendek, dan judul pendek yang membutuhkan tekanan. Paragraf panjang dan judul informatif memakai kapitalisasi normal agar mudah dibaca. Jangan memaksakan pemenggalan baris dari gambar ke teks Albana; atur `max-width` atau lebar kolom agar ritme judul tetap terjaga pada setiap layar.
 
+### Skala tipografi beranda (editorial)
+
+Beranda memakai **lima ukuran**; ukuran lain di beranda diganti ke salah satunya. Sepuluh peran di atas tetap berlaku untuk halaman lain.
+
+| Token | Nilai | Dipakai untuk |
+|---|---|---|
+| `--text-mega` | `clamp(3.25rem, 9vw, 8.5rem)`, tinggi baris 0.92, tracking −0.055em, tebal 700 | Kata bab (**Public Training**, **Inhouse Training**), angka 70/20/10 |
+| `--text-display` | `clamp(2.25rem, 5vw, 4.25rem)`, tinggi baris 1, −0.045em, 600 | H2, judul hero |
+| `--text-title` | `clamp(1.5rem, 2.6vw, 2.25rem)`, tinggi baris 1.1, −0.03em, 600 | H3 nama program, nama trainer |
+| `--text-lead` | `clamp(1.0625rem, 1.3vw, 1.25rem)`, tinggi baris 1.55 | Lead, paragraf kanan |
+| `--text-meta` | `0.75rem`, tracking 0.1em, kapital | `.eyebrow`, caption, label |
+
+Kontras inti: H2 (`display`) di kiri berhadapan dengan paragraf `lead` di kanan, minimal **3:1** ukuran huruf. Font beranda tetap Plus Jakarta Sans (judul), Inter (teks), dan Playfair Display miring hanya sebagai aksen serif.
+
+### Aksen serif (pengganti stabilo)
+
+Di beranda, frasa bertanda ▓…▓ **tidak lagi** memakai latar stabilo. Gantinya `<em className="accent-serif">`: Playfair Display miring, tebal 400, warna `--tone-accent`, dan garis bawah 2 px di bawah frasa. **Satu frasa per H2.** Gerak **G2** menjadi garis bawah: `scaleX 0→1`, origin kiri, 450 ms, hanya `transform`. Garis `scaleX(0)` hanya berlaku di bawah `html.motion-ready`, digambar 200 ms setelah G1 H2-nya selesai; judul tanpa `data-motion` dan reduced motion langsung memperlihatkan garis, sehingga tanpa JavaScript frasa tetap bergaris. Aturan stabilo di bawah berlaku untuk halaman selain beranda.
+
 ### Stabilo pada judul
 
 Pada gambar editorial, stabilo memberi titik perhatian pada satu frasa. Untuk ASA, gunakan **biru pucat `#DCEBFA`**, dengan teks navy `#10243F` atau biru tua `#163E70`. Sapuan mengikuti setiap baris jika frasa membungkus; tampilannya harus tetap terbaca sebelum animasi berjalan dan saat animasi dimatikan. Jangan menyalin frasa dari merek lain.
@@ -141,6 +159,27 @@ Pada gambar editorial, stabilo memberi titik perhatian pada satu frasa. Untuk AS
 Kode tersebut hanya contoh perlakuan visual. Atur posisi sapuan terhadap metrik font yang dipakai agar tidak menutupi huruf. Hindari highlight pada setiap judul atau CTA. Biru logo yang lebih pekat **tidak** dipakai sebagai sapuan di belakang teks biru karena menurunkan keterbacaan.
 
 ## 5. Grid, ruang, dan garis
+
+### Sudut beranda: 0–4 px
+
+Di beranda, **semua foto, petak, panel, tombol, dan label bersudut 0–4 px**. Tidak ada `rounded-full`, `rounded-2xl`, atau `rounded-3xl`; label pil diganti tag kotak `.eyebrow`. Tanpa bayangan besar, kartu melayang, atau gradien dekoratif; satu-satunya gradien adalah lapisan gelap hero. Teks di atas foto hanya di hero (kontras ≥ 4.5:1); di tempat lain caption berada di bawah foto. Tabel radius di bawah berlaku untuk halaman selain beranda.
+
+### Nada seksi beranda
+
+Latar seksi bergeser lewat empat nada turunan palet yang ada, tanpa warna merek baru: `.tone-canvas` (putih), `.tone-mist` (biru pucat), `.tone-sand` (`sand`), `.tone-night` (navy). Tiap kelas menetapkan enam variabel dan memasang `background: var(--tone-bg); color: var(--tone-ink)`. Di `components/home/*` hanya `var(--tone-*)` atau token `@theme`; tanpa hex di `className`.
+
+| Nada | Mode | `--tone-bg` | `--tone-ink` | `--tone-muted` | `--tone-rule` | `--tone-accent` | `--tone-tile` |
+|---|---|---|---|---|---|---|---|
+| canvas | terang | `#ffffff` | `#15171b` | `#525a66` | `#dde2e9` | `#2f5c86` | `#f3f6f9` |
+| canvas | gelap | `#0d1829` | `#f0f5fa` | `#a3b8d0` | `#233856` | `#9cc4ee` | `#132238` |
+| mist | terang | `#e6edf4` | `#15171b` | `#4a5563` | `#cbd6e2` | `#24486a` | `#ffffff` |
+| mist | gelap | `#132238` | `#f0f5fa` | `#a3b8d0` | `#2a4466` | `#9cc4ee` | `#0d1829` |
+| sand | terang | `#efe6d6` | `#1d1a15` | `#5c5243` | `#d9cbb2` | `#24486a` | `#f8f3ea` |
+| sand | gelap | `#221d16` | `#f3ece0` | `#c4b79f` | `#3a3125` | `#e6d9c4` | `#2b251c` |
+| night | terang | `#10243f` | `#f0f5fa` | `#b5c7db` | `#2a4466` | `#cbd9e7` | `#163052` |
+| night | gelap | `#070f1c` | `#f0f5fa` | `#a3b8d0` | `#1c2c44` | `#cbd9e7` | `#0f1d33` |
+
+Nilai adalah titik awal; yang mengikat adalah tesnya: `--tone-ink` dan `--tone-muted` di atas `--tone-bg` serta `--tone-tile` ≥ **4.5:1**, `--tone-accent` di atas `--tone-bg` ≥ **3:1**. Bila tes gagal, geser nilainya; jangan melonggarkan tesnya. Urutan nada beranda: hero (foto) → canvas → canvas (Program) → night (Inhouse) → sand (Tentang, Cara belajar) → canvas (Legalitas) → mist (Testimoni) → canvas (Trainer) → mist (Jadwal) → canvas (Tiga langkah) → night (Penutup). Nada yang sama tidak berurutan, kecuali canvas pada pita manfaat dan pembuka Program.
 
 ### Keputusan bentuk untuk profesional dan eksekutif muda
 
