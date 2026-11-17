@@ -3,6 +3,9 @@
 import { useState, useTransition } from "react";
 import { saveAcademyProfile } from "./actions";
 import { useSettingsForm } from "@/components/admin/settings/settings-forms";
+import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
+import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/textarea";
 
 export type AcademyProfile = {
   id: number;
@@ -71,55 +74,47 @@ export default function ProfilAkademiClient({ initialProfile }: ProfilAkademiCli
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6 admin-form-plain rounded-2xl border border-admin-line-strong bg-admin-canvas p-6 sm:p-8">
-        <div>
-          <label htmlFor="academy-name" className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">
-            Nama Akademi
-          </label>
-          <input
-            id="academy-name"
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Albana Speech Academy"
-            className="mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
-          />
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-admin-line-strong bg-admin-canvas p-6 sm:p-8">
+        <FieldGrid columns={1}>
+          <Field label="Nama Akademi" htmlFor="academy-name" required>
+            <Input
+              id="academy-name"
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Albana Speech Academy"
+            />
+          </Field>
 
-        <div>
-          <label htmlFor="teaching-method" className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">
-            Metode Belajar
-          </label>
-          <textarea
-            id="teaching-method"
-            rows={3}
-            value={teachingMethod}
-            onChange={(e) => setTeachingMethod(e.target.value)}
-            placeholder="70% praktik dan simulasi, 20% coaching dan feedback, 10% konsep dan kerangka."
-            className="mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
-          />
-          <p className="mt-1 text-xs text-admin-text-secondary">
-            Teks ini ditampilkan pada bagian &quot;Cara belajar&quot; di halaman beranda.
-          </p>
-        </div>
+          <Field
+            label="Metode Belajar"
+            htmlFor="teaching-method"
+            hint='Teks ini ditampilkan pada bagian "Cara belajar" di halaman beranda.'
+          >
+            <Textarea
+              id="teaching-method"
+              rows={3}
+              value={teachingMethod}
+              onChange={(e) => setTeachingMethod(e.target.value)}
+              placeholder="70% praktik dan simulasi, 20% coaching dan feedback, 10% konsep dan kerangka."
+            />
+          </Field>
 
-        <div>
-          <label htmlFor="reschedule-policy" className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">
-            Ketentuan Penjadwalan Ulang
-          </label>
-          <textarea
-            id="reschedule-policy"
-            rows={3}
-            value={reschedulePolicy}
-            onChange={(e) => setReschedulePolicy(e.target.value)}
-            placeholder="Peserta yang berhalangan dapat mengajukan penjadwalan ulang melalui admin..."
-            className="mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
-          />
-          <p className="mt-1 text-xs text-admin-text-secondary">
-            Digunakan sebagai acuan kebijakan pembatalan dan pemindahan sesi belajar.
-          </p>
-        </div>
+          <Field
+            label="Ketentuan Penjadwalan Ulang"
+            htmlFor="reschedule-policy"
+            hint="Digunakan sebagai acuan kebijakan pembatalan dan pemindahan sesi belajar."
+          >
+            <Textarea
+              id="reschedule-policy"
+              rows={3}
+              value={reschedulePolicy}
+              onChange={(e) => setReschedulePolicy(e.target.value)}
+              placeholder="Peserta yang berhalangan dapat mengajukan penjadwalan ulang melalui admin..."
+            />
+          </Field>
+        </FieldGrid>
 
         {!inSettings && <div className="flex items-center justify-end border-t border-admin-line pt-5">
           <button

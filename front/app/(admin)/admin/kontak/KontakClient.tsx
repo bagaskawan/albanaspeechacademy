@@ -3,6 +3,9 @@
 import { useState, useTransition } from "react";
 import { saveContacts } from "./actions";
 import { useSettingsForm } from "@/components/admin/settings/settings-forms";
+import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
+import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/textarea";
 
 export type ContactRow = { kind: string; value: string };
 
@@ -83,64 +86,53 @@ export default function KontakClient({ initialContacts }: KontakClientProps) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6 admin-form-plain rounded-2xl border border-admin-line-strong bg-admin-canvas p-6 sm:p-8">
-        <div>
-          <label htmlFor="contact-whatsapp" className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">
-            WhatsApp
-          </label>
-          <input
-            id="contact-whatsapp"
-            type="tel"
-            inputMode="tel"
-            value={whatsapp}
-            onChange={(e) => setWhatsapp(formatPhoneNumber(e.target.value))}
-            placeholder="0812-3456-7890"
-            className="mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
-          />
-          <p className="mt-1 text-xs text-admin-text-secondary">Nomor lokal, diawali angka 0. Otomatis diformat dan ditautkan ke wa.me.</p>
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-admin-line-strong bg-admin-canvas p-6 sm:p-8">
+        <FieldGrid columns={1}>
+          <Field
+            label="WhatsApp"
+            htmlFor="contact-whatsapp"
+            hint="Nomor lokal, diawali angka 0. Otomatis diformat dan ditautkan ke wa.me."
+          >
+            <Input
+              id="contact-whatsapp"
+              type="tel"
+              inputMode="tel"
+              value={whatsapp}
+              onChange={(e) => setWhatsapp(formatPhoneNumber(e.target.value))}
+              placeholder="0812-3456-7890"
+            />
+          </Field>
 
-        <div>
-          <label htmlFor="contact-email" className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">
-            Email
-          </label>
-          <input
-            id="contact-email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="nama@email.com"
-            className="mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
-          />
-        </div>
+          <Field label="Email" htmlFor="contact-email">
+            <Input
+              id="contact-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="nama@email.com"
+            />
+          </Field>
 
-        <div>
-          <label htmlFor="contact-instagram" className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">
-            Instagram
-          </label>
-          <input
-            id="contact-instagram"
-            type="text"
-            value={instagram}
-            onChange={(e) => setInstagram(e.target.value)}
-            placeholder="@albanaspeechacademy"
-            className="mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
-          />
-        </div>
+          <Field label="Instagram" htmlFor="contact-instagram">
+            <Input
+              id="contact-instagram"
+              type="text"
+              value={instagram}
+              onChange={(e) => setInstagram(e.target.value)}
+              placeholder="@albanaspeechacademy"
+            />
+          </Field>
 
-        <div>
-          <label htmlFor="contact-address" className="block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">
-            Alamat
-          </label>
-          <textarea
-            id="contact-address"
-            rows={3}
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Alamat lengkap kantor atau studio Albana"
-            className="mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none"
-          />
-        </div>
+          <Field label="Alamat" htmlFor="contact-address">
+            <Textarea
+              id="contact-address"
+              rows={3}
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Alamat lengkap kantor atau studio Albana"
+            />
+          </Field>
+        </FieldGrid>
 
         {!inSettings && <div className="flex items-center justify-end border-t border-admin-line pt-5">
           <button

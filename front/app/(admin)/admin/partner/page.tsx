@@ -5,12 +5,12 @@ import { DataTable, StatusChip } from "@/components/admin/ui/data-table";
 import { TableToolbar } from "@/components/admin/ui/table-toolbar";
 import { EmptyState } from "@/components/admin/ui/empty-state";
 import { RowActions, rowPillClass } from "@/components/admin/ui/row-actions";
+import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
+import { Input } from "@/components/ui/Input";
 import { ilikePattern } from "@/lib/ilike";
 import { deletePartner, savePartner, togglePartner } from "./actions";
 
 export const dynamic = "force-dynamic";
-
-const field = "h-[52px] w-full rounded-full border border-admin-line bg-admin-canvas px-5 text-[15px] text-admin-ink focus-visible:outline-2 focus-visible:outline-admin-ink";
 
 export default async function PartnerPage({ searchParams }: { searchParams: Promise<{ q?: string; tambah?: string; ubah?: string }> }) {
   await requireAdminMember();
@@ -29,9 +29,17 @@ export default async function PartnerPage({ searchParams }: { searchParams: Prom
     {showForm && <form action={savePartner} className="grid max-w-2xl gap-4 rounded-[var(--admin-radius-card)] bg-admin-surface p-[var(--admin-space-card)]">
       <h2 className="text-[17px] font-medium">{editing ? `Ubah ${editing.name}` : "Tambah partner"}</h2>
       {editing && <input type="hidden" name="id" value={editing.id} />}
-      <label className="grid gap-2 text-[13px] font-medium">Nama partner<input name="name" required maxLength={160} defaultValue={editing?.name ?? ""} className={field} /></label>
-      <label className="grid gap-2 text-[13px] font-medium">URL logo (opsional)<input name="logo" defaultValue={editing?.logo_url ?? ""} className={field} placeholder="https://… atau /api/media/ID" /></label>
-      <label className="grid gap-2 text-[13px] font-medium">Urutan<input name="order" type="number" min="0" max="10000" defaultValue={editing?.sort_order ?? 0} className={field} /></label>
+      <FieldGrid columns={1}>
+        <Field label="Nama partner" htmlFor="partner-name" required>
+          <Input id="partner-name" name="name" required maxLength={160} defaultValue={editing?.name ?? ""} />
+        </Field>
+        <Field label="URL logo (opsional)" htmlFor="partner-logo">
+          <Input id="partner-logo" name="logo" defaultValue={editing?.logo_url ?? ""} placeholder="https://… atau /api/media/ID" />
+        </Field>
+        <Field label="Urutan" htmlFor="partner-order" span="narrow">
+          <Input id="partner-order" name="order" type="number" min={0} max={10000} defaultValue={editing?.sort_order ?? 0} />
+        </Field>
+      </FieldGrid>
       <p className="text-[13px] text-admin-text-secondary">{editing ? "Status terbit tidak berubah." : "Partner baru disimpan sebagai draf sampai diterbitkan."}</p>
       <div className="flex gap-2">
         <button type="submit" className="inline-flex h-12 items-center rounded-full bg-admin-ink px-6 text-[15px] font-medium text-admin-on-ink hover:bg-admin-ink-soft">Simpan</button>
