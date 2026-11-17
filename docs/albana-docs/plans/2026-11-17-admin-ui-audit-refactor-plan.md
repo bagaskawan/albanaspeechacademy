@@ -4,6 +4,8 @@
 
 **Revisi 4 — 17 November 2026.** Revisi 1 memuat Tugas 1–7 (audit UI admin). Revisi 2 menambah hapus Media, rombak Program, pipeline dokumentasi, dan beranda. Revisi 3 memindahkan isian ke shadcn/ui dan menetapkan satu header per form; Tugas 1–4 Revisi 3 **sudah dieksekusi** (`3f6048c`, `10e0e83`, `9e981e7`, `0d67e12`) dan Tugas 5 sedang berjalan. **Revisi 4** menetapkan **desain acuan** pemilik — form "Tambah Paket Baru" — untuk ukuran halaman form dan isian: pil 48 px, label 13 px huruf kalimat, fokus tipis, padding textarea yang benar, serta isian Rupiah, persen, dan telepon berformat. Pekerjaannya ada di **Tugas 5a** (baru), yang dijalankan sesudah Tugas 5 dan sebelum Tugas 6. Pedoman lengkapnya sudah ditulis ulang di [pola UI admin §7](../design/admin-ui-patterns.md#7-formulir).
 
+**Revisi 5 — 17 November 2026.** Di form program admin, bagian **Formulir pendaftaran** (tiga naskah pertanyaan) **dihapus** dan posisinya diganti bagian **Dokumentasi**: unggah banyak gambar (**10–20**) dan **1–2 tautan YouTube**. Dikerjakan di **Tugas 8**; K10 dan K18 di bawah, Review Focus 19.
+
 **Goal:** Satu gaya isian (**shadcn/ui**: `Input`, `Textarea`, `Select`, `Label`) untuk seluruh form admin dan satu header per halaman form; daftar tagihan berbentuk tabel dengan modal Detail; semua modal admin menjadi bottom sheet di ponsel; modul Media hilang dan galeri dokumentasi pindah ke form tiap sub-program; sidebar menjadi Dashboard · Pendaftaran · Program · Konten; dan beranda menampilkan Public Training per program plus satu blok In House Training.
 
 **Architecture:**
@@ -32,7 +34,7 @@
 | K7 | **Modul Media dihapus**: menu, rute `/admin/media`, halaman, dan komponennya. Galeri foto dan tautan YouTube **berada di form tiap sub-program**. |
 | K8 | Menu **"Kelas" menjadi "Program"**. `/admin/program` memuat **Public Training** (Public Speaking Series; Public Speaking for Speakers dan Sertifikasi, keduanya mendukung tawaran paket) dan **In House Training** (Gallery Kegiatan dan Our Partner). Galeri dan Partner **keluar dari grup Konten**; sidebar menjadi Dashboard · Pendaftaran · Program · Konten (Artikel, Testimoni, Trainer). |
 | K9 | Unggahan gambar **otomatis dikompresi ke WebP** dengan kualitas visual dijaga. |
-| K10 | Per program: **maksimal 20 foto** (peringatan mulai 15) dan **1–2 tautan YouTube** unlisted atau private. |
+| K10 | *(Revisi 5)* Per program: **10–20 foto** dan **1–2 tautan YouTube** unlisted atau private. Batas atas (**20 foto, 2 video**) dipaksakan di server. Batas bawah (**10 foto, 1 video**) adalah **saran**: form menampilkan peringatan, tetapi tetap bisa disimpan — program baru tidak boleh terkunci karena dokumentasinya belum lengkap. |
 | K11 | Beranda **Public Training**: judul makro + intro, lalu **satu seksi per program** berisi nama, deskripsi, galeri dokumentasi (foto dan video), serta CTA **Daftar** dan **Lihat Jadwal**. |
 | K12 | Beranda **In House Training**: judul makro + intro, galeri dokumentasi kegiatan, dan grid logo **Our Partner**. Seksi Dokumentasi dan Partners Strip yang berdiri sendiri **dilebur** ke blok ini. |
 | K13 | **Satu header per halaman form.** Header shell (judul modul + tombol kembali + breadcrumb) dipertahankan; header buatan form sendiri (`[ PENGATURAN PROGRAM ] Edit Program` beserta tombol kembali keduanya) dihapus. Label modul **"Program & Batch" menjadi "Program"**. |
@@ -40,6 +42,7 @@
 | K15 | **Fokus isian tipis**: tepi 1 px `--admin-ink` + cincin 2 px `--admin-ink` 8%, tanpa `outline`. Tombol tetap `outline` 2 px. |
 | K16 | **Textarea tidak menempel ke atas**: padding 14 px atas-bawah, 18 px kiri-kanan, tinggi baris 1.6, minimal 104 px. |
 | K17 | **Isian berformat**: Rupiah dengan awalan "Rp" dan titik ribuan; persen dengan akhiran "%"; telepon `0812-3456-7890`. Kursor tidak melompat ke ujung saat menyunting di tengah. |
+| K18 | *(Revisi 5)* Bagian **Formulir pendaftaran** di form program **dihapus**, dan bagian **Dokumentasi** menempati posisinya. Urutan bagian untuk **semua** program, termasuk Inhouse: **1 Informasi utama · 2 Dokumentasi · 3 Materi & benefit**. Teks pertanyaan di `/register` selalu memakai naskah bawaan per jenis formulir (`VARIANT_COPY` di `lib/registration-form.ts`). Kolom `programs.form_prior_experience`, `form_goal`, `form_challenge` tidak lagi dibaca atau ditulis; per 17 November 2026 ketiganya `NULL` di keempat program, jadi tidak ada teks yang berubah. Kolomnya dihapus lewat migrasi terpisah kelak, di luar rencana ini. |
 
 ## Keputusan pembangun rencana (koreksi bila keliru)
 
@@ -116,6 +119,7 @@ Tiga gaya hidup berdampingan di admin aktif:
 16. **Tempel nilai Rupiah dengan desimal.** `1.500.000,00` tidak boleh menjadi `150.000.000` karena koma dan nol desimalnya ikut digabung. → tes `rupiahDigits`, Tugas 5a.
 17. **`AdminPageTitle` tanpa target.** Saat ini tidak ada elemen `id="admin-page-title"` di mana pun, jadi judul yang dikirim form Program tidak tampil sama sekali. → Tugas 5a menambah slotnya di `PageHeader`.
 18. **Cincin fokus terlalu pudar untuk dilihat.** Cincin 8% hanya tambahan; penanda utamanya tepi 1 px `--admin-ink` yang kontrasnya ≥ 3:1 terhadap latar putih (WCAG 1.4.11). → diukur di Tugas 5a.
+19. **Menghapus Formulir pendaftaran mengubah pertanyaan di `/register`.** Bila satu program punya naskah tersimpan, berhenti membacanya akan mengganti teks pertanyaan peserta. Per 17 November 2026 ketiga kolom `NULL` di semua program, jadi aman; Tugas 8 memeriksanya ulang sebelum mengubah kode, dan **berhenti serta bertanya** bila ada yang terisi.
 
 ---
 
@@ -492,7 +496,7 @@ git commit -m "feat(admin): tagihan jadi tabel dengan modal detail (admin-ui-5)"
 - Modify: `front/components/admin/PageHeader.tsx` (slot judul halaman detail, ukuran §7.0)
 - Modify: `front/app/globals.css` (hapus aturan tinggi `data-slot` dari Revisi 3, sekitar baris 1636–1640)
 - Modify — ganti setiap `Input`/`Textarea`/`Select`/`<input>`/`<textarea>`/`<select>` isian dengan kontrol admin:
-  - `front/components/admin/ProgramForm.tsx` (Biaya dan Harga coret → `PriceInput`; DP → `PercentInput`; sisanya `AdminInput`/`AdminTextarea`; `FormPage width="double"`)
+  - `front/components/admin/ProgramForm.tsx` (Biaya dan Harga coret → `PriceInput`; DP → `PercentInput`; sisanya `AdminInput`/`AdminTextarea`; `FormPage width="double"`). **Lewati bagian Formulir pendaftaran**: bagian itu dihapus di Tugas 8 (K18)
   - `front/components/admin/program/ProgramBatchBoard.tsx` (nama batch, sesi tanggal/jam → `AdminInput`; harga paket → `PriceInput`; DP paket → `PercentInput`; penjelasan → `AdminTextarea`; "Buka pendaftaran" dan "Tawarkan paket" → `CheckboxCard` nada `mint`)
   - `front/app/(admin)/admin/rekening/RekeningClient.tsx` (nomor rekening `AdminInput` digit saja `font-mono`; "Jadikan rekening aktif" → `CheckboxCard` nada `mint`)
   - `front/components/admin/cms/CmsCollectionClient.tsx` (semua isian dan select; tipe `price` → `PriceInput`)
@@ -875,15 +879,37 @@ git commit -m "feat(admin): hapus modul Media; penyimpanan dan API medianya teta
 
 ---
 
-### Task 8: Galeri dokumentasi di form tiap program
+### Task 8: Dokumentasi menggantikan Formulir pendaftaran di form program
+
+*(Revisi 5)* Bagian **Formulir pendaftaran** dihapus dari form program, dan bagian **Dokumentasi** — 10–20 gambar dan 1–2 tautan YouTube — menempati posisinya sebagai bagian 2 (K10, K18).
+
+```text
+╭─ Ubah Public Speaking Series ──────────────────────────────────────╮
+│ (1) INFORMASI UTAMA                                                │
+│     Nama · Deskripsi · Biaya · Harga coret · DP · Rincian biaya    │
+│ ────────────────────────────────────────────────────────────────── │
+│ (2) DOKUMENTASI                                     ← dulu: (2) FORMULIR PENDAFTARAN
+│     Foto  12 / 20                         [ + Unggah foto ]        │
+│     ╭────╮╭────╮╭────╮╭────╮                                       │
+│     │ ×  ││ ×  ││ ×  ││ ×  │  …                                    │
+│     ╰────╯╰────╯╰────╯╰────╯                                       │
+│     Video  1 / 2                                                   │
+│     ▶ Kelas Speaker Batch 9 · youtu.be/…                     (×)   │
+│     ( URL YouTube                ) ( Judul         ) [ Tambah ]    │
+│ ────────────────────────────────────────────────────────────────── │
+│ (3) MATERI & BENEFIT                                               │
+╰────────────────────────────────────────────────────────────────────╯
+```
 
 **Files:**
 - Create: `front/lib/program-media.ts`, `front/lib/program-media.test.mjs`
 - Create: `front/components/admin/program/ProgramMediaEditor.tsx`
-- Modify: `front/components/admin/ProgramForm.tsx`
+- Modify: `front/components/admin/ProgramForm.tsx` (hapus bagian Formulir pendaftaran, sisipkan Dokumentasi)
 - Modify: `front/app/(admin)/admin/program/[slug]/edit/page.tsx`
 - Modify: `front/app/(admin)/admin/program/actions.ts`
 - Modify: `front/app/api/upload/route.ts`
+- Modify: `front/lib/server/registration-batch.ts` (berhenti membaca naskah pertanyaan dari program)
+- Modify: `front/lib/server/catalog.ts` (buang tiga kolom naskah dari `PROGRAM_COLUMNS`)
 
 **Interfaces:**
 - Produces:
@@ -891,8 +917,9 @@ git commit -m "feat(admin): hapus modul Media; penyimpanan dan API medianya teta
 ```ts
 // lib/program-media.ts
 export const MAX_PROGRAM_PHOTOS = 20;
-export const WARN_PROGRAM_PHOTOS = 15;
+export const MIN_PROGRAM_PHOTOS = 10;   // saran, bukan syarat simpan
 export const MAX_PROGRAM_VIDEOS = 2;
+export const MIN_PROGRAM_VIDEOS = 1;   // saran, bukan syarat simpan
 
 export type ProgramMediaItem = {
   id: number;
@@ -903,11 +930,12 @@ export type ProgramMediaItem = {
   youtubeId: string | null;
 };
 
-/** Sisa kuota foto dan video, dan apakah sudah waktunya memperingatkan admin. */
+/** Sisa kuota foto dan video, dan apakah jumlahnya masih di bawah saran. */
 export function mediaCapacity(items: readonly { kind: string }[]): {
   photos: number; videos: number;
   photoSlotsLeft: number; videoSlotsLeft: number;
-  photoFull: boolean; videoFull: boolean; warnPhotos: boolean;
+  photoFull: boolean; videoFull: boolean;
+  photosBelowMin: boolean; videosBelowMin: boolean;
 };
 /** Pesan penolakan bila menambah `adding` foto melewati batas; null bila boleh. */
 export function photoLimitError(current: number, adding: number): string | null;
@@ -934,7 +962,7 @@ export function ProgramMediaEditor(props: { programSlug: string; items: ProgramM
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  MAX_PROGRAM_PHOTOS, MAX_PROGRAM_VIDEOS, WARN_PROGRAM_PHOTOS,
+  MAX_PROGRAM_PHOTOS, MAX_PROGRAM_VIDEOS, MIN_PROGRAM_PHOTOS, MIN_PROGRAM_VIDEOS,
   mediaCapacity, photoLimitError, videoLimitError,
 } from "./program-media.ts";
 
@@ -943,22 +971,27 @@ const items = (photos, videos) => [
   ...Array.from({ length: videos }, () => ({ kind: "video" })),
 ];
 
-test("batasnya 20 foto dan 2 video, peringatan mulai 15 foto", () => {
+test("rentangnya 10-20 foto dan 1-2 video", () => {
+  assert.equal(MIN_PROGRAM_PHOTOS, 10);
   assert.equal(MAX_PROGRAM_PHOTOS, 20);
+  assert.equal(MIN_PROGRAM_VIDEOS, 1);
   assert.equal(MAX_PROGRAM_VIDEOS, 2);
-  assert.equal(WARN_PROGRAM_PHOTOS, 15);
 });
 
-test("sisa kuota dihitung dari jenis tiap butir", () => {
+test("di bawah saran memberi peringatan, bukan penolakan", () => {
   const empty = mediaCapacity([]);
   assert.deepEqual([empty.photoSlotsLeft, empty.videoSlotsLeft], [20, 2]);
-  assert.equal(empty.warnPhotos, false);
+  assert.equal(empty.photosBelowMin, true);
+  assert.equal(empty.videosBelowMin, true);
 
-  const warn = mediaCapacity(items(15, 1));
-  assert.equal(warn.photos, 15);
-  assert.equal(warn.photoSlotsLeft, 5);
-  assert.equal(warn.warnPhotos, true);
-  assert.equal(warn.videoFull, false);
+  const nine = mediaCapacity(items(9, 0));
+  assert.equal(nine.photosBelowMin, true);
+
+  const enough = mediaCapacity(items(10, 1));
+  assert.equal(enough.photosBelowMin, false);
+  assert.equal(enough.videosBelowMin, false);
+  assert.equal(enough.photoSlotsLeft, 10);
+  assert.equal(enough.videoFull, false);
 
   const full = mediaCapacity(items(20, 2));
   assert.equal(full.photoFull, true);
@@ -966,11 +999,12 @@ test("sisa kuota dihitung dari jenis tiap butir", () => {
   assert.equal(full.photoSlotsLeft, 0);
 });
 
-test("penambahan yang melewati batas ditolak dengan pesan", () => {
+test("penambahan yang melewati batas atas ditolak dengan pesan", () => {
   assert.equal(photoLimitError(0, 20), null);
   assert.equal(photoLimitError(18, 2), null);
   assert.ok(photoLimitError(18, 3));
   assert.ok(photoLimitError(20, 1));
+  assert.equal(videoLimitError(0), null);
   assert.equal(videoLimitError(1), null);
   assert.ok(videoLimitError(2));
 });
@@ -983,7 +1017,7 @@ Expected: FAIL dengan `ERR_MODULE_NOT_FOUND` untuk `./program-media.ts`.
 
 - [ ] **Step 3: Implementasi `lib/program-media.ts`**
 
-Hitung `photos` dan `videos` dari `kind`. `photoSlotsLeft = max(0, MAX − photos)`, begitu juga video. `warnPhotos` benar saat `photos >= WARN_PROGRAM_PHOTOS`. Pesan galat menyebut angkanya, misalnya `Maksimal 20 foto per program; sisa 2 slot.` dan `Maksimal 2 tautan YouTube per program.`
+Hitung `photos` dan `videos` dari `kind`. `photoSlotsLeft = max(0, MAX − photos)`, begitu juga video. `photosBelowMin` benar saat `photos < MIN_PROGRAM_PHOTOS`, `videosBelowMin` saat `videos < MIN_PROGRAM_VIDEOS`. Batas bawah **tidak** menghasilkan pesan galat. Pesan galat menyebut angkanya, misalnya `Maksimal 20 foto per program; sisa 2 slot.` dan `Maksimal 2 tautan YouTube per program.`
 
 - [ ] **Step 4: Jalankan, pastikan lulus**
 
@@ -998,39 +1032,58 @@ Di `actions.ts`, `addProgramVideo`: `requireAdminMember()`, validasi `programSlu
 
 - [ ] **Step 6: `ProgramMediaEditor`**
 
-Satu seksi di form program, berjudul **Dokumentasi**:
+Bagian 2 form program, berjudul **Dokumentasi**, dengan petunjuk di bawah judul: "10–20 foto dan 1–2 video YouTube. Foto otomatis dikompresi ke WebP."
 - grid foto (rasio 4:3, `object-cover`) dengan tombol hapus bulat di tiap kartu, memakai `AdminSheet` tone `danger` untuk konfirmasi;
 - `<input type="file" multiple accept="image/jpeg,image/png,image/webp">`; tiap berkas dikirim berurutan ke `/api/upload` dengan `purpose=program`, `programSlug`, dan `altText`; tampilkan kemajuan `n dari m` dan kumpulkan pesan galat per berkas tanpa menghentikan sisanya;
-- penghitung `{photos} / 20 foto`, berwarna `--admin-peach-ink` saat `warnPhotos`, dan tombol unggah nonaktif saat `photoFull`;
+- penghitung `{photos} / 20 foto`; saat `photosBelowMin` penghitung berwarna `--admin-peach-ink` dengan keterangan "Disarankan minimal 10 foto"; tombol unggah nonaktif saat `photoFull`, dan pemilih berkas memotong pilihan yang melebihi `photoSlotsLeft` dengan pesan "Hanya {n} foto lagi yang bisa ditambahkan";
+- penghitung video `{videos} / 2`; saat `videosBelowMin` keterangan "Disarankan minimal 1 video";
 - daftar video: tiap baris menampilkan judul dan tautan, dengan tombol hapus; isian **URL YouTube** + **Judul** memanggil `addProgramVideo`, nonaktif saat `videoFull`, dengan petunjuk "Gunakan tautan unlisted atau private.";
 - `alt` wajib untuk foto — pakai satu isian "Keterangan gambar" yang berlaku untuk seluruh berkas pada unggahan itu, dan tolak di klien bila kosong.
 
 Semua isian memakai kontrol admin dari Tugas 5a (`AdminInput`, `AdminTextarea`); input berkas tetap `<input type="file">` bawaan dengan tombol pil admin, karena `adminFieldClass` tidak cocok untuk pemilih berkas.
 
-- [ ] **Step 7: Sambungkan ke form program**
+- [ ] **Step 7: Ganti Formulir pendaftaran dengan Dokumentasi**
 
-`[slug]/edit/page.tsx`: baca `media_assets` milik program itu (`id,provider,kind,object_key,alt_text`) lewat `academyBillingClient()`, petakan ke `ProgramMediaItem` dengan aturan `src` yang sama seperti `readProgramDetail`, lalu teruskan ke `ProgramForm`. `ProgramForm` merender `<ProgramMediaEditor>` sebagai seksi setelah Materi & Benefit, untuk **semua** program termasuk Inhouse.
+Lebih dulu, periksa Review Focus 19:
+
+```sql
+select slug from public.programs
+where form_prior_experience is not null or form_goal is not null or form_challenge is not null;
+```
+
+Expected: tidak ada baris. **Bila ada**, berhenti dan tanyakan pemilik — teks pertanyaan di `/register` program itu akan berubah.
+
+Lalu:
+- `components/admin/ProgramForm.tsx`: hapus seluruh `FormSection` "Formulir pendaftaran" beserta paragraf penjelasnya; hapus `form_prior_experience`, `form_goal`, `form_challenge` dari tipe `ProgramRow`, dari state `formData`, dan dari payload simpan. Sisipkan `<FormSection number={2} title="Dokumentasi">` berisi `<ProgramMediaEditor programSlug={initialData.slug} items={media} />`, lalu `Materi & benefit` menjadi bagian **3** untuk semua program — hapus `{isInhouse ? 2 : 3}`. Tambahkan prop `media: ProgramMediaItem[]` pada `ProgramForm`. Bagian Dokumentasi juga tampil untuk Inhouse.
+- `app/(admin)/admin/program/[slug]/edit/page.tsx`: buang ketiga kolom naskah dari `select`; baca `media_assets` milik program itu (`id,provider,kind,object_key,alt_text`, urut `created_at` naik) lewat `academyBillingClient()`, petakan ke `ProgramMediaItem` dengan aturan `src` yang sama seperti `readProgramDetail` (`supabase_storage` → `/api/media/<id>`, `youtube` → `https://www.youtube-nocookie.com/embed/<id>`), lalu teruskan sebagai `media`.
+- `lib/server/registration-batch.ts`: hapus pembacaan `program.form_prior_experience`, `form_goal`, `form_challenge`, sehingga `formCopy` selalu `{}` dan `registrationFormCopy()` memakai `VARIANT_COPY` per jenis formulir. Tipe `RegistrationBatch.formCopy` **tidak** diubah, jadi `lib/registration-form.ts` dan tesnya tidak perlu disentuh.
+- `lib/server/catalog.ts`: buang `form_prior_experience,form_goal,form_challenge` dari `PROGRAM_COLUMNS`.
+- Kolom basis datanya **tidak** dihapus di sini (K18).
 
 - [ ] **Step 8: Periksa**
 
-Run: `node --test lib/program-media.test.mjs && npx tsc --noEmit && npx eslint lib/program-media.ts components/admin/program/ProgramMediaEditor.tsx components/admin/ProgramForm.tsx "app/(admin)/admin/program" "app/api/upload/route.ts" && npm run build`
-Expected: PASS, tanpa galat, build selesai.
+Run: `node --test lib/program-media.test.mjs lib/registration-form.test.mjs lib/registration.test.mjs && npx tsc --noEmit && npx eslint lib/program-media.ts components/admin/program/ProgramMediaEditor.tsx components/admin/ProgramForm.tsx "app/(admin)/admin/program" "app/api/upload/route.ts" lib/server/registration-batch.ts lib/server/catalog.ts && npm run build`
+Expected: PASS, tanpa galat, build selesai. Lalu `grep -rn "form_prior_experience\|form_goal\|form_challenge" front/app front/components front/lib --include=*.ts --include=*.tsx` → tidak ada hasil.
 
 - [ ] **Step 9: Ukur di peramban**
 
-Di `/admin/program/public-speaking-for-speakers/edit`:
+Di `/admin/program/public-speaking-for-speakers/edit` dan `/admin/program/inhouse-training/edit`:
+- tidak ada bagian **Formulir pendaftaran**; urutannya 1 Informasi utama · 2 Dokumentasi · 3 Materi & benefit, termasuk di Inhouse;
+- dengan 0 foto penghitung menampilkan "Disarankan minimal 10 foto" berwarna peach, dan Simpan program **tetap** berhasil;
+- pilih 22 berkas saat program kosong: hanya 20 yang diunggah, dengan pesan sisa slot;
 - unggah tiga gambar sekaligus; ketiganya muncul di grid, dan pada Storage objeknya berakhiran `.webp` (periksa `object_key` lewat `execute_sql`);
 - tambahkan satu tautan YouTube; muncul di daftar video. Tambahkan yang kedua; isiannya lalu nonaktif;
 - hapus satu foto dan satu video, lalu pastikan barisnya hilang dan objek Storage-nya juga;
-- pada 390 px grid menjadi dua kolom dan konfirmasi hapus menjadi bottom sheet.
+- pada 390 px grid menjadi dua kolom dan konfirmasi hapus menjadi bottom sheet;
+- buka `/register/public-speaking-series`, `/register/public-speaking-for-speakers`, dan `/register/sertifikasi-pembicara-profesional` sampai langkah 2: pertanyaan pengalaman, tujuan, dan tantangan sama dengan sebelum tugas ini (Review Focus 19).
 
 Bersihkan media uji setelah selesai, dan **tanyakan pemilik lebih dulu bila ada media milik mereka** di program itu.
 
 - [ ] **Step 10: Commit**
 
 ```bash
-git add front/lib/program-media.ts front/lib/program-media.test.mjs front/components/admin/program/ProgramMediaEditor.tsx front/components/admin/ProgramForm.tsx "front/app/(admin)/admin/program" "front/app/api/upload/route.ts"
-git commit -m "feat(admin): galeri foto dan YouTube per program di form program (admin-ui-8)"
+git add front/lib/program-media.ts front/lib/program-media.test.mjs front/components/admin/program/ProgramMediaEditor.tsx front/components/admin/ProgramForm.tsx "front/app/(admin)/admin/program" "front/app/api/upload/route.ts" front/lib/server/registration-batch.ts front/lib/server/catalog.ts
+git commit -m "feat(admin): Dokumentasi 10-20 foto dan 1-2 YouTube menggantikan Formulir pendaftaran di form program (admin-ui-8)"
 ```
 
 ---
@@ -1243,6 +1296,8 @@ git commit -m "docs: shadcn/ui, bottom sheet, tabel tagihan, dokumentasi program
 | R4.3 Teks textarea tidak terlalu ke atas | 5a |
 | R4.4 Isian harga dan nomor telepon berformat | 5a |
 | R4.5 Pedoman form input direvisi | sudah: pola UI admin §7 (revisi 17 November 2026); Tugas 11 hanya memeriksa sisanya |
+| R5.1 Hapus bagian Formulir pendaftaran dari form program admin | 8 |
+| R5.2 Dokumentasi di form program: 10–20 gambar dan 1–2 tautan YouTube | 8 |
 
 ## Urutan eksekusi dan ketergantungan
 
