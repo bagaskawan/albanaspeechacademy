@@ -44,7 +44,7 @@ export async function TrainerSection() {
           id="trainer-title"
           className="mt-3 max-w-[24ch] text-[2rem] leading-[1.05] font-semibold tracking-[-0.045em] text-balance md:text-[2.5rem] lg:text-[3rem]"
         >
-          Kenali <mark className="bg-highlight text-ink">yang akan mendampingimu</mark>
+          Kenali <em className="accent-serif">yang akan mendampingimu</em>
         </h2>
         <p className="mt-3 max-w-[42em] leading-[1.6] text-muted">
           Praktisi yang sehari-hari berbicara di depan audiens — di radio, panggung, ruang kelas, dan ruang rapat.
