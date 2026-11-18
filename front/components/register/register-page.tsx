@@ -87,7 +87,7 @@ export async function RegisterPage({
         <h1 className="sr-only">Pendaftaran kelas</h1>
         <RegistrationState selection={selection} offer={offer} programPhoto={programPhoto} />
       </div>
-      <ThemeToggle className="fixed right-5 bottom-5 z-50 inline-flex size-12 items-center justify-center rounded-full border border-[var(--tone-rule)] bg-[var(--tone-tile)] text-[var(--tone-ink)] shadow-lg transition-transform hover:scale-105 hover:bg-[var(--tone-bg)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--tone-accent)] sm:right-6 sm:bottom-6" />
+      <ThemeToggle className="fixed right-5 bottom-5 z-50 inline-flex size-12 aspect-square items-center justify-center rounded-full border border-[var(--tone-rule)] bg-[var(--tone-tile)] text-[var(--tone-ink)] shadow-lg transition-transform hover:scale-105 hover:bg-[var(--tone-bg)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--tone-accent)] sm:right-6 sm:bottom-6" />
     </main>
   );
 }

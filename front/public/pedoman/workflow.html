@@ -1,0 +1,1163 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pedoman Admin Albana</title>
+<meta name="description" content="Panduan penggunaan CMS Albana Speech Academy: masuk, kelola pendaftar, tagihan, program, konten, dan pengaturan.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/logo-blue.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!--
+  Cara mengganti ilustrasi dengan tangkapan layar asli:
+  Setiap ilustrasi berada di <figure class="shot" data-shot="nama-file.png">.
+  Simpan gambar di /public/pedoman/img/, lalu ganti isi <div class="mock">...</div>
+  dengan <img src="img/nama-file.png" alt="..."> . Keterangan (figcaption) tetap dipakai.
+-->
+<style>
+:root{
+  --bg:#ecebe8; --paper:#f6f5f2; --card:#ffffff; --ink:#24211c; --ink-2:#5d5850; --ink-3:#8b867d;
+  --line:#dcd9d3; --line-2:#c9c5bd; --accent:#2f6b47; --accent-2:#3f8a5c; --accent-soft:#dcebe1;
+  --warn:#9a5b12; --warn-soft:#f6e7cf; --danger:#a23b3b; --danger-soft:#f5dede; --info-soft:#e3e9f3;
+  --radius:16px; --side:280px; --top:60px; --bottom:64px;
+  --f-head:"Space Grotesk",system-ui,sans-serif; --f-body:Inter,system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--top) + 16px);-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.65 var(--f-body);overflow-x:hidden}
+a{color:var(--accent)}
+img{max-width:100%;display:block}
+kbd,code{font-family:var(--f-mono);font-size:.86em;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.ui{font-weight:600;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:1px 9px;font-size:.9em;white-space:nowrap}
+.skip{position:absolute;left:-999px}.skip:focus{left:16px;top:12px;z-index:99;background:var(--ink);color:#fff;padding:8px 14px;border-radius:999px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Top bar */
+.topbar{position:fixed;inset:0 0 auto 0;height:var(--top);display:flex;align-items:center;gap:12px;padding:0 20px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:30}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);min-width:0}
+.brand img{width:30px;height:30px;object-fit:contain}
+.brand b{font:700 15px/1.1 var(--f-head);letter-spacing:.01em;white-space:nowrap}
+.brand small{display:block;font:500 11px/1.2 var(--f-mono);color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase}
+.topbar .spacer{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;font:500 11px/1 var(--f-mono);letter-spacing:.04em;padding:6px 10px;border-radius:999px;border:1px solid var(--accent);color:var(--accent);background:var(--accent-soft);white-space:nowrap}
+.toc-btn{display:none;white-space:nowrap;flex-shrink:0;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line-2);background:var(--card);font:600 14px var(--f-body);color:var(--ink);cursor:pointer}
+
+/* Layout */
+.layout{display:grid;grid-template-columns:var(--side) minmax(0,1fr);gap:0;padding-top:var(--top)}
+.toc{position:sticky;top:var(--top);height:calc(100vh - var(--top) - var(--bottom));overflow-y:auto;padding:24px 16px 32px 20px;border-right:1px solid var(--line)}
+.toc-search{width:100%;height:40px;border-radius:12px;border:1px solid var(--line-2);background:var(--card);padding:0 12px;font:400 14px var(--f-body);color:var(--ink);margin-bottom:16px}
+.toc h4{font:600 11px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:18px 8px 8px}
+.toc ol{list-style:none;margin:0;padding:0}
+.toc a{display:flex;gap:10px;align-items:baseline;padding:7px 10px;border-radius:10px;text-decoration:none;color:var(--ink-2);font-size:14px;line-height:1.35}
+.toc a span{font:500 11px var(--f-mono);color:var(--ink-3);min-width:20px}
+.toc a:hover{background:var(--paper);color:var(--ink)}
+.toc a.on{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 0 0 1px var(--line)}
+.toc a.on span{color:var(--accent)}
+.toc .none{padding:8px 10px;color:var(--ink-3);font-size:14px;display:none}
+main{min-width:0;padding:0 clamp(16px,4vw,56px) calc(var(--bottom) + 48px)}
+.wrap{max-width:860px;margin:0 auto}
+
+/* Hero */
+.hero{padding:clamp(40px,8vw,88px) 0 40px;border-bottom:1px solid var(--line)}
+.hero h1{font:700 clamp(34px,6vw,60px)/1.04 var(--f-head);letter-spacing:-.02em;margin:18px 0 18px}
+.hero h1 em,.sec h2 em{font-style:normal;color:var(--accent)}
+.hero p.lead{font-size:clamp(17px,2.2vw,19px);color:var(--ink-2);max-width:62ch;margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:28px;font:500 12px var(--f-mono);color:var(--ink-3);letter-spacing:.03em}
+.meta b{color:var(--ink);font-weight:600}
+
+/* Sections */
+.sec{padding:56px 0 8px}
+.eyebrow{display:flex;align-items:center;gap:12px;font:600 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--line-2)}
+.eyebrow .n{color:var(--ink-3)}
+.sec h2{font:700 clamp(28px,4.2vw,40px)/1.1 var(--f-head);letter-spacing:-.015em;margin:0 0 14px}
+.sec h3{font:600 21px/1.25 var(--f-head);margin:36px 0 10px}
+.sec h4{font:600 16px/1.3 var(--f-body);margin:22px 0 6px}
+.sec p{margin:0 0 14px}
+.sec .intro{font-size:18px;color:var(--ink-2);max-width:65ch}
+.where{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px;font:500 12px var(--f-mono);color:var(--ink-2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px;margin:2px 0 18px}
+.where i{font-style:normal;color:var(--ink-3)}
+ul.plain{margin:0 0 16px;padding-left:20px}ul.plain li{margin:4px 0}
+
+/* Steps */
+.steps{list-style:none;counter-reset:s;margin:12px 0 22px;padding:0}
+.steps>li{counter-increment:s;position:relative;padding:0 0 18px 48px}
+.steps>li::before{content:counter(s);position:absolute;left:0;top:-1px;width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--line-2);display:grid;place-items:center;font:600 13px var(--f-mono);color:var(--accent)}
+.steps>li:not(:last-child)::after{content:"";position:absolute;left:15px;top:34px;bottom:4px;width:1px;background:var(--line-2)}
+.steps>li b:first-child{display:block}
+
+/* Flow chips (seperti alur di referensi) */
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin:18px 0 26px}
+.flow .node{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;min-width:120px;flex:1 1 130px}
+.flow .node b{display:block;font:600 14px var(--f-head)}
+.flow .node small{font:400 11px var(--f-mono);color:var(--ink-3)}
+.flow .node.hot{background:var(--accent-soft);border-color:var(--accent)}
+.flow .arr{align-self:center;color:var(--ink-3);font:500 14px var(--f-mono)}
+
+/* Callouts */
+.note{border-radius:var(--radius);padding:14px 16px 14px 46px;margin:18px 0;position:relative;background:var(--card);border:1px solid var(--line);font-size:15px}
+.note::before{position:absolute;left:14px;top:13px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:700 12px var(--f-mono)}
+.note b.t{display:block;font-weight:600;margin-bottom:2px}
+.note.tip{background:var(--accent-soft);border-color:#bcd8c5}.note.tip::before{content:"i";background:var(--accent);color:#fff}
+.note.warn{background:var(--warn-soft);border-color:#ecd1a6}.note.warn::before{content:"!";background:var(--warn);color:#fff}
+.note.danger{background:var(--danger-soft);border-color:#e8bcbc}.note.danger::before{content:"!";background:var(--danger);color:#fff}
+.note p:last-child{margin:0}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;font-size:15px;margin:12px 0 22px}
+.tbl th,.tbl td{text-align:left;vertical-align:top;padding:11px 14px;border-bottom:1px solid var(--line)}
+.tbl tr:last-child td{border-bottom:0}
+.tbl th{font:600 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);background:var(--paper)}
+.tbl td:first-child{font-weight:600;width:34%}
+@media (max-width:620px){
+  .tbl,.tbl tbody,.tbl tr,.tbl td{display:block;width:100%!important}
+  .tbl thead{display:none}
+  .tbl tr{border-bottom:1px solid var(--line);padding:10px 14px}
+  .tbl tr:last-child{border-bottom:0}
+  .tbl td{border:0;padding:2px 0}
+}
+
+/* Status chips */
+.chip{display:inline-flex;align-items:center;gap:6px;font:600 12px var(--f-body);padding:3px 10px;border-radius:999px;white-space:nowrap}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.chip.ok{background:var(--accent-soft);color:var(--accent)}
+.chip.wait{background:var(--warn-soft);color:var(--warn)}
+.chip.no{background:var(--danger-soft);color:var(--danger)}
+.chip.mute{background:var(--paper);color:var(--ink-2);border:1px solid var(--line)}
+
+/* Screenshot placeholder (wireframe) */
+.shot{margin:20px 0 28px}
+.shot img{border-radius:14px;border:1px solid var(--line);box-shadow:0 10px 30px -18px rgba(36,33,28,.35)}
+.shot figcaption{display:flex;gap:10px;align-items:baseline;margin-top:10px;font-size:13.5px;color:var(--ink-2)}
+.shot figcaption .no{font:600 11px var(--f-mono);color:var(--accent);letter-spacing:.05em;white-space:nowrap}
+.mock{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px -18px rgba(36,33,28,.35);font-size:12.5px;line-height:1.4;color:var(--ink)}
+.mock::after{content:"Ilustrasi";position:absolute;right:10px;bottom:8px;font:500 10px var(--f-mono);color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase}
+.mk-bar{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--paper);border-bottom:1px solid var(--line)}
+.mk-bar i{width:9px;height:9px;border-radius:50%;background:var(--line-2)}
+.mk-bar .url{margin-left:8px;flex:1;max-width:340px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font:400 11px var(--f-mono);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mk-app{display:grid;grid-template-columns:148px minmax(0,1fr);min-height:220px}
+.mk-side{border-right:1px solid var(--line);padding:12px 8px;background:#fbfaf8}
+.mk-side .g{font:600 9.5px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:10px 8px 4px}
+.mk-side .it{padding:5px 8px;border-radius:8px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mk-side .it.on{background:var(--ink);color:#fff}
+.mk-main{padding:14px 16px 26px;min-width:0}
+.mk-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.mk-head b{font:700 15px var(--f-head)}
+.mk-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.mk-btn{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--line-2);background:var(--card);font-weight:600;font-size:12px;white-space:nowrap}
+.mk-btn.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+.mk-btn.red{background:var(--danger);border-color:var(--danger);color:#fff}
+.mk-btn.ghost{border-style:dashed}
+.mk-in{flex:1;min-width:120px;height:28px;border:1px solid var(--line);border-radius:10px;background:var(--paper);padding:0 10px;display:flex;align-items:center;color:var(--ink-3)}
+.mk-field{margin-bottom:9px}
+.mk-field label{display:block;font-weight:600;font-size:11.5px;margin-bottom:4px}
+.mk-field .mk-in{width:100%}
+.mk-field .mk-in.tall{height:52px;align-items:flex-start;padding-top:6px}
+.mk-table{border:1px solid var(--line);border-radius:10px}
+.mk-tr.h{border-radius:10px 10px 0 0}
+.mk-tr{display:grid;grid-template-columns:var(--cols,2fr 2fr 1fr 1fr);gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);align-items:center}
+.mk-tr:last-child{border-bottom:0}
+.mk-tr.h{background:var(--paper);font:600 9.5px var(--f-mono);text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3)}
+.mk-tr span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mk-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.mk-card{border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--card)}
+.mk-card small{display:block;color:var(--ink-3);font-size:10.5px}
+.mk-card b{font:700 18px var(--f-head)}
+.mk-ph{border:1px dashed var(--line-2);border-radius:12px;background:repeating-linear-gradient(135deg,var(--paper) 0 8px,#f1efea 8px 16px);display:grid;place-items:center;color:var(--ink-3);font:500 11px var(--f-mono);min-height:70px;text-align:center;padding:10px}
+.mk-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.mk-tabs span{padding:5px 10px;border-radius:999px;border:1px solid var(--line);font-weight:600;font-size:11.5px;color:var(--ink-2)}
+.mk-tabs span.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.mk-sheet{border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--card);box-shadow:0 12px 30px -16px rgba(36,33,28,.4)}
+.mk-dim{background:rgba(36,33,28,.08);padding:16px;display:grid;place-items:center}
+.mk-dim .mk-sheet{width:min(360px,100%)}
+.mk-login{display:grid;place-items:center;padding:24px 14px 30px;background:var(--paper)}
+.mk-login .mk-sheet{width:min(320px,100%);padding:18px}
+.mark{outline:2px solid var(--accent);outline-offset:3px;border-radius:10px;position:relative}
+.mark[data-pin]::before{content:attr(data-pin);position:absolute;top:-12px;right:-12px;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font:700 11px/20px var(--f-mono);text-align:center;z-index:2}
+@media (max-width:620px){
+  .mk-app{grid-template-columns:1fr!important}
+  .mk-side:not(.keep){display:none}
+  .mk-split>.mk-main{border-right:0!important;border-bottom:1px solid var(--line)}
+  .mk-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mk-tr{--cols:2fr 1fr!important}
+  .mk-tr span:nth-child(n+3):not(:last-child){display:none}
+}
+
+/* Bottom progress bar (gaya referensi) */
+.dock{position:fixed;inset:auto 0 0 0;height:var(--bottom);display:flex;align-items:center;gap:16px;padding:0 20px;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);z-index:30}
+.dock .label{font:500 12px var(--f-mono);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw}
+.dock .track{flex:1;height:2px;background:var(--line-2);border-radius:2px;overflow:hidden;min-width:40px}
+.dock .track i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+.dock .count{font:500 12px var(--f-mono);color:var(--ink-3);white-space:nowrap}
+.dock .nav{display:flex;gap:8px}
+.dock button{width:38px;height:38px;border-radius:50%;border:1px solid var(--line-2);background:var(--card);color:var(--ink);font:600 16px var(--f-mono);cursor:pointer;display:grid;place-items:center}
+.dock button:hover{border-color:var(--ink)}
+.dock button:disabled{opacity:.4;cursor:default}
+
+/* FAQ */
+details.faq{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 16px;margin:10px 0}
+details.faq summary{cursor:pointer;list-style:none;padding:14px 26px 14px 0;font-weight:600;position:relative}
+details.faq summary::-webkit-details-marker{display:none}
+details.faq summary::after{content:"+";position:absolute;right:0;top:12px;font:500 18px var(--f-mono);color:var(--ink-3)}
+details.faq[open] summary::after{content:"–"}
+details.faq div{padding:0 0 14px;color:var(--ink-2)}
+
+.end{margin-top:56px;padding:28px 0;border-top:1px solid var(--line);font:500 12px var(--f-mono);color:var(--ink-3);display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
+
+/* Responsive */
+@media (max-width:1023px){
+  .layout{grid-template-columns:1fr}
+  .toc{position:fixed;top:var(--top);left:0;bottom:0;width:min(320px,86vw);height:auto;background:var(--bg);z-index:40;transform:translateX(-102%);transition:transform .22s ease;border-right:1px solid var(--line);box-shadow:0 0 40px rgba(0,0,0,.12);padding-bottom:calc(var(--bottom) + 24px)}
+  body.toc-open .toc{transform:none}
+  .scrim{position:fixed;inset:var(--top) 0 0 0;background:rgba(36,33,28,.3);z-index:35;display:none}
+  body.toc-open .scrim{display:block}
+  .toc-btn{display:inline-flex}
+  .topbar .pill{display:none}
+}
+@media (max-width:560px){
+  body{font-size:15.5px}
+  .brand small{display:none}
+  .brand b{font-size:14px;white-space:normal}
+  .topbar{padding:0 12px;gap:10px}
+  .dock{gap:10px;padding:0 12px}
+  .dock .label{max-width:38vw}
+  .sec{padding-top:44px}
+  .steps>li{padding-left:42px}
+}
+@media print{
+  .topbar,.dock,.toc,.scrim{display:none!important}
+  .layout{display:block;padding:0}
+  main{padding:0}
+  .sec{break-inside:auto;page-break-before:auto}
+  .mock,.shot{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#isi">Lewati ke isi panduan</a>
+
+<header class="topbar">
+  <button class="toc-btn" type="button" aria-controls="toc" aria-expanded="false" id="tocBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+    Daftar isi
+  </button>
+  <a class="brand" href="#awal">
+    <img src="/logo-blue.png" alt="" width="30" height="30">
+    <span><b>Albana Speech Academy</b><small>Pedoman Admin CMS</small></span>
+  </a>
+  <span class="spacer"></span>
+  <span class="pill">Versi November 2026</span>
+</header>
+<div class="scrim" id="scrim"></div>
+
+<div class="layout">
+  <nav class="toc" id="toc" aria-label="Daftar isi">
+    <input class="toc-search" id="tocSearch" type="search" placeholder="Cari topik, mis. tagihan" aria-label="Cari topik">
+    <h4>Mulai</h4>
+    <ol>
+      <li><a href="#awal"><span>00</span>Sebelum mulai</a></li>
+      <li><a href="#masuk"><span>01</span>Masuk &amp; keluar</a></li>
+      <li><a href="#tampilan"><span>02</span>Mengenal tampilan</a></li>
+    </ol>
+    <h4>Pendaftaran</h4>
+    <ol>
+      <li><a href="#dashboard"><span>03</span>Dashboard</a></li>
+      <li><a href="#pendaftar"><span>04</span>Pendaftar</a></li>
+      <li><a href="#tagihan"><span>05</span>Tagihan &amp; pembayaran</a></li>
+      <li><a href="#kalender"><span>06</span>Kalender</a></li>
+    </ol>
+    <h4>Program</h4>
+    <ol>
+      <li><a href="#program"><span>07</span>Public Training &amp; batch</a></li>
+      <li><a href="#inhouse"><span>08</span>Galeri In House Training</a></li>
+      <li><a href="#partner"><span>09</span>Our Partner</a></li>
+    </ol>
+    <h4>Konten</h4>
+    <ol>
+      <li><a href="#artikel"><span>10</span>Artikel</a></li>
+      <li><a href="#galeri"><span>11</span>Galeri</a></li>
+      <li><a href="#testimoni"><span>12</span>Testimoni</a></li>
+      <li><a href="#trainer"><span>13</span>Trainer</a></li>
+    </ol>
+    <h4>Pengaturan</h4>
+    <ol>
+      <li><a href="#pengaturan"><span>14</span>Menu Pengaturan</a></li>
+      <li><a href="#faq"><span>15</span>Pertanyaan umum</a></li>
+    </ol>
+    <p class="none" id="tocNone">Topik tidak ditemukan.</p>
+  </nav>
+
+  <main id="isi">
+  <div class="wrap">
+
+    <!-- 00 -->
+    <section class="sec hero" id="awal" data-title="Sebelum mulai">
+      <span class="pill">Panduan pengguna · CMS</span>
+      <h1>Pedoman mengelola <em>website Albana</em> dari halaman admin</h1>
+      <p class="lead">Panduan ini menjelaskan cara memakai halaman admin Albana Speech Academy, mulai dari masuk ke sistem, memeriksa pendaftar dan pembayaran, mengatur batch kelas, sampai mengubah isi website. Setiap bagian bisa dibaca terpisah sesuai pekerjaan yang sedang Anda lakukan.</p>
+      <div class="meta">
+        <span>Alamat admin <b>albanaspeechacademy.com/admin</b></span>
+        <span>Untuk <b>Admin &amp; Super admin</b></span>
+        <span>Perangkat <b>Laptop, tablet, ponsel</b></span>
+      </div>
+
+      <h3>Alur kerja harian</h3>
+      <p>Sebagian besar pekerjaan admin mengikuti urutan di bawah. Peserta mendaftar lewat website, lalu admin memeriksa pembayaran dan memastikan jadwal kelas sudah benar.</p>
+      <div class="flow" role="list">
+        <div class="node" role="listitem"><b>Peserta daftar</b><small>formulir di website</small></div>
+        <span class="arr" aria-hidden="true">→</span>
+        <div class="node" role="listitem"><b>Pendaftar</b><small>data masuk otomatis</small></div>
+        <span class="arr" aria-hidden="true">→</span>
+        <div class="node hot" role="listitem"><b>Tagihan</b><small>cek bukti &amp; nominal</small></div>
+        <span class="arr" aria-hidden="true">→</span>
+        <div class="node" role="listitem"><b>Konfirmasi</b><small>email terkirim otomatis</small></div>
+        <span class="arr" aria-hidden="true">→</span>
+        <div class="node" role="listitem"><b>Kalender</b><small>jadwal sesi batch</small></div>
+      </div>
+
+      <h3>Istilah yang sering dipakai</h3>
+      <table class="tbl">
+        <thead><tr><th>Istilah</th><th>Artinya</th></tr></thead>
+        <tbody>
+          <tr><td>Batch</td><td>Satu angkatan kelas dalam sebuah program, lengkap dengan jadwal sesinya. Contoh: Batch 12 Public Speaking Series.</td></tr>
+          <tr><td>Tagihan</td><td>Jumlah yang harus ditransfer peserta. Dibuat otomatis saat peserta mengirim formulir.</td></tr>
+          <tr><td>Kode unik</td><td>Tiga angka terakhir yang ditambahkan ke tagihan supaya transfer tiap peserta mudah dibedakan di mutasi rekening.</td></tr>
+          <tr><td>DP</td><td>Uang muka. Setelah DP dikonfirmasi, sistem membuat tagihan pelunasan untuk sisa biayanya.</td></tr>
+          <tr><td>Terbit / Draf</td><td>Terbit berarti tampil di website. Draf hanya terlihat di halaman admin.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 01 -->
+    <section class="sec" id="masuk" data-title="Masuk & keluar">
+      <div class="eyebrow"><span class="n">01</span> Autentikasi</div>
+      <h2>Masuk dan <em>keluar</em> dari sistem</h2>
+      <p class="intro">Halaman admin hanya bisa dibuka oleh akun yang sudah didaftarkan sebagai admin Albana. Akun peserta biasa tidak bisa masuk.</p>
+
+      <h3>Cara masuk</h3>
+      <ol class="steps">
+        <li><b>Buka halaman login</b>Ketik <code>albanaspeechacademy.com/login</code> di browser. Jika Anda membuka <code>/admin</code> sebelum masuk, sistem otomatis mengarahkan ke halaman ini.</li>
+        <li><b>Isi username</b>Masukkan username admin, misalnya <code>adminalbana</code>. Email akun juga bisa dipakai di kolom yang sama.</li>
+        <li><b>Isi kata sandi</b>Ketik kata sandi akun Anda. Huruf besar dan kecil dibedakan.</li>
+        <li><b>Klik <span class="ui">Masuk</span></b>Tombol berubah menjadi <em>Memeriksa…</em> sebentar. Jika data benar, Anda langsung dibawa ke Dashboard.</li>
+      </ol>
+
+      <figure class="shot" data-shot="01-login.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-bar"><i></i><i></i><i></i><span class="url">albanaspeechacademy.com/login</span></div>
+          <div class="mk-login">
+            <div class="mk-sheet">
+              <div style="font:700 10px var(--f-mono);letter-spacing:.1em">ALBANA SPEECH ACADEMY</div>
+              <div style="font:700 18px var(--f-head);margin:8px 0 2px">Masuk ke CMS</div>
+              <div style="color:var(--ink-3);font-size:11px;margin-bottom:12px">Masuk dengan username admin Albana. Email akun juga diterima.</div>
+              <div class="mk-field mark" data-pin="2"><label>Username</label><div class="mk-in">adminalbana</div></div>
+              <div class="mk-field mark" data-pin="3"><label>Kata sandi</label><div class="mk-in">••••••••</div></div>
+              <div class="mk-btn dark mark" data-pin="4" style="width:100%;justify-content:center;height:32px">Masuk</div>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 1.1</span>Halaman login. Nomor pada gambar sesuai urutan langkah di atas.</figcaption>
+      </figure>
+
+      <div class="note warn"><b class="t">Gagal masuk?</b>
+        <p>Pastikan tidak ada spasi di awal atau akhir username, dan tombol Caps Lock tidak menyala. Jika tetap gagal atau Anda lupa kata sandi, hubungi pengelola teknis website untuk mengatur ulang akun. Demi keamanan, jangan bagikan kata sandi lewat grup chat.</p>
+      </div>
+
+      <h3>Cara keluar</h3>
+      <ol class="steps">
+        <li><b>Klik nama akun Anda</b>Ada di pojok kanan atas, berupa foto atau inisial beserta nama.</li>
+        <li><b>Pilih <span class="ui">Keluar</span></b>Menu ini berwarna merah di bagian bawah. Anda akan kembali ke halaman login.</li>
+      </ol>
+
+      <figure class="shot" data-shot="01-logout.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-bar"><i></i><i></i><i></i><span class="url">albanaspeechacademy.com/admin</span></div>
+          <div style="padding:14px 16px 30px;display:flex;flex-direction:column;align-items:flex-end;gap:8px;background:var(--paper)">
+            <div class="mk-btn mark" data-pin="1">● Admin Albana ▾</div>
+            <div class="mk-sheet" style="width:220px">
+              <div style="font-weight:600">Admin Albana</div>
+              <div style="font:600 9.5px var(--f-mono);color:var(--ink-3);letter-spacing:.08em;margin-bottom:8px">SUPER ADMIN</div>
+              <div style="border-top:1px solid var(--line);padding-top:8px">⚙ Pengaturan</div>
+              <div class="mark" data-pin="2" style="color:var(--danger);margin-top:8px;padding:2px 4px">⇥ Keluar</div>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 1.2</span>Menu akun di kanan atas. Dari sini juga Anda bisa membuka Pengaturan.</figcaption>
+      </figure>
+
+      <div class="note tip"><b class="t">Memakai komputer bersama?</b><p>Selalu klik Keluar setelah selesai. Menutup tab browser saja tidak mengeluarkan akun Anda.</p></div>
+    </section>
+
+    <!-- 02 -->
+    <section class="sec" id="tampilan" data-title="Mengenal tampilan">
+      <div class="eyebrow"><span class="n">02</span> Navigasi</div>
+      <h2>Mengenal <em>tampilan</em> admin</h2>
+      <p class="intro">Semua menu ada di sidebar kiri. Menu dikelompokkan sesuai jenis pekerjaannya.</p>
+
+      <figure class="shot" data-shot="02-layout.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-bar"><i></i><i></i><i></i><span class="url">albanaspeechacademy.com/admin</span></div>
+          <div class="mk-app">
+            <div class="mk-side mark" data-pin="1">
+              <div class="it on">Dashboard</div>
+              <div class="g">Pendaftaran</div><div class="it">Pendaftar</div><div class="it">Tagihan ③</div><div class="it">Kalender</div>
+              <div class="g">Public Training</div><div class="it">Public Speaking Series</div><div class="it">PS for Speakers</div><div class="it">Sertifikasi</div>
+              <div class="g">In House Training</div><div class="it">Galeri In House</div><div class="it">Our Partner</div>
+              <div class="g">Konten</div><div class="it">Artikel</div><div class="it">Galeri</div><div class="it">Testimoni</div><div class="it">Trainer</div>
+            </div>
+            <div class="mk-main">
+              <div class="mk-head"><b class="mark" data-pin="2">Dashboard</b><span class="mk-btn mark" data-pin="3">● Admin ▾</span></div>
+              <div class="mk-cards"><div class="mk-card"><small>Pendaftar</small><b>48</b></div><div class="mk-card"><small>Terverifikasi</small><b>31</b></div><div class="mk-card"><small>Menunggu</small><b>3</b></div><div class="mk-card"><small>Pelunasan</small><b>72%</b></div></div>
+              <div class="mk-ph">isi halaman</div>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 2.1</span>(1) Sidebar menu, (2) judul halaman yang sedang dibuka, (3) menu akun.</figcaption>
+      </figure>
+
+      <table class="tbl">
+        <thead><tr><th>Kelompok menu</th><th>Isinya</th></tr></thead>
+        <tbody>
+          <tr><td>Dashboard</td><td>Ringkasan angka pendaftaran, pembayaran, agenda, dan demografi peserta.</td></tr>
+          <tr><td>Pendaftaran</td><td>Pendaftar, Tagihan, dan Kalender. Angka kecil di samping Tagihan menunjukkan jumlah tagihan yang belum diperiksa.</td></tr>
+          <tr><td>Public Training</td><td>Satu halaman untuk tiap program: Public Speaking Series, Public Speaking for Speakers, dan Sertifikasi.</td></tr>
+          <tr><td>In House Training</td><td>Galeri kegiatan In House dan daftar instansi partner.</td></tr>
+          <tr><td>Konten</td><td>Artikel, Galeri, Testimoni, dan Trainer yang tampil di website.</td></tr>
+          <tr><td>Pengaturan</td><td>Tidak ada di sidebar. Dibuka lewat menu akun di kanan atas.</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Di ponsel dan tablet</h4>
+      <p>Sidebar disembunyikan supaya layar lebih lega. Ketuk tombol garis tiga (☰) di kiri atas untuk membuka menu, lalu pilih halaman yang dituju. Di laptop, tombol <span class="ui">Tata letak sidebar</span> di bagian bawah sidebar bisa meringkas sidebar menjadi ikon saja.</p>
+
+      <h4>Pola yang sama di setiap daftar</h4>
+      <ul class="plain">
+        <li><b>Kolom cari</b> di atas tabel untuk mencari berdasarkan nama atau judul.</li>
+        <li><b>Saring</b> untuk menampilkan data dengan status tertentu, misalnya hanya yang berstatus Menunggu.</li>
+        <li><b>Ekspor CSV</b> untuk mengunduh data ke file yang bisa dibuka di Excel atau Google Sheets.</li>
+        <li><b>Ikon aksi</b> di ujung kanan setiap baris: Detail (mata), Ubah (pensil), dan Hapus (tempat sampah).</li>
+      </ul>
+      <div class="note danger"><b class="t">Menghapus data tidak bisa dibatalkan</b><p>Setiap kali Anda menekan Hapus, sistem meminta konfirmasi sekali lagi. Data yang sudah dihapus tidak bisa dikembalikan dari halaman admin, jadi baca nama data di jendela konfirmasi sebelum melanjutkan.</p></div>
+    </section>
+
+    <!-- 03 -->
+    <section class="sec" id="dashboard" data-title="Dashboard">
+      <div class="eyebrow"><span class="n">03</span> Dashboard</div>
+      <h2>Membaca <em>Dashboard</em></h2>
+      <p class="intro">Halaman pertama setelah login. Dashboard hanya menampilkan ringkasan, jadi tidak ada data yang bisa diubah dari sini.</p>
+      <div class="where">Sidebar <i>›</i> Dashboard</div>
+
+      <h3>Mengatur periode dan filter</h3>
+      <ol class="steps">
+        <li><b>Pilih periode</b>Klik <span class="ui">30 hari</span>, <span class="ui">90 hari</span>, atau <span class="ui">Tahun ini</span> di kanan atas. Semua angka di halaman ikut menyesuaikan.</li>
+        <li><b>Persempit per program atau batch</b>Gunakan pilihan <span class="ui">Semua program</span> dan <span class="ui">Semua batch</span> untuk melihat satu program atau satu batch saja.</li>
+        <li><b>Kembali ke tampilan semua data</b>Klik <span class="ui">Hapus filter</span>.</li>
+      </ol>
+
+      <figure class="shot" data-shot="03-dashboard.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-bar"><i></i><i></i><i></i><span class="url">albanaspeechacademy.com/admin</span></div>
+          <div class="mk-main">
+            <div class="mk-head"><b>Dashboard</b>
+              <span class="mk-row mark" data-pin="1" style="margin:0"><span class="mk-btn dark">30 hari</span><span class="mk-btn">90 hari</span><span class="mk-btn">Tahun ini</span></span>
+            </div>
+            <div class="mk-row mark" data-pin="2"><span class="mk-btn">Semua program ▾</span><span class="mk-btn">Semua batch ▾</span><span class="mk-btn ghost">Hapus filter</span></div>
+            <div class="mk-cards mark" data-pin="3">
+              <div class="mk-card"><small>Pendaftar</small><b>48</b></div>
+              <div class="mk-card"><small>Pembayaran terverifikasi</small><b>31</b></div>
+              <div class="mk-card"><small>Tagihan menunggu</small><b>3</b></div>
+              <div class="mk-card"><small>Tingkat pelunasan</small><b>72%</b></div>
+            </div>
+            <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px"><div class="mk-ph">Grafik pendaftar per bulan</div><div class="mk-ph">Agenda 14 hari</div></div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 3.1</span>(1) Periode, (2) filter program dan batch, (3) kartu angka utama.</figcaption>
+      </figure>
+
+      <h3>Arti setiap bagian</h3>
+      <table class="tbl">
+        <thead><tr><th>Bagian</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td>Pendaftar</td><td>Jumlah pendaftaran yang masuk pada periode terpilih, dibandingkan dengan periode sebelumnya.</td></tr>
+          <tr><td>Pembayaran terverifikasi</td><td>Jumlah pembayaran yang sudah Anda konfirmasi di menu Tagihan.</td></tr>
+          <tr><td>Tagihan menunggu</td><td>Tagihan yang belum diperiksa. Klik kartu ini untuk langsung membuka menu Tagihan. Jika semua sudah diperiksa, muncul tulisan <em>Semua tagihan sudah dicek</em>.</td></tr>
+          <tr><td>Tingkat pelunasan</td><td>Persentase pendaftar yang sudah lunas.</td></tr>
+          <tr><td>Grafik pendaftar</td><td>Jumlah pendaftar per minggu atau per bulan, tergantung periode yang dipilih.</td></tr>
+          <tr><td>Agenda 14 hari</td><td>Sesi kelas dua minggu ke depan, diambil dari jadwal batch.</td></tr>
+          <tr><td>Kinerja batch</td><td>Tabel batch yang sedang dibuka: tanggal mulai, status, jumlah pendaftar, yang baru DP, dan yang sudah lunas.</td></tr>
+          <tr><td>Demografi peserta</td><td>Sumber informasi, usia, domisili, dan profesi pendaftar. Grafik baru muncul setelah ada minimal 5 jawaban.</td></tr>
+          <tr><td>Per program</td><td>Perbandingan jumlah pendaftar aktif di tiap program.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 04 -->
+    <section class="sec" id="pendaftar" data-title="Pendaftar">
+      <div class="eyebrow"><span class="n">04</span> Pendaftaran</div>
+      <h2>Melihat data <em>Pendaftar</em></h2>
+      <p class="intro">Setiap formulir yang dikirim peserta dari website otomatis masuk ke daftar ini. Admin tidak perlu memasukkan data pendaftar secara manual.</p>
+      <div class="where">Sidebar <i>›</i> Pendaftaran <i>›</i> Pendaftar</div>
+
+      <h3>Mencari pendaftar</h3>
+      <ol class="steps">
+        <li><b>Ketik nama atau email</b>di kolom <span class="ui">Cari nama atau email…</span>. Daftar langsung menyaring sesuai kata yang Anda ketik.</li>
+        <li><b>Baca kolom tabel</b><em>Peserta</em> berisi nama dan kontak, <em>Program – batch</em> berisi kelas yang dipilih, <em>Pembayaran</em> berisi status tagihan, dan <em>Masuk</em> berisi waktu formulir dikirim.</li>
+      </ol>
+
+      <figure class="shot" data-shot="04-pendaftar.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-bar"><i></i><i></i><i></i><span class="url">albanaspeechacademy.com/admin/pendaftar</span></div>
+          <div class="mk-main">
+            <div class="mk-head"><b>Pendaftar</b><span class="mk-btn mark" data-pin="2">⤓ Ekspor CSV</span></div>
+            <div class="mk-row"><span class="mk-in mark" data-pin="1">Cari nama atau email…</span></div>
+            <div class="mk-table">
+              <div class="mk-tr h"><span>Peserta</span><span>Program – batch</span><span>Pembayaran</span><span>Masuk</span></div>
+              <div class="mk-tr"><span>Rina Kartika</span><span>PS Series – Batch 12</span><span><i class="chip ok">Lunas</i></span><span>12 Nov</span></div>
+              <div class="mk-tr"><span>Dimas Prasetyo</span><span>Sertifikasi – Batch 4</span><span><i class="chip wait">DP</i></span><span>11 Nov</span></div>
+              <div class="mk-tr"><span>Ayu Lestari</span><span>PS for Speakers – Batch 3</span><span><i class="chip mute">Menunggu</i></span><span>10 Nov</span></div>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 4.1</span>(1) Kolom pencarian, (2) tombol Ekspor CSV.</figcaption>
+      </figure>
+
+      <h3>Mengunduh data pendaftar</h3>
+      <ol class="steps">
+        <li><b>Saring dulu jika perlu</b>Hasil ekspor mengikuti pencarian yang sedang aktif.</li>
+        <li><b>Klik <span class="ui">Ekspor CSV</span></b>Tunggu sampai muncul pesan <em>Ekspor siap</em>, lalu file tersimpan di folder unduhan.</li>
+        <li><b>Buka filenya</b>dengan Excel atau Google Sheets.</li>
+      </ol>
+      <div class="note tip"><b class="t">Mengubah atau menghapus pendaftaran</b><p>Data pendaftar mengikuti isian peserta, jadi tidak diubah dari menu ini. Pendaftaran yang ganda atau batal dihapus lewat menu <a href="#tagihan">Tagihan</a>.</p></div>
+      <div class="note warn"><b class="t">Jaga kerahasiaan data</b><p>File ekspor berisi nama, email, dan nomor WhatsApp peserta. Simpan di tempat aman dan jangan dibagikan di grup umum.</p></div>
+    </section>
+
+    <!-- 05 -->
+    <section class="sec" id="tagihan" data-title="Tagihan & pembayaran">
+      <div class="eyebrow"><span class="n">05</span> Pendaftaran</div>
+      <h2>Memeriksa <em>Tagihan</em> dan pembayaran</h2>
+      <p class="intro">Menu yang paling sering dipakai. Di sini admin mencocokkan bukti transfer dari peserta dengan mutasi rekening, lalu mengonfirmasi pembayarannya.</p>
+      <div class="where">Sidebar <i>›</i> Pendaftaran <i>›</i> Tagihan</div>
+
+      <h3>Bagaimana tagihan terbentuk</h3>
+      <div class="flow" role="list">
+        <div class="node" role="listitem"><b>Formulir terkirim</b><small>tagihan dibuat otomatis</small></div>
+        <span class="arr" aria-hidden="true">→</span>
+        <div class="node" role="listitem"><b>Email instruksi</b><small>nominal + kode unik</small></div>
+        <span class="arr" aria-hidden="true">→</span>
+        <div class="node" role="listitem"><b>Peserta transfer</b><small>kirim bukti via WhatsApp</small></div>
+        <span class="arr" aria-hidden="true">→</span>
+        <div class="node hot" role="listitem"><b>Admin konfirmasi</b><small>email konfirmasi terkirim</small></div>
+      </div>
+      <p>Jika peserta memilih DP, tagihan pertama hanya sebesar DP. Begitu DP dikonfirmasi, sistem otomatis membuat <b>tagihan pelunasan</b> untuk sisa biayanya. Tagihan pelunasan diperiksa dengan cara yang sama.</p>
+
+      <h4>Arti status</h4>
+      <table class="tbl">
+        <thead><tr><th>Status</th><th>Artinya</th></tr></thead>
+        <tbody>
+          <tr><td><span class="chip wait">Menunggu</span></td><td>Belum diperiksa admin. Peserta mungkin belum transfer, atau sudah transfer tetapi belum dikonfirmasi.</td></tr>
+          <tr><td><span class="chip ok">Terverifikasi</span></td><td>Pembayaran sudah dikonfirmasi dan peserta sudah menerima email konfirmasi.</td></tr>
+          <tr><td><span class="chip no">Ditolak</span></td><td>Pembayaran tidak diterima. Peserta menerima email penolakan.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Mengonfirmasi pembayaran</h3>
+      <ol class="steps">
+        <li><b>Saring tagihan yang menunggu</b>Klik <span class="ui">Saring</span>, pilih status <em>Menunggu</em>. Atau cari nama peserta di kolom pencarian.</li>
+        <li><b>Buka detail tagihan</b>Klik ikon mata (<em>Detail</em>) di baris peserta. Panel detail menampilkan kontak, program, dan rincian tagihan.</li>
+        <li><b>Cocokkan nominal</b>Lihat <em>Total transfer</em> (subtotal ditambah kode unik). Bandingkan dengan bukti dari peserta dan mutasi di rekening Albana. Nominalnya harus sama persis.</li>
+        <li><b>Catat transfer</b>Klik <span class="ui">Catat transfer</span> (atau <span class="ui">Catat DP</span> / <span class="ui">Catat cicilan / pelunasan</span>), isi nominal yang diterima, lampirkan foto bukti transfer, lalu klik <span class="ui">Simpan catatan</span>.</li>
+        <li><b>Klik <span class="ui">Konfirmasi</span></b>Status berubah menjadi Terverifikasi dan email konfirmasi dikirim otomatis ke peserta.</li>
+      </ol>
+
+      <figure class="shot" data-shot="05-tagihan-detail.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-bar"><i></i><i></i><i></i><span class="url">albanaspeechacademy.com/admin/tagihan</span></div>
+          <div class="mk-app mk-split" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+            <div class="mk-main" style="border-right:1px solid var(--line)">
+              <div class="mk-head"><b>Tagihan</b><span class="mk-btn">Saring</span></div>
+              <div class="mk-table" style="--cols:2fr 1fr">
+                <div class="mk-tr h" style="--cols:2fr 1fr"><span>Nama</span><span>Status</span></div>
+                <div class="mk-tr mark" data-pin="2" style="--cols:2fr 1fr"><span>Dimas Prasetyo</span><span><i class="chip wait">Menunggu</i></span></div>
+                <div class="mk-tr" style="--cols:2fr 1fr"><span>Rina Kartika</span><span><i class="chip ok">Terverifikasi</i></span></div>
+              </div>
+            </div>
+            <div class="mk-main" style="background:var(--paper)">
+              <div style="font-weight:700;margin-bottom:8px">#214 · Dimas Prasetyo</div>
+              <div class="mk-card mark" data-pin="3" style="margin-bottom:10px">
+                <div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>Rp1.300.000</span></div>
+                <div style="display:flex;justify-content:space-between"><span>Kode unik</span><span>+127</span></div>
+                <div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid var(--line);margin-top:4px;padding-top:4px"><span>Total transfer</span><span>Rp1.300.127</span></div>
+              </div>
+              <div class="mk-row"><span class="mk-btn mark" data-pin="4">+ Catat transfer</span></div>
+              <div class="mk-row"><span class="mk-btn dark mark" data-pin="5" style="flex:1;justify-content:center">Konfirmasi</span></div>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 5.1</span>Daftar tagihan (kiri) dan panel detail (kanan). Nomor sesuai langkah konfirmasi.</figcaption>
+      </figure>
+
+      <figure class="shot" data-shot="05-catat-transfer.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-dim">
+            <div class="mk-sheet">
+              <div style="font:700 15px var(--f-head);margin-bottom:8px">Catat transfer masuk</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;font-size:11px">
+                <div class="mk-card"><small>Total tagihan</small>Rp1.300.127</div><div class="mk-card"><small>Sudah tercatat</small>Rp0</div><div class="mk-card"><small>Sisa</small>Rp1.300.127</div>
+              </div>
+              <div class="mk-field mark" data-pin="1"><label>Nominal ditransfer</label><div class="mk-in">1.300.127</div></div>
+              <div style="color:var(--accent);font-weight:600;font-size:11px;margin:-4px 0 8px">✓ Pas, siap diverifikasi</div>
+              <div class="mk-ph mark" data-pin="2" style="min-height:56px;margin-bottom:9px">Bukti transfer · JPEG, PNG, WebP (maks. 10 MiB)</div>
+              <div class="mk-field"><label>Catatan (opsional)</label><div class="mk-in">mis. transfer kedua via BCA mobile</div></div>
+              <div class="mk-btn dark mark" data-pin="3" style="width:100%;justify-content:center">Simpan catatan</div>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 5.2</span>Jendela Catat transfer: (1) nominal, (2) foto bukti, (3) simpan.</figcaption>
+      </figure>
+
+      <div class="note warn"><b class="t">Periksa mutasi rekening, bukan hanya foto bukti</b><p>Foto bukti transfer bisa saja keliru atau diedit. Pastikan dana benar-benar sudah masuk di mutasi rekening Albana dengan nominal yang sama persis, termasuk kode unik, sebelum menekan Konfirmasi.</p></div>
+
+      <h3>Peserta membayar kurang atau bertahap</h3>
+      <p>Jika nominal yang dicatat lebih kecil dari total, panel detail menampilkan peringatan merah seperti <em>Tercatat Rp500.000 dari Rp1.300.127. Masih kurang Rp800.127.</em> Hubungi peserta lewat tombol WhatsApp di panel detail. Saat transfer berikutnya masuk, klik Catat transfer lagi. Konfirmasi baru dilakukan setelah total tercatat pas.</p>
+      <p>Salah mencatat? Di riwayat transfer, batalkan catatan yang keliru. Foto bukti tetap tersimpan, hanya nominalnya yang tidak dihitung lagi.</p>
+
+      <h3>Email otomatis ke peserta</h3>
+      <p>Setiap tagihan menampilkan label email: <em>Email instruksi</em>, <em>Email konfirmasi</em>, atau <em>Email penolakan</em>, beserta statusnya (terkirim, mengirim, atau gagal). Jika ada yang <b>gagal</b>, klik <span class="ui">Kirim ulang</span> di samping label tersebut.</p>
+
+      <h3>Menghapus tagihan atau pendaftaran</h3>
+      <ol class="steps">
+        <li><b>Klik ikon tempat sampah</b>di baris peserta.</li>
+        <li><b>Baca jendela konfirmasi</b>Judulnya menyebutkan nomor tagihan atau nama peserta yang akan dihapus.</li>
+        <li><b>Klik <span class="ui">Hapus</span></b>untuk melanjutkan, atau <span class="ui">Batal</span> jika ragu.</li>
+      </ol>
+      <div class="note danger"><b class="t">Gunakan hanya untuk data ganda atau uji coba</b><p>Penghapusan tidak dapat dibatalkan. Untuk peserta yang batal ikut setelah membayar, sepakati dulu penanganannya dengan tim sebelum menghapus.</p></div>
+    </section>
+
+    <!-- 06 -->
+    <section class="sec" id="kalender" data-title="Kalender">
+      <div class="eyebrow"><span class="n">06</span> Pendaftaran</div>
+      <h2>Melihat jadwal di <em>Kalender</em></h2>
+      <p class="intro">Kalender menampilkan semua sesi kelas dari seluruh batch dalam tampilan bulanan. Isinya diambil langsung dari jadwal batch di menu Program.</p>
+      <div class="where">Sidebar <i>›</i> Pendaftaran <i>›</i> Kalender</div>
+      <ol class="steps">
+        <li><b>Pindah bulan</b>dengan tombol panah kiri (bulan sebelumnya) dan kanan (bulan berikutnya).</li>
+        <li><b>Pilih program</b>di filter program untuk menampilkan satu program saja, atau pilih <span class="ui">Semua</span>.</li>
+        <li><b>Baca agenda</b>Setiap sesi menampilkan tanggal, jam (WIB), program, dan nama batch. Jika kosong, muncul tulisan <em>Tidak ada sesi pada bulan ini</em>.</li>
+      </ol>
+      <figure class="shot" data-shot="06-kalender.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-bar"><i></i><i></i><i></i><span class="url">albanaspeechacademy.com/admin/kalender</span></div>
+          <div class="mk-main">
+            <div class="mk-head"><span class="mk-row mark" data-pin="1" style="margin:0"><span class="mk-btn">‹</span><b>November 2026</b><span class="mk-btn">›</span></span><span class="mk-row mark" data-pin="2" style="margin:0"><span class="mk-btn dark">Semua</span><span class="mk-btn">PS Series</span><span class="mk-btn">Sertifikasi</span></span></div>
+            <div class="mk-table" style="--cols:1fr 2fr 2fr">
+              <div class="mk-tr" style="--cols:1fr 2fr 2fr"><span><b>Sab 21</b></span><span>09.00–12.00 WIB</span><span>PS Series · Batch 12</span></div>
+              <div class="mk-tr" style="--cols:1fr 2fr 2fr"><span><b>Min 22</b></span><span>13.00–16.00 WIB</span><span>Sertifikasi · Batch 4</span></div>
+              <div class="mk-tr" style="--cols:1fr 2fr 2fr"><span><b>Sab 28</b></span><span>09.00–12.00 WIB</span><span>PS Series · Batch 12</span></div>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 6.1</span>(1) Navigasi bulan, (2) filter program.</figcaption>
+      </figure>
+      <div class="note tip"><b class="t">Jadwal salah?</b><p>Kalender tidak bisa diedit langsung. Ubah jadwal sesi di batch yang bersangkutan pada menu <a href="#program">Public Training</a>, lalu kalender ikut berubah.</p></div>
+    </section>
+
+    <!-- 07 -->
+    <section class="sec" id="program" data-title="Public Training & batch">
+      <div class="eyebrow"><span class="n">07</span> Public Training</div>
+      <h2>Mengelola <em>program dan batch</em></h2>
+      <p class="intro">Setiap program Public Training punya halaman sendiri: Public Speaking Series, Public Speaking for Speakers, dan Sertifikasi. Di halaman ini Anda mengatur detail program, batch, paket gabungan, serta foto dan video dokumentasi.</p>
+      <div class="where">Sidebar <i>›</i> Public Training <i>›</i> pilih program</div>
+
+      <figure class="shot" data-shot="07-program.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-bar"><i></i><i></i><i></i><span class="url">albanaspeechacademy.com/admin/program/public-speaking-series</span></div>
+          <div class="mk-main">
+            <div class="mk-head"><b>Public Speaking Series</b><span class="mk-row" style="margin:0"><span class="mk-btn mark" data-pin="1">▣ Galeri</span><span class="mk-btn mark" data-pin="2">✎ Edit Program</span></span></div>
+            <div class="mk-row"><span class="mk-in">Cari nama batch…</span><span class="mk-btn dark mark" data-pin="3">+ Tambah Batch</span></div>
+            <div class="mk-table" style="--cols:2fr 1fr 1.4fr 1fr 1fr">
+              <div class="mk-tr h" style="--cols:2fr 1fr 1.4fr 1fr 1fr"><span>Nama batch</span><span>Status</span><span>Jadwal mulai</span><span>Sesi</span><span>Aksi</span></div>
+              <div class="mk-tr" style="--cols:2fr 1fr 1.4fr 1fr 1fr"><span>Batch 12</span><span><i class="chip ok">Dibuka</i></span><span>21 Nov 2026</span><span>4</span><span class="mark" data-pin="4">👁 ✎ 🗑</span></div>
+              <div class="mk-tr" style="--cols:2fr 1fr 1.4fr 1fr 1fr"><span>Batch 11</span><span><i class="chip mute">Selesai</i></span><span>3 Okt 2026</span><span>4</span><span>👁 ✎ 🗑</span></div>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 7.1</span>(1) Galeri &amp; dokumentasi, (2) Edit Program, (3) Tambah Batch, (4) aksi per batch.</figcaption>
+      </figure>
+
+      <h3>Mengubah detail program</h3>
+      <ol class="steps">
+        <li><b>Klik ikon <span class="ui">Edit Program</span></b>di kanan atas halaman program.</li>
+        <li><b>Isi informasi utama</b><em>Nama Program</em> dan <em>Deskripsi Program</em> wajib diisi.</li>
+        <li><b>Atur biaya</b>Isi <em>Biaya</em> (wajib). <em>Harga Coret</em> boleh dikosongkan; jika diisi, harus lebih besar dari biaya. <em>DP (%)</em> dikosongkan bila program tidak menerima DP. <em>Rincian Biaya</em> untuk keterangan seperti “Termasuk modul, konsumsi, dan sertifikat”.</li>
+        <li><b>Atur materi dan benefit</b>Klik <span class="ui">Tambah materi</span> untuk menambah baris. Ikon hapus di samping baris untuk membuangnya.</li>
+        <li><b>Klik <span class="ui">Simpan program</span></b>Perubahan langsung tampil di halaman program di website.</li>
+      </ol>
+      <div class="note tip"><p>Detail yang sama juga bisa diubah dari <a href="#pengaturan">Pengaturan › Public Training</a>. Pilih cara mana saja, hasilnya sama.</p></div>
+
+      <h3>Menambah batch baru</h3>
+      <ol class="steps">
+        <li><b>Klik <span class="ui">Tambah Batch</span></b></li>
+        <li><b>Isi nama batch</b>misalnya “Batch 13”.</li>
+        <li><b>Pilih status pendaftaran</b><span class="chip ok">Dibuka</span> berarti peserta bisa mendaftar, <span class="chip mute">Ditutup</span> berarti pendaftaran berhenti, <span class="chip mute">Selesai</span> untuk batch yang kelasnya sudah berakhir.</li>
+        <li><b>Isi jadwal sesi (WIB)</b>Setiap sesi butuh tanggal, jam mulai, dan jam selesai. Tambah baris untuk sesi berikutnya. Minimal satu sesi.</li>
+        <li><b>Klik <span class="ui">Simpan batch</span></b>Muncul pesan <em>Batch ditambahkan</em>, dan jadwalnya otomatis masuk ke Kalender.</li>
+      </ol>
+
+      <figure class="shot" data-shot="07-batch-form.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-dim">
+            <div class="mk-sheet">
+              <div style="font:700 15px var(--f-head);margin-bottom:10px">Tambah batch</div>
+              <div class="mk-field mark" data-pin="2"><label>Nama batch</label><div class="mk-in">Batch 13</div></div>
+              <div class="mk-field mark" data-pin="3"><label>Status pendaftaran</label><div class="mk-row" style="margin:0"><span class="mk-btn dark">Dibuka</span><span class="mk-btn">Ditutup</span><span class="mk-btn">Selesai</span></div></div>
+              <div class="mk-field mark" data-pin="4"><label>Jadwal sesi (WIB)</label>
+                <div class="mk-row" style="margin-bottom:4px"><span class="mk-in">5 Des 2026</span><span class="mk-in" style="min-width:60px">09.00</span><span class="mk-in" style="min-width:60px">12.00</span></div>
+                <div class="mk-row" style="margin:0"><span class="mk-in">12 Des 2026</span><span class="mk-in" style="min-width:60px">09.00</span><span class="mk-in" style="min-width:60px">12.00</span></div>
+              </div>
+              <div class="mk-btn dark mark" data-pin="5" style="width:100%;justify-content:center">Simpan batch</div>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 7.2</span>Formulir batch. Nomor sesuai langkah menambah batch.</figcaption>
+      </figure>
+
+      <div class="note warn"><b class="t">Hanya satu batch yang bisa dibuka per program</b><p>Saat Anda membuka pendaftaran sebuah batch, sistem meminta konfirmasi <em>Buka pendaftaran</em> karena batch lain di program yang sama otomatis ditutup. Ini mencegah peserta salah memilih angkatan.</p></div>
+      <div class="note warn"><b class="t">Aturan jadwal sesi</b><p>Sesi harus urut dari tanggal paling awal, tidak boleh tumpang tindih, dan jam selesai harus setelah jam mulai. Jika ada yang tidak sesuai, formulir menampilkan pesan dan tidak bisa disimpan sampai diperbaiki.</p></div>
+
+      <h3>Mengubah, melihat, atau menghapus batch</h3>
+      <ul class="plain">
+        <li><b>Detail</b> (ikon mata): melihat status, jumlah sesi, dan seluruh jadwal sesi.</li>
+        <li><b>Ubah</b> (ikon pensil): membuka formulir yang sama seperti Tambah batch. Ganti isian, lalu Simpan batch. Gunakan ini juga untuk menutup batch atau menandainya Selesai.</li>
+        <li><b>Hapus</b> (ikon tempat sampah): menghapus batch setelah konfirmasi.</li>
+      </ul>
+      <div class="note danger"><p>Sebaiknya jangan menghapus batch yang sudah memiliki pendaftar. Ubah statusnya menjadi <b>Ditutup</b> atau <b>Selesai</b> supaya riwayat pendaftar dan pembayaran tetap utuh.</p></div>
+
+      <h3>Paket Speaker + Sertifikasi</h3>
+      <p>Pada halaman Public Speaking for Speakers dan Sertifikasi ada pengaturan paket gabungan. Paket ini muncul di akhir formulir pendaftaran kedua program tersebut.</p>
+      <ol class="steps">
+        <li><b>Klik <span class="ui">Atur Paket</span></b>Tombol bertuliskan <em>Paket: Aktif</em> jika paket sedang ditawarkan.</li>
+        <li><b>Nyalakan <span class="ui">Tawarkan paket</span></b></li>
+        <li><b>Isi harga paket</b>Satu harga untuk kedua program.</li>
+        <li><b>Isi DP paket (%)</b>Kosongkan jika ingin memakai DP dari program asal.</li>
+        <li><b>Tulis penjelasan</b>Cukup satu kalimat, maksimal 300 karakter.</li>
+        <li><b>Klik <span class="ui">Simpan paket</span></b></li>
+      </ol>
+      <div class="note tip"><p>Paket baru tampil di website jika <b>Speaker dan Sertifikasi sama-sama punya batch yang dibuka</b>. Jika salah satunya belum dibuka, halaman admin menampilkan pengingat.</p></div>
+
+      <h3>Foto dan video dokumentasi program</h3>
+      <ol class="steps">
+        <li><b>Klik ikon <span class="ui">Galeri</span></b>di kanan atas halaman program.</li>
+        <li><b>Tambah foto</b>Tarik beberapa foto ke kotak unggah, atau klik <span class="ui">+ Pilih foto</span>. Format JPEG, PNG, atau WebP. Maksimal 20 foto per program.</li>
+        <li><b>Isi keterangan (opsional)</b>Jika kosong, nama file dipakai sebagai keterangan.</li>
+        <li><b>Tambah video</b>Klik <span class="ui">Tambah video</span>, tempel tautan YouTube (misalnya <code>https://youtu.be/…</code>). Judul video diambil otomatis dari YouTube.</li>
+        <li><b>Klik <span class="ui">Simpan perubahan</span></b></li>
+      </ol>
+      <p>Untuk mengganti satu foto, arahkan kursor ke foto lalu klik <em>Ganti foto</em>. Untuk menghapus banyak foto sekaligus, gunakan <em>Pilih semua foto</em> lalu <em>Hapus semua</em>. Video bisa diedit atau dihapus dari ikon di kartunya.</p>
+      <div class="note tip"><p>Video YouTube boleh berstatus <b>Unlisted</b> (tidak publik) agar tidak muncul di pencarian YouTube tetapi tetap bisa diputar di website.</p></div>
+    </section>
+
+    <!-- 08 -->
+    <section class="sec" id="inhouse" data-title="Galeri In House Training">
+      <div class="eyebrow"><span class="n">08</span> In House Training</div>
+      <h2>Galeri <em>In House Training</em></h2>
+      <p class="intro">Foto kegiatan pelatihan yang dilakukan di instansi atau perusahaan. Foto yang diunggah langsung tampil di halaman In House Training di website.</p>
+      <div class="where">Sidebar <i>›</i> In House Training <i>›</i> Galeri In House Training</div>
+
+      <h3>Menambah foto</h3>
+      <ol class="steps">
+        <li><b>Klik <span class="ui">Tambah gambar</span></b></li>
+        <li><b>Pilih foto</b>Tarik dan lepas beberapa foto sekaligus ke kotak unggah, atau klik untuk memilih. Format JPEG, PNG, atau WebP, maksimal 10 MiB per foto. Semua ukuran dan orientasi diterima.</li>
+        <li><b>Periksa antrean</b>Foto yang dipilih tampil sebagai daftar. Klik ikon silang untuk membatalkan foto tertentu.</li>
+        <li><b>Isi keterangan (opsional)</b>misalnya nama instansi dan tahun kegiatan.</li>
+        <li><b>Klik <span class="ui">Simpan Galeri In House Training</span></b>Tunggu sampai muncul pesan <em>Foto diunggah</em>.</li>
+      </ol>
+      <figure class="shot" data-shot="08-galeri-upload.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-dim">
+            <div class="mk-sheet">
+              <div style="font:700 15px var(--f-head);margin-bottom:10px">Tambah Galeri In House Training</div>
+              <div class="mk-ph mark" data-pin="2" style="min-height:80px;margin-bottom:8px">Tarik &amp; lepas beberapa foto ke sini,<br>atau klik untuk memilih</div>
+              <div class="mk-row mark" data-pin="3"><span class="mk-btn">foto-bi-2026.jpg ✕</span><span class="mk-btn">foto-2.jpg ✕</span></div>
+              <div class="mk-field mark" data-pin="4"><label>Keterangan gambar (opsional)</label><div class="mk-in">Pelatihan komunikasi, Bank Indonesia 2026</div></div>
+              <div class="mk-btn dark mark" data-pin="5" style="width:100%;justify-content:center">Simpan Galeri In House Training</div>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 8.1</span>Formulir unggah foto galeri.</figcaption>
+      </figure>
+
+      <h3>Mengubah dan menghapus foto</h3>
+      <ul class="plain">
+        <li><b>Ubah</b>: ganti keterangan atau ganti fotonya, lalu simpan.</li>
+        <li><b>Detail</b>: melihat foto ukuran besar beserta keterangannya.</li>
+        <li><b>Hapus</b>: foto hilang dari website setelah dikonfirmasi.</li>
+      </ul>
+      <div class="note warn"><b class="t">Izin publikasi</b><p>Unggah hanya foto yang sudah mendapat izin dari instansi atau peserta yang ada di foto.</p></div>
+    </section>
+
+    <!-- 09 -->
+    <section class="sec" id="partner" data-title="Our Partner">
+      <div class="eyebrow"><span class="n">09</span> In House Training</div>
+      <h2>Daftar <em>Our Partner</em></h2>
+      <p class="intro">Daftar instansi yang pernah dilatih Albana. Partner yang disimpan langsung tampil di website.</p>
+      <div class="where">Sidebar <i>›</i> In House Training <i>›</i> Our Partner</div>
+
+      <h3>Menambah partner</h3>
+      <ol class="steps">
+        <li><b>Klik <span class="ui">Tambah partner</span></b></li>
+        <li><b>Isi nama partner</b>misalnya “Bank Indonesia”.</li>
+        <li><b>Unggah logo</b>Klik <span class="ui">Pilih Logo</span>. Gunakan gambar dengan ukuran maksimal 5 MB, sebaiknya PNG berlatar transparan.</li>
+        <li><b>Klik <span class="ui">Simpan partner</span></b></li>
+      </ol>
+      <figure class="shot" data-shot="09-partner.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-dim">
+            <div class="mk-sheet">
+              <div style="font:700 15px var(--f-head)">Tambah partner</div>
+              <div style="color:var(--ink-3);font-size:11px;margin-bottom:10px">Partner yang disimpan otomatis langsung diterbitkan di halaman publik.</div>
+              <div class="mk-field mark" data-pin="2"><label>Nama partner (opsional)</label><div class="mk-in">Bank Indonesia</div></div>
+              <div class="mk-field mark" data-pin="3"><label>Logo partner (opsional)</label><div class="mk-ph" style="min-height:56px">Pilih Logo</div></div>
+              <div class="mk-btn dark mark" data-pin="4" style="width:100%;justify-content:center">Simpan partner</div>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 9.1</span>Formulir partner. Isi minimal salah satu: nama atau logo.</figcaption>
+      </figure>
+      <div class="note tip"><p>Nama dan logo sama-sama opsional, tetapi <b>salah satunya wajib diisi</b>. Jika tidak ada logo, website menampilkan nama partner sebagai teks.</p></div>
+      <h3>Mengubah dan menghapus partner</h3>
+      <p>Gunakan ikon <em>Ubah</em> untuk mengganti nama atau logo, dan ikon <em>Hapus</em> untuk mengeluarkan partner dari website. Logo lama bisa dibuang dengan tombol <em>Hapus logo</em> di formulir ubah.</p>
+    </section>
+
+    <!-- 10 -->
+    <section class="sec" id="artikel" data-title="Artikel">
+      <div class="eyebrow"><span class="n">10</span> Konten</div>
+      <h2>Menulis dan menerbitkan <em>Artikel</em></h2>
+      <p class="intro">Artikel tampil di halaman artikel website. Selama belum diterbitkan, artikel berstatus Draf dan hanya terlihat oleh admin.</p>
+      <div class="where">Sidebar <i>›</i> Konten <i>›</i> Artikel</div>
+
+      <h3>Menulis artikel baru</h3>
+      <ol class="steps">
+        <li><b>Klik <span class="ui">Tulis artikel</span></b></li>
+        <li><b>Tulis judul di baris pertama</b>Baris paling atas otomatis menjadi judul artikel.</li>
+        <li><b>Tulis isi artikel</b>di baris-baris berikutnya. Ketik <kbd>/</kbd> di awal baris kosong untuk memilih format: judul bagian (Heading 1–3), paragraf, daftar berpoin, daftar bernomor, atau kutipan.</li>
+        <li><b>Perhatikan status simpan</b>di kanan atas: <em>Belum tersimpan</em>, <em>Menyimpan…</em>, lalu <em>Tersimpan</em>. Tulisan disimpan otomatis setiap kali Anda berhenti mengetik sebentar.</li>
+        <li><b>Klik <span class="ui">Terbitkan</span></b>di kanan bawah layar saat artikel siap dibaca publik.</li>
+      </ol>
+
+      <figure class="shot" data-shot="10-artikel-editor.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-bar"><i></i><i></i><i></i><span class="url">albanaspeechacademy.com/admin/artikel/baru</span></div>
+          <div class="mk-main" style="position:relative;padding-bottom:50px">
+            <div class="mk-head"><b>Tulis artikel</b><span class="mark" data-pin="4" style="font-weight:600;padding:2px 6px">Tersimpan</span></div>
+            <div style="max-width:420px;margin:0 auto">
+              <div class="mark" data-pin="2" style="font:700 20px var(--f-head);padding:2px 4px">5 Cara Mengatasi Gugup Sebelum Tampil</div>
+              <p style="color:var(--ink-2);margin:10px 4px">Hampir semua pembicara pernah merasa gugup. Bedanya, pembicara berpengalaman tahu cara mengelolanya…</p>
+              <div class="mark" data-pin="3" style="display:inline-block;padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:var(--paper);margin:0 4px">/ Heading 2 · Daftar berpoin · Kutipan</div>
+            </div>
+            <span class="mk-btn dark mark" data-pin="5" style="position:absolute;right:14px;bottom:12px">TERBITKAN</span>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 10.1</span>Editor artikel: (2) judul, (3) menu format dengan tombol /, (4) status simpan, (5) Terbitkan.</figcaption>
+      </figure>
+
+      <h3>Mengubah artikel yang sudah terbit</h3>
+      <ol class="steps">
+        <li><b>Buka daftar artikel</b>Gunakan pencarian judul atau saring berdasarkan status <em>Draf</em> atau <em>Terbit</em>.</li>
+        <li><b>Klik ikon <em>Ubah</em></b>di baris artikel.</li>
+        <li><b>Edit isinya</b>seperti biasa.</li>
+        <li><b>Klik <span class="ui">Perbarui terbitan</span></b>supaya perubahan tampil di website. Tautan <em>Lihat publik</em> di atas membuka artikel di website.</li>
+      </ol>
+      <div class="note warn"><b class="t">Artikel dibuka di dua tab?</b><p>Jika muncul pesan bahwa artikel diubah di tab lain, klik <em>Muat ulang</em> supaya Anda bekerja dengan versi terbaru dan tidak menimpa tulisan sendiri. Jika muncul <em>Gagal menyimpan</em>, periksa koneksi internet lalu klik <em>Coba lagi</em>.</p></div>
+      <h3>Menghapus artikel</h3>
+      <p>Klik ikon <em>Hapus</em> di baris artikel, lalu konfirmasi. Artikel langsung hilang dari website dan tidak dapat dipulihkan.</p>
+    </section>
+
+    <!-- 11 -->
+    <section class="sec" id="galeri" data-title="Galeri">
+      <div class="eyebrow"><span class="n">11</span> Konten</div>
+      <h2>Mengelola <em>Galeri</em></h2>
+      <p class="intro">Foto dokumentasi kegiatan Albana secara umum yang tampil di halaman galeri website.</p>
+      <div class="where">Sidebar <i>›</i> Konten <i>›</i> Galeri</div>
+      <p>Cara menambah, mengubah, dan menghapus foto sama persis dengan <a href="#inhouse">Galeri In House Training</a>:</p>
+      <ol class="steps">
+        <li><b>Klik <span class="ui">Tambah gambar</span></b></li>
+        <li><b>Pilih satu atau banyak foto</b>(JPEG, PNG, WebP, maksimal 10 MiB per foto).</li>
+        <li><b>Isi keterangan jika perlu</b>lalu klik <span class="ui">Simpan Galeri</span>.</li>
+      </ol>
+      <p>Gunakan kolom <em>Cari gambar…</em> untuk menemukan foto berdasarkan keterangannya. Foto yang disimpan langsung tampil di website.</p>
+      <div class="note tip"><p>Pilih foto yang terang dan tajam. Foto yang terlalu gelap atau buram akan terlihat kurang bagus saat diperbesar di website.</p></div>
+    </section>
+
+    <!-- 12 -->
+    <section class="sec" id="testimoni" data-title="Testimoni">
+      <div class="eyebrow"><span class="n">12</span> Konten</div>
+      <h2>Menambah <em>Testimoni</em> peserta</h2>
+      <p class="intro">Kutipan dari peserta yang tampil di beranda website. Hanya testimoni berstatus Terbit yang ditampilkan.</p>
+      <div class="where">Sidebar <i>›</i> Konten <i>›</i> Testimoni</div>
+      <ol class="steps">
+        <li><b>Klik <span class="ui">Tambah testimoni</span></b></li>
+        <li><b>Pilih nama pemberi testimoni</b>dari data pendaftar. Program dan batch peserta otomatis terisi.</li>
+        <li><b>Unggah foto (opsional)</b>Jika dikosongkan, website menampilkan inisial dua huruf dari nama peserta. Ukuran maksimal 5 MB.</li>
+        <li><b>Tulis kutipan</b>Salin kata-kata peserta apa adanya. Perbaiki ejaan seperlunya tanpa mengubah maknanya.</li>
+        <li><b>Pilih status</b><span class="chip ok">Terbit</span> agar tampil di beranda, atau <span class="chip mute">Draf</span> untuk disimpan dulu.</li>
+        <li><b>Klik <span class="ui">Simpan Testimoni</span></b></li>
+      </ol>
+      <figure class="shot" data-shot="12-testimoni.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-dim">
+            <div class="mk-sheet">
+              <div style="font:700 15px var(--f-head);margin-bottom:10px">Tambah testimoni</div>
+              <div class="mk-field mark" data-pin="2"><label>Nama pemberi testimoni</label><div class="mk-in">Pilih pendaftar… ▾</div></div>
+              <div class="mk-field mark" data-pin="3"><label>Foto pemberi testimoni</label><div class="mk-ph" style="min-height:48px">Pilih Foto</div></div>
+              <div class="mk-field mark" data-pin="4"><label>Kutipan</label><div class="mk-in tall">“Materinya langsung praktik, saya jadi lebih percaya diri…”</div></div>
+              <div class="mk-field mark" data-pin="5"><label>Status</label><div class="mk-row" style="margin:0"><span class="mk-btn dark">Terbit</span><span class="mk-btn">Draf</span></div></div>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 12.1</span>Formulir testimoni.</figcaption>
+      </figure>
+      <div class="note warn"><b class="t">Minta izin terlebih dahulu</b><p>Terbitkan hanya testimoni dari peserta yang sudah setuju kutipan dan fotonya ditampilkan di website.</p></div>
+      <p>Untuk menurunkan testimoni dari beranda tanpa menghapusnya, klik <em>Ubah</em> lalu ganti statusnya menjadi Draf.</p>
+    </section>
+
+    <!-- 13 -->
+    <section class="sec" id="trainer" data-title="Trainer">
+      <div class="eyebrow"><span class="n">13</span> Konten</div>
+      <h2>Profil <em>Trainer</em></h2>
+      <p class="intro">Profil pengajar yang tampil di halaman program dan beranda.</p>
+      <div class="where">Sidebar <i>›</i> Konten <i>›</i> Trainer</div>
+      <ol class="steps">
+        <li><b>Klik <span class="ui">Tambah trainer</span></b></li>
+        <li><b>Isi nama trainer</b>lengkap dengan gelar jika ingin ditampilkan.</li>
+        <li><b>Isi keahlian</b>Pisahkan dengan koma, misalnya <code>Public Speaking, MC, Voice Over</code>. Setiap keahlian tampil sebagai label tersendiri.</li>
+        <li><b>Unggah foto trainer</b>Gunakan foto setengah badan dengan latar polos, maksimal 5 MB.</li>
+        <li><b>Tulis bio singkat</b>Dua sampai tiga kalimat sudah cukup.</li>
+        <li><b>Klik <span class="ui">Simpan Trainer</span></b></li>
+      </ol>
+      <figure class="shot" data-shot="13-trainer.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-bar"><i></i><i></i><i></i><span class="url">albanaspeechacademy.com/admin/trainer</span></div>
+          <div class="mk-main">
+            <div class="mk-head"><b>Trainer</b><span class="mk-btn dark mark" data-pin="1">+ Tambah trainer</span></div>
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+              <div class="mk-card"><div class="mk-ph" style="min-height:60px">foto</div><b style="font-size:13px">Nama Trainer</b><small>Public Speaking · MC</small></div>
+              <div class="mk-card"><div class="mk-ph" style="min-height:60px">foto</div><b style="font-size:13px">Nama Trainer</b><small>Voice Over</small></div>
+              <div class="mk-card"><div class="mk-ph" style="min-height:60px">foto</div><b style="font-size:13px">Nama Trainer</b><small>Public Speaking</small></div>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 13.1</span>Daftar trainer. Klik kartu untuk melihat detail, mengubah, atau menghapus.</figcaption>
+      </figure>
+    </section>
+
+    <!-- 14 -->
+    <section class="sec" id="pengaturan" data-title="Menu Pengaturan">
+      <div class="eyebrow"><span class="n">14</span> Pengaturan</div>
+      <h2>Menu <em>Pengaturan</em></h2>
+      <p class="intro">Tempat mengatur data akademi yang jarang berubah: profil, kontak, rekening pembayaran, detail program, dan dokumen legalitas. Halaman ini tampil penuh tanpa sidebar.</p>
+      <div class="where">Menu akun (kanan atas) <i>›</i> Pengaturan</div>
+
+      <h3>Cara kerja halaman Pengaturan</h3>
+      <ol class="steps">
+        <li><b>Buka Pengaturan</b>Klik nama akun di kanan atas, pilih <span class="ui">Pengaturan</span>.</li>
+        <li><b>Pilih tab</b>di sisi kiri (di ponsel, di bagian atas). Ada enam tab: Profil akademi, Kontak, Rekening, Public Training, In House Training, dan Legalitas.</li>
+        <li><b>Ubah isian</b>Tab yang memiliki perubahan belum tersimpan ditandai titik berwarna, dan muncul tulisan <em>Perubahan belum disimpan</em>.</li>
+        <li><b>Klik <span class="ui">Simpan perubahan</span></b>di bagian atas. Semua tab yang diubah tersimpan sekaligus. Klik <span class="ui">Buang</span> untuk membatalkan perubahan.</li>
+        <li><b>Kembali ke dashboard</b>dengan tombol rumah/panah di kiri atas.</li>
+      </ol>
+
+      <figure class="shot" data-shot="14-pengaturan.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-bar"><i></i><i></i><i></i><span class="url">albanaspeechacademy.com/admin/settings</span></div>
+          <div class="mk-main">
+            <div class="mk-head"><span class="mk-row" style="margin:0"><span class="mk-btn mark" data-pin="5">⌂</span><b>Pengaturan</b></span><span class="mk-row" style="margin:0"><span style="color:var(--warn);font-weight:600;font-size:11px">Perubahan belum disimpan</span><span class="mk-btn dark mark" data-pin="4">Simpan perubahan</span></span></div>
+            <div class="mk-app" style="grid-template-columns:150px minmax(0,1fr);min-height:0">
+              <div class="mk-side keep mark" data-pin="2" style="border-radius:10px;border:1px solid var(--line)">
+                <div class="it on">Profil akademi •</div><div class="it">Kontak</div><div class="it">Rekening</div><div class="it">Public Training</div><div class="it">In House Training</div><div class="it">Legalitas</div>
+              </div>
+              <div class="mk-main mark" data-pin="3" style="padding-top:4px">
+                <div class="mk-field"><label>Nama Akademi</label><div class="mk-in">Albana Speech Academy</div></div>
+                <div class="mk-field"><label>Metode Belajar</label><div class="mk-in tall">70% praktik dan simulasi, 20% coaching…</div></div>
+                <div class="mk-field"><label>Ketentuan Penjadwalan Ulang</label><div class="mk-in tall">Peserta yang berhalangan dapat…</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 14.1</span>Halaman Pengaturan: (2) daftar tab, (3) isian tab aktif, (4) simpan semua perubahan, (5) kembali ke dashboard.</figcaption>
+      </figure>
+
+      <div class="note warn"><b class="t">Jangan pindah halaman sebelum menyimpan</b><p>Selama tulisan <em>Perubahan belum disimpan</em> masih tampil, perubahan Anda belum masuk ke website. Berpindah antar-tab aman, tetapi menutup halaman akan menghilangkan perubahan.</p></div>
+
+      <h3>Tab Profil akademi</h3>
+      <table class="tbl">
+        <thead><tr><th>Isian</th><th>Fungsi</th></tr></thead>
+        <tbody>
+          <tr><td>Nama Akademi</td><td>Nama resmi yang dipakai di website, misalnya “Albana Speech Academy”.</td></tr>
+          <tr><td>Metode Belajar</td><td>Penjelasan cara belajar di bagian “Cara belajar” website. Contoh: 70% praktik dan simulasi, 20% coaching dan feedback, 10% konsep dan kerangka.</td></tr>
+          <tr><td>Ketentuan Penjadwalan Ulang</td><td>Aturan bagi peserta yang berhalangan hadir dan ingin pindah jadwal. Menjadi acuan kebijakan pembatalan dan pemindahan sesi.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Tab Kontak</h3>
+      <table class="tbl">
+        <thead><tr><th>Isian</th><th>Fungsi</th></tr></thead>
+        <tbody>
+          <tr><td>WhatsApp</td><td>Nomor admin yang dihubungi calon peserta. Cukup ketik angkanya, format seperti 0812-3456-7890 dibuat otomatis.</td></tr>
+          <tr><td>Email</td><td>Alamat email resmi Albana.</td></tr>
+          <tr><td>Instagram</td><td>Nama akun, misalnya @albanaspeechacademy.</td></tr>
+          <tr><td>Alamat</td><td>Alamat lengkap kantor atau studio.</td></tr>
+        </tbody>
+      </table>
+      <p>Setelah disimpan, kontak di website (termasuk tombol WhatsApp) langsung berubah.</p>
+
+      <h3>Tab Rekening</h3>
+      <p>Daftar rekening tujuan transfer. Rekening berstatus <b>aktif</b> adalah yang tercantum di tagihan dan email instruksi pembayaran peserta. Hanya satu rekening yang bisa aktif.</p>
+      <ol class="steps">
+        <li><b>Klik <span class="ui">Tambah rekening</span></b></li>
+        <li><b>Isi data rekening</b><em>Nama bank</em> (misalnya BCA, Mandiri, BSI), <em>Nomor rekening</em>, dan <em>Atas nama</em>. Samakan persis dengan buku tabungan.</li>
+        <li><b>Klik <span class="ui">Simpan rekening</span></b>Rekening tersimpan, tetapi belum aktif.</li>
+        <li><b>Klik <span class="ui">Aktifkan</span></b>di baris rekening tersebut, lalu konfirmasi <em>Jadikan rekening aktif utama</em>. Rekening yang sebelumnya aktif otomatis dinonaktifkan.</li>
+      </ol>
+      <figure class="shot" data-shot="14-rekening.png">
+        <div class="mock" aria-hidden="true">
+          <div class="mk-main">
+            <div class="mk-head"><b>Rekening pembayaran</b><span class="mk-btn dark mark" data-pin="1">+ Tambah rekening</span></div>
+            <div class="mk-table" style="--cols:1fr 1.6fr 1.6fr 1fr 1.2fr">
+              <div class="mk-tr h" style="--cols:1fr 1.6fr 1.6fr 1fr 1.2fr"><span>Bank</span><span>Nomor rekening</span><span>Atas nama</span><span>Status</span><span>Aksi</span></div>
+              <div class="mk-tr" style="--cols:1fr 1.6fr 1.6fr 1fr 1.2fr"><span>BCA</span><span>xxxx xxx xxx</span><span>CV Albana</span><span><i class="chip ok">Aktif</i></span><span>✎ 🗑</span></div>
+              <div class="mk-tr" style="--cols:1fr 1.6fr 1.6fr 1fr 1.2fr"><span>BSI</span><span>xxxx xxx xxx</span><span>CV Albana</span><span><i class="chip mute">Nonaktif</i></span><span class="mark" data-pin="4"><span class="mk-btn" style="height:22px">Aktifkan</span></span></div>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="no">GAMBAR 14.2</span>Tab Rekening: (1) tambah rekening, (4) jadikan rekening aktif.</figcaption>
+      </figure>
+      <div class="note danger"><b class="t">Periksa dua kali sebelum mengaktifkan</b><p>Salah satu digit saja membuat transfer peserta masuk ke rekening yang salah. Cocokkan nomor dan nama pemilik dengan buku tabungan atau aplikasi bank sebelum menekan Aktifkan. Jika belum ada rekening aktif, pendaftaran tidak bisa menerbitkan tagihan.</p></div>
+      <p>Untuk mengoreksi data rekening, klik ikon <em>Ubah</em>. Untuk membuang rekening lama yang tidak dipakai lagi, klik <em>Hapus</em>. Perubahan di tab Rekening langsung tersimpan saat Anda menekan tombol di jendela rekening.</p>
+
+      <h3>Tab Public Training</h3>
+      <p>Mengubah detail program Public Training tanpa membuka halaman programnya satu per satu.</p>
+      <ol class="steps">
+        <li><b>Pilih program</b>dari pilihan di atas formulir.</li>
+        <li><b>Ubah isian</b><em>Nama Program</em>, <em>Deskripsi</em>, <em>Biaya</em>, <em>Harga Coret</em>, <em>DP (%)</em>, <em>Rincian Biaya</em>, serta daftar materi dan benefit. Aturannya sama dengan bagian <a href="#program">Mengubah detail program</a>.</li>
+        <li><b>Klik <span class="ui">Simpan detail program</span></b></li>
+      </ol>
+
+      <h3>Tab In House Training</h3>
+      <p>Berisi detail program In House Training (nama, deskripsi, biaya, dan materi) beserta <b>Dokumentasi In House Training</b>, yaitu foto dan video YouTube yang tampil di halaman In House. Cara mengunggah foto dan menambah video sama dengan <a href="#program">dokumentasi program</a>. In House Training tidak memakai batch karena jadwalnya disepakati langsung dengan instansi.</p>
+
+      <h3>Tab Legalitas</h3>
+      <p>Dokumen resmi yang ditampilkan sebagai bukti legalitas usaha di website.</p>
+      <table class="tbl">
+        <thead><tr><th>Dokumen</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td>Akta Pendirian CV</td><td>Halaman akta yang memuat nama dan nomor akta.</td></tr>
+          <tr><td>Nomor Induk Berusaha (NIB)</td><td>Dokumen NIB dari OSS.</td></tr>
+          <tr><td>Surat Keterangan Terdaftar (SKT)</td><td>SKT dari kantor pajak.</td></tr>
+          <tr><td>NPWP (Sisi Depan)</td><td>Foto kartu NPWP bagian depan.</td></tr>
+          <tr><td>NPWP (Sisi Belakang)</td><td>Foto kartu NPWP bagian belakang.</td></tr>
+        </tbody>
+      </table>
+      <ol class="steps">
+        <li><b>Tarik gambar ke kotak dokumen</b>atau klik kotaknya untuk memilih file. Format JPEG, PNG, atau WebP. File PDF perlu diubah dulu menjadi gambar.</li>
+        <li><b>Tunggu unggahan selesai</b>Pratinjau dokumen tampil di kotak.</li>
+        <li><b>Klik <span class="ui">Ganti</span></b>jika ingin memperbarui dokumen.</li>
+        <li><b>Klik <span class="ui">Simpan perubahan</span></b>di bagian atas halaman Pengaturan.</li>
+      </ol>
+      <div class="note warn"><p>Dokumen legalitas bisa dilihat publik. Jika perlu, tutup sebagian data pribadi (misalnya NIK pemilik) sebelum mengunggah.</p></div>
+    </section>
+
+    <!-- 15 -->
+    <section class="sec" id="faq" data-title="Pertanyaan umum">
+      <div class="eyebrow"><span class="n">15</span> Bantuan</div>
+      <h2>Pertanyaan <em>umum</em></h2>
+      <details class="faq"><summary>Peserta bilang sudah transfer, tetapi tagihannya masih Menunggu.</summary><div>Status tidak berubah sendiri. Admin perlu mencocokkan transfer dengan mutasi rekening, mencatatnya, lalu menekan Konfirmasi di menu Tagihan.</div></details>
+      <details class="faq"><summary>Nominal transfer peserta tidak sama dengan total tagihan.</summary><div>Catat nominal yang benar-benar masuk. Jika kurang, hubungi peserta untuk melengkapi kekurangannya dan catat transfer berikutnya. Konfirmasi setelah total tercatat pas.</div></details>
+      <details class="faq"><summary>Peserta tidak menerima email.</summary><div>Buka detail tagihan dan lihat label email. Jika statusnya gagal, klik Kirim ulang. Minta peserta juga memeriksa folder Spam atau Promosi.</div></details>
+      <details class="faq"><summary>Program tidak bisa didaftar di website.</summary><div>Pastikan program tersebut punya satu batch berstatus Dibuka dan rekening aktif sudah diatur di Pengaturan › Rekening.</div></details>
+      <details class="faq"><summary>Perubahan sudah disimpan, tetapi website belum berubah.</summary><div>Muat ulang halaman website (tarik ke bawah di ponsel, atau tekan F5 di laptop). Untuk artikel dan testimoni, pastikan statusnya Terbit.</div></details>
+      <details class="faq"><summary>Foto gagal diunggah.</summary><div>Periksa format (JPEG, PNG, atau WebP) dan ukurannya. Foto galeri maksimal 10 MiB, foto trainer, testimoni, dan logo partner maksimal 5 MB. Foto dari iPhone berformat HEIC perlu diubah ke JPEG terlebih dahulu.</div></details>
+      <details class="faq"><summary>Siapa yang bisa saya hubungi jika ada kendala teknis?</summary><div>Hubungi pengelola teknis website Albana dengan menyertakan tangkapan layar, nama menu, dan langkah yang sedang Anda lakukan saat kendala muncul.</div></details>
+
+      <div class="end"><span>Albana Speech Academy · Pedoman Admin CMS</span><span>Diperbarui November 2026</span></div>
+    </section>
+
+  </div>
+  </main>
+</div>
+
+<div class="dock" aria-label="Posisi bacaan">
+  <span class="label" id="dockLabel">Sebelum mulai</span>
+  <span class="track" aria-hidden="true"><i id="dockBar"></i></span>
+  <span class="count" id="dockCount">00 / 15</span>
+  <span class="nav">
+    <button type="button" id="prevBtn" aria-label="Bagian sebelumnya">←</button>
+    <button type="button" id="nextBtn" aria-label="Bagian berikutnya">→</button>
+  </span>
+</div>
+
+<script>
+(function(){
+  var sections=[].slice.call(document.querySelectorAll('main section[id]'));
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  var label=document.getElementById('dockLabel'), count=document.getElementById('dockCount'), bar=document.getElementById('dockBar');
+  var prev=document.getElementById('prevBtn'), next=document.getElementById('nextBtn');
+  var last=sections.length-1, current=0;
+  var pad=function(n){return (n<10?'0':'')+n};
+
+  function setActive(i){
+    current=i;
+    var s=sections[i];
+    label.textContent=s.dataset.title;
+    count.textContent=pad(i)+' / '+pad(last);
+    bar.style.width=(last?i/last*100:100)+'%';
+    prev.disabled=i===0; next.disabled=i===last;
+    links.forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+s.id)});
+  }
+  // Bagian aktif = bagian terakhir yang judulnya sudah melewati sepertiga atas layar.
+  function onScroll(){
+    var y=window.innerHeight*0.33, idx=0;
+    sections.forEach(function(s,i){ if(s.getBoundingClientRect().top<=y) idx=i; });
+    if(window.innerHeight+window.scrollY>=document.body.scrollHeight-4) idx=last;
+    if(idx!==current) setActive(idx);
+  }
+  var ticking=false;
+  window.addEventListener('scroll',function(){ if(!ticking){ticking=true;requestAnimationFrame(function(){onScroll();ticking=false;});} },{passive:true});
+  function go(i){ if(i<0||i>last) return; sections[i].scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); history.replaceState(null,'','#'+sections[i].id); }
+  prev.addEventListener('click',function(){go(current-1)});
+  next.addEventListener('click',function(){go(current+1)});
+  document.addEventListener('keydown',function(e){
+    if(e.target.closest('input,textarea,select')||e.metaKey||e.ctrlKey||e.altKey) return;
+    if(e.key==='ArrowRight'){go(current+1)} else if(e.key==='ArrowLeft'){go(current-1)} else if(e.key==='Escape'){closeToc()}
+  });
+
+  // Daftar isi di ponsel/tablet
+  var btn=document.getElementById('tocBtn'), scrim=document.getElementById('scrim');
+  function closeToc(){document.body.classList.remove('toc-open');btn.setAttribute('aria-expanded','false')}
+  btn.addEventListener('click',function(){var open=document.body.classList.toggle('toc-open');btn.setAttribute('aria-expanded',String(open)); if(open) document.getElementById('tocSearch').focus();});
+  scrim.addEventListener('click',closeToc);
+  links.forEach(function(a){a.addEventListener('click',closeToc)});
+
+  // Pencarian topik: cocokkan judul menu dan isi bagiannya.
+  var search=document.getElementById('tocSearch'), none=document.getElementById('tocNone');
+  search.addEventListener('input',function(){
+    var q=search.value.trim().toLowerCase(), shown=0;
+    links.forEach(function(a){
+      var s=document.querySelector(a.getAttribute('href'));
+      var hit=!q||a.textContent.toLowerCase().indexOf(q)>-1||(s&&s.textContent.toLowerCase().indexOf(q)>-1);
+      a.parentNode.style.display=hit?'':'none'; if(hit) shown++;
+    });
+    document.querySelectorAll('.toc h4').forEach(function(h){
+      var ol=h.nextElementSibling, any=[].some.call(ol.children,function(li){return li.style.display!=='none'});
+      h.style.display=any?'':'none';
+    });
+    none.style.display=shown?'none':'block';
+  });
+
+  setActive(0); onScroll();
+})();
+</script>
+</body>
+</html>

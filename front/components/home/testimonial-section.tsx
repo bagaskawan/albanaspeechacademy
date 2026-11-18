@@ -46,7 +46,13 @@ export async function TestimonialSection() {
           titleId="testimoni-title"
         />
 
-        <TestimonialCarousel testimonials={published.length ? published.map((item) => ({ id: String(item.id), quote: item.quote, name: item.attribution, program: "", initials: item.attribution.slice(0, 2).toUpperCase() })) : previewTestimonials} />
+        <TestimonialCarousel testimonials={published.length ? published.map((item) => {
+          const words = item.attribution.trim().split(/\s+/).filter(Boolean).slice(0, 2);
+          const initials = words.length >= 2
+            ? words.map((w) => w[0]?.toUpperCase() ?? "").join("")
+            : (words[0] ?? "").slice(0, 2).toUpperCase();
+          return { id: String(item.id), quote: item.quote, name: item.attribution, program: "", initials };
+        }) : previewTestimonials} />
 
       </Container>
     </section>

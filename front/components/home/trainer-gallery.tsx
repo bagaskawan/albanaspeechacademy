@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, m } from "motion/react";
 import { MotionProvider } from "@/components/motion/MotionProvider";
+import { SkeletonImage } from "./skeleton-image";
 
 export type Trainer = {
   slug: string;
@@ -21,6 +21,8 @@ const highlights: Record<string, string[]> = {
   "abo-priatna": ["MC acara nasional dan korporat", "Announcer dan podcaster", "Certified Bilingual MC"],
 };
 
+const FALLBACK_ALAN = "/images/alan-albana-profile-blue-background.png";
+
 function TrainerPortrait({
   trainer,
   sizes,
@@ -30,14 +32,24 @@ function TrainerPortrait({
   sizes: string;
   fit?: "cover" | "contain";
 }) {
-  if (trainer.image) {
+  const [src, setSrc] = useState(trainer.image ?? "");
+  const [failed, setFailed] = useState(false);
+
+  if (src && !failed) {
     return (
-      <Image
-        src={trainer.image}
+      <SkeletonImage
+        src={src}
         alt=""
         fill
         sizes={sizes}
         unoptimized
+        onError={() => {
+          if (trainer.slug === "alan-albana" && src !== FALLBACK_ALAN) {
+            setSrc(FALLBACK_ALAN);
+          } else {
+            setFailed(true);
+          }
+        }}
         className={fit === "contain" ? "object-contain" : "hover-zoom object-cover object-[center_30%]"}
       />
     );

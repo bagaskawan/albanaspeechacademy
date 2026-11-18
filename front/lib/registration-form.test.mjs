@@ -12,9 +12,9 @@ const batch = { batchSlug: "s1", programName: "P", batchName: "B", formatLabel: 
   timeLabel: "09.00–17.00 WIB", sessions: [], venue: { name: "V", address: "A" },
   formKind: "series", formCopy: null, priceIdr: 1500000, normalPriceIdr: null, feeDetails: null, dpPercent: 20 };
 
-const filled = () => ({ ...emptyRegistrationValues(), fullName: "Budi", nickname: "Bud", domicile: "Bandung",
+const filled = () => ({ ...emptyRegistrationValues(), fullName: "Budi", nickname: "Bud", domicile: "kota  bandung",
   whatsapp: "'0812-3456-7890", email: "budi@example.invalid", gender: "Laki-laki", age: "25",
-  profession: "Karyawan", priorExperience: "yes", goal: "Tujuan", challenge: "Tantangan", source: "instagram",
+  professionCategory: "lainnya", profession: "Karyawan", priorExperience: "yes", goal: "Tujuan", challenge: "Tantangan", source: "instagram",
   attendance: "yes", paymentMethod: "full", consent: true });
 
 test("naskah bnsp menyembunyikan tantangan, series menampilkannya", () => {
@@ -43,7 +43,7 @@ test("naskah dari admin menimpa naskah varian", () => {
 
 test("nilai kurang menandai field wajib", () => {
   const errors = validateRegistration(emptyRegistrationValues(), batch);
-  for (const key of ["fullName", "email", "whatsapp", "gender", "age", "profession", "goal", "challenge", "source", "attendance", "paymentMethod"]) {
+  for (const key of ["fullName", "email", "whatsapp", "gender", "age", "professionCategory", "goal", "challenge", "source", "attendance", "paymentMethod"]) {
     assert.ok(errors[key], `harus ada error untuk ${key}`);
   }
 });
@@ -171,4 +171,21 @@ test("confirmation summary lists identity, program, and transfer now", () => {
   const bundleRows = confirmationSummary({ ...v, paymentMethod: "full" }, b, "Paket Speaker + BNSP");
   assert.equal(bundleRows[3].value, "Paket Speaker + BNSP");
   assert.equal(bundleRows[4].value, "Lunas");
+});
+
+test("domisili dibakukan ke daftar kab/kota; profesi Lainnya diisi sendiri", () => {
+  assert.equal(validateRegistration({ ...filled(), domicile: "Bandung" }, batch).domicile, "Pilih kota atau kabupaten dari daftar.");
+  const custom = buildRegistrationPayload(filled(), batch);
+  assert.equal(custom.answers.domicile, "Kota Bandung");
+  assert.equal(custom.answers.profession, "Karyawan");
+  assert.ok(validateRegistration({ ...filled(), profession: "" }, batch).profession);
+  const listed = buildRegistrationPayload({ ...filled(), professionCategory: "wirausaha", profession: "" }, batch);
+  assert.equal(validateRegistration({ ...filled(), professionCategory: "wirausaha", profession: "" }, batch).profession, undefined);
+  assert.equal(listed.answers.professionCategory, "wirausaha");
+  assert.equal(listed.answers.profession, "Wirausaha");
+  const parsed = parseRegistration(listed);
+  assert.equal(parsed.participant.answers.domicile, "Kota Bandung");
+  assert.equal(parsed.participant.answers.professionCategory, "wirausaha");
+  assert.equal(parseRegistration({ ...listed, answers: { ...listed.answers, domicile: "Bandung" } }), null);
+  assert.equal(parseRegistration({ ...listed, answers: { ...listed.answers, professionCategory: "x" } }), null);
 });

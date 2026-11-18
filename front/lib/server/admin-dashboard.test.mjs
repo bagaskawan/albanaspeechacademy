@@ -87,3 +87,42 @@ test("trend has 12 weekly buckets for 30d and monthly buckets for ytd", () => {
   assert.equal(weekly.buckets.at(-1).registrations, 1);
   assert.equal(buildDashboardStats(input, "ytd", now).trend.buckets.length, 11);
 });
+
+test("filter program/batch menyaring pendaftar, tagihan, dan batch", () => {
+  const input = {
+    registrations: [
+      reg(1, "2026-11-15T01:00:00Z", [inv("pending")]),
+      reg(2, "2026-11-14T01:00:00Z", [inv("pending")], { items: [{ batch_slug: "batch-b" }] }),
+      reg(3, "2026-11-13T01:00:00Z", [inv("pending")], { items: [{ batch_slug: "batch-a" }, { batch_slug: "batch-b" }] }),
+    ],
+    pendingInvoices: [
+      { ...inv("pending", 100), stage: "initial", batches: ["batch-a"] },
+      { ...inv("pending", 200), stage: "remaining", batches: ["batch-b"] },
+    ],
+    ...catalog,
+  };
+  const all = buildDashboardStats(input, "30d", now);
+  assert.equal(all.registrations.current, 3);
+  assert.equal(all.pending.remainingCount, 1);
+  assert.equal(all.pending.remainingTotal, 200);
+  const speaker = buildDashboardStats(input, "30d", now, { program: "speaker" });
+  assert.equal(speaker.registrations.current, 2);
+  assert.equal(speaker.pending.count, 1);
+  assert.equal(speaker.openBatches, 0);
+  assert.deepEqual(speaker.topBatches.map((row) => [row.slug, row.active]), [["batch-b", 2]]);
+  assert.equal(buildDashboardStats(input, "30d", now, { batch: "batch-a" }).registrations.current, 2);
+});
+
+test("domisili top-N dengan sisa Lainnya; profesi per kategori", () => {
+  const cities = ["Kota Bandung", "Kota Bandung", "Kota Bandung", "Kota Bekasi", "Kota Bekasi", "Kota Depok", "Kota Bogor"];
+  const registrations = cities.map((domicile, index) => reg(index + 1, "2026-11-10T01:00:00Z", [inv("pending")], {
+    answers: { domicile, professionCategory: index < 5 ? "wirausaha" : "lainnya" },
+  }));
+  const stats = buildDashboardStats({ registrations, pendingInvoices: [], ...catalog }, "30d", now);
+  const top = stats.composition.domicile;
+  assert.equal(top.n, 7);
+  assert.deepEqual(top.rows.slice(0, 2).map((row) => [row.label, row.count]), [["Kota Bandung", 3], ["Kota Bekasi", 2]]);
+  const profession = stats.composition.profession.rows;
+  assert.equal(profession.find((row) => row.label === "Wirausaha").count, 5);
+  assert.equal(profession.find((row) => row.label === "Lainnya").count, 2);
+});

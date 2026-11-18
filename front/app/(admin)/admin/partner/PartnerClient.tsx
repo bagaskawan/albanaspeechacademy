@@ -1,18 +1,19 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Building2, Image as ImageIcon, Loader2, X } from "lucide-react";
+import { Building2, Eye, Image as ImageIcon, Loader2, Pencil, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { compressImage } from "@/lib/file-compress";
-import { DataTable, StatusChip } from "@/components/admin/ui/data-table";
 import { TableToolbar, matchesQuery } from "@/components/admin/ui/table-toolbar";
 import { EmptyState } from "@/components/admin/ui/empty-state";
-import { RowActions, rowPillClass } from "@/components/admin/ui/row-actions";
+import { useIsAdminSuper } from "@/components/admin/ui/row-actions";
+import { AdminSheet } from "@/components/admin/ui/AdminSheet";
 import { FormDialog } from "@/components/admin/ui/form/FormDialog";
+import { UploadBlockingModal } from "@/components/admin/ui/UploadBlockingModal";
 import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
 import { AdminInput } from "@/components/admin/ui/form/controls";
-import { deletePartner, savePartner, togglePartner } from "./actions";
+import { deletePartner, savePartner } from "./actions";
 
 export type PartnerRow = {
   id: number;
@@ -23,30 +24,45 @@ export type PartnerRow = {
 
 export function PartnerClient({ partners }: { partners: PartnerRow[] }) {
   const router = useRouter();
+  const canDelete = useIsAdminSuper();
   const query = useSearchParams().get("q") ?? "";
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<PartnerRow | null>(null);
+  const [detailPartner, setDetailPartner] = useState<PartnerRow | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<PartnerRow | null>(null);
   const [name, setName] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
+  const [stagedFile, setStagedFile] = useState<File | null>(null);
+  const [stagedPreviewUrl, setStagedPreviewUrl] = useState("");
+  const stagedPreviewRef = useRef("");
   const [uploading, setUploading] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const sessionUploadsRef = useRef<Set<string>>(new Set());
 
-  function cleanupTempUploads(urls: string[]) {
-    if (urls.length === 0) return;
-    fetch("/api/upload", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ urls }),
-    }).catch(() => {});
+  useEffect(() => {
+    stagedPreviewRef.current = stagedPreviewUrl;
+  }, [stagedPreviewUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (stagedPreviewRef.current) URL.revokeObjectURL(stagedPreviewRef.current);
+    };
+  }, []);
+
+  function clearStagedLogo() {
+    if (stagedPreviewRef.current) {
+      URL.revokeObjectURL(stagedPreviewRef.current);
+      stagedPreviewRef.current = "";
+    }
+    setStagedFile(null);
+    setStagedPreviewUrl("");
   }
 
-  const visible = partners.filter((partner) => matchesQuery(partner.name, query));
+  const visible = partners.filter((partner) => matchesQuery(partner.name || "Partner", query));
 
   function openCreate() {
-    sessionUploadsRef.current.clear();
+    clearStagedLogo();
     setEditing(null);
     setName("");
     setLogoUrl("");
@@ -55,7 +71,7 @@ export function PartnerClient({ partners }: { partners: PartnerRow[] }) {
   }
 
   function openEdit(partner: PartnerRow) {
-    sessionUploadsRef.current.clear();
+    clearStagedLogo();
     setEditing(partner);
     setName(partner.name);
     setLogoUrl(partner.logo_url ?? "");
@@ -64,14 +80,14 @@ export function PartnerClient({ partners }: { partners: PartnerRow[] }) {
   }
 
   function handleModalOpenChange(open: boolean) {
-    if (!open && sessionUploadsRef.current.size > 0) {
-      cleanupTempUploads(Array.from(sessionUploadsRef.current));
-      sessionUploadsRef.current.clear();
+    if (uploading) return;
+    if (!open) {
+      clearStagedLogo();
     }
     setModalOpen(open);
   }
 
-  async function uploadLogo(file: File) {
+  function stageLogo(file: File) {
     if (!file.type.startsWith("image/")) {
       toast.error("Hanya file gambar yang diizinkan.");
       return;
@@ -80,39 +96,54 @@ export function PartnerClient({ partners }: { partners: PartnerRow[] }) {
       toast.error("Ukuran logo maksimal 5MB.");
       return;
     }
-    setUploading(true);
-    try {
-      const compressed = await compressImage(file);
-      const body = new FormData();
-      body.set("purpose", "landing");
-      body.set("file", compressed);
-      const res = await fetch("/api/upload", { method: "POST", body });
-      const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
-      if (!res.ok || !data.url) {
-        toast.error(data.error || "Gagal mengunggah logo.");
-      } else {
-        if (logoUrl && logoUrl !== data.url && sessionUploadsRef.current.has(logoUrl)) {
-          sessionUploadsRef.current.delete(logoUrl);
-          cleanupTempUploads([logoUrl]);
-        }
-        sessionUploadsRef.current.add(data.url);
-        setLogoUrl(data.url);
-        toast.success("Logo berhasil diunggah.");
-      }
-    } catch {
-      toast.error("Gagal mengunggah logo.");
-    } finally {
-      setUploading(false);
+    if (stagedPreviewRef.current) {
+      URL.revokeObjectURL(stagedPreviewRef.current);
     }
+    const nextPreview = URL.createObjectURL(file);
+    stagedPreviewRef.current = nextPreview;
+    setStagedFile(file);
+    setStagedPreviewUrl(nextPreview);
+    setError(null);
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (uploading || pending) return;
     setError(null);
+
+    if (!name.trim() && !logoUrl && !stagedFile) {
+      setError("Isi nama partner atau unggah logo partner.");
+      return;
+    }
+
+    let finalLogoUrl = logoUrl;
+    if (stagedFile) {
+      setUploading(true);
+      try {
+        const compressed = await compressImage(stagedFile);
+        const body = new FormData();
+        body.set("purpose", "landing");
+        body.set("file", compressed);
+        const res = await fetch("/api/upload", { method: "POST", body });
+        const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+        if (!res.ok || !data.url) {
+          setError(data.error || "Gagal mengunggah logo.");
+          setUploading(false);
+          return;
+        }
+        finalLogoUrl = data.url;
+      } catch {
+        setError("Gagal mengunggah logo.");
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
+    }
+
     const formData = new FormData();
     if (editing) formData.set("id", String(editing.id));
     formData.set("name", name);
-    formData.set("logo", logoUrl);
+    formData.set("logo", finalLogoUrl);
 
     startTransition(async () => {
       const res = await savePartner(formData);
@@ -120,9 +151,7 @@ export function PartnerClient({ partners }: { partners: PartnerRow[] }) {
         setError(res.error);
         return;
       }
-      const unused = Array.from(sessionUploadsRef.current).filter((u) => u !== logoUrl);
-      sessionUploadsRef.current.clear();
-      cleanupTempUploads(unused);
+      clearStagedLogo();
       setModalOpen(false);
       toast.success(editing ? "Partner diperbarui." : "Partner ditambahkan.");
       router.refresh();
@@ -145,76 +174,85 @@ export function PartnerClient({ partners }: { partners: PartnerRow[] }) {
           <EmptyState title="Belum ada partner" description="Tambahkan instansi yang pernah dilatih Albana." />
         )
       ) : (
-        <DataTable caption="Partner" stackOnMobile>
-          <thead>
-            <tr>
-              <th scope="col">Partner</th>
-              <th scope="col">Status</th>
-              <th scope="col" className="text-right">
-                <span className="sr-only">Aksi</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {visible.map((partner) => (
-              <tr key={partner.id}>
-                <td data-label="Partner">
-                  <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- logos may be external URLs or /api/media redirects */}
-                    {partner.logo_url ? (
-                      <img src={partner.logo_url} alt="" className="size-10 shrink-0 rounded-xl bg-admin-canvas object-contain" />
-                    ) : (
-                      <span aria-hidden="true" className="size-10 shrink-0 rounded-xl bg-admin-surface-muted" />
-                    )}
-                    <span className="truncate font-medium" title={partner.name}>
-                      {partner.name}
-                    </span>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {visible.map((partner) => {
+            const label = partner.name || "Partner tanpa nama";
+            return (
+              <article
+                key={partner.id}
+                className="overflow-hidden rounded-[24px] border border-admin-line bg-admin-surface"
+              >
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-admin-surface-muted">
+                  {partner.logo_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- logos may be external URLs or /api/media redirects
+                    <img
+                      src={partner.logo_url}
+                      alt={label}
+                      className="size-full bg-admin-canvas object-contain p-5"
+                    />
+                  ) : (
+                    <div className="flex size-full items-center justify-center text-admin-text-faint">
+                      <Building2 size={32} />
+                    </div>
+                  )}
+                  {canDelete && (
+                    <button
+                      type="button"
+                      onClick={() => setDeleteTarget(partner)}
+                      aria-label={`Hapus ${label}`}
+                      title="Hapus"
+                      className="absolute right-3 top-3 inline-flex size-9 items-center justify-center rounded-full bg-admin-canvas/90 text-admin-danger shadow-sm transition-colors hover:bg-admin-rose-soft cursor-pointer"
+                    >
+                      <Trash2 aria-hidden="true" size={16} />
+                    </button>
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-end gap-2 bg-gradient-to-t from-black/65 via-black/25 to-transparent px-3 pb-3 pt-8">
+                    <button
+                      type="button"
+                      onClick={() => setDetailPartner(partner)}
+                      aria-label={`Detail ${label}`}
+                      title="Detail"
+                      className="inline-flex size-9 items-center justify-center rounded-full bg-admin-canvas/95 text-admin-ink shadow-sm transition-colors hover:bg-admin-surface cursor-pointer"
+                    >
+                      <Eye aria-hidden="true" size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openEdit(partner)}
+                      aria-label={`Ubah ${label}`}
+                      title="Ubah"
+                      className="inline-flex size-9 items-center justify-center rounded-full bg-admin-ink text-admin-on-ink shadow-sm transition-colors hover:bg-admin-ink-soft cursor-pointer"
+                    >
+                      <Pencil aria-hidden="true" size={16} />
+                    </button>
                   </div>
-                </td>
-                <td data-label="Status">
-                  <StatusChip tone={partner.published ? "mint" : "neutral"}>
-                    {partner.published ? "Terbit" : "Draf"}
-                  </StatusChip>
-                </td>
-                <td className="text-right">
-                  <RowActions
-                    itemName={partner.name}
-                    onEdit={() => openEdit(partner)}
-                    onDelete={deletePartner.bind(null, partner.id)}
-                    extra={
-                      <form action={togglePartner}>
-                        <input type="hidden" name="id" value={partner.id} />
-                        <input type="hidden" name="published" value={partner.published ? "false" : "true"} />
-                        <button type="submit" className={rowPillClass}>
-                          {partner.published ? "Tarik" : "Terbitkan"}
-                        </button>
-                      </form>
-                    }
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </DataTable>
+                </div>
+                <div className="p-4">
+                  <h3 className="truncate text-[15px] font-semibold text-admin-ink" title={label}>
+                    {label}
+                  </h3>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       )}
 
       <FormDialog
         open={modalOpen}
         onOpenChange={handleModalOpenChange}
         icon={<Building2 aria-hidden="true" size={20} strokeWidth={1.5} />}
-        title={editing ? `Ubah ${editing.name}` : "Tambah partner"}
-        description={editing ? "Status terbit tidak berubah." : "Partner baru disimpan sebagai draf sampai diterbitkan."}
+        title={editing ? `Ubah ${editing.name || "partner"}` : "Tambah partner"}
+        description="Partner yang disimpan otomatis langsung diterbitkan di halaman publik."
         size="sm"
         submitLabel="Simpan partner"
-        pending={pending}
+        pending={pending || uploading}
         onSubmit={handleSubmit}
       >
         <FieldGrid columns={1}>
-          <Field label="Nama partner" htmlFor="partner-name" required>
+          <Field label="Nama partner (opsional)" htmlFor="partner-name" hint="Jika tidak ada logo, nama partner akan ditampilkan di landing page.">
             <AdminInput
               id="partner-name"
-              required
-              aria-required="true"
               maxLength={160}
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -222,7 +260,7 @@ export function PartnerClient({ partners }: { partners: PartnerRow[] }) {
             />
           </Field>
 
-          <div className="space-y-2">
+          <div className="w-full space-y-2 sm:col-span-2">
             <p className="text-[13px] font-medium text-admin-ink">Logo partner (opsional)</p>
             <div
               onDragOver={(event) => {
@@ -234,10 +272,10 @@ export function PartnerClient({ partners }: { partners: PartnerRow[] }) {
                 event.preventDefault();
                 setDragging(false);
                 const file = event.dataTransfer.files?.[0];
-                if (file && !uploading) void uploadLogo(file);
+                if (file && !uploading) stageLogo(file);
               }}
               className={`relative ${
-                logoUrl ? "mx-auto w-fit max-w-full" : "w-full"
+                stagedPreviewUrl || logoUrl ? "mx-auto w-fit max-w-full" : "w-full"
               } overflow-hidden rounded-2xl border-2 border-dashed transition-colors ${
                 dragging ? "border-admin-ink bg-admin-surface-muted" : "border-admin-line-strong bg-admin-surface/60"
               }`}
@@ -251,21 +289,25 @@ export function PartnerClient({ partners }: { partners: PartnerRow[] }) {
                 onChange={(event) => {
                   const file = event.target.files?.[0];
                   event.target.value = "";
-                  if (file && !uploading) void uploadLogo(file);
+                  if (file && !uploading) stageLogo(file);
                 }}
               />
-              {logoUrl ? (
+              {stagedPreviewUrl || logoUrl ? (
                 <div className="relative">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={logoUrl} alt={name || "Logo partner"} className="block max-h-56 w-auto max-w-full object-contain p-3" />
+                  <img
+                    src={stagedPreviewUrl || logoUrl}
+                    alt={name || "Logo partner"}
+                    className="block max-h-56 w-auto max-w-full object-contain p-3"
+                  />
                   <button
                     type="button"
                     onClick={() => {
-                      if (logoUrl && sessionUploadsRef.current.has(logoUrl)) {
-                        sessionUploadsRef.current.delete(logoUrl);
-                        cleanupTempUploads([logoUrl]);
+                      if (stagedPreviewUrl) {
+                        clearStagedLogo();
+                      } else {
+                        setLogoUrl("");
                       }
-                      setLogoUrl("");
                     }}
                     className="absolute right-2 top-2 cursor-pointer rounded-full bg-black/60 p-1.5 text-white transition-colors hover:bg-red-600"
                     title="Hapus logo"
@@ -278,11 +320,6 @@ export function PartnerClient({ partners }: { partners: PartnerRow[] }) {
                   >
                     <ImageIcon size={13} /> Ganti logo
                   </label>
-                  {uploading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                      <Loader2 size={24} className="animate-spin text-white" />
-                    </div>
-                  )}
                 </div>
               ) : (
                 <label
@@ -298,7 +335,7 @@ export function PartnerClient({ partners }: { partners: PartnerRow[] }) {
                     {uploading ? "Mengunggah logo…" : "Pilih Logo"}
                   </p>
                   <p className="text-center text-[11px] text-admin-text-secondary">
-                    Klik untuk unggah logo, atau tarik &amp; lepas ke sini. Maksimal 5MB (JPG, PNG, WEBP)
+                    Klik untuk unggah logo, atau tarik &amp; lepas ke sini. Semua resolusi &amp; orientasi diperbolehkan (JPG, PNG, WEBP · maks. 5MB)
                   </p>
                 </label>
               )}
@@ -312,6 +349,104 @@ export function PartnerClient({ partners }: { partners: PartnerRow[] }) {
           )}
         </FieldGrid>
       </FormDialog>
+
+      <AdminSheet
+        open={detailPartner !== null}
+        onOpenChange={(open) => { if (!open) setDetailPartner(null); }}
+        size="md"
+        icon={<Eye aria-hidden="true" size={18} />}
+        title={detailPartner?.name || "Partner tanpa nama"}
+        description="Detail partner"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setDetailPartner(null)}
+              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface cursor-pointer"
+            >
+              Tutup
+            </button>
+            {detailPartner && (
+              <button
+                type="button"
+                onClick={() => {
+                  const target = detailPartner;
+                  setDetailPartner(null);
+                  openEdit(target);
+                }}
+                className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center gap-2 rounded-full bg-admin-ink text-[15px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft cursor-pointer"
+              >
+                <Pencil aria-hidden="true" size={16} />
+                <span>Ubah</span>
+              </button>
+            )}
+          </>
+        }
+      >
+        {detailPartner && (
+          <div className="space-y-4">
+            {detailPartner.logo_url && (
+              <div className="overflow-hidden rounded-[20px] border border-admin-line bg-admin-surface p-4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={detailPartner.logo_url}
+                  alt={detailPartner.name || "Logo partner"}
+                  className="mx-auto block max-h-72 w-auto max-w-full object-contain"
+                />
+              </div>
+            )}
+            <dl className="divide-y divide-admin-line border-y border-admin-line">
+              <div className="py-3">
+                <dt className="text-[12px] font-medium text-admin-text-secondary">Nama partner</dt>
+                <dd className="mt-1 text-[14px] text-admin-ink">{detailPartner.name || "—"}</dd>
+              </div>
+            </dl>
+          </div>
+        )}
+      </AdminSheet>
+
+      <AdminSheet
+        open={deleteTarget !== null}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+        size="sm"
+        tone="danger"
+        icon={<Trash2 aria-hidden="true" size={20} strokeWidth={1.5} />}
+        title={`Hapus ${deleteTarget?.name || "partner"}?`}
+        description="Tindakan ini tidak dapat dibatalkan."
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setDeleteTarget(null)}
+              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface cursor-pointer"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (!deleteTarget) return;
+                const target = deleteTarget;
+                setDeleteTarget(null);
+                startTransition(async () => {
+                  const res = await deletePartner(target.id);
+                  if (res.error) {
+                    toast.error(res.error);
+                    return;
+                  }
+                  toast.success(`${target.name || "Partner"} dihapus.`);
+                  router.refresh();
+                });
+              }}
+              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full bg-admin-danger text-[15px] font-medium text-white transition-opacity hover:opacity-90 cursor-pointer"
+            >
+              Hapus
+            </button>
+          </>
+        }
+      />
+
+      <UploadBlockingModal open={uploading} title="Mengunggah logo partner…" />
     </div>
   );
 }

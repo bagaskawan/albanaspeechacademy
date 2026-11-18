@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { parseRupiahInput, paymentBalance } from "@/lib/billing";
 import { compressImage } from "@/lib/file-compress";
+import { UploadBlockingModal } from "@/components/admin/ui/UploadBlockingModal";
 
 const MAX_SOURCE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -360,6 +361,8 @@ export function RecordPaymentDialog({
           </DialogFooter>
         </form>
       </DialogContent>
+
+      <UploadBlockingModal open={submitting} title="Mengunggah bukti transfer…" />
     </Dialog>
   );
 }

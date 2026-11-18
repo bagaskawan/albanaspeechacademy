@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useId, useRef, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import { Check, Eye, Image as ImageIcon, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AdminSheet } from "@/components/admin/ui/AdminSheet";
+import { UploadBlockingModal } from "@/components/admin/ui/UploadBlockingModal";
 import { Field } from "@/components/admin/ui/form/fields";
 import { AdminInput, AdminSelect, AdminTextarea, PriceInput } from "@/components/admin/ui/form/controls";
 import { DatePicker } from "@/components/ui/DatePicker";
@@ -28,6 +29,7 @@ export type CmsFieldType =
   | "boolean"
   | "select"
   | "member"
+  | "registrant"
   | "datetime"
   | "sessions"
   | "consent"
@@ -48,9 +50,14 @@ export type CmsField = {
   /** Batas jumlah kata untuk field teks (mis. kutipan testimoni). */
   minWords?: number;
   maxWords?: number;
+  /** Sembunyikan field dari form modal (tetap disimpan ke payload dan tampil di tabel). */
+  hiddenInForm?: boolean;
+  /** Nama field keterangan program/batch yang otomatis terisi saat registrant dipilih. */
+  linkedRoleField?: string;
 };
 
 export type CmsMemberOption = { id: string; name: string };
+export type CmsRegistrantOption = { id: string; name: string; roleLabel: string };
 
 type Row = Record<string, unknown>;
 
@@ -88,6 +95,20 @@ interface CmsCollectionClientProps {
   galleryCards?: boolean;
   /** Pilihan member untuk field bertipe "member". */
   members?: CmsMemberOption[];
+  /** Pilihan pendaftar untuk field bertipe "registrant". */
+  registrants?: CmsRegistrantOption[];
+  /** Ukuran modal form: sm, md, atau lg. */
+  modalSize?: "sm" | "md" | "lg";
+  /** Judul khusus saat mode tambah. */
+  createTitle?: string;
+  /** Judul khusus saat mode ubah. */
+  editTitle?: string;
+  /** Mode multiple gallery dengan staging lokal sebelum submit ke Supabase Storage. */
+  multiGallery?: {
+    maxTotal: number;
+    minRecommended: number;
+    autoConsentField?: string;
+  };
 }
 
 type Session = { date: string; start: string; end: string };
@@ -214,6 +235,11 @@ export default function CmsCollectionClient({
   bento,
   galleryCards,
   members,
+  registrants,
+  modalSize,
+  createTitle,
+  editTitle,
+  multiGallery,
 }: CmsCollectionClientProps) {
   const groupField = groupBy ? fields.find((field) => field.name === groupBy) : undefined;
   const groups = groupField?.options ?? [];
@@ -235,6 +261,174 @@ export default function CmsCollectionClient({
   const [galleryDragging, setGalleryDragging] = useState(false);
   const [activatingKey, setActivatingKey] = useState<string | null>(null);
   const sessionUploadedUrlsRef = useRef<Set<string>>(new Set());
+  const [stagedGalleryFiles, setStagedGalleryFiles] = useState<{ id: string; file: File; previewUrl: string }[]>([]);
+  const stagedGalleryRef = useRef<{ id: string; file: File; previewUrl: string }[]>([]);
+  const [stagedSingleFiles, setStagedSingleFiles] = useState<Record<string, { file: File; previewUrl: string }>>({});
+  const stagedSingleRef = useRef<Record<string, { file: File; previewUrl: string }>>({});
+  const [multiUploadProgress, setMultiUploadProgress] = useState<{ current: number; total: number } | null>(null);
+
+  useEffect(() => {
+    stagedGalleryRef.current = stagedGalleryFiles;
+  }, [stagedGalleryFiles]);
+
+  useEffect(() => {
+    stagedSingleRef.current = stagedSingleFiles;
+  }, [stagedSingleFiles]);
+
+  useEffect(() => {
+    return () => {
+      for (const item of stagedGalleryRef.current) {
+        URL.revokeObjectURL(item.previewUrl);
+      }
+      for (const item of Object.values(stagedSingleRef.current)) {
+        URL.revokeObjectURL(item.previewUrl);
+      }
+    };
+  }, []);
+
+  const clearStagedGallery = () => {
+    setStagedGalleryFiles((prev) => {
+      for (const item of prev) URL.revokeObjectURL(item.previewUrl);
+      return [];
+    });
+    setStagedSingleFiles((prev) => {
+      for (const item of Object.values(prev)) URL.revokeObjectURL(item.previewUrl);
+      return {};
+    });
+  };
+
+  const stageSingleGalleryFile = (field: CmsField, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Hanya file gambar yang diizinkan!");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Ukuran foto maksimal 5MB.");
+      return;
+    }
+    setStagedSingleFiles((prev) => {
+      const existing = prev[field.name];
+      if (existing) URL.revokeObjectURL(existing.previewUrl);
+      return {
+        ...prev,
+        [field.name]: { file, previewUrl: URL.createObjectURL(file) },
+      };
+    });
+    setFieldErrors((prev) => {
+      if (!prev[field.name]) return prev;
+      const next = { ...prev };
+      delete next[field.name];
+      return next;
+    });
+  };
+
+  const removeStagedGalleryItem = (id: string) => {
+    setStagedGalleryFiles((prev) => {
+      const target = prev.find((item) => item.id === id);
+      if (target) URL.revokeObjectURL(target.previewUrl);
+      return prev.filter((item) => item.id !== id);
+    });
+  };
+
+  const stageGalleryFiles = (field: CmsField, selected: File[]) => {
+    if (!multiGallery || selected.length === 0) return;
+    const acceptedTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+    const valid: File[] = [];
+    const errors: string[] = [];
+
+    for (const file of selected) {
+      if (!acceptedTypes.has(file.type)) {
+        errors.push(`${file.name}: Gunakan JPEG, PNG, atau WebP.`);
+        continue;
+      }
+      if (file.size < 1 || file.size > 10 * 1024 * 1024) {
+        errors.push(`${file.name}: Ukuran maksimal 10 MiB.`);
+        continue;
+      }
+      valid.push(file);
+    }
+
+    if (valid.length === 0) {
+      if (errors.length > 0) setError(errors.join(" "));
+      return;
+    }
+
+    if (editingRow) {
+      const replacement = valid[0];
+      setStagedGalleryFiles((prev) => {
+        for (const item of prev) URL.revokeObjectURL(item.previewUrl);
+        return [
+          {
+            id: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+              ? crypto.randomUUID()
+              : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+            file: replacement,
+            previewUrl: URL.createObjectURL(replacement),
+          },
+        ];
+      });
+      setFieldErrors((prev) => {
+        if (!prev[field.name]) return prev;
+        const next = { ...prev };
+        delete next[field.name];
+        return next;
+      });
+      setError(errors.length > 0 ? errors.join(" ") : null);
+      return;
+    }
+
+    const remainingSlots = Math.max(0, multiGallery.maxTotal - rows.length - stagedGalleryFiles.length);
+    if (remainingSlots === 0) {
+      setError(`Batas maksimal ${multiGallery.maxTotal} foto sudah tercapai.`);
+      return;
+    }
+
+    let filesToStage = valid;
+    if (valid.length > remainingSlots) {
+      filesToStage = valid.slice(0, remainingSlots);
+      errors.push(`Hanya ${remainingSlots} foto lagi yang bisa ditambahkan; ${valid.length - filesToStage.length} file dilewati.`);
+    }
+
+    const staged = filesToStage.map((file) => ({
+      id: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }));
+
+    setStagedGalleryFiles((prev) => [...prev, ...staged]);
+    setFieldErrors((prev) => {
+      if (!prev[field.name]) return prev;
+      const next = { ...prev };
+      delete next[field.name];
+      return next;
+    });
+    setError(errors.length > 0 ? errors.join(" ") : null);
+  };
+
+  const uploadCompressedGalleryFile = async (field: CmsField, file: File): Promise<string> => {
+    const supabase = createClient();
+    let compressed = await compressImage(file);
+    if (compressed.size > 2 * 1024 * 1024) {
+      compressed = await compressImage(compressed, 1200, 1200, 0.6);
+    }
+    const ext = compressed.name.split(".").pop();
+    const path = galleryStoragePath(ext ?? "jpg");
+    const bucket = field.bucket ?? "gallery";
+    const { error: uploadError } = await supabase.storage
+      .from(bucket)
+      .upload(path, compressed, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: compressed.type || "image/jpeg",
+      });
+    if (uploadError) throw uploadError;
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from(bucket).getPublicUrl(path);
+    return publicUrl;
+  };
 
   const uploadGalleryFile = async (field: CmsField, file: File) => {
     const consentField = fields.find((item) => item.type === "consent");
@@ -302,6 +496,7 @@ export default function CmsCollectionClient({
     : <EmptyState title={emptyText} />;
 
   const openCreate = () => {
+    clearStagedGallery();
     setEditingRow(null);
     setForm({
       ...initialFormState(fields, null),
@@ -314,6 +509,7 @@ export default function CmsCollectionClient({
   };
 
   const openEdit = (row: Row) => {
+    clearStagedGallery();
     setEditingRow(row);
     setForm(initialFormState(fields, row));
     setError(null);
@@ -322,6 +518,7 @@ export default function CmsCollectionClient({
   };
 
   const closeForm = () => {
+    clearStagedGallery();
     if (sessionUploadedUrlsRef.current.size > 0) {
       const toClean = Array.from(sessionUploadedUrlsRef.current);
       sessionUploadedUrlsRef.current.clear();
@@ -365,6 +562,18 @@ export default function CmsCollectionClient({
 
     for (const field of fields) {
       const value = form[field.name];
+      if (multiGallery && field.type === "gallery") {
+        if (!editingRow && stagedGalleryFiles.length === 0) {
+          errors[field.name] = "Pilih minimal satu foto terlebih dahulu.";
+        } else if (editingRow && !stagedGalleryFiles.length && (!value || String(value).trim() === "")) {
+          errors[field.name] = `${field.label} wajib diisi.`;
+        }
+        if (errors[field.name] && !firstInvalid) firstInvalid = field;
+        continue;
+      }
+      if (!multiGallery && field.type === "gallery" && stagedSingleFiles[field.name]) {
+        continue;
+      }
       const isBlank =
         value === "" || value === null || value === undefined ||
         (typeof value === "string" && value.trim() === "");
@@ -458,6 +667,57 @@ export default function CmsCollectionClient({
     try {
       const supabase = createClient();
       const galleryFields = fields.filter((field) => field.type === "gallery");
+
+      if (multiGallery && galleryFields.length === 1) {
+        const gField = galleryFields[0];
+        if (!editingRow) {
+          const total = stagedGalleryFiles.length;
+          for (let i = 0; i < total; i += 1) {
+            const staged = stagedGalleryFiles[i];
+            setMultiUploadProgress({ current: i + 1, total });
+            const publicUrl = await uploadCompressedGalleryFile(gField, staged.file);
+            const rowPayload: Row = {
+              ...payload,
+              [gField.name]: publicUrl,
+              ...(multiGallery.autoConsentField
+                ? { [multiGallery.autoConsentField]: new Date().toISOString() }
+                : {}),
+            };
+            const { error: insertError } = await supabase.from(table).insert(rowPayload);
+            if (insertError) throw insertError;
+          }
+          clearStagedGallery();
+          setMultiUploadProgress(null);
+          await refresh();
+          toast.success(`${total} foto berhasil diunggah ke galeri.`);
+          announce(`${total} foto berhasil diunggah ke galeri.`);
+          setIsFormOpen(false);
+          setEditingRow(null);
+          setFieldErrors({});
+          return;
+        }
+
+        if (stagedGalleryFiles.length > 0) {
+          setMultiUploadProgress({ current: 1, total: 1 });
+          const publicUrl = await uploadCompressedGalleryFile(gField, stagedGalleryFiles[0].file);
+          payload[gField.name] = publicUrl;
+          setMultiUploadProgress(null);
+        }
+      } else if (!multiGallery) {
+        const pendingUploads = galleryFields.filter((field) => stagedSingleFiles[field.name]);
+        if (pendingUploads.length > 0) {
+          setGalleryUploading(true);
+          try {
+            for (const gField of pendingUploads) {
+              const publicUrl = await uploadCompressedGalleryFile(gField, stagedSingleFiles[gField.name].file);
+              payload[gField.name] = publicUrl;
+            }
+          } finally {
+            setGalleryUploading(false);
+          }
+        }
+      }
+
       const nextGalleryUrls = galleryFields.map((field) => String(payload[field.name] ?? ""));
 
       if (editingRow) {
@@ -483,6 +743,7 @@ export default function CmsCollectionClient({
           deleteStorageFiles(supabase, unusedSessionUrls).catch(() => {});
         }
       }
+      clearStagedGallery();
       sessionUploadedUrlsRef.current.clear();
       await refresh();
       const message = editingRow ? "Perubahan tersimpan." : "Data ditambahkan.";
@@ -493,6 +754,7 @@ export default function CmsCollectionClient({
       setEditingRow(null);
       setFieldErrors({});
     } catch (err) {
+      setMultiUploadProgress(null);
       setError(errorMessage(err, "Gagal menyimpan data."));
     } finally {
       setIsSaving(false);
@@ -738,6 +1000,58 @@ export default function CmsCollectionClient({
       );
     }
 
+    if (field.type === "registrant") {
+      const currentName = String(value ?? "");
+      const roleField = field.linkedRoleField;
+      const currentRole = roleField ? String(form[roleField] ?? "") : "";
+      const list = registrants ?? [];
+      const matched = list.find(
+        (item) => item.name === currentName && (!currentRole || item.roleLabel === currentRole),
+      ) ?? list.find((item) => item.name === currentName);
+      const selectValue = matched ? matched.id : currentName ? `__custom__:${currentName}` : "";
+      const options = [
+        ...(currentName && !matched
+          ? [{ value: `__custom__:${currentName}`, label: currentRole ? `${currentName} (${currentRole})` : currentName }]
+          : []),
+        ...list.map((item) => ({
+          value: item.id,
+          label: item.roleLabel ? `${item.name} (${item.roleLabel})` : item.name,
+        })),
+      ];
+
+      return (
+        <Field
+          {...fieldProps}
+          hint={currentRole ? `Program & batch: ${currentRole}` : field.help}
+        >
+          <AdminSelect
+            id={id}
+            value={selectValue}
+            placeholder={list.length === 0 ? "Belum ada data pendaftar" : "Pilih pendaftar…"}
+            onValueChange={(nextId) => {
+              const selected = list.find((item) => item.id === nextId);
+              if (selected) {
+                setForm((prev) => ({
+                  ...prev,
+                  [field.name]: selected.name,
+                  ...(roleField ? { [roleField]: selected.roleLabel } : {}),
+                }));
+                setFieldErrors((prev) => {
+                  if (!prev[field.name]) return prev;
+                  const next = { ...prev };
+                  delete next[field.name];
+                  return next;
+                });
+              }
+            }}
+            options={options}
+            required={field.required}
+            aria-invalid={error ? true : undefined}
+          />
+        </Field>
+      );
+    }
+
     if (field.type === "tags") {
       const raw = String(value ?? "");
       const tags = raw.split(",").map((tag) => tag.trim()).filter(Boolean);
@@ -777,7 +1091,152 @@ export default function CmsCollectionClient({
     }
 
     if (field.type === "gallery") {
-      const url = String(value ?? "");
+      if (multiGallery) {
+        const inputId = `${id}-multi-file`;
+        const totalWithQueue = rows.length + stagedGalleryFiles.length;
+        const isFull = !editingRow && totalWithQueue >= multiGallery.maxTotal;
+        const existingEditUrl = editingRow ? String(value ?? "") : "";
+        const stagedReplacementUrl = editingRow && stagedGalleryFiles[0] ? stagedGalleryFiles[0].previewUrl : "";
+        const editPreviewUrl = stagedReplacementUrl || existingEditUrl;
+
+        return (
+          <div className="space-y-4">
+            {!editingRow && (
+              <div className="flex flex-wrap items-center gap-2.5">
+                <p className="text-[14px] font-semibold text-admin-ink">
+                  Foto{" "}
+                  <span className={totalWithQueue < multiGallery.minRecommended ? "text-admin-peach-ink" : "text-admin-text-secondary"}>
+                    {totalWithQueue} / {multiGallery.maxTotal}
+                  </span>
+                </p>
+                <span className="rounded-full bg-admin-peach-soft px-2.5 py-0.5 text-[12px] font-medium text-admin-peach-ink">
+                  Disarankan {multiGallery.minRecommended}–{multiGallery.maxTotal} foto
+                </span>
+              </div>
+            )}
+
+            <input
+              id={inputId}
+              type="file"
+              multiple={!editingRow}
+              accept="image/jpeg,image/png,image/webp"
+              disabled={isSaving || isFull}
+              className="sr-only"
+              onChange={(event) => {
+                const selected = Array.from(event.target.files ?? []);
+                event.target.value = "";
+                if (selected.length > 0 && !isSaving) {
+                  stageGalleryFiles(field, selected);
+                }
+              }}
+            />
+
+            {editingRow && editPreviewUrl ? (
+              <div className="space-y-3">
+                <div className="relative mx-auto w-fit max-w-full overflow-hidden rounded-2xl border border-admin-line bg-admin-surface">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={editPreviewUrl} alt="" className="block max-h-[340px] w-auto max-w-full object-contain" />
+                </div>
+                <div className="flex justify-center">
+                  <label
+                    htmlFor={inputId}
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-admin-line-strong bg-admin-canvas px-4 text-[13px] font-medium text-admin-ink transition-colors hover:bg-admin-surface cursor-pointer"
+                  >
+                    <ImageIcon aria-hidden="true" size={15} />
+                    <span>Ganti foto</span>
+                  </label>
+                </div>
+              </div>
+            ) : (
+              <label
+                htmlFor={isFull ? undefined : inputId}
+                onDragOver={(event) => {
+                  event.preventDefault();
+                  if (!isSaving && !isFull) setGalleryDragging(true);
+                }}
+                onDragLeave={() => setGalleryDragging(false)}
+                onDrop={(event) => {
+                  event.preventDefault();
+                  setGalleryDragging(false);
+                  const dropped = Array.from(event.dataTransfer.files ?? []);
+                  if (dropped.length > 0 && !isSaving && !isFull) {
+                    stageGalleryFiles(field, dropped);
+                  }
+                }}
+                className={`flex flex-col items-center justify-center gap-2 rounded-[22px] border-2 border-dashed px-6 py-7 text-center transition-colors ${
+                  isFull || isSaving
+                    ? "cursor-not-allowed border-admin-line bg-admin-surface/60 opacity-60"
+                    : galleryDragging
+                      ? "cursor-copy border-admin-ink bg-admin-surface"
+                      : "cursor-pointer border-admin-line-strong bg-admin-surface/50 hover:border-admin-ink/50 hover:bg-admin-surface"
+                }`}
+              >
+                <span className="inline-flex size-11 items-center justify-center rounded-full bg-admin-canvas text-admin-ink shadow-xs">
+                  <ImageIcon aria-hidden="true" size={20} strokeWidth={1.5} />
+                </span>
+                <p className="text-[14px] font-medium text-admin-ink">
+                  {isFull
+                    ? `Batas ${multiGallery.maxTotal} foto sudah tercapai`
+                    : field.placeholder || "Tarik & lepas beberapa foto ke sini, atau klik untuk memilih"}
+                </p>
+                {field.help && (
+                  <p className="text-[12px] text-admin-text-secondary">{field.help}</p>
+                )}
+              </label>
+            )}
+
+            {!editingRow && stagedGalleryFiles.length > 0 && (
+              <div className="space-y-3 rounded-[20px] border border-admin-line-strong bg-admin-surface/70 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="space-y-0.5">
+                    <p className="text-[13px] font-semibold text-admin-ink">
+                      Siap dikirim ({stagedGalleryFiles.length} foto)
+                    </p>
+                    <p className="text-[12px] text-admin-text-secondary">
+                      Foto disimpan sementara di cache browser dan otomatis terhapus jika modal ditutup atau halaman diganti.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isSaving}
+                    onClick={clearStagedGallery}
+                    className="inline-flex h-9 items-center justify-center rounded-full border border-admin-line-strong bg-admin-canvas px-3.5 text-[12px] font-medium text-admin-ink transition-colors hover:bg-admin-surface disabled:opacity-50 cursor-pointer"
+                  >
+                    Kosongkan
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                  {stagedGalleryFiles.map((item) => (
+                    <div
+                      key={item.id}
+                      className="group relative aspect-[4/3] overflow-hidden rounded-[16px] border border-admin-line bg-admin-canvas"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={item.previewUrl} alt={item.file.name} className="size-full object-cover" />
+                      <span className="absolute left-2 top-2 rounded-full bg-admin-canvas/90 px-2 py-0.5 text-[10px] font-medium text-admin-ink shadow-xs">
+                        Belum dikirim
+                      </span>
+                      <button
+                        type="button"
+                        disabled={isSaving}
+                        onClick={() => removeStagedGalleryItem(item.id)}
+                        aria-label={`Batalkan ${item.file.name}`}
+                        title="Hapus dari antrean"
+                        className="absolute right-2 top-2 inline-flex size-7 items-center justify-center rounded-full bg-admin-canvas/90 text-admin-danger shadow-sm transition-colors hover:bg-admin-rose-soft disabled:opacity-50 cursor-pointer"
+                      >
+                        <X aria-hidden="true" size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      const url = stagedSingleFiles[field.name]?.previewUrl ?? String(value ?? "");
       const inputId = `${id}-file`;
       return (
         <div className="space-y-2">
@@ -797,7 +1256,7 @@ export default function CmsCollectionClient({
               event.preventDefault();
               setGalleryDragging(false);
               const file = event.dataTransfer.files?.[0];
-              if (file && !galleryUploading) void uploadGalleryFile(field, file);
+              if (file && !galleryUploading) stageSingleGalleryFile(field, file);
             }}
             className={`relative ${
               url ? "mx-auto w-fit max-w-full" : "w-full"
@@ -814,7 +1273,7 @@ export default function CmsCollectionClient({
               onChange={(event) => {
                 const file = event.target.files?.[0];
                 event.target.value = "";
-                if (file && !galleryUploading) void uploadGalleryFile(field, file);
+                if (file && !galleryUploading) stageSingleGalleryFile(field, file);
               }}
             />
             {url ? (
@@ -824,11 +1283,17 @@ export default function CmsCollectionClient({
                 <button
                   type="button"
                   onClick={() => {
-                    if (url && sessionUploadedUrlsRef.current.has(url)) {
-                      sessionUploadedUrlsRef.current.delete(url);
-                      deleteStorageFile(createClient(), url).catch(() => {});
+                    if (stagedSingleFiles[field.name]) {
+                      setStagedSingleFiles((prev) => {
+                        const target = prev[field.name];
+                        if (target) URL.revokeObjectURL(target.previewUrl);
+                        const next = { ...prev };
+                        delete next[field.name];
+                        return next;
+                      });
+                    } else {
+                      setValue(field, "");
                     }
-                    setValue(field, "");
                   }}
                   className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 hover:bg-red-600 text-white transition-colors cursor-pointer"
                   title="Hapus foto"
@@ -956,9 +1421,9 @@ export default function CmsCollectionClient({
       <AdminSheet
         open={isFormOpen}
         onOpenChange={(open) => { if (!open) closeForm(); }}
-        size={fields.length <= 3 ? "sm" : twoColumns ? "lg" : "md"}
+        size={modalSize ?? (fields.length <= 3 ? "sm" : twoColumns ? "lg" : "md")}
         icon={editingRow ? <Pencil aria-hidden="true" size={18} /> : <Plus aria-hidden="true" size={18} />}
-        title={editingRow ? `Ubah ${title}` : `Tambah ${title}`}
+        title={editingRow ? (editTitle ?? `Ubah ${title}`) : (createTitle ?? `Tambah ${title}`)}
         description={formHint ?? `Lengkapi informasi ${title.toLowerCase()} di bawah ini.`}
         footer={
           <>
@@ -995,7 +1460,7 @@ export default function CmsCollectionClient({
             ))}
 
           <div className={twoColumns ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "grid grid-cols-1 gap-4"}>
-            {fields.filter((field) => field.type !== "gallery").map((field) => (
+            {fields.filter((field) => !field.hiddenInForm && field.type !== "gallery").map((field) => (
               <div
                 key={field.name}
                 className={
@@ -1274,6 +1739,18 @@ export default function CmsCollectionClient({
                           alt=""
                           className="size-10 rounded-xl object-cover"
                         />
+                      ) : field.type === "gallery" ? (
+                        <span
+                          aria-hidden="true"
+                          className="inline-flex size-10 items-center justify-center rounded-full bg-admin-butter-soft text-[12px] font-bold text-admin-butter-ink"
+                        >
+                          {(() => {
+                            const words = displayRowTitle(fields, displayField, row).trim().split(/\s+/).filter(Boolean).slice(0, 2);
+                            if (words.length === 0) return "—";
+                            if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+                            return words.map((w) => w[0]?.toUpperCase() ?? "").join("");
+                          })()}
+                        </span>
                       ) : field.name === displayField ? (
                         <span className="font-medium">{displayValue(field, row)}</span>
                       ) : (
@@ -1324,6 +1801,12 @@ export default function CmsCollectionClient({
       )}
         </>
       )}
+      <UploadBlockingModal
+        open={galleryUploading || multiUploadProgress !== null}
+        title="Mengunggah gambar galeri…"
+        current={multiUploadProgress?.current}
+        total={multiUploadProgress?.total}
+      />
     </div>
   );
 }

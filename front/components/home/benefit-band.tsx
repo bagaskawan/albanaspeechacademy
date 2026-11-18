@@ -30,7 +30,7 @@ export function BenefitBand({ programCount }: { programCount: number }) {
               Bicara di depan orang adalah keterampilan. <Accent>Keterampilan bisa dilatih.</Accent>
             </>
           }
-          description="Kebanyakan orang tidak kekurangan ide — mereka kekurangan jam terbang. Kelas kami dirancang supaya kamu lebih banyak mencoba daripada mendengarkan."
+          description="Kebanyakan orang tidak kekurangan ide, mereka kekurangan jam terbang. Kelas kami dirancang supaya kamu lebih banyak mencoba daripada mendengarkan."
         />
 
         <dl className="grid gap-y-10 border-y border-[var(--tone-rule)] py-10 sm:grid-cols-3 sm:py-12">

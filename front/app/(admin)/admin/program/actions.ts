@@ -113,17 +113,48 @@ export async function saveBundle(input: {
   return {};
 }
 
+async function lookupYouTubeTitle(videoId: string): Promise<string | null> {
+  try {
+    const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)}&format=json`;
+    const res = await fetch(oembedUrl, {
+      signal: AbortSignal.timeout(5000),
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { title?: unknown };
+    const title = typeof data.title === "string" ? data.title.trim() : "";
+    return title ? title.slice(0, 160) : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchYouTubeTitle(url: string): Promise<{ title?: string; error?: string }> {
+  await requireAdminMember();
+  const videoId = youtubeVideoId(url.trim());
+  if (!videoId) return { error: "Tautan YouTube belum valid." };
+  const title = await lookupYouTubeTitle(videoId);
+  if (!title) {
+    return { error: "Judul tidak dapat diambil otomatis (mungkin video bersifat private). Silakan isi manual." };
+  }
+  return { title };
+}
+
 export async function addProgramVideo(input: {
   programSlug: string;
   url: string;
-  title: string;
+  title?: string;
 }): Promise<{ error?: string }> {
   await requireAdminMember();
   if (!ALL_PROGRAMS.includes(input.programSlug)) return { error: "Program tidak valid." };
   const url = input.url.trim();
-  const title = input.title.trim();
-  if (!youtubeVideoId(url)) return { error: "Masukkan tautan YouTube yang sah (https://youtu.be/... atau youtube.com)." };
-  if (!title || title.length > 160) return { error: "Judul video wajib diisi (maksimal 160 karakter)." };
+  const videoId = youtubeVideoId(url);
+  if (!videoId) return { error: "Masukkan tautan YouTube yang sah (https://youtu.be/... atau youtube.com)." };
+  let title = (input.title ?? "").trim();
+  if (!title) {
+    title = (await lookupYouTubeTitle(videoId)) ?? "Video Dokumentasi";
+  }
+  if (title.length > 160) title = title.slice(0, 160);
 
   const client = academyBillingClient();
   const { count, error: countError } = await client
@@ -146,6 +177,45 @@ export async function addProgramVideo(input: {
     consent_at: new Date().toISOString(),
   });
   if (error) return { error: "Video belum bisa ditambahkan." };
+  revalidate();
+  return {};
+}
+
+export async function updateProgramVideo(input: {
+  id: number;
+  url: string;
+  title?: string;
+}): Promise<{ error?: string }> {
+  await requireAdminMember();
+  if (!Number.isInteger(input.id) || input.id <= 0) return { error: "Video tidak valid." };
+  const url = input.url.trim();
+  const videoId = youtubeVideoId(url);
+  if (!videoId) return { error: "Masukkan tautan YouTube yang sah (https://youtu.be/... atau youtube.com)." };
+  let title = (input.title ?? "").trim();
+  if (!title) {
+    title = (await lookupYouTubeTitle(videoId)) ?? "Video Dokumentasi";
+  }
+  if (title.length > 160) title = title.slice(0, 160);
+
+  const client = academyBillingClient();
+  const { data: existing, error: findError } = await client
+    .from("media_assets")
+    .select("id, kind")
+    .eq("id", input.id)
+    .maybeSingle();
+  if (findError || !existing || existing.kind !== "video") {
+    return { error: "Video tidak ditemukan." };
+  }
+
+  const { error } = await client
+    .from("media_assets")
+    .update({
+      object_key: url,
+      alt_text: title,
+      consent_at: new Date().toISOString(),
+    })
+    .eq("id", input.id);
+  if (error) return { error: "Perubahan video belum bisa disimpan." };
   revalidate();
   return {};
 }

@@ -49,11 +49,12 @@ export function SelectContent({
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
+        data-slot="select-content"
         position="popper"
         side={side}
         sideOffset={6}
         className={cn(
-          "z-50 max-h-60 w-[var(--radix-select-trigger-width)] overflow-y-auto rounded-2xl border border-border-default bg-bg-card p-1 shadow-lg",
+          "z-[70] max-h-60 w-[var(--radix-select-trigger-width)] overflow-y-auto rounded-2xl border border-border-default bg-bg-card p-1 shadow-lg",
           className
         )}
         {...props}

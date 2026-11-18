@@ -10,6 +10,7 @@ export type ProgramBatchSummary = {
   dateLabels: string[];
   timeLabel: string;
   formatLabel: string;
+  scheduleMode?: "per_session" | "start_only";
   venueLabel: string;
   priceIdr: number | null;
   normalPriceIdr: number | null;
@@ -61,9 +62,11 @@ function readSessions(batch: Record<string, unknown>) {
       sequence: typeof session.sequence_no === "number" ? session.sequence_no : index + 1,
       startsAt: asString(session.starts_at),
       endsAt: asString(session.ends_at),
+      startOnly: session.start_only === true,
+      sessionCount: typeof session.session_count === "number" && session.session_count >= 1 ? session.session_count : null,
     }))
     .filter(
-      (session): session is { sequence: number; startsAt: string; endsAt: string } =>
+      (session): session is { sequence: number; startsAt: string; endsAt: string; startOnly: boolean; sessionCount: number | null } =>
         session.startsAt !== null && session.endsAt !== null,
     )
     .sort((a, b) => a.sequence - b.sequence);
@@ -87,11 +90,16 @@ function readBatchSummary(
   const priceIdr = Number(program.price_idr);
   const normalPriceIdr = Number(program.original_price_idr);
   const dpPercent = Number(program.dp_percent);
+  const isStartOnly = sessions[0]?.startOnly === true;
+  const totalSessions = isStartOnly ? (sessions[0].sessionCount ?? 4) : sessions.length;
   return {
     name: asString(batch.title) ?? "Batch",
-    dateLabels: sessions.map((session) => formatSessionDate(session.startsAt)),
+    dateLabels: isStartOnly
+      ? [`Mulai ${formatSessionDate(sessions[0].startsAt)}`]
+      : sessions.map((session) => formatSessionDate(session.startsAt)),
     timeLabel: formatTimeRange(sessions[0].startsAt, sessions[0].endsAt),
-    formatLabel: `${sessions.length} pertemuan`,
+    formatLabel: `${totalSessions} pertemuan`,
+    scheduleMode: isStartOnly ? "start_only" : "per_session",
     venueLabel: address,
     priceIdr: Number.isSafeInteger(priceIdr) && priceIdr > 0 ? priceIdr : null,
     normalPriceIdr: Number.isSafeInteger(normalPriceIdr) && normalPriceIdr > priceIdr ? normalPriceIdr : null,

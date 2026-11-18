@@ -98,9 +98,8 @@ export function ProgramDetailPage({ card, media, consultationHref, partners = []
 
         {card.slug === "inhouse-training" ? <section className="mt-12 border-t border-rule pt-10" aria-labelledby="partners-title">
           <p className="eyebrow">Kolaborasi</p><h2 id="partners-title" className="mt-2 text-2xl font-semibold">Pernah melatih</h2>
-          {partners.length ? <ul className="mt-6 grid gap-4 sm:grid-cols-2">{partners.map((partner) => <li key={partner.id} className="flex min-h-28 items-center gap-4 border border-rule bg-card p-4">
-            {partner.logo_url ? <img src={partner.logo_url} alt="" loading="lazy" className="max-h-16 max-w-28 object-contain" /> : null}
-            <span className="font-semibold">{partner.name}</span>
+          {partners.length ? <ul className="mt-6 grid gap-4 sm:grid-cols-2">{[...partners].sort((a, b) => Number(Boolean(b.logo_url)) - Number(Boolean(a.logo_url))).map((partner) => <li key={partner.id} className="flex min-h-28 items-center justify-center gap-4 border border-rule bg-card p-4">
+            {partner.logo_url ? <img src={partner.logo_url} alt={partner.name || "Partner Albana Speech Academy"} loading="lazy" className="h-auto max-h-16 w-auto max-w-36 object-contain" /> : partner.name ? <span className="font-semibold text-center">{partner.name}</span> : null}
           </li>)}</ul> : <p className="mt-5 text-sm text-muted">Daftar partner akan tampil setelah admin menerbitkannya.</p>}
         </section> : null}
 

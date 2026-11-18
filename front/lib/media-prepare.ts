@@ -15,7 +15,10 @@ export async function prepareImage(bytes: Buffer, minWidth: number, minHeight: n
   const swapped = metadata.orientation && metadata.orientation >= 5 && metadata.orientation <= 8;
   const width = swapped ? metadata.height : metadata.width;
   const height = swapped ? metadata.width : metadata.height;
-  if (!width || !height || width < minWidth || height < minHeight) {
+  if (!width || !height) {
+    throw new Error("Dimensi gambar tidak dapat dibaca.");
+  }
+  if ((minWidth > 0 && width < minWidth) || (minHeight > 0 && height < minHeight)) {
     throw new Error(`Resolusi gambar minimal ${minWidth}×${minHeight} piksel.`);
   }
   for (const quality of [90, 84, 78, 72]) {

@@ -1,6 +1,7 @@
-import Image from "next/image";
 import type { HomeMedia } from "@/lib/home-data";
 import { academyRequest } from "@/lib/server/academy-api";
+import { AboutPortrait } from "./about-portrait";
+import { SkeletonImage } from "./skeleton-image";
 import { Accent } from "./ui/accent";
 
 const missions = [
@@ -26,7 +27,7 @@ export async function AboutSection({ moments }: { moments: HomeMedia[] }) {
     if (Array.isArray(trainerRows) && typeof trainerRows[0]?.photo_url === "string") photo = trainerRows[0].photo_url;
     if (Array.isArray(academyRows) && typeof academyRows[0]?.name === "string") academyName = academyRows[0].name;
   } catch { /* Static copy and the existing local portrait remain available. */ }
-  const detail = moments[11] ?? null;
+  const detail = moments[3] ?? null;
 
   return (
     <section id="tentang" className="tone-mist home-section" aria-labelledby="tentang-title">
@@ -45,7 +46,7 @@ export async function AboutSection({ moments }: { moments: HomeMedia[] }) {
             </div>
             {detail ? (
               <div data-motion="media" className="relative hidden aspect-[4/3] w-2/3 overflow-hidden rounded-xs bg-[var(--tone-tile)] lg:block">
-                <Image fill src={detail.src} alt={detail.alt} sizes="20vw" className="object-cover" />
+                <SkeletonImage fill src={detail.src} alt={detail.alt} sizes="20vw" className="object-cover" />
               </div>
             ) : null}
           </div>
@@ -53,12 +54,9 @@ export async function AboutSection({ moments }: { moments: HomeMedia[] }) {
           {/* Tengah: potret pendiri */}
           <div className="col-span-4 sm:col-span-5 lg:col-span-4">
             <div data-motion="media" className="relative aspect-[3/4] overflow-hidden rounded-xs bg-[var(--tone-tile)]">
-              <Image
+              <AboutPortrait
                 src={photo}
                 alt="Alan Albana, founder Albana Speech Academy."
-                fill
-                sizes="(min-width: 1024px) 30vw, 60vw"
-                className="object-cover object-[center_25%]"
               />
             </div>
           </div>

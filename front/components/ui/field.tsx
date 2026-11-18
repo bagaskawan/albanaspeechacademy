@@ -57,11 +57,13 @@ type TextFieldProps = {
   hint?: string;
   placeholder?: string;
   error?: string;
+  /** id `<datalist>` saran isian. */
+  list?: string;
 };
 
 export function TextField({
   id, label, value, onChange, name = id, type = "text", inputMode, autoComplete,
-  maxLength, required, hint, placeholder, error,
+  maxLength, required, hint, placeholder, error, list,
 }: TextFieldProps) {
   return (
     <div>
@@ -73,6 +75,7 @@ export function TextField({
         inputMode={inputMode}
         autoComplete={autoComplete}
         maxLength={maxLength}
+        list={list}
         placeholder={placeholder}
         required={required}
         value={value}

@@ -6,7 +6,7 @@ const input = {
   batch: "test-series", consent: true, formKind: "series", priceIdr: 100,
   paymentMethod: "full", fullName: "Test", email: "TEST@example.invalid", whatsapp: "'0812-0000-0000",
   answers: {
-    nickname: "Test", domicile: "Test", profession: "Test", goal: "Test", challenge: "Test",
+    nickname: "Test", domicile: "Kota Bandung", professionCategory: "lainnya", profession: "Test", goal: "Test", challenge: "Test",
     age: 25, gender: "Perempuan", priorExperience: false, source: "referral", attendance: "maybe",
   },
 };

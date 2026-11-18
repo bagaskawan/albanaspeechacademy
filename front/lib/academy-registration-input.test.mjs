@@ -7,7 +7,7 @@ const input = {
   paymentMethod: "full", fullName: "Budi", email: "BUDI@example.invalid", whatsapp: "081200000000",
   idempotencyKey: "0e164e45-3928-45ed-8a03-032e9c8f8f4e",
   answers: {
-    nickname: "Bud", domicile: "Bandung", profession: "Pengajar", goal: "Latihan",
+    nickname: "Bud", domicile: "Kota Bandung", professionCategory: "pengajar", profession: "Guru, dosen, atau pengajar", goal: "Latihan",
     challenge: "Gugup", age: 25, gender: "Laki-laki", priorExperience: false,
     source: "instagram", attendance: "yes", institution: "Tidak ada",
   },

@@ -118,7 +118,7 @@ Terbaca publik hanya bila `active AND price_idr IS NOT NULL`.
 | `offer_title` | text | Snapshot nama program atau bundling. |
 | `full_name`, `whatsapp` | text | Wajib. |
 | `email` | text | Wajib; huruf kecil dan sudah di-trim. |
-| `answers` | jsonb | Jawaban formulir (nama panggilan, domisili, usia, profesi, tujuan, tantangan, sumber, kesediaan hadir, …). |
+| `answers` | jsonb | Jawaban formulir (nama panggilan, domisili, usia, profesi, tujuan, tantangan, sumber, kesediaan hadir, …). Sejak 18 Nov 2026 `domicile` wajib nama baku kab/kota dari `lib/demographics.ts` (`REGIONS`) dan `professionCategory` wajib salah satu `professionOptions`; `profession` berisi label kategori atau isian bebas bila kategori `lainnya`. |
 | `payment_method` | text | `full` \| `dp`. |
 | `price_idr_at_signup` | int8 | > 0; snapshot. |
 | `dp_percent_at_signup` | int2 | 1–99; snapshot. |
@@ -145,6 +145,8 @@ Satu baris per batch yang diikuti. Pendaftaran tunggal punya satu baris; bundlin
 | `created_at` | timestamptz | |
 
 Indeks unik parsial `academy_invoice_active_code (bank_account_id, unique_code) WHERE status = 'pending'`.
+
+Indeks dashboard (migrasi `20261118063011_dashboard_indexes`): `academy_registrations (received_at)`, `(primary_batch_slug)`, `(email)`; `academy_registration_items (batch_slug)`; `academy_invoices (reviewed_at) WHERE status = 'verified'` dan `(created_at) WHERE status = 'pending'`.
 
 ### `academy_intake_limits` — PK (`source_hash`, `window_start`)
 

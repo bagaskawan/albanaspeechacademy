@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { bentoLayout, mosaicLayout } from "@/lib/bento";
 import type { HomeMedia } from "@/lib/home-data";
+import { SkeletonImage } from "./skeleton-image";
 
 // Galeri kecil (1–3 foto) memenuhi satu baris penuh agar tidak bolong.
 const FEW_COLUMNS: Record<number, string> = { 1: "grid-cols-1", 2: "grid-cols-2", 3: "grid-cols-3" };
@@ -24,6 +24,13 @@ export function BentoGallery({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [orientations, setOrientations] = useState<Record<number, "portrait" | "landscape">>({});
+
+  function recordOrientation(id: number, img: HTMLImageElement) {
+    if (!img.naturalWidth || !img.naturalHeight) return;
+    const next = img.naturalHeight > img.naturalWidth ? "portrait" : "landscape";
+    setOrientations((prev) => (prev[id] === next ? prev : { ...prev, [id]: next }));
+  }
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -58,11 +65,14 @@ export function BentoGallery({
       >
         {tiles.map((tile, index) => {
           const item = tile.media;
+          const orientation = orientations[item.id];
+          const tileClass = !mosaic && orientation === "portrait" ? "aspect-[3/4]" : tile.className;
+          const objectPosition = orientation === "portrait" ? "object-top" : "object-center";
           return (
             <li
               key={item.id}
               data-motion="media"
-              className={`overflow-hidden rounded-xs bg-[var(--tone-tile)] ${tile.className}`}
+              className={`overflow-hidden rounded-xs bg-[var(--tone-tile)] ${tileClass}`}
             >
               <button
                 type="button"
@@ -77,13 +87,14 @@ export function BentoGallery({
                 {item.kind === "video" ? (
                   <>
                     {item.poster ? (
-                      <Image
+                      <SkeletonImage
                         fill
                         src={item.poster}
                         alt={item.alt}
                         quality={85}
                         sizes="(min-width:1024px) 40vw, 100vw"
-                        className="object-cover hover-zoom"
+                        onLoad={(e) => recordOrientation(item.id, e.currentTarget)}
+                        className={`object-cover ${objectPosition} hover-zoom`}
                       />
                     ) : null}
                     <span
@@ -96,13 +107,14 @@ export function BentoGallery({
                     </span>
                   </>
                 ) : (
-                  <Image
+                  <SkeletonImage
                     fill
                     src={item.src}
                     alt={item.alt}
                     quality={85}
                     sizes="(min-width:1024px) 40vw, 100vw"
-                    className="object-cover hover-zoom"
+                    onLoad={(e) => recordOrientation(item.id, e.currentTarget)}
+                    className={`object-cover ${objectPosition} hover-zoom`}
                   />
                 )}
               </button>
@@ -153,7 +165,7 @@ export function BentoGallery({
               {active.kind === "video" ? (
                 active.src ? (
                   <iframe
-                    src={active.src}
+                    src={`${active.src}${active.src.includes("?") ? "&" : "?"}rel=0&playsinline=1&iv_load_policy=3`}
                     title={active.alt}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
@@ -166,7 +178,7 @@ export function BentoGallery({
                 )
               ) : (
                 <div className="relative aspect-video w-full">
-                  <Image
+                  <SkeletonImage
                     fill
                     src={active.src}
                     alt={active.alt}

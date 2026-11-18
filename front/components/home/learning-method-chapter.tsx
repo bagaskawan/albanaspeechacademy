@@ -1,7 +1,7 @@
-import Image from "next/image";
 import type { HomeMedia } from "@/lib/home-data";
 import { academyRequest } from "@/lib/server/academy-api";
 import { SectionIntro } from "./section-intro";
+import { SkeletonImage } from "./skeleton-image";
 import { Accent } from "./ui/accent";
 
 const approaches = [
@@ -77,7 +77,7 @@ export async function LearningMethodChapter({ moments }: { moments: HomeMedia[] 
                 {photo ? (
                   <figure className="col-span-4 sm:col-span-8 lg:col-span-4 lg:col-start-9">
                     <div data-motion="media" className="relative aspect-[4/3] overflow-hidden rounded-xs bg-[var(--tone-tile)]">
-                      <Image src={photo.src} alt="" fill sizes="(min-width: 1024px) 30vw, 90vw" className="object-cover" />
+                      <SkeletonImage src={photo.src} alt="" fill sizes="(min-width: 1024px) 30vw, 90vw" className="object-cover" />
                     </div>
                     <figcaption className="type-small mt-2 text-[var(--tone-muted)]">{item.caption}</figcaption>
                   </figure>

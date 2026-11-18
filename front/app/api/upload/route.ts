@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     } else {
       bytes = purpose === "legality"
         ? await prepareImage(source, 320, 320)
-        : await prepareImage(source, min.width, min.height);
+        : await prepareImage(source, 0, 0);
       contentType = "image/webp";
     }
     const storage = academyBillingClient();

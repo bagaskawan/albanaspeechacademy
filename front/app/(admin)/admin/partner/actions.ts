@@ -9,7 +9,8 @@ export async function savePartner(form: FormData): Promise<{ error?: string }> {
   await requireAdminMember();
   const name = String(form.get("name") ?? "").trim();
   const logo = String(form.get("logo") ?? "").trim();
-  if (!name || name.length > 160) return { error: "Nama partner wajib diisi (maksimal 160 karakter)." };
+  if (!name && !logo) return { error: "Isi nama partner atau unggah logo partner." };
+  if (name.length > 160) return { error: "Nama partner maksimal 160 karakter." };
   if (logo && !/^https:\/\//.test(logo) && !/^\/api\/media\/[1-9]\d*$/.test(logo)) {
     return { error: "URL logo partner tidak valid." };
   }
@@ -25,10 +26,10 @@ export async function savePartner(form: FormData): Promise<{ error?: string }> {
     oldLogoUrl = existing?.logo_url ?? null;
   }
 
-  // Edits keep published and sort_order; new partners start as drafts with sort_order 0.
+  // Partners are published immediately upon save.
   const { error } = id
-    ? await table.update({ name, logo_url: logo || null }).eq("id", id)
-    : await table.insert({ name, logo_url: logo || null, sort_order: 0, published: false });
+    ? await table.update({ name, logo_url: logo || null, published: true }).eq("id", id)
+    : await table.insert({ name, logo_url: logo || null, sort_order: 0, published: true });
   if (error) return { error: "Partner gagal disimpan." };
 
   if (oldLogoUrl && oldLogoUrl !== (logo || null)) {

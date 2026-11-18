@@ -58,7 +58,20 @@ export function AdminSheet({
               />
             </Dialog.Overlay>
             <div className="pointer-events-none fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
-              <Dialog.Content asChild forceMount {...(description ? {} : { "aria-describedby": undefined })}>
+              <Dialog.Content
+                asChild
+                forceMount
+                onInteractOutside={(event) => {
+                  const target = event.target as HTMLElement | null;
+                  if (
+                    target?.closest?.('[data-slot="select-content"], [data-slot="popover-content"], [data-radix-popper-content-wrapper]') ||
+                    document.querySelector('[data-slot="select-content"][data-state="open"], [data-slot="popover-content"][data-state="open"]')
+                  ) {
+                    event.preventDefault();
+                  }
+                }}
+                {...(description ? {} : { "aria-describedby": undefined })}
+              >
                 <m.div
                   className={`pointer-events-auto flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[28px] bg-admin-canvas shadow-[var(--admin-shadow-overlay)] sm:max-h-[min(760px,calc(100dvh-48px))] sm:rounded-[32px] ${widths[size]}`}
                   initial={sheet ? { y: "100%" } : { opacity: 0, y: 24, scale: 0.96 }}

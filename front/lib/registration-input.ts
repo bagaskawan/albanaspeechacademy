@@ -1,3 +1,5 @@
+import { canonicalRegion, isProfessionCategory } from "./demographics.ts";
+
 export function isSlug(value: unknown): value is string {
   return typeof value === "string" && value.length <= 160 && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(value);
 }
@@ -32,7 +34,8 @@ export function parseRegistration(input: unknown) {
     const value = a[key];
     if (value != null && (typeof value !== "string" || value.trim().length > 500)) return null;
   }
-  const nickname = field(a.nickname, 160), domicile = field(a.domicile), profession = field(a.profession);
+  const nickname = field(a.nickname, 160), domicile = canonicalRegion(a.domicile), profession = field(a.profession);
+  if (!isProfessionCategory(a.professionCategory)) return null;
   const goal = field(a.goal, 2000), challenge = field(a.challenge, 2000);
   if (!nickname || !domicile || !profession || !goal || (formKind !== "bnsp" && !challenge)) return null;
   if (typeof a.age !== "number" || !Number.isInteger(a.age) || a.age <= 0 || a.age > 150) return null;
@@ -48,7 +51,7 @@ export function parseRegistration(input: unknown) {
     batch: input.batch,
     participant: {
       fullName, email, whatsapp, formKind, priceIdr, paymentMethod, dpPercent: paymentMethod === "dp" ? dpPercent : null,
-      answers: { nickname, domicile, profession, goal, challenge: formKind === "bnsp" ? null : challenge,
+      answers: { nickname, domicile, professionCategory: a.professionCategory, profession, goal, challenge: formKind === "bnsp" ? null : challenge,
         institution: field(a.institution), age: a.age, gender: a.gender, priorExperience: a.priorExperience,
         attendance: a.attendance, source: a.source, sourceOther: a.source === "other" ? sourceOther : null,
         socials, socialOther: socials.includes("other") ? socialOther : null, socialName: field(a.socialName),

@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   images: {
     qualities: [75, 85, 90],
     formats: ["image/avif", "image/webp"],
+    maximumRedirects: 3,
     localPatterns: [
       { pathname: "/api/media/**", search: "" },
       { pathname: "/images/**", search: "" },

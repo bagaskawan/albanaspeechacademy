@@ -1,10 +1,10 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { HomeData } from "@/lib/home-data";
 import { readProgramShowcase } from "@/lib/server/program-showcase";
 import { contactHref, readPublishedContacts } from "@/lib/server/public-contacts";
 import { RetryButton } from "@/components/ui/retry-button";
 import { SectionIntro } from "./section-intro";
+import { SkeletonImage } from "./skeleton-image";
 import { Accent } from "./ui/accent";
 import { Tile } from "./ui/tile";
 
@@ -45,7 +45,7 @@ export async function ScheduleSection({
             </>
           }
           titleId="jadwal-title"
-          description="Pilih batch yang cocok dengan kalendermu. Semua tanggal, jam, tempat, dan biaya ada di sini — waktu dalam WIB."
+          description="Pilih batch yang cocok dengan kalendermu. Semua tanggal, jam, tempat, dan biaya ada di sini."
         />
 
         {showcase.status === "failed" ? (
@@ -60,9 +60,9 @@ export async function ScheduleSection({
                 (programs === "failed"
                   ? undefined
                   : programs
-                      .find((program) => program.card.slug === card.slug)
-                      ?.media.find((item) => item.kind === "image")) ??
-                moments[(6 + cardIndex) % Math.max(moments.length, 1)];
+                    .find((program) => program.card.slug === card.slug)
+                    ?.media.find((item) => item.kind === "image")) ??
+                moments[4 + cardIndex];
 
               return (
                 <Tile key={card.slug} tone="tile">
@@ -73,7 +73,7 @@ export async function ScheduleSection({
                           data-motion="media"
                           className="relative aspect-video overflow-hidden rounded-xs bg-[var(--tone-bg)]"
                         >
-                          <Image
+                          <SkeletonImage
                             src={thumb.src}
                             alt={thumb.alt}
                             fill
@@ -85,9 +85,8 @@ export async function ScheduleSection({
                     ) : null}
 
                     <div
-                      className={`col-span-4 flex flex-col gap-4 sm:col-span-8 ${
-                        thumb ? "lg:col-span-5" : "lg:col-span-8"
-                      }`}
+                      className={`col-span-4 flex flex-col gap-4 sm:col-span-8 ${thumb ? "lg:col-span-5" : "lg:col-span-8"
+                        }`}
                     >
                       <div>
                         <p className="eyebrow text-[var(--tone-muted)]">Program</p>
@@ -97,19 +96,41 @@ export async function ScheduleSection({
                       </div>
 
                       <ol className="divide-y divide-[var(--tone-rule)] border-y border-[var(--tone-rule)]">
-                        {card.batch!.dateLabels.map((date, index) => (
-                          <li
-                            key={`${date}-${index}`}
-                            data-motion="slide"
-                            className="type-small flex flex-wrap gap-x-4 gap-y-1 py-2"
-                          >
-                            <strong className="shrink-0">Sesi {index + 1}</strong>
-                            <span>{date}</span>
-                            <span className="tabular-nums text-[var(--tone-muted)]">
-                              {card.batch!.timeLabel} WIB
-                            </span>
-                          </li>
-                        ))}
+                        {card.batch!.scheduleMode === "start_only" ? (
+                          <>
+                            <li
+                              data-motion="slide"
+                              className="type-small flex flex-wrap gap-x-4 gap-y-1 py-2"
+                            >
+                              <strong className="shrink-0">Mulai</strong>
+                              <span>{card.batch!.dateLabels[0]?.replace(/^Mulai\s+/i, "")}</span>
+                              <span className="tabular-nums text-[var(--tone-muted)]">
+                                {card.batch!.timeLabel}
+                              </span>
+                            </li>
+                            <li
+                              data-motion="slide"
+                              className="type-small flex flex-wrap gap-x-4 gap-y-1 py-2"
+                            >
+                              <strong className="shrink-0">Format</strong>
+                              <span>{card.batch!.formatLabel}</span>
+                            </li>
+                          </>
+                        ) : (
+                          card.batch!.dateLabels.map((date, index) => (
+                            <li
+                              key={`${date}-${index}`}
+                              data-motion="slide"
+                              className="type-small flex flex-wrap gap-x-4 gap-y-1 py-2"
+                            >
+                              <strong className="shrink-0">Sesi {index + 1}</strong>
+                              <span>{date}</span>
+                              <span className="tabular-nums text-[var(--tone-muted)]">
+                                {card.batch!.timeLabel}
+                              </span>
+                            </li>
+                          ))
+                        )}
                       </ol>
 
                       <p className="type-small text-[var(--tone-muted)]">

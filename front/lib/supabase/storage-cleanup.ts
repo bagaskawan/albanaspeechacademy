@@ -14,6 +14,7 @@ const KNOWN_BUCKETS = [
   "portfolio-images",
   "portfolio-thumbnails",
   "gallery",
+  "inhouse-gallery",
   "testimonials",
   "legality",
   "academy-media",

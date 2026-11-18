@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { Loader2, RefreshCw, Trash2, UploadCloud } from "lucide-react";
 import { useSettingsForm } from "@/components/admin/settings/settings-forms";
+import { UploadBlockingModal } from "@/components/admin/ui/UploadBlockingModal";
 import { saveAcademyLegality, type AcademyLegality } from "./legality-actions";
 
 type SlotKey = keyof AcademyLegality;
@@ -175,6 +176,8 @@ function LegalityUploadCard({
           </p>
         )}
       </div>
+
+      <UploadBlockingModal open={uploading} title="Mengunggah dokumen legalitas…" />
     </div>
   );
 }

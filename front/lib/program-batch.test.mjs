@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { batchStatus, fromStoredSessions, nextBatchName, toStoredSessions, validateSessions, wibMs } from "./program-batch.ts";
+import { batchStatus, fromStoredSessions, nextBatchName, sessionCountOf, toStoredSessions, validateSessions, wibMs } from "./program-batch.ts";
 
 test("placeholder menaikkan angka terakhir dari batch bernomor tertinggi", () => {
   assert.equal(nextBatchName(["ASA Batch 9"]), "ASA Batch 10");
@@ -46,4 +46,15 @@ test("status batch: dibuka, ditutup, selesai setelah sesi terakhir berakhir", ()
   assert.equal(batchStatus({ registration_open: false, sessions }, before), "closed");
   assert.equal(batchStatus({ registration_open: true, sessions }, after), "done");
   assert.equal(batchStatus({ registration_open: false, sessions: [] }, after), "closed");
+});
+
+test("mode tanggal mulai saja menyimpan dan membaca jumlah sesi", () => {
+  const input = [{ date: "2026-12-05", start: "15:00", end: "18:00", startOnly: true, sessionCount: 4 }];
+  assert.equal(validateSessions(input), null);
+  assert.equal(validateSessions([{ ...input[0], sessionCount: 0 }]), "Jumlah sesi harus antara 1 sampai 30 pertemuan.");
+  const stored = toStoredSessions(input);
+  assert.deepEqual(stored, [{ starts_at: "2026-12-05T15:00", ends_at: "2026-12-05T18:00", start_only: true, session_count: 4 }]);
+  const parsed = fromStoredSessions(stored);
+  assert.deepEqual(parsed, input);
+  assert.equal(sessionCountOf(parsed), 4);
 });

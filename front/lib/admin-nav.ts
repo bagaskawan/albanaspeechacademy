@@ -31,6 +31,7 @@ export const adminNavGroups: AdminNavGroup[] = [
     modules: [
       { label: "Pendaftar", href: "/admin/pendaftar", icon: "users", description: "Pendaftaran yang masuk melalui formulir Albana. Status pembayaran diperiksa di Tagihan." },
       { label: "Tagihan", href: "/admin/tagihan", icon: "receipt", description: "Cocokkan bukti WhatsApp dan nominal persis sebelum memverifikasi. DP yang diverifikasi menerbitkan tagihan pelunasan." },
+      { label: "Kalender", href: "/admin/kalender", icon: "calendar", description: "Jadwal sesi semua batch, diambil langsung dari jadwal di Program." },
     ],
   },
   {
@@ -42,9 +43,9 @@ export const adminNavGroups: AdminNavGroup[] = [
     ],
   },
   {
-    id: "inhouse-training", label: "In House Training", href: "/admin/galeri", icon: "academy",
+    id: "inhouse-training", label: "In House Training", href: "/admin/inhouse-galeri", icon: "academy",
     modules: [
-      { label: "Dokumentasi", href: "/admin/galeri", icon: "gallery", description: "Foto dokumentasi kegiatan In House Training untuk situs publik." },
+      { label: "Galeri In House Training", href: "/admin/inhouse-galeri", icon: "gallery", description: "Foto dokumentasi kegiatan In House Training untuk situs publik." },
       { label: "Our Partner", href: "/admin/partner", icon: "partner", description: "Instansi yang pernah dilatih Albana." },
     ],
   },
@@ -52,6 +53,7 @@ export const adminNavGroups: AdminNavGroup[] = [
     id: "konten", label: "Konten", href: "/admin/artikel", icon: "article",
     modules: [
       { label: "Artikel", href: "/admin/artikel", icon: "article", description: "Draf dan artikel yang sudah terbit. Hanya artikel terbit yang tampil di situs publik." },
+      { label: "Galeri", href: "/admin/galeri", icon: "gallery", description: "Foto dokumentasi kegiatan Albana untuk situs publik." },
       { label: "Testimoni", href: "/admin/testimoni", icon: "quote", description: "Kutipan peserta yang tampil di beranda." },
       { label: "Trainer", href: "/admin/trainer", icon: "trainer", description: "Profil pengajar Albana." },
     ],

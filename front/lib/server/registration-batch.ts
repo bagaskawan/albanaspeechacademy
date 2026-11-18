@@ -51,9 +51,11 @@ function toRegistrationBatch(
       sequence: typeof session.sequence_no === "number" ? session.sequence_no : index + 1,
       startsAt: asString(session.starts_at),
       endsAt: asString(session.ends_at),
+      startOnly: session.start_only === true,
+      sessionCount: typeof session.session_count === "number" && session.session_count >= 1 ? session.session_count : null,
     }))
     .filter(
-      (session): session is { sequence: number; startsAt: string; endsAt: string } =>
+      (session): session is { sequence: number; startsAt: string; endsAt: string; startOnly: boolean; sessionCount: number | null } =>
         session.startsAt !== null && session.endsAt !== null,
     )
     .sort((a, b) => a.sequence - b.sequence);
@@ -71,17 +73,22 @@ function toRegistrationBatch(
     return null;
   }
 
+  const isStartOnly = sessions[0].startOnly;
+  const totalSessions = isStartOnly ? (sessions[0].sessionCount ?? 4) : sessions.length;
+
   return {
     programSlug,
     batchSlug,
     programName,
     batchName,
-    formatLabel: asString(program.format) ?? `${sessions.length} pertemuan`,
+    formatLabel: asString(program.format) ?? `${totalSessions} pertemuan`,
     timeLabel: formatTimeRange(sessions[0].startsAt, sessions[0].endsAt),
-    sessions: sessions.map((session) => ({
-      sequence: session.sequence,
-      dateLabel: formatSessionDate(session.startsAt),
-    })),
+    sessions: isStartOnly
+      ? [{ sequence: 1, dateLabel: `Mulai ${formatSessionDate(sessions[0].startsAt)} (${totalSessions} pertemuan)` }]
+      : sessions.map((session) => ({
+          sequence: session.sequence,
+          dateLabel: formatSessionDate(session.startsAt),
+        })),
     venue: { name: address, address },
     formKind,
     formCopy,

@@ -1,6 +1,6 @@
-import Image from "next/image";
-import { BrandLogo } from "@/components/layout/brand-logo";
 import type { HomeData, HomeMedia } from "@/lib/home-data";
+import { BrandLogo } from "@/components/layout/brand-logo";
+import { SkeletonImage } from "./skeleton-image";
 import { Accent } from "./ui/accent";
 import { MoreLink } from "./ui/more-link";
 
@@ -20,7 +20,7 @@ function Photo({
       data-motion="media"
       className={`relative overflow-hidden rounded-xs bg-[var(--tone-tile)] ${className}`}
     >
-      <Image
+      <SkeletonImage
         fill
         preload={preload}
         src={media.src}
@@ -41,7 +41,7 @@ export function HeroSection({
   moments: HomeMedia[];
 }) {
   const enter = "motion-safe:animate-[academy-hero-enter_0.55s_ease-out_both]";
-  const side = moments[10] ?? moments[0] ?? null;
+  const side = moments[2] ?? null;
 
   return (
     <section
@@ -83,9 +83,9 @@ export function HeroSection({
               className={`flex flex-col items-start gap-6 ${enter}`}
             >
               <p className="type-lead max-w-[34em] text-[var(--tone-muted)] text-pretty">
-                Rapat, presentasi, memandu acara, menjawab pertanyaan. <span className="highlight-stabilo">Di Albana kamu tidak sekadar belajar teori bicara kamu{" "}
-                  berlatih di depan orang, menerima masukan, lalu mencoba lagi
-                  sampai terbiasa</span>.
+                Rapat, presentasi, memandu acara, menjawab pertanyaan. <br />Di Albana kamu tidak sekadar belajar teori bicara kamu{" "}
+                berlatih di depan orang, menerima masukan, lalu mencoba lagi
+                sampai terbiasa.
               </p>
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
                 <a href="#jadwal" className="button-primary">
@@ -142,6 +142,6 @@ export function HeroSection({
           </div>
         </div>
       </div>
-    </section>
+    </section >
   );
 }

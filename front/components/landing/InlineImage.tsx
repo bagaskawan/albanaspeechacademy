@@ -3,6 +3,7 @@
 import React, { useRef, useState } from "react";
 import { useLandingCMS } from "./LandingCMSContext";
 import { Camera, Loader2 } from "lucide-react";
+import { UploadBlockingModal } from "@/components/admin/ui/UploadBlockingModal";
 
 interface InlineImageProps {
   src: string;
@@ -87,6 +88,7 @@ export function InlineImage({ src, alt, className = "", onSave }: InlineImagePro
         accept="image/png, image/jpeg, image/jpg, image/webp, image/svg+xml"
         className="hidden"
       />
+      <UploadBlockingModal open={isUploading} title="Mengunggah gambar…" />
     </div>
   );
 }

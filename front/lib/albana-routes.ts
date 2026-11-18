@@ -8,6 +8,6 @@ export function isAlbanaPath(pathname: string) {
   if (["/auth/confirm", "/api/registrations", "/api/upload", "/api/admin/invoice-payments"].includes(pathname) || /^\/api\/media\/[0-9]+$/.test(pathname)) return true;
   if (/^\/api\/admin\/invoice-payments\/[0-9]+\/proof$/.test(pathname)) return true;
   if (/^\/api\/admin\/export\/[a-z]+$/.test(pathname)) return true;
-  if (["/admin/galeri", "/admin/testimoni", "/admin/partner", "/admin/pendaftar", "/admin/tagihan", "/admin/rekening", "/admin/kontak", "/admin/profil-akademi", "/admin/settings"].includes(pathname)) return true;
+  if (["/admin/galeri", "/admin/inhouse-galeri", "/admin/testimoni", "/admin/partner", "/admin/pendaftar", "/admin/tagihan", "/admin/kalender", "/admin/rekening", "/admin/kontak", "/admin/profil-akademi", "/admin/settings"].includes(pathname)) return true;
   return adminPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }

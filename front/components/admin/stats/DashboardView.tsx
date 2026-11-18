@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { DashboardStats } from "@/lib/server/admin-dashboard";
+import type { CalendarSession } from "@/lib/server/admin-calendar";
+import { AgendaList, type ProgramTones } from "@/components/admin/calendar/AgendaList";
 import { TrendChartLazy } from "./TrendChartLazy";
 
 const card = "rounded-[var(--admin-radius-card)] bg-admin-surface p-[var(--admin-space-card)]";
@@ -24,7 +26,7 @@ function Chip({ tone, children }: { tone: "butter" | "peach" | "mint" | "rose" |
     rose: "bg-admin-rose-soft text-admin-rose-ink",
     lilac: "bg-admin-lilac-soft text-admin-lilac-ink",
   };
-  return <span className={`inline-flex h-7 items-center rounded-full px-3 text-[12px] font-medium ${tones[tone]}`}>{children}</span>;
+  return <span className={`inline-flex h-7 shrink-0 items-center whitespace-nowrap rounded-full px-3 text-[12px] font-medium ${tones[tone]}`}>{children}</span>;
 }
 
 function Sparkline({ values }: { values: number[] }) {
@@ -81,16 +83,44 @@ function SplitBar({ group }: { group: DashboardStats["composition"]["gender"] })
   </li>;
 }
 
-export function DashboardView({ stats }: { stats: DashboardStats }) {
+const DAY = 86_400_000;
+const dateShort = new Intl.DateTimeFormat("id-ID", { weekday: "short", day: "numeric", month: "short", timeZone: "Asia/Jakarta" });
+const statusLabel = { open: "Dibuka", closed: "Ditutup", done: "Selesai" } as const;
+
+/** Hal yang perlu ditindaklanjuti admin; kosong berarti strip tidak tampil. */
+function actionItems(stats: DashboardStats, agenda: CalendarSession[], now: number) {
+  const items: { text: string; href: string }[] = [];
+  if (stats.pending.count) items.push({ text: `${stats.pending.count} tagihan menunggu dicek${stats.pending.oldestDays ? ` (tertua ${stats.pending.oldestDays} hari)` : ""}`, href: "/admin/tagihan?status=pending" });
+  if (stats.pending.remainingCount) items.push({ text: `${stats.pending.remainingCount} tagihan pelunasan belum dibayar`, href: "/admin/tagihan?status=pending" });
+  const starting = agenda.filter((session) => session.sequence === 1 && session.startsAt - now < 7 * DAY);
+  for (const session of starting.slice(0, 2)) {
+    const days = Math.max(0, Math.ceil((session.startsAt - now) / DAY));
+    items.push({ text: `${session.batchTitle} mulai ${days === 0 ? "hari ini" : `${days} hari lagi`} (${dateShort.format(session.startsAt)})`, href: `/admin/program/${session.programSlug}` });
+  }
+  return items;
+}
+
+export function DashboardView({ stats, agenda, filtered, now, tones }: { stats: DashboardStats; agenda: CalendarSession[]; filtered: boolean; now: number; tones: ProgramTones }) {
   const { registrations, verified, pending, settlement, trend, topBatches, composition, perProgram } = stats;
   const settlementDelta = settlement.current - settlement.previous;
   const profile = [composition.gender, composition.experience, composition.payment];
   const profileN = Math.min(...profile.map((group) => group.n));
+  const actions = actionItems(stats, agenda, now);
+  const hasTrend = trend.buckets.some((bucket) => bucket.registrations > 0 || bucket.verifiedIdr > 0);
 
   return <div className="space-y-[var(--admin-gap-card)]">
-    {registrations.current === 0 && registrations.previous === 0 && <p className={`${card} text-[15px] text-admin-text-secondary`}>
-      Belum ada pendaftar. Buka batch di <Link href="/admin/batch" className="font-medium text-admin-ink underline underline-offset-4">Kelas ⟶ Batch</Link>.
+    {registrations.current === 0 && registrations.previous === 0 && !filtered && <p className={`${card} text-[15px] text-admin-text-secondary`}>
+      Belum ada pendaftar. Buka batch di <Link href="/admin/program/public-speaking-series" className="font-medium text-admin-ink underline underline-offset-4">Public Training</Link>.
     </p>}
+
+    {actions.length > 0 && <section aria-labelledby="dashboard-actions" className={`${card} border border-admin-peach-dot/40`}>
+      <h2 id="dashboard-actions" className="text-[15px] font-medium">Perlu tindakan</h2>
+      <ul className="mt-3 space-y-2 text-[14px]">{actions.map((item) => <li key={item.text}>
+        <Link href={item.href} className="inline-flex items-center gap-2 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-admin-ink">
+          <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-admin-peach-dot" />{item.text}<ArrowUpRight aria-hidden="true" size={14} />
+        </Link>
+      </li>)}</ul>
+    </section>}
 
     <div className="grid gap-[var(--admin-gap-card)] sm:grid-cols-2 xl:grid-cols-4">
       <StatCard value={registrations.current.toLocaleString("id-ID")} label="Pendaftar" spark={registrations.daily}
@@ -105,7 +135,10 @@ export function DashboardView({ stats }: { stats: DashboardStats }) {
           </div>
           <OpenLink href="/admin/tagihan?status=pending" label="tagihan menunggu" inverse />
         </div>
-        {pending.oldestDays === null ? <p className="text-[13px] opacity-70">Semua tagihan sudah dicek</p> : <Chip tone="peach">Tertua {pending.oldestDays} hari</Chip>}
+        <div className="flex flex-wrap items-center gap-2">
+          {pending.oldestDays === null ? <p className="text-[13px] opacity-70">Semua tagihan sudah dicek</p> : <Chip tone="peach">Tertua {pending.oldestDays} hari</Chip>}
+          {pending.remainingCount > 0 && <p className="text-[13px] opacity-70">{pending.remainingCount} pelunasan · <Rupiah value={pending.remainingTotal} className="[&>span:last-child]:text-current [&>span:last-child]:opacity-60" /></p>}
+        </div>
       </section>
       <StatCard value={`${settlement.current}%`} label="Tingkat pelunasan"
         chip={<p className="flex flex-wrap items-center gap-2 text-[13px] text-admin-text-secondary"><Chip tone={settlementDelta >= 0 ? "mint" : "rose"}>{settlementDelta >= 0 ? "+" : ""}{settlementDelta} poin</Chip>{stats.openBatches} batch dibuka</p>} />
@@ -115,24 +148,45 @@ export function DashboardView({ stats }: { stats: DashboardStats }) {
       <section className={`${card} xl:col-span-2`}>
         <h2 className="text-[17px] font-medium">{stats.period === "ytd" ? "Pendaftar per bulan" : "Pendaftar per minggu"}</h2>
         <p className="mt-1 text-[13px] text-admin-text-secondary">{stats.period === "ytd" ? "Sejak Januari" : "12 minggu terakhir"}</p>
-        <TrendChartLazy buckets={trend.buckets} average={trend.averageRegistrations} />
+        {hasTrend
+          ? <TrendChartLazy buckets={trend.buckets} average={trend.averageRegistrations} />
+          : <p className="admin-pattern-empty mt-6 flex h-[200px] items-center justify-center rounded-[var(--admin-radius-card)] px-6 text-center text-[14px] text-admin-text-secondary">
+              Belum ada pendaftar atau pembayaran pada {stats.period === "ytd" ? "tahun ini" : "12 minggu terakhir"}.
+            </p>}
       </section>
       <section className={card}>
-        <div className="flex items-start justify-between gap-3"><h2 className="text-[17px] font-medium">Batch teratas</h2><Chip tone="lilac">{topBatches.length} batch</Chip></div>
-        {topBatches.length === 0
-          ? <p className="mt-6 text-[14px] text-admin-text-secondary">Belum ada pendaftar aktif pada periode ini.</p>
-          : <table className="mt-5 w-full text-[14px]">
-              <thead><tr className="text-left text-[12px] text-admin-text-secondary"><th className="pb-3 font-normal">#</th><th className="pb-3 font-normal">Batch</th><th className="pb-3 text-right font-normal">Aktif</th><th className="pb-3 text-right font-normal">Lunas</th></tr></thead>
-              <tbody>{topBatches.map((row, index) => <tr key={row.slug} className="border-t border-admin-line">
-                <td className="py-3 pr-2"><span className={`inline-flex size-7 items-center justify-center rounded-full text-[12px] ${index === 0 ? "bg-admin-ink text-admin-on-ink" : "border border-admin-line-strong"}`}>{index + 1}</span></td>
-                <td className="max-w-0 py-3 pr-2"><p className="truncate font-medium">{row.title}</p><p className="truncate text-[12px] text-admin-text-secondary">{row.program}</p></td>
-                <td className="py-3 text-right font-mono tabular-nums">{row.active}</td>
-                <td className="py-3 pl-2 text-right"><Chip tone="mint">{row.paidPercent}%</Chip></td>
-              </tr>)}</tbody>
-            </table>}
+        <div className="flex items-start justify-between gap-3">
+          <div><h2 className="text-[17px] font-medium">Agenda 14 hari</h2><p className="mt-1 text-[13px] text-admin-text-secondary">Sesi dari jadwal batch</p></div>
+          <OpenLink href="/admin/kalender" label="kalender" />
+        </div>
+        <AgendaList sessions={agenda} tones={tones} empty="Tidak ada sesi dalam 14 hari ke depan." className="mt-5" />
       </section>
     </div>
 
+    <section className={card}>
+      <div className="flex items-start justify-between gap-3">
+        <div><h2 className="text-[17px] font-medium">Kinerja batch</h2><p className="mt-1 text-[13px] text-admin-text-secondary">Batch dibuka dan batch dengan pendaftar pada periode ini</p></div>
+        <Chip tone="lilac">{topBatches.length} batch</Chip>
+      </div>
+      {topBatches.length === 0
+        ? <p className="mt-6 text-[14px] text-admin-text-secondary">Belum ada batch dibuka atau pendaftar aktif pada periode ini.</p>
+        : <div className="mt-5 overflow-x-auto"><table className="w-full min-w-[640px] text-[14px]">
+            <thead><tr className="text-left text-[12px] text-admin-text-secondary">
+              <th scope="col" className="pb-3 font-normal">Batch</th><th scope="col" className="pb-3 font-normal">Mulai</th><th scope="col" className="pb-3 font-normal">Status</th>
+              <th scope="col" className="pb-3 text-right font-normal">Pendaftar</th><th scope="col" className="pb-3 text-right font-normal">Baru DP</th><th scope="col" className="pb-3 text-right font-normal">Lunas</th>
+            </tr></thead>
+            <tbody>{topBatches.map((row) => <tr key={row.slug} className="border-t border-admin-line">
+              <td className="max-w-0 py-3 pr-3"><Link href={row.programSlug ? `/admin/program/${row.programSlug}` : "/admin"} className="block truncate font-medium hover:underline">{row.title}</Link><p className="truncate text-[12px] text-admin-text-secondary">{row.program}</p></td>
+              <td className="whitespace-nowrap py-3 pr-3 text-admin-text-secondary">{row.startsAt === null ? "—" : dateShort.format(row.startsAt)}</td>
+              <td className="py-3 pr-3"><Chip tone={row.status === "open" ? "mint" : row.status === "done" ? "lilac" : "peach"}>{statusLabel[row.status]}</Chip></td>
+              <td className="py-3 text-right font-mono tabular-nums">{row.active}</td>
+              <td className="py-3 text-right font-mono tabular-nums">{row.partial}</td>
+              <td className="py-3 pl-2 text-right"><span className="font-mono tabular-nums">{row.verified}</span> <span className="text-[12px] text-admin-text-secondary">({row.paidPercent}%)</span></td>
+            </tr>)}</tbody>
+          </table></div>}
+    </section>
+
+    <h2 className="pt-2 text-[20px] font-medium">Demografi peserta</h2>
     <div className="grid gap-[var(--admin-gap-card)] lg:grid-cols-3">
       <Bars title="Sumber informasi" hint="Dari mana peserta mengetahui pelatihan" group={composition.source} />
       <Bars title="Usia" hint="Kelompok usia pendaftar" group={composition.age} />
@@ -144,10 +198,15 @@ export function DashboardView({ stats }: { stats: DashboardStats }) {
         {profileN >= 5
           ? <ul className="mt-6 space-y-5">{profile.map((group) => <SplitBar key={group.rows[0].label} group={group} />)}</ul>
           : <p className="mt-6 text-[14px] text-admin-text-secondary">Data belum cukup (perlu minimal 5 jawaban).</p>}
-        {perProgram.length > 0 && <div className="mt-6 border-t border-admin-line pt-5">
-          <h3 className="text-[13px] font-medium text-admin-text-secondary">Pendaftar aktif per program</h3>
-          <ul className="mt-3 space-y-2 text-[14px]">{perProgram.map((row) => <li key={row.slug} className="flex justify-between gap-3"><span className="truncate">{row.title}</span><span className="font-mono tabular-nums">{row.count}</span></li>)}</ul>
-        </div>}
+      </section>
+      <Bars title="Domisili" hint="Kota atau kabupaten terbanyak" group={composition.domicile} />
+      <Bars title="Profesi" hint="Kategori profesi pendaftar" group={composition.profession} />
+      <section className={card}>
+        <h2 className="text-[17px] font-medium">Per program</h2>
+        <p className="mt-1 text-[13px] text-admin-text-secondary">Pendaftar aktif periode ini</p>
+        {perProgram.length === 0
+          ? <p className="mt-6 text-[14px] text-admin-text-secondary">Belum ada pendaftar aktif.</p>
+          : <ul className="mt-6 space-y-3 text-[14px]">{perProgram.map((row) => <li key={row.slug} className="flex justify-between gap-3"><span className="truncate">{row.title}</span><span className="font-mono tabular-nums">{row.count}</span></li>)}</ul>}
       </section>
     </div>
   </div>;

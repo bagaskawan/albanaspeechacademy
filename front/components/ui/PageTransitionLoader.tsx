@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { PageLoading } from "./PageLoading";
 
 export default function PageTransitionLoader() {
   const pathname = usePathname();
@@ -38,7 +39,7 @@ export default function PageTransitionLoader() {
     if (overlayRef.current && isNavigatingRef.current) {
       const timer = setTimeout(() => {
         // Scroll to top of the page instantly
-        window.scrollTo({ top: 0, left: 0, behavior: "instant" as any });
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
 
         // Force final recalculation
         ScrollTrigger.refresh();
@@ -143,11 +144,9 @@ export default function PageTransitionLoader() {
     <div
       ref={overlayRef}
       style={{ opacity: 0, visibility: "hidden", pointerEvents: "none" }}
-      className="fixed inset-0 bg-white dark:bg-[#2c2c2c] text-[#2c2c2c] dark:text-white z-[9999] flex items-center justify-center select-none"
+      className="fixed inset-0 z-[9999] select-none"
     >
-      <span className="font-sans text-[12px] uppercase tracking-[0.3em] font-black animate-pulse">
-        loading ...
-      </span>
+      <PageLoading />
     </div>
   );
 }

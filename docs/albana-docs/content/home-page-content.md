@@ -502,7 +502,7 @@ Tata letak per seksi (ringkas): hero dua kolom — judul serif besar kiri, kompo
 | D4 · Video per program | `media_assets` (YouTube) — `/admin/program/[slug]` |
 | D5 · Poster video YouTube | `https://i.ytimg.com/vi/{youtubeId}/hqdefault.jpg` (otomatis) |
 | D6 · Inhouse: kartu & WhatsApp | `programs` & `contact_channels` — `/admin/program`, `/admin/kontak` |
-| D7 · Inhouse: dokumentasi kegiatan | `gallery` & `media_assets` (`inhouse-training`) — `/admin/galeri`, `/admin/program/inhouse-training` |
+| D7 · Inhouse: dokumentasi kegiatan | `inhouse_gallery` & `media_assets` (`inhouse-training`) — `/admin/inhouse-galeri`, `/admin/program/inhouse-training` |
 | D8 · Pernah melatih (logo partner) | `academy_partners` — `/admin/partner` |
 | D9 · Tentang: nama akademi & potret Alan | `academy.name`, `trainers` — `/admin/profil-akademi`, `/admin/trainer` |
 | D10 · Cara belajar: teks metode | `academy.teaching_method` — `/admin/profil-akademi` |
@@ -511,5 +511,5 @@ Tata letak per seksi (ringkas): hero dua kolom — judul serif besar kiri, kompo
 | D13 · Testimoni (slider) | `testimonials` — `/admin/testimoni` |
 | D14 · Trainer | `trainers` — `/admin/trainer` |
 | D15 · Kontak penutup & footer | `contact_channels` — `/admin/kontak` |
-| D16 · Foto hero & kumpulan `moments` | Turunan otomatis dari D3 + D7 (`lib/home-derive.ts`) |
+| D16 · Foto hero & kumpulan `moments` | Hero dari D3/galeri; `moments` (foto pelengkap di luar seksi program/inhouse) diambil unik dari `gallery` (`/admin/galeri`) tanpa duplikat |
 | D17 · Kompresi gambar | `next/image` (`/_next/image`, AVIF/WebP, `q=85/90`) |

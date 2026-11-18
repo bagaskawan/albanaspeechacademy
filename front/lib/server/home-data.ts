@@ -2,7 +2,7 @@ import "server-only";
 import type { HomeData, HomeMedia, HomeProgram } from "@/lib/home-data";
 import { buildMoments, nextBatchOf, pickHeroPhoto, toHomeMedia } from "@/lib/home-derive";
 import { academyRequest } from "./academy-api";
-import { readInhouseGallery, readLegality, readPartners, readTestimonials } from "./home-sources";
+import { readContentGallery, readInhouseGallery, readLegality, readPartners, readTestimonials } from "./home-sources";
 import { type ProgramGallery, readProgramGalleries } from "./program-galleries";
 import { type ProgramCard, readProgramShowcase } from "./program-showcase";
 import { contactHref, readPublishedContacts } from "./public-contacts";
@@ -61,6 +61,7 @@ export async function readHomeData(): Promise<HomeData> {
     bundleNotes,
     whatsappHref,
     inhouseGallery,
+    contentGallery,
     partners,
     testimonials,
     legality,
@@ -70,6 +71,7 @@ export async function readHomeData(): Promise<HomeData> {
     readBundleNotes(),
     readWhatsappHref(),
     readInhouseGallery(),
+    readContentGallery(),
     readPartners(),
     readTestimonials(),
     readLegality(),
@@ -94,8 +96,8 @@ export async function readHomeData(): Promise<HomeData> {
 
   const publicCards = publicPrograms.map((item) => item.card);
   const inhouseMedia = [...inhouseGallery, ...galleryToHomeMedia(galleries["inhouse-training"])];
-  const heroPhoto = pickHeroPhoto(publicPrograms, inhouseMedia);
-  const moments = buildMoments(publicPrograms, inhouseMedia, heroPhoto ? [heroPhoto.id] : []);
+  const heroPhoto = pickHeroPhoto(publicPrograms, contentGallery);
+  const moments = buildMoments([], contentGallery, heroPhoto ? [heroPhoto.id] : []);
 
   return {
     hero: {

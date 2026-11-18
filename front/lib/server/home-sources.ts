@@ -14,10 +14,14 @@ function asString(value: unknown): string | null {
   return typeof value === "string" && value.trim() !== "" ? value.trim() : null;
 }
 
-export async function readInhouseGallery(): Promise<HomeMedia[]> {
+async function readGalleryTable(
+  table: "gallery" | "inhouse_gallery",
+  idOffset: number,
+  fallbackAlt: string,
+): Promise<HomeMedia[]> {
   try {
     const rows = await academyRequest(
-      "gallery?select=id,image_url,title&consent_verified_at=not.is.null&order=id.desc",
+      `${table}?select=id,image_url,title&consent_verified_at=not.is.null&order=id.desc`,
     );
     if (!Array.isArray(rows)) return [];
     const items: HomeMedia[] = [];
@@ -28,17 +32,25 @@ export async function readInhouseGallery(): Promise<HomeMedia[]> {
       const src = asString(r.image_url);
       if (!Number.isSafeInteger(id) || id <= 0 || !src) continue;
       items.push({
-        id: 100000 + id,
+        id: idOffset + id,
         kind: "image",
         src,
         poster: null,
-        alt: asString(r.title) ?? "Dokumentasi Inhouse Training",
+        alt: asString(r.title) ?? fallbackAlt,
       });
     }
     return items;
   } catch {
     return [];
   }
+}
+
+export function readInhouseGallery(): Promise<HomeMedia[]> {
+  return readGalleryTable("inhouse_gallery", 100000, "Dokumentasi Inhouse Training");
+}
+
+export function readContentGallery(): Promise<HomeMedia[]> {
+  return readGalleryTable("gallery", 200000, "Dokumentasi Albana Speech Academy");
 }
 
 export async function readPartners(): Promise<HomePartner[]> {
@@ -52,14 +64,16 @@ export async function readPartners(): Promise<HomePartner[]> {
       if (!row || typeof row !== "object") continue;
       const r = row as Record<string, unknown>;
       const id = Number(r.id);
-      const name = asString(r.name);
-      if (!Number.isSafeInteger(id) || id <= 0 || !name) continue;
+      const name = asString(r.name) ?? "";
+      const logoUrl = asString(r.logo_url);
+      if (!Number.isSafeInteger(id) || id <= 0 || (!name && !logoUrl)) continue;
       items.push({
         id,
         name,
-        logoUrl: asString(r.logo_url),
+        logoUrl,
       });
     }
+    items.sort((a, b) => Number(Boolean(b.logoUrl)) - Number(Boolean(a.logoUrl)));
     return items;
   } catch {
     return [];

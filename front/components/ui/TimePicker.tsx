@@ -26,20 +26,8 @@ export function TimePicker({
   const hourRef = useRef<HTMLDivElement>(null);
   const minuteRef = useRef<HTMLDivElement>(null);
 
-  // Parse hour and minute from value (HH:MM)
-  const [selectedHour, setSelectedHour] = useState<string>("");
-  const [selectedMinute, setSelectedMinute] = useState<string>("");
-
-  useEffect(() => {
-    if (value && value.includes(":")) {
-      const [h, m] = value.split(":");
-      setSelectedHour(h);
-      setSelectedMinute(m);
-    } else {
-      setSelectedHour("");
-      setSelectedMinute("");
-    }
-  }, [value]);
+  const [selectedHour, selectedMinute] =
+    value && value.includes(":") ? value.split(":") : ["", ""];
 
   const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0"));
   const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, "0"));
@@ -69,18 +57,14 @@ export function TimePicker({
   }, [isOpen, selectedHour, selectedMinute, value]);
 
   const handleHourSelect = (hour: string) => {
-    setSelectedHour(hour);
     const newMinute = selectedMinute || "00";
-    setSelectedMinute(newMinute);
     if (onChange) {
       onChange(`${hour}:${newMinute}`);
     }
   };
 
   const handleMinuteSelect = (minute: string) => {
-    setSelectedMinute(minute);
     const newHour = selectedHour || "09";
-    setSelectedHour(newHour);
     if (onChange) {
       onChange(`${newHour}:${minute}`);
     }
@@ -106,7 +90,14 @@ export function TimePicker({
           <Clock size={16} className="text-zinc-400" />
         </button>
       </PopoverTrigger>
-      <PopoverContent data-lenis-prevent translate="no" className="w-[180px] p-3 z-[60] notranslate select-none" align="start">
+      <PopoverContent
+        data-lenis-prevent
+        translate="no"
+        onWheel={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        className="w-[180px] p-3 z-[60] notranslate select-none"
+        align="start"
+      >
         <div className="flex gap-2">
           {/* Hours Column */}
           <div className="flex flex-col flex-1">
@@ -115,7 +106,7 @@ export function TimePicker({
             </span>
             <div
               ref={hourRef}
-              className="flex flex-col gap-1 max-h-[200px] overflow-y-auto pr-1 no-scrollbar"
+              className="flex flex-col gap-1 max-h-[200px] overflow-y-auto overscroll-contain pr-1 no-scrollbar"
             >
               {hours.map((hour) => {
                 const isSelected = selectedHour === hour && value !== "selesai";
@@ -149,7 +140,7 @@ export function TimePicker({
             </span>
             <div
               ref={minuteRef}
-              className="flex flex-col gap-1 max-h-[200px] overflow-y-auto pr-1 no-scrollbar"
+              className="flex flex-col gap-1 max-h-[200px] overflow-y-auto overscroll-contain pr-1 no-scrollbar"
             >
               {minutes.map((minute) => {
                 const isSelected = selectedMinute === minute && value !== "selesai";
@@ -179,8 +170,6 @@ export function TimePicker({
             <button
               type="button"
               onClick={() => {
-                setSelectedHour("");
-                setSelectedMinute("");
                 if (onChange) {
                   onChange("selesai");
                 }

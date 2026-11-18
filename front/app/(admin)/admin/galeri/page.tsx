@@ -7,14 +7,18 @@ export const dynamic = "force-dynamic";
 const fields: CmsField[] = [
   {
     name: "image_url",
-    label: "Foto Sampul",
+    label: "Foto Kegiatan",
     type: "gallery",
     required: true,
-    placeholder: "Pilih Foto Sampul",
-    help: "Maksimal 5MB (JPG, PNG, WEBP).",
+    placeholder: "Tarik & lepas beberapa foto ke sini, atau klik untuk memilih",
+    help: "Bisa pilih banyak file sekaligus (JPEG, PNG, WebP · maks. 10 MiB/foto). Semua resolusi & orientasi diperbolehkan.",
   },
-  { name: "title", label: "Keterangan gambar", required: true, help: "Jelaskan apa yang tampak di foto; teks ini juga menjadi alt gambar." },
-  { name: "consent_verified_at", label: "Izin publikasi", type: "consent", required: true },
+  {
+    name: "title",
+    label: "Keterangan gambar (opsional)",
+    required: false,
+    help: "Opsional. Jika dikosongkan, foto tetap tersimpan tanpa keterangan.",
+  },
 ];
 
 export default async function GaleriPage() {
@@ -25,15 +29,22 @@ export default async function GaleriPage() {
     <CmsCollectionClient
       table="gallery"
       primaryKey="id"
-      title="Gallery"
-      description="Gambar publik dengan nama sebagai keterangan. Hanya gunakan gambar yang sudah diizinkan untuk dipublikasikan."
+      title="Galeri"
+      createTitle="Tambah Galeri"
+      editTitle="Ubah Galeri"
+      description="Dokumentasi foto kegiatan Albana Speech Academy. Foto dapat langsung dipublikasikan."
       fields={fields}
       initialRows={data ?? []}
       displayField="title"
       searchPlaceholder="Cari gambar…"
       createLabel="Tambah gambar"
       emptyText="Tidak ada gambar yang ditemukan."
-      maxWidth="max-w-lg"
+      modalSize="lg"
+      multiGallery={{
+        maxTotal: 20,
+        minRecommended: 15,
+        autoConsentField: "consent_verified_at",
+      }}
       bento
     />
   );

@@ -4,18 +4,17 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CalendarPlus, Package, Pencil, Plus, Trash2 } from "lucide-react";
+import { CalendarPlus, Package, Pencil } from "lucide-react";
 import { FormDialog } from "@/components/admin/ui/form/FormDialog";
 import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
 import { AdminInput, AdminTextarea, CheckboxCard, PercentInput, PriceInput } from "@/components/admin/ui/form/controls";
-import { DatePicker } from "@/components/ui/DatePicker";
-import { TimePicker } from "@/components/ui/TimePicker";
-import { StatusChip, rowActionClass, rowDangerActionClass } from "@/components/admin/ui/data-table";
+import { StatusChip, rowActionClass } from "@/components/admin/ui/data-table";
 import { RowActions } from "@/components/admin/ui/row-actions";
 import { formatRupiah } from "@/lib/format";
 import { CERTIFICATION_SLUG, SERIES_SLUG, SPEAKER_SLUG, bundleAddOn, bundlePriceValid } from "@/lib/bundle";
-import { batchStatus, fromStoredSessions, nextBatchName, type SessionInput } from "@/lib/program-batch";
+import { batchStatus, fromStoredSessions, nextBatchName, sessionCountOf, type SessionInput } from "@/lib/program-batch";
 import { deleteBatch, saveBatch, saveBundle } from "@/app/(admin)/admin/program/actions";
+import { SessionRows } from "./SessionRows";
 
 export type BoardProgram = {
   slug: string;
@@ -63,53 +62,6 @@ const dateLabel = (date: string) => (date ? dateFormat.format(new Date(`${date}T
 
 function Warning({ children }: { children: React.ReactNode }) {
   return <p className="rounded-[16px] bg-admin-butter-soft px-3 py-2 text-[13px] text-admin-butter-ink">{children}</p>;
-}
-
-function SessionRows({ sessions, onChange }: { sessions: SessionInput[]; onChange: (next: SessionInput[]) => void }) {
-  const patch = (index: number, part: Partial<SessionInput>) =>
-    onChange(sessions.map((item, position) => (position === index ? { ...item, ...part } : item)));
-  return <div className="grid gap-3">
-    {sessions.map((session, index) => (
-      <div key={index} className="rounded-[20px] border border-admin-line p-3">
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-[13px] font-medium text-admin-ink">Sesi {index + 1}</p>
-          <button
-            type="button"
-            onClick={() => onChange(sessions.filter((_, position) => position !== index))}
-            disabled={sessions.length === 1}
-            aria-label={`Hapus sesi ${index + 1}`}
-            title={sessions.length === 1 ? "Minimal satu sesi" : "Hapus sesi"}
-            className={rowDangerActionClass}
-          >
-            <Trash2 aria-hidden="true" size={16} strokeWidth={1.5} />
-          </button>
-        </div>
-        <div className="mt-2 grid gap-2 sm:grid-cols-3">
-          <DatePicker
-            value={session.date}
-            onChange={(date) => patch(index, { date })}
-            placeholder="Pilih tanggal"
-            className="h-12 rounded-full border-admin-line bg-admin-surface px-4 text-sm text-admin-ink"
-          />
-          <TimePicker
-            value={session.start}
-            onChange={(start) => patch(index, { start })}
-            placeholder="Jam mulai"
-            className="h-12 rounded-full border-admin-line bg-admin-surface px-4 text-sm text-admin-ink"
-          />
-          <TimePicker
-            value={session.end}
-            onChange={(end) => patch(index, { end })}
-            placeholder="Jam selesai"
-            className="h-12 rounded-full border-admin-line bg-admin-surface px-4 text-sm text-admin-ink"
-          />
-        </div>
-      </div>
-    ))}
-    <button type="button" onClick={() => onChange([...sessions, { date: "", start: "", end: "" }])} className={pillClass}>
-      <Plus aria-hidden="true" size={16} strokeWidth={1.5} /> Tambah sesi
-    </button>
-  </div>;
 }
 
 /**
@@ -236,7 +188,7 @@ export function ProgramBatchBoard({ programs, batches, bundle, inhouse, nowMs }:
                 <p className="min-w-0 flex-1 truncate text-[14px] font-medium text-admin-ink" title={batch.title}>{batch.title}</p>
                 <StatusChip tone={STATUS[status].tone}>{STATUS[status].label}</StatusChip>
                 <p className="order-last w-full text-[13px] text-admin-text-secondary sm:order-none sm:w-auto">
-                  {sessions.length} sesi · mulai {dateLabel(sessions[0]?.date ?? "")}
+                  {sessionCountOf(sessions)} sesi · mulai {dateLabel(sessions[0]?.date ?? "")}
                 </p>
                 <RowActions
                   itemName={`batch ${batch.title}`}

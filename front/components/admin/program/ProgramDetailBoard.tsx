@@ -7,21 +7,20 @@ import { Banknote, Calendar, CalendarPlus, Eye, Images, Layers, Package, Pencil,
 import { toast } from "sonner";
 import { AdminPageActions } from "@/components/admin/PageHeader";
 import { AdminSheet } from "@/components/admin/ui/AdminSheet";
-import { DataTable, StatusChip, rowDangerActionClass } from "@/components/admin/ui/data-table";
+import { DataTable, StatusChip } from "@/components/admin/ui/data-table";
 import { EmptyState } from "@/components/admin/ui/empty-state";
 import { RowActions } from "@/components/admin/ui/row-actions";
 import { FormDialog } from "@/components/admin/ui/form/FormDialog";
 import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
 import { AdminInput, AdminTextarea, CheckboxCard, PercentInput, PriceInput } from "@/components/admin/ui/form/controls";
-import { DatePicker } from "@/components/ui/DatePicker";
-import { TimePicker } from "@/components/ui/TimePicker";
 import { deleteBatch, saveBatch, saveBundle } from "@/app/(admin)/admin/program/actions";
 import { useIsAdminSuper } from "@/components/admin/ui/row-actions";
 import { CERTIFICATION_SLUG, SPEAKER_SLUG, bundleAddOn, bundlePriceValid } from "@/lib/bundle";
 import { formatRupiah } from "@/lib/format";
-import { batchStatus, fromStoredSessions, nextBatchName, type SessionInput } from "@/lib/program-batch";
+import { batchStatus, fromStoredSessions, nextBatchName, sessionCountOf, type SessionInput } from "@/lib/program-batch";
 import type { ProgramMediaItem } from "@/lib/program-media";
 import { ProgramMediaEditor } from "./ProgramMediaEditor";
+import { SessionRows } from "./SessionRows";
 import type { BoardBatch, BoardBundle, BoardProgram } from "./ProgramBatchBoard";
 
 type ProgramDetail = BoardProgram & { description: string | null };
@@ -39,55 +38,6 @@ const dateLabel = (date: string) => (date ? dateFormat.format(new Date(`${date}T
 
 function Warning({ children }: { children: React.ReactNode }) {
   return <p className="rounded-[16px] bg-admin-butter-soft px-4 py-2.5 text-[13px] text-admin-butter-ink">{children}</p>;
-}
-
-function SessionRows({ sessions, onChange }: { sessions: SessionInput[]; onChange: (next: SessionInput[]) => void }) {
-  const patch = (index: number, part: Partial<SessionInput>) =>
-    onChange(sessions.map((item, i) => (i === index ? { ...item, ...part } : item)));
-
-  return (
-    <div className="space-y-3">
-      {sessions.map((session, index) => (
-        <div key={index} className="rounded-[20px] border border-admin-line p-3">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[13px] font-medium text-admin-text-secondary">Sesi {index + 1}</span>
-            <button
-              type="button"
-              onClick={() => onChange(sessions.filter((_, i) => i !== index))}
-              disabled={sessions.length === 1}
-              aria-label={`Hapus sesi ${index + 1}`}
-              className={rowDangerActionClass}
-            >
-              <Trash2 aria-hidden="true" size={16} strokeWidth={1.5} />
-            </button>
-          </div>
-          <div className="mt-2 grid gap-2 sm:grid-cols-3">
-            <DatePicker
-              value={session.date}
-              onChange={(date) => patch(index, { date })}
-              placeholder="Pilih tanggal"
-              className="h-12 rounded-full border-admin-line bg-admin-surface px-4 text-sm text-admin-ink"
-            />
-            <TimePicker
-              value={session.start}
-              onChange={(start) => patch(index, { start })}
-              placeholder="Jam mulai"
-              className="h-12 rounded-full border-admin-line bg-admin-surface px-4 text-sm text-admin-ink"
-            />
-            <TimePicker
-              value={session.end}
-              onChange={(end) => patch(index, { end })}
-              placeholder="Jam selesai"
-              className="h-12 rounded-full border-admin-line bg-admin-surface px-4 text-sm text-admin-ink"
-            />
-          </div>
-        </div>
-      ))}
-      <button type="button" onClick={() => onChange([...sessions, { date: "", start: "", end: "" }])} className={pillClass}>
-        <Plus aria-hidden="true" size={16} strokeWidth={1.5} /> Tambah sesi
-      </button>
-    </div>
-  );
 }
 
 export function ProgramDetailBoard({
@@ -259,7 +209,7 @@ export function ProgramDetailBoard({
             </p>
             <p className="mt-0.5 text-[12px] text-admin-text-secondary">
               {openRow
-                ? `${openRow.sessions.length} sesi · mulai ${dateLabel(openRow.sessions[0]?.date ?? "")}`
+                ? `${sessionCountOf(openRow.sessions)} sesi · mulai ${dateLabel(openRow.sessions[0]?.date ?? "")}`
                 : "Buka salah satu batch agar bisa didaftar"}
             </p>
           </div>
@@ -443,7 +393,7 @@ export function ProgramDetailBoard({
                     </p>
                   </div>
                   <div className="shrink-0 text-right">
-                    <p className="font-mono text-[15px] font-bold text-admin-ink">{sessions.length}</p>
+                    <p className="font-mono text-[15px] font-bold text-admin-ink">{sessionCountOf(sessions)}</p>
                     <p className="text-[12px] text-admin-text-secondary">Sesi</p>
                   </div>
                 </div>
@@ -525,7 +475,7 @@ export function ProgramDetailBoard({
                       {dateLabel(sessions[0]?.date ?? "")}
                     </td>
                     <td className="text-admin-text-secondary">
-                      {sessions.length} sesi
+                      {sessionCountOf(sessions)} sesi
                     </td>
                     <td className="text-right">
                       <RowActions
@@ -598,7 +548,7 @@ export function ProgramDetailBoard({
               </div>
               <div className="text-right">
                 <p className="text-[12px] text-admin-text-secondary">Jumlah sesi</p>
-                <p className="mt-1 text-[14px] font-semibold text-admin-ink">{detailBatch.sessions.length} sesi</p>
+                <p className="mt-1 text-[14px] font-semibold text-admin-ink">{sessionCountOf(detailBatch.sessions)} sesi</p>
               </div>
             </div>
 
@@ -731,16 +681,31 @@ export function ProgramDetailBoard({
         description={`Foto dan video khusus program ini (bucket ${program.slug}).`}
         size="lg"
         footer={
-          <button
-            type="button"
-            onClick={() => setGalleryOpen(false)}
-            className="inline-flex h-12 w-full items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface"
-          >
-            Tutup
-          </button>
+          <div className="flex w-full flex-col gap-2.5">
+            <button
+              type="submit"
+              form="program-media-editor-form"
+              className="inline-flex h-12 w-full items-center justify-center rounded-full bg-admin-ink text-[15px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft cursor-pointer"
+            >
+              Submit
+            </button>
+            <button
+              type="button"
+              onClick={() => setGalleryOpen(false)}
+              className="inline-flex h-12 w-full items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface cursor-pointer"
+            >
+              Tutup
+            </button>
+          </div>
         }
       >
-        <ProgramMediaEditor programSlug={program.slug} items={media} />
+        <ProgramMediaEditor
+          programSlug={program.slug}
+          items={media}
+          formId="program-media-editor-form"
+          hideInlineSubmit
+          onSubmitSuccess={() => setGalleryOpen(false)}
+        />
       </AdminSheet>
     </div>
   );

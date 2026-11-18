@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import type { HomeProgram } from "@/lib/home-data";
-import Image from "next/image";
 import { BentoGallery } from "./bento-gallery";
+import { SkeletonImage } from "./skeleton-image";
 import { VideoBreak } from "./video-break";
 import { MoreLink } from "./ui/more-link";
 
@@ -31,7 +31,7 @@ const rupiah = (value: number) =>
 export function ProgramStorySection({ program, index }: { program: HomeProgram; index: number }) {
   const { card, media, bundleNote } = program;
   const text = copy[card.slug];
-  const topics = (card.topics.length > 0 ? card.topics : (text?.topics ?? [])).slice(0, 3);
+  const topics = card.topics.length > 0 ? card.topics : (text?.topics ?? []);
   const flip = index % 2 === 1;
   const photos = media.filter((item) => item.kind === "image");
   const previews = photos.slice(0, 2);
@@ -39,13 +39,13 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
   const video = media.find((item) => item.kind === "video") ?? null;
 
   return (
-    <>
+    <div className="border-b border-[var(--tone-rule)]">
     <article
       id={card.slug}
       aria-labelledby={`${card.slug}-title`}
-      className="border-b border-[var(--tone-rule)] py-12 lg:py-20"
+      className={video ? "pt-12 pb-4 lg:pt-20 lg:pb-6" : "py-12 lg:py-20"}
     >
-      <div className="home-grid gap-y-8">
+      <div className="home-grid items-start gap-y-8">
         {/* Teks program */}
         <div className={`col-span-4 flex flex-col gap-6 sm:col-span-8 lg:col-span-5 ${flip ? "lg:order-last lg:col-start-8" : ""}`}>
           <p aria-hidden="true" className="type-mega italic text-[var(--tone-rule)]">
@@ -63,19 +63,47 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
             ) : null}
           </div>
 
-          <div data-motion="rise">
-            <p className="type-label text-[var(--tone-muted)]">Yang kamu latih</p>
+          <div data-motion="rise" className="mt-2 border-t border-[var(--tone-rule)] pt-6">
+            <div className="flex items-baseline justify-between gap-2">
+              <p className="type-label text-[var(--tone-muted)]">Yang kamu latih</p>
+              {topics.length > 0 ? (
+                <span className="type-small tabular-nums text-[var(--tone-muted)]">{topics.length} materi</span>
+              ) : null}
+            </div>
             {topics.length > 0 ? (
-              <ol className="mt-3 border-t border-[var(--tone-rule)]">
-                {topics.map((topic, topicIndex) => (
-                  <li key={topic} className="flex items-baseline gap-4 border-b border-[var(--tone-rule)] py-3">
-                    <span className="type-small italic text-[var(--tone-accent)]">
-                      {String(topicIndex + 1).padStart(2, "0")}
-                    </span>
-                    <span className="type-body">{topic}</span>
-                  </li>
-                ))}
-              </ol>
+              topics.length > 4 ? (
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 sm:gap-x-8">
+                  {[
+                    topics.slice(0, Math.ceil(topics.length / 2)),
+                    topics.slice(Math.ceil(topics.length / 2)),
+                  ].map((col, colIndex) => {
+                    const offset = colIndex === 0 ? 0 : Math.ceil(topics.length / 2);
+                    return (
+                      <ol key={colIndex} className="border-t border-[var(--tone-rule)]">
+                        {col.map((topic, itemIndex) => (
+                          <li key={topic} className="flex items-baseline gap-3 border-b border-[var(--tone-rule)] py-3">
+                            <span className="type-small shrink-0 italic tabular-nums text-[var(--tone-accent)]">
+                              {String(offset + itemIndex + 1).padStart(2, "0")}
+                            </span>
+                            <span className="type-small leading-snug text-[var(--tone-ink)]">{topic}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    );
+                  })}
+                </div>
+              ) : (
+                <ol className="mt-4 border-t border-[var(--tone-rule)]">
+                  {topics.map((topic, topicIndex) => (
+                    <li key={topic} className="flex items-baseline gap-4 border-b border-[var(--tone-rule)] py-3">
+                      <span className="type-small shrink-0 italic tabular-nums text-[var(--tone-accent)]">
+                        {String(topicIndex + 1).padStart(2, "0")}
+                      </span>
+                      <span className="type-body">{topic}</span>
+                    </li>
+                  ))}
+                </ol>
+              )
             ) : (
               <p className="type-small mt-3 text-[var(--tone-muted)]">Materi diumumkan bersama jadwal.</p>
             )}
@@ -86,7 +114,7 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
         <div className={`col-span-4 flex flex-col gap-4 sm:col-span-8 lg:col-span-7 ${flip ? "lg:col-start-1" : ""}`}>
           {/* Pratinjau dua foto; dokumentasi lengkap ada di bab Dokumentasi. */}
           {previews.length > 0 ? (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 sm:pb-8">
               <div className="grid grid-cols-2 gap-2">
                 {previews.map((item, photoIndex) => (
                   <div
@@ -94,7 +122,7 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
                     data-motion="media"
                     className={`relative overflow-hidden rounded-xs bg-[var(--tone-tile)] ${photoIndex === 0 ? "aspect-[4/5]" : "aspect-[4/5] sm:translate-y-8"}`}
                   >
-                    <Image fill src={item.src} alt={item.alt} sizes="(min-width: 1024px) 28vw, 50vw" className="object-cover" />
+                    <SkeletonImage fill src={item.src} alt={item.alt} sizes="(min-width: 1024px) 28vw, 50vw" className="object-cover object-top" />
                   </div>
                 ))}
               </div>
@@ -114,7 +142,9 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
                 <>
                   <p className="type-body font-medium">{card.batch.name}</p>
                   <p className="type-small tabular-nums text-[var(--tone-muted)]">
-                    {card.batch.dateLabels.join(" · ")}
+                    {card.batch.scheduleMode === "start_only"
+                      ? `${card.batch.dateLabels[0]} · ${card.batch.formatLabel}`
+                      : card.batch.dateLabels.join(" · ")}
                   </p>
                 </>
               ) : (
@@ -135,11 +165,12 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
               </div>
               <div className="flex flex-wrap items-center gap-x-4">
                 {card.registrationUrl ? (
-                  <Link className="button-primary" href={card.registrationUrl}>
+                  <Link className="button-primary w-full justify-center" href={card.registrationUrl}>
                     Daftar
                   </Link>
-                ) : null}
-                <MoreLink href={`/program/${encodeURIComponent(card.slug)}`}>Detail</MoreLink>
+                ) : (
+                  <MoreLink href={`/program/${encodeURIComponent(card.slug)}`}>Detail</MoreLink>
+                )}
               </div>
             </div>
           </div>
@@ -148,7 +179,7 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
 
       {/* Dokumentasi lain kelas ini, selebar seksi (mosaik bila cukup foto). */}
       {gallery.length > 0 ? (
-        <div className="mt-12 flex flex-col gap-4 lg:mt-16">
+        <div className="mt-16 flex flex-col gap-4 lg:mt-24">
           <div className="flex items-baseline justify-between gap-4">
             <p className="type-label text-[var(--tone-muted)]">Galeri {card.title}</p>
             <p className="type-small text-[var(--tone-muted)]">{gallery.length} foto</p>
@@ -160,6 +191,6 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
 
     {/* Video kelas menjadi jeda antarprogram. */}
     {video ? <VideoBreak video={video} programTitle={card.title} /> : null}
-    </>
+    </div>
   );
 }

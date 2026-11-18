@@ -1,6 +1,6 @@
-import Image from "next/image";
 import type { HomeLegality } from "@/lib/home-data";
 import { SectionIntro } from "./section-intro";
+import { SkeletonImage } from "./skeleton-image";
 import { Accent } from "./ui/accent";
 
 const LEGAL_DOCUMENTS = [
@@ -34,7 +34,7 @@ export function LegalitySection({ legality }: { legality: HomeLegality }) {
                 {imageUrl ? (
                   <div className="flex flex-col gap-2">
                     <div data-motion="media" className="relative aspect-[3/4] overflow-hidden rounded-xs border border-[var(--tone-rule)] bg-[var(--tone-tile)]">
-                      <Image
+                      <SkeletonImage
                         fill
                         src={imageUrl}
                         alt={doc.title}
@@ -44,7 +44,7 @@ export function LegalitySection({ legality }: { legality: HomeLegality }) {
                     </div>
                     {backUrl ? (
                       <div className="relative aspect-[16/10] w-1/2 overflow-hidden rounded-xs border border-[var(--tone-rule)] bg-[var(--tone-tile)]">
-                        <Image
+                        <SkeletonImage
                           fill
                           src={backUrl}
                           alt={`${doc.title} — tampak belakang`}

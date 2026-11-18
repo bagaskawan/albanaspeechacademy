@@ -5,6 +5,7 @@ import type {
   VariantCopy,
 } from "@/lib/registration";
 import { initialBill } from "./billing.ts";
+import { canonicalRegion, isProfessionCategory, professionLabel, type ProfessionCategory } from "./demographics.ts";
 
 export type { RegistrationFormCopy, VariantCopy };
 
@@ -16,6 +17,8 @@ export type RegistrationValues = {
   email: string;
   gender: "" | "Perempuan" | "Laki-laki";
   age: string;
+  professionCategory: "" | ProfessionCategory;
+  /** Diisi peserta hanya bila kategori "lainnya". */
   profession: string;
   institution: string;
   instagram: string;
@@ -97,6 +100,7 @@ export function emptyRegistrationValues(): RegistrationValues {
     email: "",
     gender: "",
     age: "",
+    professionCategory: "",
     profession: "",
     institution: "",
     instagram: "",
@@ -147,7 +151,7 @@ export function validateRegistration(
   if (!values.nickname.trim()) errors.nickname = "Nama panggilan wajib diisi.";
   else if (values.nickname.trim().length > MAX_NAME) errors.nickname = `Maksimal ${MAX_NAME} karakter.`;
   if (!values.domicile.trim()) errors.domicile = "Domisili wajib diisi.";
-  else if (values.domicile.trim().length > MAX_TEXT) errors.domicile = `Maksimal ${MAX_TEXT} karakter.`;
+  else if (!canonicalRegion(values.domicile)) errors.domicile = "Pilih kota atau kabupaten dari daftar.";
   if (values.email.trim().length > MAX_EMAIL) errors.email = `Maksimal ${MAX_EMAIL} karakter.`;
   else if (!EMAIL_RE.test(values.email.trim())) errors.email = "Alamat email tidak valid.";
   const whatsapp = cleanWhatsapp(values.whatsapp);
@@ -158,7 +162,8 @@ export function validateRegistration(
   if (!values.age.trim() || !Number.isInteger(age) || age <= 0 || age > 150) {
     errors.age = "Usia harus bilangan bulat 1–150.";
   }
-  if (!values.profession.trim()) errors.profession = "Pekerjaan wajib diisi.";
+  if (!values.professionCategory) errors.professionCategory = "Pilih profesi.";
+  if (values.professionCategory === "lainnya" && !values.profession.trim()) errors.profession = "Sebutkan profesi.";
   else if (values.profession.trim().length > MAX_TEXT) errors.profession = `Maksimal ${MAX_TEXT} karakter.`;
   if (values.institution.trim().length > MAX_TEXT) errors.institution = `Maksimal ${MAX_TEXT} karakter.`;
   if (!values.priorExperience) errors.priorExperience = "Pilih salah satu.";
@@ -202,7 +207,7 @@ export const REGISTRATION_STEPS: readonly RegistrationStep[] = [
   {
     id: "identity",
     title: "Data diri",
-    fields: ["fullName", "nickname", "domicile", "whatsapp", "email", "gender", "age", "profession", "institution"],
+    fields: ["fullName", "nickname", "domicile", "whatsapp", "email", "gender", "age", "professionCategory", "profession", "institution"],
   },
   {
     id: "background",
@@ -248,8 +253,11 @@ export function buildRegistrationPayload(
   const formKind = batch.formKind;
   const answers = {
     nickname: trimmed(values.nickname),
-    domicile: trimmed(values.domicile),
-    profession: trimmed(values.profession),
+    domicile: canonicalRegion(values.domicile) ?? trimmed(values.domicile),
+    professionCategory: values.professionCategory,
+    profession: values.professionCategory === "lainnya" || !isProfessionCategory(values.professionCategory)
+      ? trimmed(values.profession)
+      : professionLabel(values.professionCategory),
     institution: trimmed(values.institution),
     age: Number(values.age),
     gender: values.gender,
