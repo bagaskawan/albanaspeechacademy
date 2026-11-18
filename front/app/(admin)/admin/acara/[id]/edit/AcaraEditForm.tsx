@@ -32,6 +32,7 @@ import { TextareaLine } from "@/components/ui/style-line/TextareaLine";
 import { updateEventAction, EventTypeItem } from "@/lib/actions/event-actions";
 import { saveGalleryAlbumAction } from "@/lib/actions/gallery-actions";
 import { createClient } from "@/lib/supabase/client";
+import { deleteStorageFile } from "@/lib/supabase/storage-cleanup";
 import { compressImage } from "@/lib/file-compress";
 
 interface VenueItem {
@@ -342,10 +343,7 @@ export default function AcaraEditForm({
 
       // 4. Clean up old image if replaced
       if (initialHeroImageUrl && initialHeroImageUrl !== finalHeroImageUrl) {
-        const oldPath = getStoragePathFromUrl(initialHeroImageUrl, "gallery");
-        if (oldPath) {
-          await supabase.storage.from("gallery").remove([oldPath]);
-        }
+        await deleteStorageFile(supabase, initialHeroImageUrl).catch(() => {});
       }
 
       toast.success("Perubahan acara dan galeri berhasil disimpan!");

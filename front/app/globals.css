@@ -268,7 +268,7 @@
 
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: calc(var(--masthead-height) + var(--space-4));
+    scroll-padding-top: var(--masthead-height);
     @apply font-sans;
   }
 
@@ -476,99 +476,204 @@ html.lenis body {
   }
 
   /* Nada seksi beranda: tiap seksi memasang satu nada */
-  .tone-canvas, .tone-mist, .tone-sand, .tone-night {
+  .tone-canvas, .tone-mist, .tone-night {
     background: var(--tone-bg);
     color: var(--tone-ink);
   }
   .tone-canvas {
-    --tone-bg: #ffffff; --tone-ink: #15171b; --tone-muted: #525a66;
-    --tone-rule: #dde2e9; --tone-accent: #2f5c86; --tone-tile: #f3f6f9;
+    --tone-bg: #faf8f4; --tone-ink: #15171b; --tone-muted: #525a66;
+    --tone-rule: #e3ded4; --tone-accent: #2f5c86; --tone-tile: #f1ede5;
+    --tone-sun: #e7c75d; --tone-on-sun: #15171b;
   }
   .dark .tone-canvas {
     --tone-bg: #0d1829; --tone-ink: #f0f5fa; --tone-muted: #a3b8d0;
     --tone-rule: #233856; --tone-accent: #9cc4ee; --tone-tile: #132238;
+    --tone-sun: #e7c75d; --tone-on-sun: #15171b;
   }
   .tone-mist {
     --tone-bg: #e6edf4; --tone-ink: #15171b; --tone-muted: #4a5563;
     --tone-rule: #cbd6e2; --tone-accent: #24486a; --tone-tile: #ffffff;
+    --tone-sun: #e7c75d; --tone-on-sun: #15171b;
   }
   .dark .tone-mist {
     --tone-bg: #132238; --tone-ink: #f0f5fa; --tone-muted: #a3b8d0;
     --tone-rule: #2a4466; --tone-accent: #9cc4ee; --tone-tile: #0d1829;
-  }
-  .tone-sand {
-    --tone-bg: #efe6d6; --tone-ink: #1d1a15; --tone-muted: #5c5243;
-    --tone-rule: #d9cbb2; --tone-accent: #24486a; --tone-tile: #f8f3ea;
-  }
-  .dark .tone-sand {
-    --tone-bg: #221d16; --tone-ink: #f3ece0; --tone-muted: #c4b79f;
-    --tone-rule: #3a3125; --tone-accent: #e6d9c4; --tone-tile: #2b251c;
+    --tone-sun: #e7c75d; --tone-on-sun: #15171b;
   }
   .tone-night {
     --tone-bg: #10243f; --tone-ink: #f0f5fa; --tone-muted: #b5c7db;
     --tone-rule: #2a4466; --tone-accent: #cbd9e7; --tone-tile: #163052;
+    --tone-sun: #e7c75d; --tone-on-sun: #15171b;
   }
   .dark .tone-night {
     --tone-bg: #070f1c; --tone-ink: #f0f5fa; --tone-muted: #a3b8d0;
     --tone-rule: #1c2c44; --tone-accent: #cbd9e7; --tone-tile: #0f1d33;
+    --tone-sun: #e7c75d; --tone-on-sun: #15171b;
   }
 
-  /* Skala tipografi beranda */
+  /* Tata letak & ritme beranda (S3, S9) */
+  .home-container {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 80rem;
+    padding-inline: 1rem;
+  }
+  .home-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: 1rem;
+  }
+  .home-section {
+    padding-block: 4rem;
+    scroll-margin-top: -2rem;
+  }
+  .home-stack-head > * + * {
+    margin-top: 2rem;
+  }
+  .home-stack-block > * + * {
+    margin-top: 3rem;
+  }
+  .home-bleed {
+    width: 100%;
+    margin-inline: 0;
+  }
+  @media (min-width: 640px) {
+    .home-container { padding-inline: 1.5rem; }
+    .home-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); column-gap: 1.5rem; }
+    .home-section { padding-block: 6rem; scroll-margin-top: -3.5rem; }
+    .home-stack-head > * + * { margin-top: 2.5rem; }
+    .home-stack-block > * + * { margin-top: 4rem; }
+  }
+  @media (min-width: 1024px) {
+    .home-container { padding-inline: 2.5rem; }
+    .home-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 1.5rem; }
+    .home-section { padding-block: 8rem; scroll-margin-top: -5rem; }
+    .home-stack-head > * + * { margin-top: 3rem; }
+    .home-stack-block > * + * { margin-top: 4rem; }
+  }
+
+  /* Skala tipografi beranda (S4) */
   :root {
-    --text-mega: clamp(3.25rem, 9vw, 8.5rem);
-    --text-display: clamp(2.25rem, 5vw, 4.25rem);
-    --text-title: clamp(1.5rem, 2.6vw, 2.25rem);
-    --text-lead: clamp(1.0625rem, 1.3vw, 1.25rem);
+    --text-mega: clamp(3rem, 8vw, 7.5rem);
+    --text-display: clamp(2.25rem, 4.2vw, 3.75rem);
+    --text-title: clamp(1.375rem, 2vw, 1.75rem);
+    --text-lead: clamp(1.0625rem, 1.2vw, 1.1875rem);
     --text-meta: 0.75rem;
   }
+  /* Judul beranda memakai serif display (keputusan pemilik 17 Nov 2026) */
   .type-mega {
-    font-family: var(--font-display);
+    font-family: var(--font-serif);
     font-size: var(--text-mega);
-    line-height: 0.92;
-    letter-spacing: -0.055em;
-    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    font-weight: 500;
   }
   .type-display {
-    font-family: var(--font-display);
+    font-family: var(--font-serif);
     font-size: var(--text-display);
-    line-height: 1;
-    letter-spacing: -0.045em;
-    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    font-weight: 500;
   }
   .type-title {
-    font-family: var(--font-display);
+    font-family: var(--font-serif);
     font-size: var(--text-title);
-    line-height: 1.1;
-    letter-spacing: -0.03em;
-    font-weight: 600;
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+    font-weight: 500;
+  }
+  /* Judul hero: lebih kecil dari mega agar muat 3–4 baris di kolom 7/12 */
+  .type-hero {
+    font-family: var(--font-serif);
+    font-size: clamp(2.75rem, 5.4vw, 5.5rem);
+    line-height: 1;
+    letter-spacing: -0.025em;
+    font-weight: 500;
+  }
+  /* Zoom foto saat hover: lambat dan lembut, hanya untuk pointer halus. */
+  .hover-zoom {
+    transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: auto;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .group:hover .hover-zoom { transform: scale(1.04); }
+  }
+  .group:focus-visible .hover-zoom { transform: scale(1.04); }
+  @media (prefers-reduced-motion: reduce) {
+    .hover-zoom { transition: none; }
+    .group:hover .hover-zoom, .group:focus-visible .hover-zoom { transform: none; }
+  }
+  .accent-italic {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--tone-accent, inherit);
+  }
+  .type-label {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    letter-spacing: 0.16em;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  /* Pita bidang latihan di kaki hero; berhenti saat reduced motion */
+  .home-marquee-track {
+    display: flex;
+    width: max-content;
+    animation: home-marquee 40s linear infinite;
+  }
+  @keyframes home-marquee {
+    to { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home-marquee-track { animation: none; }
   }
   .type-lead {
     font-size: var(--text-lead);
     line-height: 1.55;
+    font-weight: 400;
+  }
+  .type-body {
+    font-size: 1rem;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+  .type-small {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  .type-micro {
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
   }
 
-  /* Aksen serif: satu frasa per H2; animasi garis bawah ditambah di Tugas 7 */
-  .accent-serif {
+  /* Bingkai frasa judul (G2, Cereen) */
+  .accent-frame {
     position: relative;
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-weight: 400;
-    color: var(--tone-accent);
+    display: inline-block;
+    font-style: normal;
+    padding-inline: 0.15em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
   }
-  .accent-serif::after {
+  .accent-frame::after {
     content: "";
     position: absolute;
-    inset-inline: 0;
-    bottom: 0.04em;
-    height: 2px;
-    background: currentColor;
+    inset: 0;
+    border: 1px solid currentColor;
+    pointer-events: none;
     transform-origin: left;
   }
-  html.motion-ready .accent-serif::after {
+  html.motion-ready .accent-frame::after {
     transform: scaleX(0);
     transition: transform 450ms var(--ease-out, cubic-bezier(.16, 1, .3, 1));
   }
-  html.motion-ready .accent-serif.is-drawn::after { transform: scaleX(1); }
+  html.motion-ready .accent-frame.is-drawn::after { transform: scaleX(1); }
 
   .sub-title-program {
     font-family: var(--font-display);
@@ -1811,3 +1916,5 @@ body:has(.admin-shell) {
   .academy-hero-marquee { height: 9.5rem; }
   .academy-hero-image { width: 8rem; }
 }
+
+

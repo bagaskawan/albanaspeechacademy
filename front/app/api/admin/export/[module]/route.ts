@@ -63,6 +63,10 @@ async function load(module: ExportModule, params: URLSearchParams): Promise<Load
           { header: "Tujuan", value: (row) => answer(row, "goal") },
           { header: "Tantangan", value: (row) => answer(row, "challenge") },
           { header: "Sumber informasi", value: (row) => answer(row, "source") },
+          { header: "Instagram", value: (row) => answer(row, "instagram") },
+          { header: "TikTok", value: (row) => answer(row, "tiktok") },
+          { header: "YouTube", value: (row) => answer(row, "youtube") },
+          { header: "LinkedIn", value: (row) => answer(row, "linkedin") },
         ],
       };
     case "tagihan":

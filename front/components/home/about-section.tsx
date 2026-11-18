@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { Container } from "@/components/layout/container";
+import type { HomeMedia } from "@/lib/home-data";
 import { academyRequest } from "@/lib/server/academy-api";
-import { SectionIntro } from "./section-intro";
+import { Accent } from "./ui/accent";
 
 const missions = [
   "Mengembangkan pelatihan komunikasi dari dasar hingga lanjutan.",
@@ -15,7 +15,7 @@ const alanPoints = [
   "Pemateri untuk kementerian, BUMN, perbankan, dan korporasi.",
 ];
 
-export async function AboutSection() {
+export async function AboutSection({ moments }: { moments: HomeMedia[] }) {
   let photo = "/images/alan-albana-profile-blue-background.png";
   let academyName = "Albana Speech Academy";
   try {
@@ -26,17 +26,82 @@ export async function AboutSection() {
     if (Array.isArray(trainerRows) && typeof trainerRows[0]?.photo_url === "string") photo = trainerRows[0].photo_url;
     if (Array.isArray(academyRows) && typeof academyRows[0]?.name === "string") academyName = academyRows[0].name;
   } catch { /* Static copy and the existing local portrait remain available. */ }
-  return <section id="tentang" className="section tone-sand" aria-labelledby="tentang-title"><Container className="max-w-7xl">
-    <SectionIntro eyebrow="[ TENTANG KAMI ]" title={<>Dibangun oleh <em className="accent-serif">praktisi panggung</em>, untuk orang yang harus bicara</>} titleId="tentang-title" description={`${academyName} oleh CV Asa Albana melatih individu dan organisasi agar tampil lebih percaya diri, komunikatif, dan profesional — lewat praktik langsung, bukan teori panjang.`} />
-    <div className="mt-9 grid gap-8 lg:grid-cols-[5fr_7fr] lg:gap-12">
-      <div data-motion="rise" className="space-y-7">
-        <div><h3 className="eyebrow">VISI</h3><p className="mt-2 type-lead">Menjadi mitra terpercaya dalam pengembangan kompetensi komunikasi profesional dan kepemimpinan SDM yang berdaya saing tinggi.</p></div>
-        <div><h3 className="eyebrow">MISI</h3><ol className="mt-2 grid gap-2">{missions.map((mission, index) => <li key={mission} className="flex gap-3"><span className="text-[var(--tone-accent)] tabular-nums">{index + 1}.</span>{mission}</li>)}</ol></div>
+  const detail = moments[11] ?? null;
+
+  return (
+    <section id="tentang" className="tone-mist home-section" aria-labelledby="tentang-title">
+      <div className="home-container home-stack-block">
+        <div className="home-grid gap-y-10">
+          {/* Kiri: judul dan cerita, dengan foto detail kecil di bawah */}
+          <div className="col-span-4 flex flex-col justify-between gap-8 sm:col-span-8 lg:col-span-4">
+            <div className="flex flex-col gap-4">
+              <p className="type-label text-[var(--tone-muted)]">04 — Tentang kami</p>
+              <h2 id="tentang-title" data-motion="heading" className="type-display text-balance">
+                Dibangun oleh <Accent>praktisi panggung,</Accent> untuk orang yang harus bicara.
+              </h2>
+              <p data-motion="rise" className="type-lead text-pretty">
+                {academyName} oleh CV Asa Albana melatih individu dan organisasi agar tampil lebih percaya diri, komunikatif, dan profesional — lewat praktik langsung, bukan teori panjang.
+              </p>
+            </div>
+            {detail ? (
+              <div data-motion="media" className="relative hidden aspect-[4/3] w-2/3 overflow-hidden rounded-xs bg-[var(--tone-tile)] lg:block">
+                <Image fill src={detail.src} alt={detail.alt} sizes="20vw" className="object-cover" />
+              </div>
+            ) : null}
+          </div>
+
+          {/* Tengah: potret pendiri */}
+          <div className="col-span-4 sm:col-span-5 lg:col-span-4">
+            <div data-motion="media" className="relative aspect-[3/4] overflow-hidden rounded-xs bg-[var(--tone-tile)]">
+              <Image
+                src={photo}
+                alt="Alan Albana, founder Albana Speech Academy."
+                fill
+                sizes="(min-width: 1024px) 30vw, 60vw"
+                className="object-cover object-[center_25%]"
+              />
+            </div>
+          </div>
+
+          {/* Kanan: siapa Alan, singkat */}
+          <div className="col-span-4 flex flex-col justify-end gap-6 sm:col-span-3 lg:col-span-4">
+            <p data-motion="rise" className="type-body text-[var(--tone-muted)] text-pretty">
+              Albana lahir dari ruang siaran dan panggung acara. Karena itu kelasnya terasa seperti latihan sebelum tampil: ada naskah, ada audiens, ada evaluasi.
+            </p>
+            <div className="border-t border-[var(--tone-ink)] pt-4">
+              <h3 className="type-title">Alan Albana, S.Kom.I., M.I.Kom.</h3>
+              <p className="type-label mt-2 text-[var(--tone-muted)]">Founder · Trainer · MC · Penyiar RRI</p>
+              <ul className="type-small mt-4 grid gap-2">
+                {alanPoints.map((point) => (
+                  <li key={point} className="flex gap-2">
+                    <span aria-hidden="true" className="text-[var(--tone-accent)]">—</span>
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <a href="#trainer" className="button-primary self-start">Kenali tim trainer</a>
+          </div>
+        </div>
+
+        {/* Visi dan misi sebagai baris bernomor */}
+        <div className="home-grid gap-y-8 border-t border-[var(--tone-rule)] pt-10">
+          <div className="col-span-4 sm:col-span-8 lg:col-span-4">
+            <p className="type-label text-[var(--tone-muted)]">Visi</p>
+            <p className="type-title mt-3 text-pretty">
+              Menjadi mitra terpercaya dalam pengembangan kompetensi komunikasi profesional dan kepemimpinan SDM yang berdaya saing tinggi.
+            </p>
+          </div>
+          <ol className="col-span-4 grid gap-6 sm:col-span-8 sm:grid-cols-2 lg:col-span-7 lg:col-start-6">
+            {missions.map((mission, index) => (
+              <li key={mission} data-motion="rise" className="flex gap-4 border-t border-[var(--tone-rule)] pt-4">
+                <span className="type-title italic text-[var(--tone-accent)]">{String(index + 1).padStart(2, "0")}</span>
+                <span className="type-body">{mission}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
       </div>
-      <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div data-motion="media" className="relative min-h-80 overflow-hidden bg-[var(--tone-tile)]"><Image src={photo} alt="Alan Albana, founder Albana Speech Academy." fill sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 90vw" className="object-cover object-top" /></div>
-        <div data-motion="rise" className="bg-[var(--tone-tile)] p-6"><h3 className="text-xl font-semibold">Alan Albana, S.Kom.I., M.I.Kom.</h3><p className="mt-2 text-sm">Founder · Trainer · MC · Penyiar RRI</p><ul className="mt-6 grid gap-4 text-sm">{alanPoints.map((point) => <li key={point} className="border-t border-[var(--tone-rule)] pt-3">{point}</li>)}</ul></div>
-      </div>
-    </div>
-  </Container></section>;
+    </section>
+  );
 }

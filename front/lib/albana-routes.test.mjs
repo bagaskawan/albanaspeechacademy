@@ -3,13 +3,13 @@ import { test } from "node:test";
 import { isAlbanaPath } from "./albana-routes.ts";
 
 test("rute Albana tetap tersedia", () => {
-  for (const path of ["/", "/login", "/register/public-speaking", "/program/inhouse-training", "/admin", "/admin/program/public-speaking-series/edit", "/admin/pendaftar", "/api/registrations", "/api/media/12", "/api/admin/export/pendaftar", "/admin/rekening", "/admin/kontak", "/admin/profil-akademi", "/admin/settings"]) {
+  for (const path of ["/", "/login", "/register/public-speaking", "/program/inhouse-training", "/admin", "/admin/program/public-speaking-series/edit", "/admin/pendaftar", "/api/registrations", "/api/upload", "/api/media/12", "/api/admin/invoice-payments", "/api/admin/invoice-payments/1/proof", "/api/admin/export/pendaftar", "/admin/rekening", "/admin/kontak", "/admin/profil-akademi", "/admin/settings", "/admin/galeri", "/admin/partner"]) {
     assert.equal(isAlbanaPath(path), true, path);
   }
 });
 
 test("rute komunitas dan endpoint lama dipensiunkan", () => {
-  for (const path of ["/myprofile", "/admin/members", "/admin/roles", "/admin/galeri/addGallery", "/admin/partner/addPartner", "/api/member/profile", "/auth/callback", "/api/media/not-an-id", "/api/admin/export/../x", "/api/admin/export/Pendaftar"]) {
+  for (const path of ["/myprofile", "/admin/media", "/admin/members", "/admin/roles", "/admin/galeri/addGallery", "/admin/partner/addPartner", "/api/member/profile", "/auth/callback", "/api/media/not-an-id", "/api/admin/invoice-payments/abc/proof", "/api/admin/invoice-payments/1/proof/x", "/api/admin/export/../x", "/api/admin/export/Pendaftar"]) {
     assert.equal(isAlbanaPath(path), false, path);
   }
 });

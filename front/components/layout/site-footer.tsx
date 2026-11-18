@@ -1,87 +1,74 @@
-import Link from "next/link";
-import { readPublishedContacts } from "@/lib/server/public-contacts";
-import { academyRequest } from "@/lib/server/academy-api";
-import { academyChannels } from "./academy-channels";
-import { BrandLogo } from "./brand-logo";
-import { Container } from "./container";
+import { ArrowUpRight, MapPin } from "lucide-react";
 
-export async function SiteFooter({ className = "" }: { className?: string } = {}) {
-  let contacts: Awaited<ReturnType<typeof readPublishedContacts>> = [];
-  try { contacts = await readPublishedContacts(); } catch { /* No stale contact link on failure. */ }
-  let trainersAvailable = false;
-  try { const rows = await academyRequest("trainers?select=slug&limit=1"); trainersAvailable = Array.isArray(rows) && rows.length > 0; } catch { /* Hide broken anchor. */ }
-  const footerLinks = [
-    { href: "/#program", label: "Program" },
-    { href: "/#tentang", label: "Tentang" },
-    ...(trainersAvailable ? [{ href: "/#trainer", label: "Trainer" }] : []),
-    { href: "/#jadwal", label: "Jadwal" },
-    ...(contacts.length ? [{ href: "/#kontak", label: "Kontak" }] : []),
-  ];
+const RRI_BANDUNG_EMBED =
+  "https://www.google.com/maps?q=RRI+Bandung,+Jl.+Diponegoro+No.+61,+Bandung&output=embed";
+const RRI_BANDUNG_LINK =
+  "https://www.google.com/maps/search/?api=1&query=RRI+Bandung,+Jl.+Diponegoro+No.+61,+Bandung";
+
+export function SiteFooter({ className = "" }: { className?: string } = {}) {
   return (
-    <footer className={`border-t border-canvas/30 bg-accent-strong text-canvas [&_a:focus-visible]:outline-canvas ${className}`.trim()}>
-      <Container>
-        <div className="flex flex-col items-center py-12 text-center md:py-16">
-          <Link
-            className="inline-flex min-h-11 items-center"
-            href="/"
-            aria-label="Albana Speech Academy, beranda"
-          >
-            <BrandLogo
-              className="h-10"
-              imageClassName="scale-[1.1]"
-              src="/images/Albana-Speech-Academy-Logo-White.png"
-            />
-          </Link>
-
-          <nav className="mt-6" aria-label="Navigasi footer">
-            <ul className="flex list-none flex-wrap justify-center gap-x-1">
-              {footerLinks.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    className="inline-flex min-h-11 items-center px-2 text-xs font-semibold tracking-[0.1em] text-canvas uppercase underline-offset-4 hover:text-highlight hover:underline"
-                    href={item.href}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          <div className="mt-2 flex items-center gap-1">
-            {academyChannels(contacts).map(({ label, href, icon }) => {
-              const opensNewTab = href.startsWith("http");
-              return (
-                <a
-                  key={label}
-                  aria-label={label}
-                  className="grid size-11 place-items-center text-canvas hover:text-highlight"
-                  href={href}
-                  rel={opensNewTab ? "noreferrer" : undefined}
-                  target={opensNewTab ? "_blank" : undefined}
-                  title={label}
-                >
-                  <svg
-                    aria-hidden="true"
-                    fill="none"
-                    height="20"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.8"
-                    viewBox="0 0 24 24"
-                    width="20"
-                  >
-                    {icon}
-                  </svg>
-                </a>
-              );
-            })}
+    <footer
+      className={`tone-night border-t border-[var(--tone-rule)] bg-[var(--tone-bg)] text-[var(--tone-ink)] [&_a:focus-visible]:outline-white ${className}`.trim()}
+    >
+      <div className="home-container">
+        <div className="grid gap-10 py-12 lg:grid-cols-12 lg:gap-0 lg:py-16">
+          <div className="lg:col-span-6 lg:pr-10">
+            <p className="font-display text-sm font-bold uppercase tracking-[0.12em]">
+              Albana Speech Academy
+            </p>
+            <p className="type-small mt-4 max-w-[42ch] uppercase leading-relaxed text-[var(--tone-muted)]">
+              Lembaga pelatihan public speaking berbasis praktik untuk individu, pembicara profesional, dan tim organisasi.
+            </p>
+            <div className="mt-6 border-t border-[var(--tone-rule)] pt-5">
+              <p className="eyebrow text-[var(--tone-muted)]">[ Badan Hukum ]</p>
+              <p className="eyebrow mt-1.5 text-[var(--tone-ink)]">
+                CV Asa Albana · NIB 2701260111907
+              </p>
+            </div>
           </div>
 
-          <p className="mt-6 text-sm text-canvas/75">© 2026 Albana Speech Academy · CV Asa Albana</p>
+          <div className="lg:col-span-6 lg:border-l lg:border-[var(--tone-rule)] lg:pl-10">
+            <p className="eyebrow text-[var(--tone-muted)]">Lokasi</p>
+            <p className="type-small mt-3 font-medium text-[var(--tone-ink)]">
+              RRI Bandung · Jl. Diponegoro No. 61, Kota Bandung
+            </p>
+            <div className="mt-3 aspect-[16/9] w-full overflow-hidden rounded-xs border border-[var(--tone-rule)] bg-[var(--tone-tile)]">
+              <iframe
+                src={RRI_BANDUNG_EMBED}
+                title="Peta lokasi RRI Bandung"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="h-full w-full border-0"
+              />
+            </div>
+            <a
+              href={RRI_BANDUNG_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="eyebrow mt-2 inline-flex min-h-8 items-center gap-1.5 text-[var(--tone-ink)] underline-offset-4 transition-colors hover:text-[var(--tone-sun)] hover:underline"
+            >
+              <span>Buka di Google Maps</span>
+              <ArrowUpRight className="size-3.5" aria-hidden="true" />
+            </a>
+          </div>
         </div>
-      </Container>
+
+        <div className="border-t border-[var(--tone-rule)] py-10 text-center lg:py-12">
+          <p className="type-title text-[var(--tone-muted)] opacity-60">
+            Berlatih Bicara, Siap di Setiap Panggung.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--tone-rule)] py-6">
+          <p className="eyebrow text-[var(--tone-muted)]">
+            © 2026 Albana Speech Academy · CV Asa Albana.
+          </p>
+          <p className="eyebrow inline-flex items-center gap-1.5 text-[var(--tone-muted)]">
+            <MapPin className="size-3.5 text-[var(--tone-sun)]" aria-hidden="true" />
+            <span>RRI Bandung · Bandung, Indonesia</span>
+          </p>
+        </div>
+      </div>
     </footer>
   );
 }

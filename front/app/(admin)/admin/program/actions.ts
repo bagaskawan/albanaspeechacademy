@@ -3,10 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { requireAdminMember } from "@/lib/server/admin-guard";
 import { academyBillingClient } from "@/lib/server/academy-billing";
-import { BUNDLE_SLUG, CERTIFICATION_SLUG, SERIES_SLUG, SPEAKER_SLUG, bundlePriceValid } from "@/lib/bundle";
+import { BUNDLE_SLUG, CERTIFICATION_SLUG, INHOUSE_SLUG, SERIES_SLUG, SPEAKER_SLUG, bundlePriceValid } from "@/lib/bundle";
 import { toStoredSessions, validateSessions, type SessionInput } from "@/lib/program-batch";
+import { videoLimitError, programBucket } from "@/lib/program-media";
+import { youtubeVideoId } from "@/lib/youtube";
 
 const PUBLIC_TRAINING: readonly string[] = [SERIES_SLUG, SPEAKER_SLUG, CERTIFICATION_SLUG];
+const ALL_PROGRAMS: readonly string[] = [...PUBLIC_TRAINING, INHOUSE_SLUG];
 
 function revalidate() {
   revalidatePath("/admin/program");
@@ -106,6 +109,101 @@ export async function saveBundle(input: {
     updated_at: new Date().toISOString(),
   }, { onConflict: "slug" });
   if (error) return { error: "Paket belum bisa disimpan." };
+  revalidate();
+  return {};
+}
+
+export async function addProgramVideo(input: {
+  programSlug: string;
+  url: string;
+  title: string;
+}): Promise<{ error?: string }> {
+  await requireAdminMember();
+  if (!ALL_PROGRAMS.includes(input.programSlug)) return { error: "Program tidak valid." };
+  const url = input.url.trim();
+  const title = input.title.trim();
+  if (!youtubeVideoId(url)) return { error: "Masukkan tautan YouTube yang sah (https://youtu.be/... atau youtube.com)." };
+  if (!title || title.length > 160) return { error: "Judul video wajib diisi (maksimal 160 karakter)." };
+
+  const client = academyBillingClient();
+  const { count, error: countError } = await client
+    .from("media_assets")
+    .select("id", { count: "exact", head: true })
+    .eq("program_slug", input.programSlug)
+    .eq("kind", "video");
+  if (countError) return { error: "Jumlah video program belum bisa diperiksa." };
+  const limitErr = videoLimitError(count ?? 0);
+  if (limitErr) return { error: limitErr };
+
+  const { error } = await client.from("media_assets").insert({
+    provider: "youtube",
+    kind: "video",
+    object_key: url,
+    alt_text: title,
+    program_slug: input.programSlug,
+    batch_slug: null,
+    published: true,
+    consent_at: new Date().toISOString(),
+  });
+  if (error) return { error: "Video belum bisa ditambahkan." };
+  revalidate();
+  return {};
+}
+
+export async function removeProgramMedia(id: number): Promise<{ error?: string }> {
+  await requireAdminMember("adminsuper");
+  if (!Number.isInteger(id) || id <= 0) return { error: "Media tidak valid." };
+  const client = academyBillingClient();
+  const { data: row, error: readError } = await client
+    .from("media_assets")
+    .select("id, provider, object_key, program_slug")
+    .eq("id", id)
+    .maybeSingle();
+  if (readError || !row) return { error: "Media tidak ditemukan." };
+
+  if (row.provider === "supabase_storage" && row.object_key) {
+    const bucket = programBucket(row.program_slug);
+    await client.storage.from(bucket).remove([row.object_key]);
+    if (bucket !== "academy-media") {
+      await client.storage.from("academy-media").remove([row.object_key]);
+    }
+  }
+  const { error } = await client.from("media_assets").delete().eq("id", id);
+  if (error) return { error: "Media belum bisa dihapus." };
+  revalidate();
+  return {};
+}
+
+export async function removeMultipleProgramMedia(ids: number[]): Promise<{ error?: string }> {
+  await requireAdminMember("adminsuper");
+  const validIds = Array.from(new Set(ids.filter((id) => Number.isInteger(id) && id > 0)));
+  if (validIds.length === 0) return { error: "Pilih media yang akan dihapus." };
+
+  const client = academyBillingClient();
+  const { data: rows, error: readError } = await client
+    .from("media_assets")
+    .select("id, provider, object_key, program_slug")
+    .in("id", validIds);
+  if (readError || !rows || rows.length === 0) return { error: "Media tidak ditemukan." };
+
+  const bucketPaths = new Map<string, string[]>();
+  for (const row of rows) {
+    if (row.provider === "supabase_storage" && row.object_key) {
+      const bucket = programBucket(row.program_slug);
+      bucketPaths.set(bucket, [...(bucketPaths.get(bucket) ?? []), row.object_key]);
+      if (bucket !== "academy-media") {
+        bucketPaths.set("academy-media", [...(bucketPaths.get("academy-media") ?? []), row.object_key]);
+      }
+    }
+  }
+  for (const [bucket, paths] of bucketPaths.entries()) {
+    if (paths.length > 0) {
+      await client.storage.from(bucket).remove(paths).catch(() => {});
+    }
+  }
+
+  const { error } = await client.from("media_assets").delete().in("id", validIds);
+  if (error) return { error: "Media belum bisa dihapus." };
   revalidate();
   return {};
 }

@@ -14,6 +14,13 @@ const KNOWN_BUCKETS = [
   "portfolio-images",
   "portfolio-thumbnails",
   "gallery",
+  "testimonials",
+  "legality",
+  "academy-media",
+  "public-speaking-series",
+  "public-speaking-for-speakers",
+  "sertifikasi-pembicara-profesional",
+  "payment-proofs",
   "venues",
   "partners",
   "resources",
@@ -58,14 +65,22 @@ export function parseStorageUrl(url?: string | null): ParsedStorageTarget | null
   return null;
 }
 
+export interface StorageClientLike {
+  storage: {
+    from(bucket: string): {
+      remove(paths: string[]): Promise<{ data: unknown; error: unknown }>;
+    };
+  };
+}
+
 /**
  * Menghapus satu atau banyak file dari Supabase Storage berdasarkan URL publiknya.
  * Mengelompokkan penghapusan per bucket dan mengeksekusi secara batch.
  */
 export async function deleteStorageFiles(
-  supabase: any,
+  supabase: StorageClientLike,
   urls: (string | null | undefined)[]
-): Promise<{ deleted: string[]; errors: any[] }> {
+): Promise<{ deleted: string[]; errors: unknown[] }> {
   if (!supabase || !urls || urls.length === 0) {
     return { deleted: [], errors: [] };
   }
@@ -89,14 +104,14 @@ export async function deleteStorageFiles(
   }
 
   const deleted: string[] = [];
-  const errors: any[] = [];
+  const errors: unknown[] = [];
 
   for (const [bucket, pathSet] of Object.entries(bucketMap)) {
     const paths = Array.from(pathSet);
     if (paths.length === 0) continue;
 
     try {
-      const { data, error } = await supabase.storage.from(bucket).remove(paths);
+      const { error } = await supabase.storage.from(bucket).remove(paths);
       if (error) {
         console.warn(`[Storage Cleanup] Gagal menghapus dari bucket "${bucket}":`, error);
         errors.push(error);
@@ -116,10 +131,42 @@ export async function deleteStorageFiles(
  * Helper ringkas untuk menghapus satu file saja
  */
 export async function deleteStorageFile(
-  supabase: any,
+  supabase: StorageClientLike,
   url?: string | null
 ): Promise<boolean> {
   if (!url) return false;
   const res = await deleteStorageFiles(supabase, [url]);
   return res.deleted.length > 0;
+}
+
+function normalizeUrlForCompare(url?: string | null): string | null {
+  if (!url || typeof url !== "string") return null;
+  const trimmed = url.split("?")[0].trim();
+  return trimmed || null;
+}
+
+/**
+ * Membandingkan daftar URL lama dengan daftar URL baru (mendukung single maupun multiple),
+ * dan mengembalikan URL lama yang tidak lagi dipakai untuk dihapus dari storage.
+ */
+export function getRemovedStorageUrls(
+  oldUrls: (string | null | undefined)[],
+  newUrls: (string | null | undefined)[]
+): string[] {
+  const nextSet = new Set<string>();
+  for (const url of newUrls) {
+    const norm = normalizeUrlForCompare(url);
+    if (norm) nextSet.add(norm);
+  }
+
+  const removed: string[] = [];
+  const seen = new Set<string>();
+  for (const url of oldUrls) {
+    const norm = normalizeUrlForCompare(url);
+    if (norm && !nextSet.has(norm) && !seen.has(norm)) {
+      seen.add(norm);
+      removed.push(url as string);
+    }
+  }
+  return removed;
 }

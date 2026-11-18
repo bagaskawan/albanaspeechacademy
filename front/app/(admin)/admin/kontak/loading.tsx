@@ -1,5 +1,5 @@
-import { SkeletonForm } from "@/components/admin/ui/skeleton";
+﻿import { PageLoading } from "@/components/ui/PageLoading";
 
 export default function Loading() {
-  return <SkeletonForm />;
+  return <PageLoading fullScreen={false} />;
 }

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { compressImage } from "@/lib/file-compress";
 import { createClient } from "@/lib/supabase/client";
+import { deleteStorageFile } from "@/lib/supabase/storage-cleanup";
 import { saveGalleryAlbumAction } from "@/lib/actions/gallery-actions";
 import { toast } from "sonner";
 
@@ -269,10 +270,7 @@ export function EventGalleryModal({
       // 3. Clean up old image if replaced
       const oldUrl = gallery?.hero_image_url || "";
       if (oldUrl && oldUrl !== finalHeroImageUrl) {
-        const oldPath = getStoragePathFromUrl(oldUrl, "gallery");
-        if (oldPath) {
-          await supabase.storage.from("gallery").remove([oldPath]);
-        }
+        await deleteStorageFile(supabase, oldUrl).catch(() => {});
       }
 
       const updatedData: GalleryData = {

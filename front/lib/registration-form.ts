@@ -4,6 +4,7 @@ import type {
   RegistrationFormKind,
   VariantCopy,
 } from "@/lib/registration";
+import { initialBill } from "./billing.ts";
 
 export type { RegistrationFormCopy, VariantCopy };
 
@@ -17,7 +18,10 @@ export type RegistrationValues = {
   age: string;
   profession: string;
   institution: string;
-  socialName: string;
+  instagram: string;
+  tiktok: string;
+  youtube: string;
+  linkedin: string;
   priorExperience: "" | "yes" | "no";
   goal: string;
   challenge: string;
@@ -95,7 +99,10 @@ export function emptyRegistrationValues(): RegistrationValues {
     age: "",
     profession: "",
     institution: "",
-    socialName: "",
+    instagram: "",
+    tiktok: "",
+    youtube: "",
+    linkedin: "",
     priorExperience: "",
     goal: "",
     challenge: "",
@@ -118,6 +125,12 @@ export function cleanWhatsapp(value: string): string {
 export function formatWhatsapp(value: string): string {
   const digits = value.replace(/\D/g, "").slice(0, MAX_WHATSAPP_DIGITS);
   return digits.replace(/(\d{4})(?=\d)/g, "$1-");
+}
+
+export function formatSocialHandle(value: string): string {
+  if (value === "@") return "";
+  const handle = value.replace(/^@+/, "").trimStart();
+  return handle ? `@${handle}` : "";
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -163,7 +176,10 @@ export function validateRegistration(
   } else if (values.sourceOther.trim().length > MAX_TEXT) {
     errors.sourceOther = `Maksimal ${MAX_TEXT} karakter.`;
   }
-  if (values.socialName.trim().length > MAX_TEXT) errors.socialName = `Maksimal ${MAX_TEXT} karakter.`;
+  if (values.instagram.trim().length > MAX_TEXT) errors.instagram = `Maksimal ${MAX_TEXT} karakter.`;
+  if (values.tiktok.trim().length > MAX_TEXT) errors.tiktok = `Maksimal ${MAX_TEXT} karakter.`;
+  if (values.youtube.trim().length > MAX_TEXT) errors.youtube = `Maksimal ${MAX_TEXT} karakter.`;
+  if (values.linkedin.trim().length > MAX_TEXT) errors.linkedin = `Maksimal ${MAX_TEXT} karakter.`;
   if (!values.attendance) errors.attendance = "Pilih kesediaan mengikuti.";
   if (!values.paymentMethod) errors.paymentMethod = "Pilih metode pembayaran.";
   else if (values.paymentMethod === "dp" && batch.dpPercent === null) {
@@ -196,7 +212,7 @@ export const REGISTRATION_STEPS: readonly RegistrationStep[] = [
   {
     id: "technical",
     title: "Informasi teknis",
-    fields: ["socialName", "source", "sourceOther", "attendance"],
+    fields: ["instagram", "tiktok", "youtube", "linkedin", "source", "sourceOther", "attendance"],
   },
   {
     id: "payment",
@@ -243,7 +259,10 @@ export function buildRegistrationPayload(
     attendance: values.attendance,
     source: values.source,
     sourceOther: trimmed(values.sourceOther),
-    socialName: trimmed(values.socialName),
+    instagram: trimmed(values.instagram),
+    tiktok: trimmed(values.tiktok),
+    youtube: trimmed(values.youtube),
+    linkedin: trimmed(values.linkedin),
   };
 
   return {
@@ -258,4 +277,24 @@ export function buildRegistrationPayload(
     whatsapp: cleanWhatsapp(values.whatsapp),
     answers,
   };
+}
+
+const formatRupiah = (value: number) =>
+  new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
+
+export function confirmationSummary(
+  values: RegistrationValues,
+  batch: RegistrationBatch,
+  bundleTitle: string | null,
+): { label: string; value: string }[] {
+  const method = values.paymentMethod === "dp" ? "dp" : "full";
+  const { subtotalIdr } = initialBill(batch.priceIdr, method, batch.dpPercent);
+  return [
+    { label: "Nama lengkap", value: trimmed(values.fullName) },
+    { label: "Email", value: trimmed(values.email) },
+    { label: "WhatsApp", value: trimmed(values.whatsapp) },
+    { label: "Program", value: bundleTitle ?? `${batch.programName} – ${batch.batchName}` },
+    { label: "Pembayaran", value: method === "dp" && batch.dpPercent ? `DP ${batch.dpPercent}%` : "Lunas" },
+    { label: "Transfer sekarang", value: `${formatRupiah(subtotalIdr)} + kode unik` },
+  ];
 }

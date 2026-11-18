@@ -25,9 +25,6 @@ export function RegistrationReceipt({ batch, whatsappHref }: { batch: Registrati
       {whatsappHref ? <a className="button-primary mt-7" href={whatsappHref} rel="noopener noreferrer" target="_blank">
         Hubungi admin via WhatsApp <span aria-hidden="true">↗</span>
       </a> : <p className="mt-7 text-sm text-muted">Kanal WhatsApp sedang tidak tersedia. Admin akan menghubungi melalui data yang kamu kirim.</p>}
-      <p className="mt-6 border-t border-rule pt-5 text-sm text-muted">
-        Jika berhalangan hadir, ajukan penjadwalan ulang melalui admin. Pembayaran tidak dikembalikan.
-      </p>
     </section>
   );
 }

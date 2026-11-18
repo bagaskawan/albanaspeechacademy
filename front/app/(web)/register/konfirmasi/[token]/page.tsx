@@ -3,6 +3,13 @@ import { notFound } from "next/navigation";
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { CopyAccountButton } from "@/components/register/copy-account-button";
 import { readReceiptToken } from "@/lib/receipt-token";
+import {
+  invoiceStageLabel,
+  maskEmail,
+  paymentProofMessage,
+  type InvoiceStage,
+  type PaymentMethod,
+} from "@/lib/registration-email";
 import { academyBillingClient } from "@/lib/server/academy-billing";
 import { contactHref, readPublishedContacts } from "@/lib/server/public-contacts";
 
@@ -18,7 +25,7 @@ export default async function ConfirmationPage({ params }: { params: Promise<{ t
 
   const client = academyBillingClient();
   const { data: registration, error } = await client.from("academy_registrations")
-    .select("id,offer_title,payment_method,price_idr_at_signup,received_at")
+    .select("id,full_name,email,offer_title,payment_method,price_idr_at_signup,received_at")
     .eq("id", id).single();
   if (error || !registration) notFound();
   const { data: items, error: itemsError } = await client.from("academy_registration_items")
@@ -38,26 +45,46 @@ export default async function ConfirmationPage({ params }: { params: Promise<{ t
   const subtotal = Number(invoice.subtotal_idr);
   const code = Number(invoice.unique_code);
   const total = Number(invoice.total_idr);
-  const stage = invoice.stage === "remaining" ? "Pelunasan" : registration.payment_method === "dp" ? "DP" : "Pembayaran lunas";
+  const stage = invoiceStageLabel(
+    invoice.stage as InvoiceStage,
+    registration.payment_method as PaymentMethod,
+  );
   let whatsappHref: string | undefined;
   try {
     const contact = (await readPublishedContacts()).find((item) => item.kind === "whatsapp");
     whatsappHref = contact ? contactHref(contact) : undefined;
   } catch { /* The bank instructions remain available if contacts cannot load. */ }
-  if (whatsappHref) whatsappHref += `?text=${encodeURIComponent(`Halo Admin Albana, saya mengirim bukti transfer untuk pendaftaran #${id}, tagihan #${invoice.id} (${stage}), total ${rupiah(total)}.`)}`;
+  if (whatsappHref) {
+    whatsappHref += `?text=${encodeURIComponent(
+      paymentProofMessage({
+        registrationId: id,
+        invoiceId: invoice.id,
+        fullName: registration.full_name,
+        offerTitle: registration.offer_title,
+        batchNames,
+        stageLabel: stage,
+        totalIdr: total,
+      }),
+    )}`;
+  }
 
   return <main id="main-content" className="min-h-screen bg-surface px-4 py-8 text-ink sm:px-8 sm:py-12">
     <div className="mx-auto max-w-6xl">
       <header className="flex items-center gap-4 border-b border-rule pb-6">
         <Link href="/" className="inline-flex min-h-11 items-center" aria-label="Kembali ke beranda Albana"><BrandLogo className="h-12 w-28" /></Link>
         <div><p className="text-xs font-semibold uppercase tracking-widest text-muted">Pendaftaran #{id}</p>
-          <h1 className="font-display text-2xl font-bold sm:text-3xl">Konfirmasi pembayaran</h1></div>
+          <h1 className="font-display text-2xl font-bold sm:text-3xl">Checkout pembayaran</h1></div>
       </header>
       <div className="grid gap-8 py-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(19rem,0.9fr)] lg:gap-12">
         <section aria-labelledby="receipt-heading">
           <p className="text-sm font-semibold uppercase tracking-widest text-accent">Pendaftaranmu sudah kami terima.</p>
           <h2 id="receipt-heading" className="mt-2 text-xl font-semibold">{registration.offer_title} – {batchNames}</h2>
           <p className="mt-2 text-sm text-muted">Admin akan memverifikasi pembayaran sebelum mengonfirmasi kepesertaanmu.</p>
+          {invoice.status === "pending" ? (
+            <p className="mt-2 text-sm text-muted">
+              Instruksi pembayaran juga kami kirim ke {maskEmail(registration.email)}. Periksa folder Spam/Promosi bila belum masuk dalam 10 menit.
+            </p>
+          ) : null}
           <dl className="mt-8 border border-rule bg-card p-5 sm:p-7">
             <div className="flex justify-between gap-3 font-semibold"><dt>Tagihan #{invoice.id}</dt><dd>{stage}</dd></div>
             <div className="mt-6 flex justify-between gap-3 text-sm"><dt>Subtotal</dt><dd>{rupiah(subtotal)}</dd></div>
@@ -66,11 +93,17 @@ export default async function ConfirmationPage({ params }: { params: Promise<{ t
           </dl>
           {invoice.status === "pending" ? <>
             <ol className="mt-8 grid gap-3 border-y border-rule py-5 text-sm">
-              <li><strong>1.</strong> Transfer tepat sebesar total di atas.</li>
+              <li><strong>1.</strong> Transfer tepat sebesar total di atas, termasuk kode unik.</li>
               <li><strong>2.</strong> Simpan bukti transfer.</li>
-              <li><strong>3.</strong> Kirim bukti lewat WhatsApp.</li>
+              <li><strong>3.</strong> Kirim bukti lewat tombol WhatsApp di bawah; pesannya sudah berisi nomor pendaftaran.</li>
+              <li><strong>4.</strong> Admin memverifikasi pembayaran, lalu mengirim email konfirmasi ke alamat yang sama.</li>
             </ol>
             {whatsappHref ? <a className="button-primary mt-6 flex min-h-12 items-center justify-center text-center" href={whatsappHref} target="_blank" rel="noopener noreferrer">Kirim Bukti Transfer ke WhatsApp</a> : <p className="mt-6 text-sm text-muted">Nomor WhatsApp admin belum tersedia di data kontak. Hubungi Albana melalui kanal resmi untuk mengirim bukti transfer.</p>}
+            {invoice.stage === "initial" ? (
+              <p className="mt-4 text-xs text-muted">
+                Selama 30 menit ke depan, email dan nomor WhatsApp ini belum bisa dipakai untuk pendaftaran baru, kecuali pembayaran sudah diverifikasi. Salah isi data? Hubungi admin lewat WhatsApp.
+              </p>
+            ) : null}
           </> : <p className="mt-7 border-l-4 border-accent pl-4">Status tagihan: {invoice.status === "verified" ? "sudah diverifikasi" : invoice.status === "rejected" ? "perlu ditinjau ulang" : "dibatalkan"}. Hubungi admin jika membutuhkan bantuan.</p>}
           <p className="mt-12 text-xs text-muted">Pembayaran diverifikasi manual oleh admin Albana.</p>
         </section>

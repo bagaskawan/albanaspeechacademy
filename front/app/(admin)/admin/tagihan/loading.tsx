@@ -1,5 +1,5 @@
-import { SkeletonList } from "@/components/admin/ui/skeleton";
+﻿import { PageLoading } from "@/components/ui/PageLoading";
 
 export default function Loading() {
-  return <SkeletonList />;
+  return <PageLoading fullScreen={false} />;
 }

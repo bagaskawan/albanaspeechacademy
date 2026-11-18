@@ -3,17 +3,24 @@
 import Image from "next/image";
 import { Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { bentoLayout } from "@/lib/bento";
+import { bentoLayout, mosaicLayout } from "@/lib/bento";
 import type { HomeMedia } from "@/lib/home-data";
 
-function tileSizes(className: string): string {
-  if (className.includes("lg:col-span-4")) return "(min-width:1024px) 58vw, 100vw";
-  if (className.includes("lg:col-span-2")) return "(min-width:1024px) 34vw, 100vw";
-  return "(min-width:1024px) 17vw, 50vw";
-}
+// Galeri kecil (1–3 foto) memenuhi satu baris penuh agar tidak bolong.
+const FEW_COLUMNS: Record<number, string> = { 1: "grid-cols-1", 2: "grid-cols-2", 3: "grid-cols-3" };
 
-export function BentoGallery({ media, label }: { media: HomeMedia[]; label: string }) {
-  const { tiles, ordered, rest } = bentoLayout(media);
+export function BentoGallery({
+  media,
+  label,
+  variant = "grid",
+}: {
+  media: HomeMedia[];
+  label: string;
+  /** mosaic: pola 10/8/4 petak untuk bab Dokumentasi. */
+  variant?: "grid" | "mosaic";
+}) {
+  const { tiles, ordered, rest } = variant === "mosaic" ? mosaicLayout(media) : bentoLayout(media);
+  const mosaic = variant === "mosaic" && tiles[0]?.className !== "aspect-[4/3]";
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -43,16 +50,19 @@ export function BentoGallery({ media, label }: { media: HomeMedia[]; label: stri
       <ul
         data-bento
         aria-label={label}
-        className="grid grid-cols-2 auto-rows-[9rem] gap-1 lg:grid-cols-4 lg:auto-rows-[11rem]"
+        className={
+          mosaic
+            ? "grid grid-flow-dense auto-rows-[9rem] grid-cols-2 gap-2 sm:auto-rows-[12rem] lg:grid-cols-4 lg:auto-rows-[13rem]"
+            : `grid gap-1 ${FEW_COLUMNS[tiles.length] ?? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"}`
+        }
       >
         {tiles.map((tile, index) => {
           const item = tile.media;
-          const sizes = tileSizes(tile.className);
           return (
             <li
               key={item.id}
               data-motion="media"
-              className={`overflow-hidden bg-[var(--tone-tile)] ${tile.className}`}
+              className={`overflow-hidden rounded-xs bg-[var(--tone-tile)] ${tile.className}`}
             >
               <button
                 type="button"
@@ -71,16 +81,17 @@ export function BentoGallery({ media, label }: { media: HomeMedia[]; label: stri
                         fill
                         src={item.poster}
                         alt={item.alt}
-                        sizes={sizes}
-                        className="object-cover transition-transform duration-300 group-hover:scale-[1.03] group-focus-visible:scale-[1.03]"
+                        quality={85}
+                        sizes="(min-width:1024px) 40vw, 100vw"
+                        className="object-cover hover-zoom"
                       />
                     ) : null}
                     <span
                       aria-hidden="true"
                       className="pointer-events-none absolute inset-0 flex items-center justify-center"
                     >
-                      <span className="flex size-12 items-center justify-center bg-black/70 text-white">
-                        <Play className="size-5 translate-x-0.5 fill-current" />
+                      <span className="flex size-10 items-center justify-center rounded-xs bg-ink/85 text-white">
+                        <Play className="size-4 translate-x-0.5 fill-current" />
                       </span>
                     </span>
                   </>
@@ -89,8 +100,9 @@ export function BentoGallery({ media, label }: { media: HomeMedia[]; label: stri
                     fill
                     src={item.src}
                     alt={item.alt}
-                    sizes={sizes}
-                    className="object-cover transition-transform duration-300 group-hover:scale-[1.03] group-focus-visible:scale-[1.03]"
+                    quality={85}
+                    sizes="(min-width:1024px) 40vw, 100vw"
+                    className="object-cover hover-zoom"
                   />
                 )}
               </button>
@@ -100,24 +112,23 @@ export function BentoGallery({ media, label }: { media: HomeMedia[]; label: stri
       </ul>
 
       {rest > 0 ? (
-        <div className="mt-3">
-          <button
-            type="button"
-            className="inline-flex min-h-10 cursor-pointer items-center font-display text-sm font-semibold text-[var(--tone-ink)] underline underline-offset-4 transition-colors hover:text-[var(--tone-accent)]"
-            onClick={(event) => {
-              triggerRef.current = event.currentTarget;
-              setActiveIndex(tiles.length);
-            }}
-          >
-            Lihat semua dokumentasi ({total})
-          </button>
-        </div>
+        <button
+          type="button"
+          aria-haspopup="dialog"
+          className="type-small mt-4 inline-flex min-h-11 cursor-pointer items-center font-medium underline underline-offset-4"
+          onClick={(event) => {
+            triggerRef.current = event.currentTarget;
+            setActiveIndex(tiles.length);
+          }}
+        >
+          Lihat semua dokumentasi ({total})
+        </button>
       ) : null}
 
       <dialog
         ref={dialogRef}
         aria-label={label}
-        className="m-auto max-h-[calc(100dvh-2rem)] w-[min(72rem,calc(100vw-2rem))] tone-canvas overflow-y-auto border border-[var(--tone-rule)] p-0 backdrop:bg-black/75"
+        className="tone-canvas m-auto max-h-screen w-full max-w-5xl overflow-y-auto rounded-xs border border-[var(--tone-rule)] bg-[var(--tone-bg)] p-0 text-[var(--tone-ink)] backdrop:bg-ink/75"
         onClick={(event) => {
           if (event.target === dialogRef.current) setActiveIndex(null);
         }}
@@ -154,20 +165,21 @@ export function BentoGallery({ media, label }: { media: HomeMedia[]; label: stri
                   </div>
                 )
               ) : (
-                <div className="relative h-[min(70dvh,42rem)] w-full">
+                <div className="relative aspect-video w-full">
                   <Image
                     fill
                     src={active.src}
                     alt={active.alt}
-                    sizes="(min-width:1024px) 72rem, 100vw"
+                    quality={90}
+                    sizes="(min-width:1024px) 64rem, 100vw"
                     className="object-contain"
                   />
                 </div>
               )}
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--tone-rule)] p-4 md:p-5">
-              <p className="min-w-0 flex-1 text-sm text-[var(--tone-muted)]">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--tone-rule)] p-4 md:p-6">
+              <p className="type-small min-w-0 flex-1 text-[var(--tone-muted)]">
                 <span className="mr-2 font-semibold tabular-nums text-[var(--tone-ink)]">
                   {activeIndex + 1}/{total}
                 </span>
@@ -177,27 +189,15 @@ export function BentoGallery({ media, label }: { media: HomeMedia[]; label: stri
               <div className="flex shrink-0 flex-wrap items-center gap-2">
                 {total > 1 ? (
                   <>
-                    <button
-                      type="button"
-                      className="inline-flex min-h-10 cursor-pointer items-center button-secondary text-xs"
-                      onClick={showPrevious}
-                    >
+                    <button type="button" className="button-secondary cursor-pointer" onClick={showPrevious}>
                       Sebelumnya
                     </button>
-                    <button
-                      type="button"
-                      className="inline-flex min-h-10 cursor-pointer items-center button-secondary text-xs"
-                      onClick={showNext}
-                    >
+                    <button type="button" className="button-secondary cursor-pointer" onClick={showNext}>
                       Berikutnya
                     </button>
                   </>
                 ) : null}
-                <button
-                  type="button"
-                  className="inline-flex min-h-10 cursor-pointer items-center button-primary text-xs"
-                  onClick={() => setActiveIndex(null)}
-                >
+                <button type="button" className="button-primary cursor-pointer" onClick={() => setActiveIndex(null)}>
                   Tutup
                 </button>
               </div>

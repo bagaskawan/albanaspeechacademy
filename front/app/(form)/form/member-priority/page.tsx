@@ -8,6 +8,7 @@ import StepEssential from "@/app/(form)/form/member-priority/StepEssential";
 import { registerPriorityMemberAction } from "@/lib/actions/auth-actions";
 import { scrollToFirstError } from "@/lib/formValidation";
 import { CheckCircle2, Sun, Moon, Mail, ArrowRight } from "lucide-react";
+import { PageLoading } from "@/components/ui/PageLoading";
 
 function MemberPriorityRegisterInner() {
   const router = useRouter();
@@ -217,14 +218,7 @@ function MemberPriorityRegisterInner() {
 
 export default function MemberPriorityRegisterPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen w-full flex items-center justify-center bg-white dark:bg-[#0A0A0A]">
-        <svg className="animate-spin h-6 w-6 text-zinc-500" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-      </div>
-    }>
+    <Suspense fallback={<PageLoading />}>
       <MemberPriorityRegisterInner />
     </Suspense>
   );

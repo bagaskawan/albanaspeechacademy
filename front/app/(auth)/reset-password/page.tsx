@@ -11,6 +11,7 @@ import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { clearStaleAuthStorage } from "@/lib/utils/url";
 import { resetPasswordAction, checkRecoverySessionAction } from "@/lib/actions/auth-actions";
+import { PageLoading } from "@/components/ui/PageLoading";
 
 function ResetPasswordContent() {
   const router = useRouter();
@@ -344,7 +345,7 @@ function ResetPasswordContent() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<PageLoading />}>
       <ResetPasswordContent />
     </Suspense>
   );

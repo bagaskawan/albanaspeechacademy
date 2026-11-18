@@ -15,7 +15,7 @@ export default async function EditProgramPage({
 
   const { data: program } = await supabase
     .from("programs")
-    .select("slug, title, description, price_idr, original_price_idr, dp_percent, fee_details, form_kind, materials, form_prior_experience, form_goal, form_challenge")
+    .select("slug, title, description, price_idr, original_price_idr, dp_percent, fee_details, form_kind, materials")
     .eq("slug", slug)
     .maybeSingle();
 

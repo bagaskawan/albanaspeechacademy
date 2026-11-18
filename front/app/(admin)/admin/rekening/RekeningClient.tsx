@@ -9,7 +9,7 @@ import { useSearchParams } from "next/navigation";
 import { RowActions, rowPillClass } from "@/components/admin/ui/row-actions";
 import { FormDialog } from "@/components/admin/ui/form/FormDialog";
 import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
-import { Input } from "@/components/ui/Input";
+import { AdminInput, CheckboxCard } from "@/components/admin/ui/form/controls";
 import { Landmark } from "lucide-react";
 
 export type BankAccount = {
@@ -34,9 +34,11 @@ export default function RekeningClient({ accounts }: RekeningClientProps) {
   // Form modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<BankAccount | null>(null);
+  const [activeChecked, setActiveChecked] = useState(false);
 
   function openCreateModal() {
     setEditingAccount(null);
+    setActiveChecked(accounts.length === 0);
     setErrorMessage(null);
     setSuccessMessage(null);
     setModalOpen(true);
@@ -44,6 +46,7 @@ export default function RekeningClient({ accounts }: RekeningClientProps) {
 
   function openEditModal(account: BankAccount) {
     setEditingAccount(account);
+    setActiveChecked(account.active);
     setErrorMessage(null);
     setSuccessMessage(null);
     setModalOpen(true);
@@ -196,18 +199,36 @@ export default function RekeningClient({ accounts }: RekeningClientProps) {
         {editingAccount && <input type="hidden" name="id" value={editingAccount.id} />}
         <FieldGrid columns={1}>
           <Field label="Nama bank" htmlFor="bank" required>
-            <Input id="bank" name="bank" type="text" required aria-required="true" placeholder="BCA, Mandiri, BSI" defaultValue={editingAccount?.bank || ""} />
+            <AdminInput id="bank" name="bank" type="text" required aria-required="true" placeholder="BCA, Mandiri, BSI" defaultValue={editingAccount?.bank || ""} />
           </Field>
           <Field label="Nomor rekening" htmlFor="account_number" required>
-            <Input id="account_number" name="account_number" type="text" inputMode="numeric" required aria-required="true" placeholder="4497062020" defaultValue={editingAccount?.account_number || ""} className="font-mono" />
+            <AdminInput
+              id="account_number"
+              name="account_number"
+              type="text"
+              inputMode="numeric"
+              required
+              aria-required="true"
+              placeholder="4497062020"
+              defaultValue={editingAccount?.account_number || ""}
+              className="font-mono tabular-nums"
+              onInput={(e) => {
+                e.currentTarget.value = e.currentTarget.value.replace(/\D/g, "");
+              }}
+            />
           </Field>
           <Field label="Atas nama" htmlFor="holder" required>
-            <Input id="holder" name="holder" type="text" required aria-required="true" placeholder="ASA Albana CV" defaultValue={editingAccount?.holder || ""} />
+            <AdminInput id="holder" name="holder" type="text" required aria-required="true" placeholder="ASA Albana CV" defaultValue={editingAccount?.holder || ""} />
           </Field>
-          <label htmlFor="active" className="flex cursor-pointer items-center gap-3 rounded-[20px] border border-admin-line-strong p-4 text-[14px] text-admin-ink">
-            <input id="active" name="active" type="checkbox" value="true" defaultChecked={editingAccount ? editingAccount.active : accounts.length === 0} className="size-5 accent-[var(--admin-ink)]" />
-            <span>Jadikan rekening aktif utama<span className="block text-[13px] text-admin-text-secondary">Rekening aktif lain otomatis dinonaktifkan.</span></span>
-          </label>
+          {activeChecked && <input type="hidden" name="active" value="true" />}
+          <CheckboxCard
+            id="active"
+            checked={activeChecked}
+            onCheckedChange={setActiveChecked}
+            tone="mint"
+            title="Jadikan rekening aktif utama"
+            description="Rekening aktif lain otomatis dinonaktifkan."
+          />
         </FieldGrid>
       </FormDialog>
     </div>

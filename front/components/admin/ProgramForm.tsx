@@ -1,18 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AdminPageTitle } from "@/components/admin/PageHeader";
 import { Field, FieldGrid, FormPage, FormSection } from "@/components/admin/ui/form/fields";
+import { AdminInput, AdminTextarea, PercentInput, PriceInput } from "@/components/admin/ui/form/controls";
 import { rowDangerActionClass } from "@/components/admin/ui/data-table";
-import { Input } from "@/components/ui/Input";
-import { Textarea } from "@/components/ui/textarea";
 import { INHOUSE_SLUG } from "@/lib/bundle";
-
-const formatNumber = (digits: string) =>
-  digits ? new Intl.NumberFormat("id-ID").format(parseInt(digits, 10)) : "";
+import { formatRupiah } from "@/lib/format";
 
 const toDigits = (value: unknown) => String(value ?? "").replace(/\D/g, "");
 
@@ -25,9 +22,6 @@ type ProgramRow = {
   dp_percent?: number | null;
   fee_details?: string | null;
   materials?: string[] | null;
-  form_prior_experience?: string | null;
-  form_goal?: string | null;
-  form_challenge?: string | null;
 };
 
 // Program adalah daftar tetap: form ini hanya mengubah, tidak membuat.
@@ -44,30 +38,29 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
     original_price_idr: toDigits(initialData.original_price_idr),
     dp_percent: initialData.dp_percent?.toString() ?? "",
     fee_details: initialData.fee_details || "",
-    form_prior_experience: initialData.form_prior_experience || "",
-    form_goal: initialData.form_goal || "",
-    form_challenge: initialData.form_challenge || "",
   });
 
   const [materials, setMaterials] = useState<string[]>(
     Array.isArray(initialData.materials) ? initialData.materials : []
   );
+  const materialRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleMoneyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value.replace(/\D/g, "") }));
-  };
-
   const handleMaterialChange = (index: number, value: string) => {
     setMaterials((prev) => prev.map((item, i) => (i === index ? value : item)));
   };
 
-  const handleAddMaterial = () => setMaterials((prev) => [...prev, ""]);
+  const handleAddMaterial = () => {
+    const nextIndex = materials.length;
+    setMaterials((prev) => [...prev, ""]);
+    requestAnimationFrame(() => {
+      materialRefs.current[nextIndex]?.focus();
+    });
+  };
 
   const handleRemoveMaterial = (index: number) => {
     setMaterials((prev) => prev.filter((_, i) => i !== index));
@@ -112,9 +105,6 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
           dp_percent: dp,
           fee_details: formData.fee_details.trim() || null,
           materials: materials.map((item) => item.trim()).filter(Boolean),
-          form_prior_experience: formData.form_prior_experience.trim() || null,
-          form_goal: formData.form_goal.trim() || null,
-          form_challenge: formData.form_challenge.trim() || null,
         };
 
     const supabase = createClient();
@@ -128,15 +118,19 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
 
     setIsSubmitting(false);
 
-    router.push("/admin/program");
+    const backHref = isInhouse ? "/admin/galeri" : `/admin/program/${initialData.slug}`;
+    router.push(backHref);
     router.refresh();
   };
 
+  const backHref = isInhouse ? "/admin/galeri" : `/admin/program/${initialData.slug}`;
+
   return (
     <>
-      <AdminPageTitle>{initialData.title || initialData.slug}</AdminPageTitle>
+      <AdminPageTitle>Ubah {initialData.title || initialData.slug}</AdminPageTitle>
       <FormPage
-        cancelHref="/admin/program"
+        width="double"
+        cancelHref={backHref}
         submitLabel="Simpan program"
         pending={isSubmitting}
         onSubmit={handleSubmit}
@@ -151,10 +145,11 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
           <div className="space-y-5">
             <FieldGrid columns={1}>
               <Field label="Nama Program" htmlFor="title" required>
-                <Input
+                <AdminInput
                   id="title"
                   name="title"
                   required
+                  aria-required="true"
                   value={formData.title}
                   onChange={handleChange}
                   placeholder="Misal: Public Speaking Fundamental"
@@ -162,10 +157,11 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
               </Field>
 
               <Field label="Deskripsi Program" htmlFor="description" required>
-                <Textarea
+                <AdminTextarea
                   id="description"
                   name="description"
                   required
+                  aria-required="true"
                   rows={3}
                   value={formData.description}
                   onChange={handleChange}
@@ -177,43 +173,48 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
             {!isInhouse && <>
               <FieldGrid columns={2} breakpoint="md">
                 <Field label="Biaya" htmlFor="price_idr" required span="half" breakpoint="md">
-                  <Input
+                  <PriceInput
                     id="price_idr"
                     name="price_idr"
                     required
-                    inputMode="numeric"
-                    value={formatNumber(formData.price_idr)}
-                    onChange={handleMoneyChange}
+                    aria-required="true"
+                    value={formData.price_idr}
+                    onValueChange={(next) => setFormData((prev) => ({ ...prev, price_idr: next }))}
                     placeholder="1.300.000"
                   />
                 </Field>
                 <Field label="Harga Coret / Asli (Opsional)" htmlFor="original_price_idr" span="half" breakpoint="md">
-                  <Input
+                  <PriceInput
                     id="original_price_idr"
                     name="original_price_idr"
-                    inputMode="numeric"
-                    value={formatNumber(formData.original_price_idr)}
-                    onChange={handleMoneyChange}
+                    value={formData.original_price_idr}
+                    onValueChange={(next) => setFormData((prev) => ({ ...prev, original_price_idr: next }))}
                     placeholder="1.500.000"
                   />
                 </Field>
               </FieldGrid>
 
               <FieldGrid columns={1}>
-                <Field label="DP (%)" htmlFor="dp_percent" span="narrow" hint="Kosongkan bila DP tidak ditawarkan.">
-                  <Input
+                <Field
+                  label="DP (%)"
+                  htmlFor="dp_percent"
+                  span="narrow"
+                  hint={
+                    Number(formData.price_idr) > 0 && Number(formData.dp_percent) > 0
+                      ? `= ${formatRupiah(Math.round((Number(formData.price_idr) * Number(formData.dp_percent)) / 100))} saat DP`
+                      : "Kosongkan bila DP tidak ditawarkan."
+                  }
+                >
+                  <PercentInput
                     id="dp_percent"
                     name="dp_percent"
-                    type="number"
-                    min={1}
-                    max={99}
                     value={formData.dp_percent}
-                    onChange={handleChange}
+                    onValueChange={(next) => setFormData((prev) => ({ ...prev, dp_percent: next }))}
                     placeholder="20"
                   />
                 </Field>
                 <Field label="Rincian Biaya (Opsional)" htmlFor="fee_details">
-                  <Textarea
+                  <AdminTextarea
                     id="fee_details"
                     name="fee_details"
                     rows={3}
@@ -227,55 +228,15 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
           </div>
         </FormSection>
 
-        {!isInhouse && (
-          <FormSection
-            number={2}
-            title="Formulir pendaftaran"
-            description="Naskah pertanyaan di halaman daftar untuk program ini. Kosongkan bila cukup memakai naskah bawaan jenis formulir program ini."
-          >
-            <FieldGrid columns={1}>
-              <Field label="Pertanyaan pengalaman sebelumnya" htmlFor="form_prior_experience">
-                <Textarea
-                  id="form_prior_experience"
-                  name="form_prior_experience"
-                  rows={3}
-                  value={formData.form_prior_experience}
-                  onChange={handleChange}
-                  placeholder="Apakah pernah mengikuti pelatihan Public Speaking sebelumnya?"
-                />
-              </Field>
-              <Field label="Pertanyaan tujuan mengikuti program" htmlFor="form_goal">
-                <Textarea
-                  id="form_goal"
-                  name="form_goal"
-                  rows={3}
-                  value={formData.form_goal}
-                  onChange={handleChange}
-                  placeholder="Apa tujuan utama mengikuti program ini?"
-                />
-              </Field>
-              <Field label="Pertanyaan tantangan" htmlFor="form_challenge">
-                <Textarea
-                  id="form_challenge"
-                  name="form_challenge"
-                  rows={3}
-                  value={formData.form_challenge}
-                  onChange={handleChange}
-                  placeholder="Apa tantangan terbesar Anda dalam aktivitas Public Speaking?"
-                />
-              </Field>
-            </FieldGrid>
-          </FormSection>
-        )}
-
-        <FormSection number={isInhouse ? 2 : 3} title="Materi & benefit">
+        <FormSection number={2} title="Materi & benefit">
           <div className="space-y-3">
             {materials.map((material, index) => (
               <div key={index} className="flex items-center gap-3">
-                <span className="w-5 shrink-0 font-mono text-xs font-medium text-admin-text-secondary">
-                  {index + 1}.
+                <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-admin-surface-muted font-mono text-[12px] font-semibold text-admin-text-secondary">
+                  {index + 1}
                 </span>
-                <Input
+                <AdminInput
+                  ref={(el) => { materialRefs.current[index] = el; }}
                   type="text"
                   value={material}
                   onChange={(e) => handleMaterialChange(index, e.target.value)}
@@ -295,21 +256,19 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
             ))}
 
             {materials.length === 0 && (
-              <p className="rounded-xl border border-dashed border-admin-line px-4 py-6 text-center text-[13px] text-admin-text-secondary">
+              <p className="rounded-[20px] border border-dashed border-admin-line p-8 text-center text-[13px] text-admin-text-secondary">
                 Belum ada materi. Klik &ldquo;Tambah materi&rdquo; untuk menambahkan daftar benefit program.
               </p>
             )}
 
-            <div>
-              <button
-                type="button"
-                onClick={handleAddMaterial}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-admin-line-strong px-4 text-[14px] font-medium text-admin-ink transition-colors hover:bg-admin-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
-              >
-                <Plus aria-hidden="true" size={16} strokeWidth={1.5} />
-                <span>Tambah materi</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleAddMaterial}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-dashed border-admin-line-strong text-[14px] font-semibold text-admin-ink transition-colors hover:bg-admin-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
+            >
+              <Plus aria-hidden="true" size={16} strokeWidth={1.5} />
+              <span>Tambah materi</span>
+            </button>
           </div>
         </FormSection>
       </FormPage>

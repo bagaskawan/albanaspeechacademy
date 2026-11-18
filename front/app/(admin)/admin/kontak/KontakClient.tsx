@@ -4,25 +4,12 @@ import { useState, useTransition } from "react";
 import { saveContacts } from "./actions";
 import { useSettingsForm } from "@/components/admin/settings/settings-forms";
 import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
-import { Input } from "@/components/ui/Input";
-import { Textarea } from "@/components/ui/textarea";
+import { AdminInput, AdminTextarea, PhoneInput } from "@/components/admin/ui/form/controls";
 
 export type ContactRow = { kind: string; value: string };
 
 interface KontakClientProps {
   initialContacts: ContactRow[];
-}
-
-function formatPhoneNumber(value: string) {
-  let digits = value.replace(/\D/g, "");
-  if (digits.length > 0 && digits[0] !== "0") digits = "0" + digits;
-  digits = digits.slice(0, 13);
-
-  const parts: string[] = [];
-  if (digits.length > 0) parts.push(digits.slice(0, 4));
-  if (digits.length > 4) parts.push(digits.slice(4, 8));
-  if (digits.length > 8) parts.push(digits.slice(8, 13));
-  return parts.join("-");
 }
 
 export default function KontakClient({ initialContacts }: KontakClientProps) {
@@ -91,20 +78,17 @@ export default function KontakClient({ initialContacts }: KontakClientProps) {
           <Field
             label="WhatsApp"
             htmlFor="contact-whatsapp"
-            hint="Nomor lokal, diawali angka 0. Otomatis diformat dan ditautkan ke wa.me."
+            hint="Nomor Indonesia, otomatis diformat 0812-3456-7890."
           >
-            <Input
+            <PhoneInput
               id="contact-whatsapp"
-              type="tel"
-              inputMode="tel"
               value={whatsapp}
-              onChange={(e) => setWhatsapp(formatPhoneNumber(e.target.value))}
-              placeholder="0812-3456-7890"
+              onValueChange={setWhatsapp}
             />
           </Field>
 
           <Field label="Email" htmlFor="contact-email">
-            <Input
+            <AdminInput
               id="contact-email"
               type="email"
               value={email}
@@ -114,7 +98,7 @@ export default function KontakClient({ initialContacts }: KontakClientProps) {
           </Field>
 
           <Field label="Instagram" htmlFor="contact-instagram">
-            <Input
+            <AdminInput
               id="contact-instagram"
               type="text"
               value={instagram}
@@ -124,7 +108,7 @@ export default function KontakClient({ initialContacts }: KontakClientProps) {
           </Field>
 
           <Field label="Alamat" htmlFor="contact-address">
-            <Textarea
+            <AdminTextarea
               id="contact-address"
               rows={3}
               value={address}

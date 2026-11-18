@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { m } from "motion/react";
-import { ArrowLeft, MoveRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import type { AdminNavGroup, AdminNavModule } from "@/lib/admin-nav";
 import { ease } from "@/lib/motion/tokens";
 
@@ -28,11 +28,25 @@ export function PageHeader({ group, module, isDetail, pathname }: { group: Admin
         {isDetail && module && <Link
           href={module.href}
           aria-label={`Kembali ke ${module.label}`}
-          className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-admin-surface text-admin-ink transition-colors hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
+          className="inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-admin-line-strong bg-admin-canvas text-admin-ink transition-colors hover:bg-admin-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
         ><ArrowLeft aria-hidden="true" size={18} strokeWidth={1.5} /></Link>}
         <div className="min-w-0">
-          <h1 className="text-[20px] font-bold leading-[1.2] tracking-[-0.02em] sm:text-[24px] md:text-[28px]">{title}</h1>
-          {description && <p className="mt-1 max-w-[60ch] text-[13px] leading-[1.5] text-admin-text-secondary sm:text-[14px]">{description}</p>}
+          {isDetail && module ? (
+            <>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-admin-text-secondary">
+                [ {module.label} ]
+              </p>
+              <h1 className="mt-1 text-[24px] md:text-[30px] font-bold leading-[1.15] tracking-[-0.02em] text-admin-ink">
+                <span id={TITLE_ID} className="peer empty:hidden" />
+                <span className="peer-[:not(:empty)]:hidden">{title}</span>
+              </h1>
+            </>
+          ) : (
+            <>
+              <h1 className="text-[20px] font-bold leading-[1.2] tracking-[-0.02em] sm:text-[24px] md:text-[28px]">{title}</h1>
+              {description && <p className="mt-1 max-w-[60ch] text-[13px] leading-[1.5] text-admin-text-secondary sm:text-[14px]">{description}</p>}
+            </>
+          )}
         </div>
       </m.div>
       <div id={ACTIONS_ID} className="flex items-center gap-3 empty:hidden max-md:w-full" />

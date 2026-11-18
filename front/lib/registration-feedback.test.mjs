@@ -12,3 +12,13 @@ test("respons pendaftaran memberi pemulihan yang sesuai", () => {
   assert.match(registrationFailure(503).message, /coba lagi/i);
   assert.equal(registrationFailure(503, "Layanan sibuk").message, "Layanan sibuk");
 });
+
+test("locked registration keeps the server message without program link", () => {
+  const withMessage = registrationFailure(423, "X");
+  assert.equal(withMessage.message, "X");
+  assert.equal(withMessage.showProgramLink, undefined);
+  assert.equal(
+    registrationFailure(423).message,
+    "Pendaftaranmu sebelumnya masih menunggu pembayaran. Coba lagi dalam 30 menit.",
+  );
+});

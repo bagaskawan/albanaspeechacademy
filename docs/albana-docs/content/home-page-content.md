@@ -454,3 +454,62 @@ Field memakai line style akademi. Pesan galat tepat di bawah field. Tombol **Kem
 - [ ] Reduced motion: fade satu arah, tanpa scrub, tanpa Lenis.
 - [ ] Gulir naik-turun cepat di ponsel kelas menengah tanpa tersendat.
 - [ ] Teks dan tombol terbaca dan dapat diklik dengan JavaScript dimatikan.
+
+## 12. Naskah redesign 17 November 2026 (berlaku, menggantikan naskah lama bila bertentangan)
+
+Disetujui pemilik pada 17 November 2026 ("tulis lalu pasang"). Judul memakai serif display (Playfair Display), satu frasa per judul miring berwarna aksen (komponen `Accent`). Penanda bab bernomor `NN — Nama`. Angka hanya dari data atau naskah bersumber.
+
+| Seksi | Penanda | Judul (frasa *miring*) | Cerita |
+| --- | --- | --- | --- |
+| Hero | Albana Speech Academy · Bandung | Latih momen saat *semua mata* tertuju padamu. | Rapat, presentasi, memandu acara, menjawab pertanyaan. Di Albana kamu tidak sekadar belajar teori bicara — kamu berlatih di depan orang, menerima masukan, lalu mencoba lagi sampai terbiasa. |
+| Hero — aksi | — | **Lihat jadwal kelas** (utama) · **Konsultasi dulu** (tautan) | Petak sorotan: **Kelas berikutnya** + program · batch · tanggal (data); kosong → "Jadwal kelas berikutnya belum tersedia." |
+| Hero — pita | — | Bidang pelatihan berjalan (7 bidang §5.2), berhenti saat reduced motion | — |
+| Alasan | 01 — Kenapa berlatih | Bicara di depan orang adalah keterampilan. *Keterampilan bisa dilatih.* | Kebanyakan orang tidak kekurangan ide — mereka kekurangan jam terbang. Kelas kami dirancang supaya kamu lebih banyak mencoba daripada mendengarkan. Fakta: **80%** waktu kelas untuk praktik dan simulasi · **{n}** jalur Public Training (data) · **BNSP** Master Trainer bersertifikat. Empat manfaat §3.2 tetap. |
+| Program | 02 — Program | Setiap situasi bicara butuh *latihan yang berbeda.* | Mulai dari jalur yang paling dekat dengan kebutuhanmu hari ini. Setiap kelas dibuka dengan praktik dan ditutup dengan masukan langsung dari trainer. Tautan: **Bandingkan jadwal**. Subjudul: **Public Training** — Kelas terjadwal — kamu berlatih bersama peserta lain. |
+| Program — Series | — | — | Cocok bila kamu baru mulai. Latih dasar bicara, lalu coba peran MC dan moderator di kelas yang sama. |
+| Program — for Speakers | — | — | Untuk kamu yang akan berdiri di depan audiens: susun pesan, buka dengan kuat, dan tutup dengan jelas. |
+| Program — Sertifikasi | — | — | Untuk kamu yang ingin kemampuan bicaranya diakui secara formal. |
+| Program — label | — | **Yang kamu latih** · **Batch terdekat** · **Daftar** · **Detail** | — |
+| Inhouse | 03 — Inhouse Training | Saat yang perlu berlatih adalah *satu tim.* | (naskah §4.1) + Mulai dari satu percakapan: ceritakan situasi timmu — presentasi ke klien, rapat pimpinan, atau acara perusahaan — lalu kami susun latihannya. |
+| Tentang | 04 — Tentang kami | Dibangun oleh *praktisi panggung,* untuk orang yang harus bicara. | (lead §5.1) + Albana lahir dari ruang siaran dan panggung acara. Karena itu kelasnya terasa seperti latihan sebelum tampil: ada naskah, ada audiens, ada evaluasi. Tombol: **Kenali tim trainer**. |
+| Cara belajar | 05 — Cara belajar | Kemampuan bicara tumbuh saat *benar-benar dipraktikkan.* | (lead §5.2). Porsi 80/20 dari data metode. Kerangka 4 tingkat diberi label **Tahap 1–4**. |
+| Legalitas | 06 — Legalitas | Resmi terdaftar di bawah *CV Asa Albana.* | Mengajukan pelatihan untuk instansi butuh lembaga yang jelas. Dokumen ini bisa kamu cek sebelum bekerja sama. |
+| Testimoni | 07 — Cerita peserta | Mereka pernah *gugup juga.* | Data `testimonials`; tanpa data seksi hilang. |
+| Trainer | 08 — Trainer | Kenali *yang akan mendampingimu.* | (lead §7) + Mereka akan menilai latihanmu dari pengalaman, bukan dari buku. Petak ajakan: **Butuh trainer untuk timmu?** · Susun pelatihan khusus untuk organisasimu. · **Lihat Inhouse Training**. |
+| Jadwal | 09 — Jadwal dan biaya | Pilih batch, *tandai kalendermu* | Pilih batch yang cocok dengan kalendermu. Semua tanggal, jam, tempat, dan biaya ada di sini — waktu dalam WIB. |
+| Cara daftar | 10 — Cara daftar | Tiga langkah, *lalu kita berlatih.* | Tidak ada proses berbelit. Kamu daftar, transfer sesuai tagihan, lalu kami sambut di grup kelas. Dua jalur diberi label **Untuk individu** / **Untuk organisasi**. |
+| Penutup | 11 — Langkah pertama | Usulan apa yang ingin *kamu latih?* | (lead §10.1) |
+
+Tata letak per seksi (ringkas): hero dua kolom — judul serif besar kiri, komposisi foto asimetris (potret 3:4 + foto persegi + petak sun) kanan; Alasan rata tengah dengan fakta angka serif besar; Program per jalur dengan nomor serif miring, bento, lalu petak batch + petak sun harga; Inhouse bab gelap dengan dua foto bertumpuk dan strip logo; Tentang tiga kolom (cerita · potret · profil); Trainer grid tiga kolom dengan judul di sel pertama dan petak ajakan di sel terakhir; Penutup rata tengah dengan strip tiga foto.
+
+**Revisi 17 November 2026 (lanjutan):**
+- Hero: logo resmi tampil kecil di atas judul (biru di tema terang, putih di gelap) disertai label **Akademi public speaking · Bandung**; logo bukan H1. Judul memakai ukuran `type-hero` agar muat 3–4 baris.
+- Bab **Dokumentasi** berdiri sendiri setelah Inhouse: judul **Seperti inilah *suasana latihannya.*** · cerita **Praktik, umpan balik, dan momen di atas panggung dari kegiatan Albana — dari kelas terjadwal sampai pelatihan di kantor klien.** Mosaik 10/8/4 petak, saringan **Semua** + per program + **Inhouse Training**, tombol **Lihat semua dokumentasi ({n})**. Seksi program hanya menampilkan dua foto pratinjau + tautan **Lihat {n} dokumentasi kelas ini**.
+- Testimoni: slider manual (tanpa putar otomatis), kartu kutipan dengan monogram inisial; pola satu foto besar dihapus. Cerita: **Cerita singkat dari peserta yang sudah berlatih bersama Albana — sebelum dan sesudah berdiri di depan orang.**
+
+**Revisi 17 November 2026 (lanjutan 2):**
+- Dokumentasi kembali ke tiap program: dua foto pratinjau di samping teks, lalu **Galeri {program}** (mosaik 10/8/4 petak) selebar seksi di bawah batch terdekat. Bila program punya video, video tampil selebar seksi sebagai jeda sebelum program berikutnya (label **Video kelas · {program}**; iframe baru dimuat saat diputar). Bab Dokumentasi terpisah dihapus agar foto tidak tampil dua kali; galeri Inhouse ada di bab Inhouse.
+- Seksi **Cara daftar** (§9) dihapus dari beranda. Baris **DP {n}%** di Jadwal & biaya dihapus.
+- Legalitas: tiap dokumen memakai pratinjau gambar 3:4 di atas nama, nomor, dan penerbit dari data admin (`/admin/settings` › Legalitas); bila pindaian belum diunggah, kartu tampil sebagai teks saja.
+
+### Peta sumber data beranda (D1–D17)
+
+| Bagian beranda | Sumber data & modul admin |
+| --- | --- |
+| D1 · Kartu program, batch terdekat, status, harga, harga coret | `programs`, `batches`, `sessions` — `/admin/program` |
+| D2 · Catatan paket bundling | `bundle_offers` — `/admin/program` |
+| D3 · Foto dokumentasi per program | `media_assets` (storage) — `/admin/program/[slug]` |
+| D4 · Video per program | `media_assets` (YouTube) — `/admin/program/[slug]` |
+| D5 · Poster video YouTube | `https://i.ytimg.com/vi/{youtubeId}/hqdefault.jpg` (otomatis) |
+| D6 · Inhouse: kartu & WhatsApp | `programs` & `contact_channels` — `/admin/program`, `/admin/kontak` |
+| D7 · Inhouse: dokumentasi kegiatan | `gallery` & `media_assets` (`inhouse-training`) — `/admin/galeri`, `/admin/program/inhouse-training` |
+| D8 · Pernah melatih (logo partner) | `academy_partners` — `/admin/partner` |
+| D9 · Tentang: nama akademi & potret Alan | `academy.name`, `trainers` — `/admin/profil-akademi`, `/admin/trainer` |
+| D10 · Cara belajar: teks metode | `academy.teaching_method` — `/admin/profil-akademi` |
+| D11 · Legalitas: gambar dokumen | `academy.legality` — `/admin/settings` › Legalitas |
+| D12 · Legalitas: nama, nomor, penerbit | Statis di `components/home/legality-section.tsx` |
+| D13 · Testimoni (slider) | `testimonials` — `/admin/testimoni` |
+| D14 · Trainer | `trainers` — `/admin/trainer` |
+| D15 · Kontak penutup & footer | `contact_channels` — `/admin/kontak` |
+| D16 · Foto hero & kumpulan `moments` | Turunan otomatis dari D3 + D7 (`lib/home-derive.ts`) |
+| D17 · Kompresi gambar | `next/image` (`/_next/image`, AVIF/WebP, `q=85/90`) |

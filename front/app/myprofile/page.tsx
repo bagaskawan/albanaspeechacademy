@@ -21,6 +21,7 @@ import { getTabVisibilitySettingsAction, TabVisibilitySettings } from "@/lib/act
 import TabSkeleton from "./components/TabSkeleton";
 import UnderConstruction from "./components/UnderConstruction";
 import { isDedicatedAdmin } from "@/lib/constants";
+import { PageLoading } from "@/components/ui/PageLoading";
 
 const TAB_ORDER: ProfileTab[] = ["overview", "attendance", "portfolio", "affiliate"];
 
@@ -234,13 +235,7 @@ export default function MyProfilePage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="fixed inset-0 bg-white dark:bg-[#2c2c2c] text-[#2c2c2c] dark:text-white z-[9999] flex items-center justify-center select-none">
-        <span className="font-sans text-[12px] uppercase tracking-[0.3em] font-black animate-pulse">
-          Memuat Profil ...
-        </span>
-      </div>
-    );
+    return <PageLoading />;
   }
 
   if (!member) return null;

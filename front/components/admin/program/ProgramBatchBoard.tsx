@@ -7,8 +7,9 @@ import { toast } from "sonner";
 import { CalendarPlus, Package, Pencil, Plus, Trash2 } from "lucide-react";
 import { FormDialog } from "@/components/admin/ui/form/FormDialog";
 import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
-import { Input } from "@/components/ui/Input";
-import { Textarea } from "@/components/ui/textarea";
+import { AdminInput, AdminTextarea, CheckboxCard, PercentInput, PriceInput } from "@/components/admin/ui/form/controls";
+import { DatePicker } from "@/components/ui/DatePicker";
+import { TimePicker } from "@/components/ui/TimePicker";
 import { StatusChip, rowActionClass, rowDangerActionClass } from "@/components/admin/ui/data-table";
 import { RowActions } from "@/components/admin/ui/row-actions";
 import { formatRupiah } from "@/lib/format";
@@ -59,8 +60,6 @@ const pillClass = "inline-flex h-11 items-center gap-2 rounded-full border borde
 const dateFormat = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Jakarta" });
 
 const dateLabel = (date: string) => (date ? dateFormat.format(new Date(`${date}T00:00:00+07:00`)) : "—");
-const digits = (value: string) => value.replace(/\D/g, "");
-const grouped = (value: string) => (value ? Number(value).toLocaleString("id-ID") : "");
 
 function Warning({ children }: { children: React.ReactNode }) {
   return <p className="rounded-[16px] bg-admin-butter-soft px-3 py-2 text-[13px] text-admin-butter-ink">{children}</p>;
@@ -86,9 +85,24 @@ function SessionRows({ sessions, onChange }: { sessions: SessionInput[]; onChang
           </button>
         </div>
         <div className="mt-2 grid gap-2 sm:grid-cols-3">
-          <Input aria-label={`Tanggal sesi ${index + 1}`} type="date" required value={session.date} onChange={(event) => patch(index, { date: event.target.value })} />
-          <Input aria-label={`Jam mulai sesi ${index + 1}`} type="time" required value={session.start} onChange={(event) => patch(index, { start: event.target.value })} />
-          <Input aria-label={`Jam selesai sesi ${index + 1}`} type="time" required value={session.end} onChange={(event) => patch(index, { end: event.target.value })} />
+          <DatePicker
+            value={session.date}
+            onChange={(date) => patch(index, { date })}
+            placeholder="Pilih tanggal"
+            className="h-12 rounded-full border-admin-line bg-admin-surface px-4 text-sm text-admin-ink"
+          />
+          <TimePicker
+            value={session.start}
+            onChange={(start) => patch(index, { start })}
+            placeholder="Jam mulai"
+            className="h-12 rounded-full border-admin-line bg-admin-surface px-4 text-sm text-admin-ink"
+          />
+          <TimePicker
+            value={session.end}
+            onChange={(end) => patch(index, { end })}
+            placeholder="Jam selesai"
+            className="h-12 rounded-full border-admin-line bg-admin-surface px-4 text-sm text-admin-ink"
+          />
         </div>
       </div>
     ))}
@@ -102,10 +116,11 @@ function SessionRows({ sessions, onChange }: { sessions: SessionInput[]; onChang
  * Satu layar Program & Batch (rancangan §5.3): program tetap dengan biayanya, daftar
  * batch per program, kartu paket, dan kartu Inhouse. Tidak ada tambah atau hapus program.
  */
-export function ProgramBatchBoard({ programs, batches, bundle, nowMs }: {
+export function ProgramBatchBoard({ programs, batches, bundle, inhouse, nowMs }: {
   programs: BoardProgram[];
   batches: BoardBatch[];
   bundle: BoardBundle | null;
+  inhouse: { galleryCount: number; partnerCount: number };
   nowMs: number;
 }) {
   const router = useRouter();
@@ -115,7 +130,7 @@ export function ProgramBatchBoard({ programs, batches, bundle, nowMs }: {
   const [bundleDraft, setBundleDraft] = useState<BundleDraft | null>(null);
 
   const publicTraining = ORDER.map((slug) => programs.find((program) => program.slug === slug)).filter((program): program is BoardProgram => !!program);
-  const inhouse = programs.find((program) => !ORDER.includes(program.slug));
+  const inhouseProgram = programs.find((program) => !ORDER.includes(program.slug));
   const priceOf = (slug: string) => Number(programs.find((program) => program.slug === slug)?.price_idr ?? 0);
 
   const rowsOf = (slug: string) =>
@@ -287,17 +302,41 @@ export function ProgramBatchBoard({ programs, batches, bundle, nowMs }: {
       )}
     </section>
 
-    {inhouse && <section className="rounded-[var(--admin-radius-card)] bg-admin-surface p-[var(--admin-space-card)]">
+    <h2 className="pt-2 text-[15px] font-semibold text-admin-ink">In House Training</h2>
+
+    {inhouseProgram && <section className="rounded-[var(--admin-radius-card)] bg-admin-surface p-[var(--admin-space-card)]">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-[16px] font-semibold text-admin-ink">{inhouse.title}</h3>
+          <h3 className="text-[16px] font-semibold text-admin-ink">{inhouseProgram.title}</h3>
           <p className="mt-0.5 text-[13px] text-admin-text-secondary">Konsultasi langsung, tanpa batch</p>
         </div>
-        <Link href={`/admin/program/${inhouse.slug}/edit`} aria-label={`Ubah ${inhouse.title}`} title="Ubah program" className={rowActionClass}>
+        <Link href={`/admin/program/${inhouseProgram.slug}/edit`} aria-label={`Ubah ${inhouseProgram.title}`} title="Ubah program" className={rowActionClass}>
           <Pencil aria-hidden="true" size={18} strokeWidth={1.5} />
         </Link>
       </header>
     </section>}
+
+    <section className="rounded-[var(--admin-radius-card)] bg-admin-surface p-[var(--admin-space-card)]">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="text-[16px] font-semibold text-admin-ink">Gallery Kegiatan</h3>
+          <p className="mt-0.5 text-[13px] text-admin-text-secondary">{inhouse.galleryCount} foto</p>
+        </div>
+        <Link href="/admin/galeri" className={pillClass}>Kelola</Link>
+      </header>
+      {inhouse.galleryCount === 0 && <div className="mt-3"><Warning>Belum ada foto kegiatan.</Warning></div>}
+    </section>
+
+    <section className="rounded-[var(--admin-radius-card)] bg-admin-surface p-[var(--admin-space-card)]">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="text-[16px] font-semibold text-admin-ink">Our Partner</h3>
+          <p className="mt-0.5 text-[13px] text-admin-text-secondary">{inhouse.partnerCount} logo</p>
+        </div>
+        <Link href="/admin/partner" className={pillClass}>Kelola</Link>
+      </header>
+      {inhouse.partnerCount === 0 && <div className="mt-3"><Warning>Belum ada logo partner.</Warning></div>}
+    </section>
 
     <FormDialog
       open={Boolean(batchDraft)}
@@ -311,10 +350,11 @@ export function ProgramBatchBoard({ programs, batches, bundle, nowMs }: {
     >
       {batchDraft && <FieldGrid columns={1}>
         <Field label="Nama batch" htmlFor="batch-title" required>
-          <Input
+          <AdminInput
             id="batch-title"
             type="text"
             required
+            aria-required="true"
             maxLength={160}
             placeholder={batchDraft.placeholder}
             value={batchDraft.title}
@@ -326,16 +366,14 @@ export function ProgramBatchBoard({ programs, batches, bundle, nowMs }: {
             <SessionRows sessions={batchDraft.sessions} onChange={(sessions) => setBatchDraft({ ...batchDraft, sessions })} />
           </div>
         </Field>
-        <label htmlFor="batch-open" className="flex cursor-pointer items-center gap-3 rounded-[20px] border border-admin-line-strong p-4 text-[14px] text-admin-ink">
-          <input
-            id="batch-open"
-            type="checkbox"
-            checked={batchDraft.open}
-            onChange={(event) => setBatchDraft({ ...batchDraft, open: event.target.checked })}
-            className="size-5 accent-[var(--admin-ink)]"
-          />
-          <span>Buka pendaftaran<span className="block text-[13px] text-admin-text-secondary">Membuka batch ini menutup pendaftaran batch lain di program yang sama.</span></span>
-        </label>
+        <CheckboxCard
+          id="batch-open"
+          checked={batchDraft.open}
+          onCheckedChange={(open) => setBatchDraft({ ...batchDraft, open })}
+          tone="mint"
+          title="Buka pendaftaran"
+          description="Membuka batch ini menutup pendaftaran batch lain di program yang sama."
+        />
         {error && <p role="alert" className="text-[13px] text-admin-danger">{error}</p>}
       </FieldGrid>}
     </FormDialog>
@@ -352,38 +390,32 @@ export function ProgramBatchBoard({ programs, batches, bundle, nowMs }: {
       onSubmit={submitBundle}
     >
       {bundleDraft && <FieldGrid columns={1}>
-        <label htmlFor="bundle-active" className="flex cursor-pointer items-center gap-3 rounded-[20px] border border-admin-line-strong p-4 text-[14px] text-admin-ink">
-          <input
-            id="bundle-active"
-            type="checkbox"
-            checked={bundleDraft.active}
-            onChange={(event) => setBundleDraft({ ...bundleDraft, active: event.target.checked })}
-            className="size-5 accent-[var(--admin-ink)]"
-          />
-          <span>Tawarkan paket<span className="block text-[13px] text-admin-text-secondary">Tampil di akhir formulir Speaker dan Sertifikasi.</span></span>
-        </label>
+        <CheckboxCard
+          id="bundle-active"
+          checked={bundleDraft.active}
+          onCheckedChange={(active) => setBundleDraft({ ...bundleDraft, active })}
+          tone="mint"
+          title="Tawarkan paket"
+          description="Tampil di akhir formulir Speaker dan Sertifikasi."
+        />
         <Field label="Harga paket" htmlFor="bundle-price" required>
-          <Input
+          <PriceInput
             id="bundle-price"
-            type="text"
-            inputMode="numeric"
             required
-            value={grouped(bundleDraft.price)}
-            onChange={(event) => setBundleDraft({ ...bundleDraft, price: digits(event.target.value) })}
+            aria-required="true"
+            value={bundleDraft.price}
+            onValueChange={(price) => setBundleDraft({ ...bundleDraft, price })}
           />
         </Field>
         <Field label="DP paket (%)" htmlFor="bundle-dp" hint="Kosongkan untuk memakai DP program asal." span="narrow">
-          <Input
+          <PercentInput
             id="bundle-dp"
-            type="number"
-            min={1}
-            max={99}
             value={bundleDraft.dp}
-            onChange={(event) => setBundleDraft({ ...bundleDraft, dp: event.target.value })}
+            onValueChange={(dp) => setBundleDraft({ ...bundleDraft, dp })}
           />
         </Field>
         <Field label="Penjelasan" htmlFor="bundle-description" hint="Satu kalimat, maksimal 300 karakter.">
-          <Textarea
+          <AdminTextarea
             id="bundle-description"
             rows={3}
             maxLength={300}

@@ -40,3 +40,73 @@ test("baris dari beberapa pendaftaran diurutkan bersama", () => {
   ]);
   assert.deepEqual(rows.map((row) => row.invoiceId), [20, 10]);
 });
+
+test("invoice rows carry email delivery status", () => {
+  const rows = invoiceRows([
+    reg(1, [
+      {
+        ...inv(10, "initial", 100, "pending", "2026-11-10T09:00:00+07:00"),
+        academy_email_deliveries: [{ kind: "payment_instructions", status: "failed", attempts: 2 }],
+      },
+      inv(11, "remaining", 200, "pending", "2026-11-11T09:00:00+07:00"),
+    ]),
+  ]);
+  const first = rows.find((r) => r.invoiceId === 10);
+  const second = rows.find((r) => r.invoiceId === 11);
+  assert.deepEqual(first.emails, [{ kind: "payment_instructions", status: "failed", attempts: 2 }]);
+  assert.deepEqual(second.emails, []);
+});
+
+test("invoice rows carry payment history", () => {
+  const rows = invoiceRows([
+    reg(1, [
+      {
+        ...inv(10, "initial", 1300123, "pending", "2026-11-10T09:00:00+07:00"),
+        academy_invoice_payments: [
+          {
+            id: 2,
+            amount_idr: 300123,
+            balance_after_idr: 0,
+            note: "kedua",
+            recorded_at: "2026-11-10T10:00:00+07:00",
+            recorded_by: "u1",
+            voided_at: "2026-11-10T11:00:00+07:00",
+          },
+          {
+            id: 1,
+            amount_idr: 1000000,
+            balance_after_idr: 300123,
+            note: null,
+            recorded_at: "2026-11-10T09:30:00+07:00",
+            recorded_by: "u1",
+            voided_at: null,
+          },
+        ],
+      },
+      inv(11, "remaining", 200, "pending", "2026-11-11T09:00:00+07:00"),
+    ]),
+  ]);
+  const first = rows.find((r) => r.invoiceId === 10);
+  const second = rows.find((r) => r.invoiceId === 11);
+  assert.deepEqual(first.payments, [
+    {
+      id: 1,
+      amountIdr: 1000000,
+      balanceAfterIdr: 300123,
+      note: null,
+      recordedAt: "2026-11-10T09:30:00+07:00",
+      recordedBy: "u1",
+      voided: false,
+    },
+    {
+      id: 2,
+      amountIdr: 300123,
+      balanceAfterIdr: 0,
+      note: "kedua",
+      recordedAt: "2026-11-10T10:00:00+07:00",
+      recordedBy: "u1",
+      voided: true,
+    },
+  ]);
+  assert.deepEqual(second.payments, []);
+});

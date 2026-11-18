@@ -29,6 +29,7 @@ export default async function TrainerPage() {
       exportModule="trainer"
       createLabel="Tambah trainer"
       emptyText="Tidak ada trainer yang terdaftar."
+      galleryCards
     />
   );
 }

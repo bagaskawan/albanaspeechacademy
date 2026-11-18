@@ -8,8 +8,9 @@ import { MemberProfile } from "@/lib/types/member";
 import PortfolioForm from "@/components/member/PortfolioForm";
 import ProfileNavbar from "../../components/ProfileNavbar";
 import Footer from "@/components/community/Footer";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { PageLoading } from "@/components/ui/PageLoading";
 
 export default function NewPortfolioPage() {
   const router = useRouter();
@@ -58,14 +59,7 @@ export default function NewPortfolioPage() {
   }, [router]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-neutral-50 dark:bg-[#0A0A0A] text-neutral-900 dark:text-white font-sans gap-3">
-        <Loader2 className="animate-spin h-7 w-7 text-neutral-900 dark:text-white" />
-        <span className="text-xs font-mono uppercase tracking-widest text-neutral-500">
-          Memuat Form Portofolio...
-        </span>
-      </div>
-    );
+    return <PageLoading />;
   }
 
   if (!member) return null;

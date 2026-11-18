@@ -38,12 +38,12 @@ function Sparkline({ values }: { values: number[] }) {
 
 function StatCard({ value, label, chip, spark, href }: { value: React.ReactNode; label: string; chip?: React.ReactNode; spark?: number[]; href?: string }) {
   return <section className={`${card} flex min-h-[188px] flex-col justify-between gap-4`}>
-    <div className="flex items-start justify-between gap-3">
-      <div className="min-w-0">
-        <p className="truncate text-[32px] font-normal leading-none tracking-[-0.02em] sm:text-[40px] md:text-[48px]">{value}</p>
-        <h2 className="mt-3 text-[15px] text-admin-text-secondary">{label}</h2>
+    <div>
+      <div className="flex items-start justify-between gap-3">
+        <p className="min-w-0 truncate text-[32px] font-normal leading-none tracking-[-0.02em] sm:text-[40px] md:text-[48px]">{value}</p>
+        {spark ? <Sparkline values={spark} /> : href && <OpenLink href={href} label={label} />}
       </div>
-      {spark ? <Sparkline values={spark} /> : href && <OpenLink href={href} label={label} />}
+      <h2 className="mt-3 text-[15px] text-admin-text-secondary">{label}</h2>
     </div>
     {chip}
   </section>;

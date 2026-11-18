@@ -2,8 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { adminNavGroups, resolveAdminNav } from "./admin-nav.ts";
 
-test("five pill groups in fixed order", () => {
-  assert.deepEqual(adminNavGroups.map((group) => group.label), ["Dashboard", "Pendaftaran", "Kelas", "Konten", "Pengaturan"]);
+test("six pill groups in fixed order", () => {
+  assert.deepEqual(
+    adminNavGroups.map((group) => group.label),
+    ["Dashboard", "Pendaftaran", "Public Training", "In House Training", "Konten", "Pengaturan"]
+  );
 });
 
 test("/admin is Dashboard with no active module", () => {
@@ -13,9 +16,10 @@ test("/admin is Dashboard with no active module", () => {
 });
 
 test("nested module route resolves group and module", () => {
-  const nav = resolveAdminNav("/admin/program/speaker-training/edit");
-  assert.equal(nav.group.id, "kelas");
-  assert.equal(nav.module?.href, "/admin/program");
+  const nav = resolveAdminNav("/admin/program/public-speaking-for-speakers/edit");
+  assert.equal(nav.group.id, "public-training");
+  assert.equal(nav.module?.href, "/admin/program/public-speaking-for-speakers");
+  assert.equal(nav.isDetail, true);
 });
 
 test("tagihan belongs to Pendaftaran, not the dashboard shortcut", () => {
@@ -40,8 +44,9 @@ test("every module href is unique across groups", () => {
 
 test("isDetail only below a module's list page", () => {
   assert.equal(resolveAdminNav("/admin").isDetail, false);
-  assert.equal(resolveAdminNav("/admin/program").isDetail, false);
-  assert.equal(resolveAdminNav("/admin/program/speaker-training/edit").isDetail, true);
+  assert.equal(resolveAdminNav("/admin/program/public-speaking-series").isDetail, false);
+  assert.equal(resolveAdminNav("/admin/program/public-speaking-series/edit").isDetail, true);
+  assert.equal(resolveAdminNav("/admin/program/dokumentasi").isDetail, false);
   assert.equal(resolveAdminNav("/admin/artikel/baru").isDetail, true);
   assert.equal(resolveAdminNav("/admin/denied").isDetail, false);
 });
@@ -62,9 +67,25 @@ test("/admin/settings resolves to Pengaturan but stays out of the sidebar", () =
   assert.equal(nav.isDetail, false);
 });
 
-test("Kelas berisi Program dan Trainer; /admin/batch bukan modul lagi", () => {
-  const kelas = adminNavGroups.find((group) => group.id === "kelas");
-  assert.deepEqual(kelas.modules.map((item) => item.label), ["Program", "Trainer"]);
-  assert.equal(resolveAdminNav("/admin/batch").module, undefined);
-  assert.equal(resolveAdminNav("/admin/program").module?.label, "Program");
+test("sidebar menampilkan Pendaftaran, Public Training, In House Training, dan Konten", () => {
+  const sidebar = adminNavGroups.filter((group) => group.id !== "dashboard" && !group.sidebarHidden);
+  assert.deepEqual(
+    sidebar.map((group) => group.label),
+    ["Pendaftaran", "Public Training", "In House Training", "Konten"]
+  );
+  assert.equal(adminNavGroups.find((group) => group.id === "pengaturan")?.sidebarHidden, true);
+});
+
+test("Galeri dan Partner tampil di In House Training; Trainer di Konten; Media tidak ada lagi", () => {
+  assert.equal(resolveAdminNav("/admin/galeri").group.id, "inhouse-training");
+  assert.equal(resolveAdminNav("/admin/galeri").module?.hidden, undefined);
+  assert.equal(resolveAdminNav("/admin/partner").group.id, "inhouse-training");
+  assert.equal(resolveAdminNav("/admin/partner").module?.hidden, undefined);
+  assert.equal(resolveAdminNav("/admin/trainer").group.id, "konten");
+  assert.equal(resolveAdminNav("/admin/media").module, undefined);
+});
+
+test("rute pengaturan tetap punya judul dan breadcrumb", () => {
+  assert.equal(resolveAdminNav("/admin/settings").module?.label, "Pengaturan");
+  assert.equal(resolveAdminNav("/admin/kontak").group.id, "pengaturan");
 });

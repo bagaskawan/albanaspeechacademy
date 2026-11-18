@@ -9,6 +9,7 @@ import {
   MAX_GOAL,
   MAX_NAME,
   MAX_TEXT,
+  formatSocialHandle,
   formatWhatsapp,
   genderOptions,
   sourceOptions,
@@ -80,7 +81,52 @@ export function RegistrationStepFields({
   if (stepId === "technical") {
     return (
       <>
-        <TextField id="socialName" label="Media sosial" value={values.socialName} onChange={(v) => onUpdate("socialName", v)} maxLength={MAX_TEXT} placeholder="Instagram @nama atau TikTok @nama" hint="Opsional. Tulis nama akun yang ingin dihubungkan." error={errors.socialName} />
+        <fieldset className="flex flex-col gap-3">
+          <legend className="type-small font-medium text-[var(--tone-ink)]">
+            Media sosial
+          </legend>
+          <p className="eyebrow normal-case text-[var(--tone-muted)]">
+            Opsional. Isi akun yang ingin dihubungkan.
+          </p>
+          <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+            <TextField
+              id="instagram"
+              label="INSTAGRAM"
+              value={values.instagram}
+              onChange={(v) => onUpdate("instagram", formatSocialHandle(v))}
+              maxLength={MAX_TEXT}
+              placeholder="@ username"
+              error={errors.instagram}
+            />
+            <TextField
+              id="tiktok"
+              label="TIKTOK"
+              value={values.tiktok}
+              onChange={(v) => onUpdate("tiktok", formatSocialHandle(v))}
+              maxLength={MAX_TEXT}
+              placeholder="@ username"
+              error={errors.tiktok}
+            />
+            <TextField
+              id="youtube"
+              label="YOUTUBE"
+              value={values.youtube}
+              onChange={(v) => onUpdate("youtube", v)}
+              maxLength={MAX_TEXT}
+              placeholder="Channel / @handle"
+              error={errors.youtube}
+            />
+            <TextField
+              id="linkedin"
+              label="LINKEDIN"
+              value={values.linkedin}
+              onChange={(v) => onUpdate("linkedin", v)}
+              maxLength={MAX_TEXT}
+              placeholder="linkedin.com/in/username"
+              error={errors.linkedin}
+            />
+          </div>
+        </fieldset>
         <RadioGroup id="source" label="Dari mana kamu mengetahui kelas ini?" name="source" value={values.source} onChange={(v) => onUpdate("source", v as RegistrationValues["source"])} options={sourceOptions} required error={errors.source} />
         {values.source === "other" ? (
           <TextField id="sourceOther" label="Sebutkan sumber lainnya" value={values.sourceOther} onChange={(v) => onUpdate("sourceOther", v)} maxLength={MAX_TEXT} required error={errors.sourceOther} />
@@ -124,45 +170,58 @@ export function RegistrationStepFields({
         required
         error={errors.paymentMethod}
       />
-      <dl aria-live="polite" className="grid gap-1.5 border-t border-rule pt-4 text-sm">
-        <div className="flex flex-wrap justify-between gap-x-3">
-          <dt>Biaya</dt>
-          <dd className="font-semibold tabular-nums">{formatRupiah(summary.feeIdr)}</dd>
+      <dl
+        aria-live="polite"
+        className="flex flex-col gap-2.5 rounded-xs border border-[var(--tone-rule)] bg-[var(--tone-tile)] p-4 sm:p-5"
+      >
+        <div className="type-small flex flex-wrap items-baseline justify-between gap-x-4">
+          <dt className="text-[var(--tone-muted)]">Biaya program</dt>
+          <dd className="font-medium tabular-nums text-[var(--tone-ink)]">{formatRupiah(summary.feeIdr)}</dd>
         </div>
-        <div className="flex flex-wrap justify-between gap-x-3">
-          <dt>Transfer sekarang</dt>
-          <dd className="font-semibold tabular-nums">{formatRupiah(summary.payNowIdr)}</dd>
+        <div className="type-small flex flex-wrap items-baseline justify-between gap-x-4">
+          <dt className="text-[var(--tone-muted)]">Biaya layanan</dt>
+          <dd className="tabular-nums text-[var(--tone-muted)]">{formatRupiah(0)}</dd>
         </div>
         {summary.remainingIdr > 0 ? (
-          <div className="flex flex-wrap justify-between gap-x-3 text-muted">
-            <dt>Sisa</dt>
-            <dd className="tabular-nums">{formatRupiah(summary.remainingIdr)}</dd>
+          <div className="type-small flex flex-wrap items-baseline justify-between gap-x-4">
+            <dt className="text-[var(--tone-muted)]">Sisa pelunasan</dt>
+            <dd className="tabular-nums text-[var(--tone-muted)]">{formatRupiah(summary.remainingIdr)}</dd>
           </div>
         ) : null}
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 border-t border-[var(--tone-rule)] pt-3">
+          <dt className="type-small font-semibold text-[var(--tone-ink)]">Total pembayaran</dt>
+          <dd className="font-sans text-lg font-bold tabular-nums text-danger">{formatRupiah(summary.payNowIdr)}</dd>
+        </div>
       </dl>
-      <label className="flex min-h-11 cursor-pointer items-start gap-3">
-        <input
-          id="consent"
-          name="consent"
-          type="checkbox"
-          required
-          checked={values.consent}
-          onChange={(event) => onUpdate("consent", event.target.checked)}
-          aria-invalid={errors.consent ? true : undefined}
-          aria-describedby={errors.consent ? "consent-error" : undefined}
-          className="mt-0.5 size-4 shrink-0 accent-accent"
-        />
-        <span>
-          Saya setuju data yang saya isi dipakai Albana Speech Academy untuk menindaklanjuti
-          pendaftaran ini.
-        </span>
-      </label>
-      {errors.consent ? (
-        <p id="consent-error" role="alert" className="text-sm font-semibold text-danger">{errors.consent}</p>
-      ) : null}
-      <p className="border-t border-rule pt-5 text-sm text-muted">
-        Jika berhalangan hadir, ajukan penjadwalan ulang melalui admin. Pembayaran tidak dikembalikan.
-      </p>
+      <div>
+        <label
+          className={`flex min-h-12 cursor-pointer items-start gap-3 rounded-xs border p-4 transition-colors ${errors.consent
+            ? "border-danger bg-[var(--tone-bg)]"
+            : values.consent
+              ? "border-[var(--tone-ink)] bg-[var(--tone-tile)]"
+              : "border-[var(--tone-rule)] bg-[var(--tone-bg)]"
+            }`}
+        >
+          <input
+            id="consent"
+            name="consent"
+            type="checkbox"
+            required
+            checked={values.consent}
+            onChange={(event) => onUpdate("consent", event.target.checked)}
+            aria-invalid={errors.consent ? true : undefined}
+            aria-describedby={errors.consent ? "consent-error" : undefined}
+            className="mt-1 size-4 shrink-0 accent-accent"
+          />
+          <span className="type-small leading-relaxed text-[var(--tone-ink)]">
+            Saya setuju data yang saya isi dipakai Albana Speech Academy untuk menindaklanjuti
+            pendaftaran ini.
+          </span>
+        </label>
+        {errors.consent ? (
+          <p id="consent-error" role="alert" className="eyebrow mt-2 normal-case text-danger">{errors.consent}</p>
+        ) : null}
+      </div>
     </>
   );
 }

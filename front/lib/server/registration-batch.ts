@@ -43,15 +43,8 @@ function toRegistrationBatch(
   const dpValue = asNumber(program.dp_percent);
   const dpPercent = dpValue !== null && Number.isInteger(dpValue) && dpValue >= 1 && dpValue <= 99 ? dpValue : null;
 
-  // Admin-editable wording for the register form; missing fields fall back to
-  // the form variant copy in the client.
+  // Naskah pertanyaan di /register selalu memakai bawaan jenis formulir (VARIANT_COPY).
   const formCopy: Partial<VariantCopy> = {};
-  const priorExperienceLabel = asString(program.form_prior_experience);
-  const goalLabel = asString(program.form_goal);
-  const challengeLabel = asString(program.form_challenge);
-  if (priorExperienceLabel) formCopy.priorExperienceLabel = priorExperienceLabel;
-  if (goalLabel) formCopy.goalLabel = goalLabel;
-  if (challengeLabel && formKind !== "bnsp") formCopy.challengeLabel = challengeLabel;
 
   const sessions = asObjectArray(batch.sessions)
     .map((session, index) => ({

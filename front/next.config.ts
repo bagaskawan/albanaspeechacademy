@@ -2,6 +2,16 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    qualities: [75, 85, 90],
+    formats: ["image/avif", "image/webp"],
+    localPatterns: [
+      { pathname: "/api/media/**", search: "" },
+      { pathname: "/images/**", search: "" },
+      { pathname: "/logo-white.png", search: "" },
+      { pathname: "/logo-dark.png", search: "" },
+      { pathname: "/logo-light.png", search: "" },
+      { pathname: "/assets/**", search: "" },
+    ],
     remotePatterns: [
       {
         protocol: 'https',
@@ -10,6 +20,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: '**.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.ytimg.com',
       },
     ],
   },

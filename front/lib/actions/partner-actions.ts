@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { checkPermission } from "@/lib/check-permission";
 import { syncDualOperation } from "@/lib/supabase/dual-sync";
+import { deleteStorageFile } from "@/lib/supabase/storage-cleanup";
 import { revalidatePath } from "next/cache";
 
 export async function savePartnerAction(
@@ -75,6 +76,16 @@ export async function savePartnerAction(
     }
   }
 
+  let oldLogoUrl: string | null = null;
+  if (id) {
+    const { data: existingPartner } = await supabase
+      .from("partners")
+      .select("logo_url")
+      .eq("id", id)
+      .maybeSingle();
+    oldLogoUrl = existingPartner?.logo_url ?? null;
+  }
+
   const { error } = await syncDualOperation(async (client) => {
     if (id) {
       const { error: err } = await client
@@ -93,6 +104,10 @@ export async function savePartnerAction(
 
   if (error) {
     return { success: false, error: error.message };
+  }
+
+  if (oldLogoUrl && oldLogoUrl !== payload.logo_url) {
+    await deleteStorageFile(supabase, oldLogoUrl).catch(() => {});
   }
 
   // Log admin activity
@@ -145,7 +160,7 @@ export async function deletePartnerAction(id: string) {
   // Get partner info before delete
   const { data: partnerToDelete } = await supabase
     .from("partners")
-    .select("id, name, type")
+    .select("id, name, type, logo_url")
     .eq("id", id)
     .maybeSingle();
 
@@ -160,6 +175,10 @@ export async function deletePartnerAction(id: string) {
 
   if (error) {
     return { success: false, error: error.message };
+  }
+
+  if (partnerToDelete?.logo_url) {
+    await deleteStorageFile(supabase, partnerToDelete.logo_url).catch(() => {});
   }
 
   // Log admin activity

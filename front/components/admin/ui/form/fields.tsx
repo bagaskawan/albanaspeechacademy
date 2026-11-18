@@ -14,7 +14,7 @@ const spans = {
  * or 768 px (`md`, pages).
  */
 export function FieldGrid({ columns: count = 2, breakpoint = "sm", children }: { columns?: 1 | 2; breakpoint?: keyof typeof columns; children: React.ReactNode }) {
-  return <div className={`grid gap-x-4 gap-y-5 ${count === 2 ? columns[breakpoint] : ""}`}>{children}</div>;
+  return <div className={`grid gap-x-5 gap-y-5 ${count === 2 ? columns[breakpoint] : ""}`}>{children}</div>;
 }
 
 export function Field({ label, htmlFor, required = false, hint, error, span = "full", breakpoint = "sm", children }: {
@@ -30,32 +30,32 @@ export function Field({ label, htmlFor, required = false, hint, error, span = "f
   children: React.ReactNode;
 }) {
   return <div className={`grid min-w-0 gap-2 ${spans[breakpoint][span]}`}>
-    <Label htmlFor={htmlFor} className="text-admin-ink">
+    <Label htmlFor={htmlFor} className="text-[13px] font-medium text-admin-ink">
       {label}{required && <span aria-hidden="true" className="text-admin-danger">*</span>}
     </Label>
     <div className={span === "narrow" ? "max-w-[160px]" : undefined}>{children}</div>
     {error
-      ? <p role="alert" className="min-h-5 text-[13px] text-admin-danger">{error}</p>
-      : hint && <p className="text-[13px] text-admin-text-secondary">{hint}</p>}
+      ? <p role="alert" className="min-h-5 text-[12px] text-admin-danger">{error}</p>
+      : hint && <p className="text-[12px] text-admin-text-secondary">{hint}</p>}
   </div>;
 }
 
 /** Numbered section of a page form: number badge, title, hairline below. */
 export function FormSection({ number, title, description, children }: { number: number; title: string; description?: string; children: React.ReactNode }) {
   return <section className="border-t border-admin-line pt-8 first:border-0 first:pt-0">
-    <header className="mb-6 flex items-start gap-3">
-      <span aria-hidden="true" className="inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-admin-line-strong text-[13px] font-semibold">{number}</span>
+    <header className="mb-6 flex items-center gap-3 border-b border-admin-line pb-4">
+      <span aria-hidden="true" className="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-admin-surface-muted text-[13px] font-bold text-admin-ink">{number}</span>
       <div>
-        <h2 className="text-[15px] font-semibold leading-7 text-admin-ink">{title}</h2>
-        {description && <p className="text-[13px] text-admin-text-secondary">{description}</p>}
+        <h2 className="text-[15px] md:text-[16px] font-bold uppercase tracking-[0.04em] leading-7 text-admin-ink">{title}</h2>
+        {description && <p className="text-[12px] text-admin-text-secondary">{description}</p>}
       </div>
     </header>
     {children}
   </section>;
 }
 
-const pageWidths = { single: "max-w-[760px]", double: "max-w-[960px]" } as const;
-const pill = "inline-flex h-12 items-center justify-center gap-2 rounded-full px-6 text-[15px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink max-sm:w-full";
+const pageWidths = { single: "max-w-[760px]", double: "max-w-[1120px]" } as const;
+const pill = "inline-flex h-12 items-center justify-center gap-2 rounded-full px-6 text-[15px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink max-sm:w-full";
 
 /** Page form card (T2): white card, numbered sections, Batal + primary action bottom right. */
 export function FormPage({ width = "single", cancelHref, submitLabel, pending = false, children, ...form }: {
@@ -65,10 +65,10 @@ export function FormPage({ width = "single", cancelHref, submitLabel, pending = 
   pending?: boolean;
   children: React.ReactNode;
 } & Omit<React.FormHTMLAttributes<HTMLFormElement>, "children" | "className">) {
-  return <form {...form} className={`mx-auto w-full ${pageWidths[width]} rounded-[var(--admin-radius-card)] bg-admin-canvas p-[var(--admin-space-card)]`}>
+  return <form {...form} className={`mx-auto w-full ${pageWidths[width]} rounded-[28px] border border-admin-line bg-admin-canvas p-10 max-md:rounded-[24px] max-md:p-5`}>
     <div className="space-y-8">{children}</div>
     <div className="mt-8 flex flex-col-reverse gap-3 border-t border-admin-line pt-6 sm:flex-row sm:justify-end">
-      <Link href={cancelHref} className={`${pill} border border-admin-line-strong text-admin-ink hover:bg-admin-surface`}>Batal</Link>
+      <Link href={cancelHref} className={`${pill} bg-admin-surface text-admin-ink hover:bg-admin-surface-muted`}>Batal</Link>
       <button type="submit" disabled={pending} className={`${pill} bg-admin-ink text-admin-on-ink hover:bg-admin-ink-soft disabled:opacity-60`}>{pending ? "Menyimpan…" : submitLabel}</button>
     </div>
   </form>;

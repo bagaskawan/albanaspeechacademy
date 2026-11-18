@@ -1,18 +1,17 @@
 "use client";
 
-import React, { useId, useState } from "react";
-import { Check, Image as ImageIcon, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
+import React, { useId, useRef, useState } from "react";
+import { Check, Eye, Image as ImageIcon, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { deleteStorageFile, deleteStorageFiles, getRemovedStorageUrls } from "@/lib/supabase/storage-cleanup";
 import { compressImage } from "@/lib/file-compress";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AdminSheet } from "@/components/admin/ui/AdminSheet";
 import { Field } from "@/components/admin/ui/form/fields";
-import { Input } from "@/components/ui/Input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AdminInput, AdminSelect, AdminTextarea, PriceInput } from "@/components/admin/ui/form/controls";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { TimePicker } from "@/components/ui/TimePicker";
 import { TableToolbar, matchesQuery, type ToolbarFilter } from "@/components/admin/ui/table-toolbar";
@@ -85,6 +84,8 @@ interface CmsCollectionClientProps {
   createLabel?: string;
   /** Tampilkan baris sebagai grid bento yang bisa diklik, bukan tabel. */
   bento?: boolean;
+  /** Tampilkan baris sebagai grid gallery dengan tombol Eye (detail) dan Pencil (edit). */
+  galleryCards?: boolean;
   /** Pilihan member untuk field bertipe "member". */
   members?: CmsMemberOption[];
 }
@@ -211,6 +212,7 @@ export default function CmsCollectionClient({
   exportModule,
   createLabel,
   bento,
+  galleryCards,
   members,
 }: CmsCollectionClientProps) {
   const groupField = groupBy ? fields.find((field) => field.name === groupBy) : undefined;
@@ -221,6 +223,7 @@ export default function CmsCollectionClient({
   const [activeGroup, setActiveGroup] = useState(initialGroup && groups.includes(initialGroup) ? initialGroup : groups[0] ?? "");
   const [isFormOpen, setIsFormOpen] = useState(Boolean(openCreateInitially));
   const [editingRow, setEditingRow] = useState<Row | null>(null);
+  const [detailRow, setDetailRow] = useState<Row | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Row | null>(null);
   const [form, setForm] = useState<Row>(() => ({ ...initialFormState(fields, null), ...(createDefaults?.[initialGroup ?? ""] ?? {}),
     ...(groupField && initialGroup ? { [groupField.name]: initialGroup } : {}) }));
@@ -231,6 +234,7 @@ export default function CmsCollectionClient({
   const [galleryUploading, setGalleryUploading] = useState(false);
   const [galleryDragging, setGalleryDragging] = useState(false);
   const [activatingKey, setActivatingKey] = useState<string | null>(null);
+  const sessionUploadedUrlsRef = useRef<Set<string>>(new Set());
 
   const uploadGalleryFile = async (field: CmsField, file: File) => {
     const consentField = fields.find((item) => item.type === "consent");
@@ -267,6 +271,12 @@ export default function CmsCollectionClient({
       const {
         data: { publicUrl },
       } = supabase.storage.from(bucket).getPublicUrl(path);
+      const prevUrl = String(form[field.name] ?? "");
+      if (prevUrl && prevUrl !== publicUrl && sessionUploadedUrlsRef.current.has(prevUrl)) {
+        sessionUploadedUrlsRef.current.delete(prevUrl);
+        deleteStorageFile(supabase, prevUrl).catch(() => {});
+      }
+      sessionUploadedUrlsRef.current.add(publicUrl);
       setValue(field, publicUrl);
       toast.success("Foto diunggah.");
     } catch (err) {
@@ -312,6 +322,11 @@ export default function CmsCollectionClient({
   };
 
   const closeForm = () => {
+    if (sessionUploadedUrlsRef.current.size > 0) {
+      const toClean = Array.from(sessionUploadedUrlsRef.current);
+      sessionUploadedUrlsRef.current.clear();
+      deleteStorageFiles(createClient(), toClean).catch(() => {});
+    }
     setIsFormOpen(false);
     setEditingRow(null);
     setError(null);
@@ -442,16 +457,33 @@ export default function CmsCollectionClient({
     setIsSaving(true);
     try {
       const supabase = createClient();
+      const galleryFields = fields.filter((field) => field.type === "gallery");
+      const nextGalleryUrls = galleryFields.map((field) => String(payload[field.name] ?? ""));
+
       if (editingRow) {
         const { error: updateError } = await supabase
           .from(table)
           .update(payload)
           .eq(primaryKey, editingRow[primaryKey]);
         if (updateError) throw updateError;
+
+        const oldGalleryUrls = galleryFields.map((field) => String(editingRow[field.name] ?? ""));
+        const removedOldUrls = getRemovedStorageUrls(oldGalleryUrls, nextGalleryUrls);
+        const unusedSessionUrls = getRemovedStorageUrls(Array.from(sessionUploadedUrlsRef.current), nextGalleryUrls);
+        const urlsToDelete = [...removedOldUrls, ...unusedSessionUrls];
+        if (urlsToDelete.length > 0) {
+          deleteStorageFiles(supabase, urlsToDelete).catch(() => {});
+        }
       } else {
         const { error: insertError } = await supabase.from(table).insert(payload);
         if (insertError) throw insertError;
+
+        const unusedSessionUrls = getRemovedStorageUrls(Array.from(sessionUploadedUrlsRef.current), nextGalleryUrls);
+        if (unusedSessionUrls.length > 0) {
+          deleteStorageFiles(supabase, unusedSessionUrls).catch(() => {});
+        }
       }
+      sessionUploadedUrlsRef.current.clear();
       await refresh();
       const message = editingRow ? "Perubahan tersimpan." : "Data ditambahkan.";
       toast.success(message);
@@ -476,6 +508,14 @@ export default function CmsCollectionClient({
         .delete()
         .eq(primaryKey, row[primaryKey]);
       if (deleteError) throw deleteError;
+
+      const galleryUrls = fields
+        .filter((field) => field.type === "gallery")
+        .map((field) => (typeof row[field.name] === "string" ? (row[field.name] as string) : null));
+      if (galleryUrls.some(Boolean)) {
+        deleteStorageFiles(supabase, galleryUrls).catch(() => {});
+      }
+
       await refresh();
       toast.success("Data berhasil dihapus.");
       announce("Data berhasil dihapus.");
@@ -536,8 +576,6 @@ export default function CmsCollectionClient({
     const id = fieldId(field);
     const error = fieldErrors[field.name];
     const fieldProps = { label: field.label, htmlFor: id, required: field.required, hint: field.help, error };
-    const selectTriggerClass =
-      "w-full rounded-lg border border-input bg-transparent px-3 py-1 text-base font-normal text-admin-ink shadow-none md:text-sm dark:bg-input/30";
 
     if (field.type === "sessions") {
       const sessions = (value as Session[]) ?? [];
@@ -665,18 +703,17 @@ export default function CmsCollectionClient({
       const current = String(value ?? "");
       return (
         <Field {...fieldProps}>
-          <Select value={current} onValueChange={(next) => setValue(field, next)}>
-            <SelectTrigger id={id} aria-invalid={error ? true : undefined} className={selectTriggerClass}>
-              <SelectValue placeholder="Pilih…" />
-            </SelectTrigger>
-            <SelectContent>
-              {(field.options ?? []).map((option) => (
-                <SelectItem key={option} value={option}>
-                  {field.labels?.[option] ?? option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <AdminSelect
+            id={id}
+            value={current}
+            onValueChange={(next) => setValue(field, next)}
+            options={(field.options ?? []).map((option) => ({
+              value: option,
+              label: field.labels?.[option] ?? option,
+            }))}
+            required={field.required}
+            aria-invalid={error ? true : undefined}
+          />
         </Field>
       );
     }
@@ -685,18 +722,18 @@ export default function CmsCollectionClient({
       const current = String(value ?? "");
       return (
         <Field {...fieldProps}>
-          <Select value={current} onValueChange={(next) => setValue(field, next)}>
-            <SelectTrigger id={id} aria-invalid={error ? true : undefined} className={selectTriggerClass}>
-              <SelectValue placeholder="Pilih dari data member…" />
-            </SelectTrigger>
-            <SelectContent>
-              {(members ?? []).map((member) => (
-                <SelectItem key={member.id} value={member.id}>
-                  {member.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <AdminSelect
+            id={id}
+            value={current}
+            onValueChange={(next) => setValue(field, next)}
+            options={(members ?? []).map((member) => ({
+              value: member.id,
+              label: member.name,
+            }))}
+            placeholder="Pilih dari data member…"
+            required={field.required}
+            aria-invalid={error ? true : undefined}
+          />
         </Field>
       );
     }
@@ -707,7 +744,7 @@ export default function CmsCollectionClient({
       return (
         <div className="space-y-2">
           <Field {...fieldProps}>
-            <Input
+            <AdminInput
               id={id}
               aria-invalid={error ? true : undefined}
               value={raw}
@@ -786,7 +823,13 @@ export default function CmsCollectionClient({
                 <img src={url} alt="" className="block max-h-[420px] w-auto max-w-full object-contain" />
                 <button
                   type="button"
-                  onClick={() => setValue(field, "")}
+                  onClick={() => {
+                    if (url && sessionUploadedUrlsRef.current.has(url)) {
+                      sessionUploadedUrlsRef.current.delete(url);
+                      deleteStorageFile(createClient(), url).catch(() => {});
+                    }
+                    setValue(field, "");
+                  }}
                   className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 hover:bg-red-600 text-white transition-colors cursor-pointer"
                   title="Hapus foto"
                 >
@@ -837,7 +880,7 @@ export default function CmsCollectionClient({
       return (
         <div className="space-y-1">
           <Field {...fieldProps}>
-            <Textarea
+            <AdminTextarea
               id={id}
               aria-invalid={error ? true : undefined}
               value={String(value ?? "")}
@@ -864,27 +907,20 @@ export default function CmsCollectionClient({
     if (field.type === "price") {
       return (
         <Field {...fieldProps}>
-          <div className="relative flex items-center">
-            <span aria-hidden="true" className="pointer-events-none absolute left-3 text-sm text-admin-text-secondary">
-              Rp
-            </span>
-            <Input
-              id={id}
-              aria-invalid={error ? true : undefined}
-              inputMode="numeric"
-              className="pl-9"
-              value={String(value ?? "")}
-              onChange={(event) => setValue(field, event.target.value.replace(/\D/g, ""))}
-              placeholder={field.placeholder ?? "1.500.000"}
-            />
-          </div>
+          <PriceInput
+            id={id}
+            aria-invalid={error ? true : undefined}
+            value={String(value ?? "")}
+            onValueChange={(next) => setValue(field, next)}
+            placeholder={field.placeholder ?? "1.500.000"}
+          />
         </Field>
       );
     }
 
     return (
       <Field {...fieldProps}>
-        <Input
+        <AdminInput
           id={id}
           aria-invalid={error ? true : undefined}
           type={field.type === "number" ? "number" : field.type === "datetime" ? "datetime-local" : "text"}
@@ -920,7 +956,7 @@ export default function CmsCollectionClient({
       <AdminSheet
         open={isFormOpen}
         onOpenChange={(open) => { if (!open) closeForm(); }}
-        size={twoColumns ? "lg" : "md"}
+        size={fields.length <= 3 ? "sm" : twoColumns ? "lg" : "md"}
         icon={editingRow ? <Pencil aria-hidden="true" size={18} /> : <Plus aria-hidden="true" size={18} />}
         title={editingRow ? `Ubah ${title}` : `Tambah ${title}`}
         description={formHint ?? `Lengkapi informasi ${title.toLowerCase()} di bawah ini.`}
@@ -973,6 +1009,67 @@ export default function CmsCollectionClient({
             ))}
           </div>
         </form>
+      </AdminSheet>
+
+      <AdminSheet
+        open={detailRow !== null}
+        onOpenChange={(open) => { if (!open) setDetailRow(null); }}
+        size="md"
+        icon={<Eye aria-hidden="true" size={18} />}
+        title={detailRow ? displayRowTitle(fields, displayField, detailRow) : title}
+        description={`Detail ${title.toLowerCase()}`}
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setDetailRow(null)}
+              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface"
+            >
+              Tutup
+            </button>
+            {detailRow && (
+              <button
+                type="button"
+                onClick={() => {
+                  const target = detailRow;
+                  setDetailRow(null);
+                  openEdit(target);
+                }}
+                className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center gap-2 rounded-full bg-admin-ink text-[15px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft"
+              >
+                <Pencil aria-hidden="true" size={16} />
+                <span>Ubah</span>
+              </button>
+            )}
+          </>
+        }
+      >
+        {detailRow && (
+          <div className="space-y-4">
+            {fields
+              .filter((field) => field.type === "gallery" && detailRow[field.name])
+              .map((field) => (
+                <div key={field.name} className="overflow-hidden rounded-[20px] border border-admin-line bg-admin-surface">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={String(detailRow[field.name])}
+                    alt={displayRowTitle(fields, displayField, detailRow)}
+                    className="block max-h-72 w-full object-cover"
+                  />
+                </div>
+              ))}
+            <dl className="divide-y divide-admin-line border-y border-admin-line">
+              {fields
+                .filter((field) => field.type !== "gallery")
+                .map((field) => (
+                  <div key={field.name} className="py-3">
+                    <dt className="text-[12px] font-medium text-admin-text-secondary">{field.label}</dt>
+                    <dd className="mt-1 whitespace-pre-wrap text-[14px] text-admin-ink">{displayValue(field, detailRow)}</dd>
+                  </div>
+                ))}
+            </dl>
+          </div>
+        )}
       </AdminSheet>
 
       <AdminSheet
@@ -1029,7 +1126,73 @@ export default function CmsCollectionClient({
         </div>
       )}
 
-      {bento ? (
+      {galleryCards ? (
+        visibleRows.length === 0 ? emptyState : (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {visibleRows.map((row) => {
+              const imageField = tableFields.find((field) => field.type === "gallery");
+              const imageUrl = imageField ? String(row[imageField.name] ?? "") : "";
+              const label = displayRowTitle(fields, displayField, row);
+              const metaField = tableFields.find((field) => field.name !== displayField && field.type !== "gallery" && field.type !== "textarea");
+              const metaText = metaField ? displayValue(metaField, row) : null;
+              return (
+                <article
+                  key={String(row[primaryKey])}
+                  className="overflow-hidden rounded-[24px] border border-admin-line bg-admin-surface"
+                >
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-admin-surface-muted">
+                    {imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={imageUrl} alt={label} className="size-full object-cover" />
+                    ) : (
+                      <div className="flex size-full items-center justify-center text-admin-text-faint">
+                        <ImageIcon size={32} />
+                      </div>
+                    )}
+                    {canDelete && (
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTarget(row)}
+                        aria-label={`Hapus ${label}`}
+                        title="Hapus"
+                        className="absolute right-3 top-3 inline-flex size-9 items-center justify-center rounded-full bg-admin-canvas/90 text-admin-danger shadow-sm transition-colors hover:bg-admin-rose-soft"
+                      >
+                        <Trash2 aria-hidden="true" size={16} />
+                      </button>
+                    )}
+                    <div className="absolute inset-x-0 bottom-0 flex items-center justify-end gap-2 bg-gradient-to-t from-black/65 via-black/25 to-transparent px-3 pb-3 pt-8">
+                      <button
+                        type="button"
+                        onClick={() => setDetailRow(row)}
+                        aria-label={`Detail ${label}`}
+                        title="Detail"
+                        className="inline-flex size-9 items-center justify-center rounded-full bg-admin-canvas/95 text-admin-ink shadow-sm transition-colors hover:bg-admin-surface"
+                      >
+                        <Eye aria-hidden="true" size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openEdit(row)}
+                        aria-label={`Ubah ${label}`}
+                        title="Ubah"
+                        className="inline-flex size-9 items-center justify-center rounded-full bg-admin-ink text-admin-on-ink shadow-sm transition-colors hover:bg-admin-ink-soft"
+                      >
+                        <Pencil aria-hidden="true" size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="truncate text-[15px] font-semibold text-admin-ink" title={label}>{label}</h3>
+                    {metaText && metaText !== "—" && (
+                      <p className="mt-1 truncate text-[13px] text-admin-text-secondary" title={metaText}>{metaText}</p>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )
+      ) : bento ? (
         visibleRows.length === 0 ? emptyState : (
           <div className="columns-2 gap-3 sm:columns-3 lg:columns-4">
             {visibleRows.map((row) => {

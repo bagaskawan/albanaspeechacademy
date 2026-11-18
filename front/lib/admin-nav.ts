@@ -2,7 +2,7 @@
 // Kept in code; the old privilege_* tables are gone. Icons are names mapped in the shell.
 
 export type AdminNavIcon =
-  | "dashboard" | "users" | "receipt" | "book" | "calendar" | "trainer"
+  | "dashboard" | "users" | "receipt" | "book" | "speaker" | "certificate" | "calendar" | "trainer"
   | "article" | "media" | "gallery" | "quote" | "partner"
   | "academy" | "contact" | "bank";
 
@@ -13,11 +13,13 @@ export type AdminNavModule = {
 };
 
 export type AdminNavGroup = {
-  id: "dashboard" | "pendaftaran" | "kelas" | "konten" | "pengaturan";
+  id: "dashboard" | "pendaftaran" | "public-training" | "inhouse-training" | "konten" | "pengaturan";
   label: string;
   href: string;
   icon: AdminNavIcon;
   modules: AdminNavModule[];
+  /** Hide group from sidebar while keeping title/breadcrumb resolution. */
+  sidebarHidden?: boolean;
   /** Page description for groups that are a page themselves (Dashboard). */
   description?: string;
 };
@@ -32,24 +34,30 @@ export const adminNavGroups: AdminNavGroup[] = [
     ],
   },
   {
-    id: "kelas", label: "Kelas", href: "/admin/program", icon: "book",
+    id: "public-training", label: "Public Training", href: "/admin/program/public-speaking-series", icon: "book",
     modules: [
-      { label: "Program", href: "/admin/program", icon: "book", description: "Biaya dan isi tiap program, jadwal batch, dan tawaran paket." },
-      { label: "Trainer", href: "/admin/trainer", icon: "trainer", description: "Profil pengajar Albana." },
+      { label: "Public Speaking Series", href: "/admin/program/public-speaking-series", icon: "book", description: "Detail program, dokumentasi, dan daftar batch Public Speaking Series." },
+      { label: "Public Speaking for Speakers", href: "/admin/program/public-speaking-for-speakers", icon: "speaker", description: "Detail program, dokumentasi, daftar batch, dan tawaran paket." },
+      { label: "Sertifikasi", href: "/admin/program/sertifikasi-pembicara-profesional", icon: "certificate", description: "Detail program, dokumentasi, daftar batch, dan tawaran paket Sertifikasi." },
+    ],
+  },
+  {
+    id: "inhouse-training", label: "In House Training", href: "/admin/galeri", icon: "academy",
+    modules: [
+      { label: "Dokumentasi", href: "/admin/galeri", icon: "gallery", description: "Foto dokumentasi kegiatan In House Training untuk situs publik." },
+      { label: "Our Partner", href: "/admin/partner", icon: "partner", description: "Instansi yang pernah dilatih Albana." },
     ],
   },
   {
     id: "konten", label: "Konten", href: "/admin/artikel", icon: "article",
     modules: [
       { label: "Artikel", href: "/admin/artikel", icon: "article", description: "Draf dan artikel yang sudah terbit. Hanya artikel terbit yang tampil di situs publik." },
-      { label: "Media", href: "/admin/media", icon: "media", description: "Foto dan video per program. Berkas draf hanya terlihat oleh admin; terbitkan setelah diperiksa." },
-      { label: "Galeri", href: "/admin/galeri", icon: "gallery", description: "Foto dokumentasi kegiatan untuk situs publik." },
       { label: "Testimoni", href: "/admin/testimoni", icon: "quote", description: "Kutipan peserta yang tampil di beranda." },
-      { label: "Partner", href: "/admin/partner", icon: "partner", description: "Instansi yang pernah dilatih Albana." },
+      { label: "Trainer", href: "/admin/trainer", icon: "trainer", description: "Profil pengajar Albana." },
     ],
   },
   {
-    id: "pengaturan", label: "Pengaturan", href: "/admin/profil-akademi", icon: "academy",
+    id: "pengaturan", label: "Pengaturan", href: "/admin/profil-akademi", icon: "academy", sidebarHidden: true,
     modules: [
       { label: "Profil akademi", href: "/admin/profil-akademi", icon: "academy", description: "Nama akademi, metode belajar, dan ketentuan penjadwalan ulang." },
       { label: "Kontak", href: "/admin/kontak", icon: "contact", description: "Kanal kontak resmi yang tampil di situs publik." },

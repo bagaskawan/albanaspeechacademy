@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, m } from "motion/react";
 import { Dialog } from "radix-ui";
 import {
-  BookOpen, Building2, CalendarRange, ChevronDown, Film, Handshake, Images, Landmark, LayoutDashboard,
-  LogOut, Menu, Newspaper, PanelLeft, Phone, Settings, Quote, ReceiptText, UserRound, Users, type LucideIcon,
+  Award, BookOpen, Building2, CalendarRange, ChevronDown, Film, Handshake, Images, Landmark, LayoutDashboard,
+  LogOut, Menu, Mic, Newspaper, PanelLeft, Phone, Settings, Quote, ReceiptText, UserRound, Users, type LucideIcon,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { PageHeader } from "@/components/admin/PageHeader";
@@ -21,9 +21,9 @@ import { ease, transition } from "@/lib/motion/tokens";
 import { createClient } from "@/lib/supabase/client";
 
 const icons: Record<AdminNavIcon, LucideIcon> = {
-  dashboard: LayoutDashboard, users: Users, receipt: ReceiptText, book: BookOpen, calendar: CalendarRange,
-  trainer: UserRound, article: Newspaper, media: Film, gallery: Images, quote: Quote, partner: Handshake,
-  academy: Building2, contact: Phone, bank: Landmark,
+  dashboard: LayoutDashboard, users: Users, receipt: ReceiptText, book: BookOpen, speaker: Mic, certificate: Award,
+  calendar: CalendarRange, trainer: UserRound, article: Newspaper, media: Film, gallery: Images, quote: Quote,
+  partner: Handshake, academy: Building2, contact: Phone, bank: Landmark,
 };
 
 const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink";
@@ -174,12 +174,13 @@ function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInv
   // "auto" is compact only between 1024 and 1279 px, decided in CSS so the first paint is right.
   // Labels use max-xl:sr-only, never not-sr-only: that utility sets position: static and drops the
   // label under the absolutely positioned active pill (the "invisible active label" bug).
-  const width = mode === "full" ? "w-[264px]" : mode === "compact" ? "w-20" : "w-20 xl:w-[264px]";
+  const width = mode === "full" ? "w-[296px]" : mode === "compact" ? "w-20" : "w-20 xl:w-[296px]";
   const label = mode === "full" ? "" : mode === "compact" ? "sr-only" : "max-xl:sr-only";
   const onlyCompact = mode === "full" ? "hidden" : mode === "compact" ? "" : "xl:hidden";
   const onlyFull = mode === "full" ? "" : mode === "compact" ? "hidden" : "max-xl:hidden";
   const compactish = mode !== "full";
-  const [dashboard, ...groups] = adminNavGroups;
+  const [dashboard, ...allGroups] = adminNavGroups;
+  const groups = allGroups.filter((group) => !group.sidebarHidden);
 
   return <div className={`flex h-full ${width} flex-col rounded-[var(--admin-radius-card)] bg-admin-surface`}>
     <nav aria-label="Navigasi CMS" className="min-h-0 flex-1 overflow-y-auto px-3 py-4">

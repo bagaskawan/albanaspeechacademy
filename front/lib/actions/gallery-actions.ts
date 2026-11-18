@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { checkPermission } from "@/lib/check-permission";
 import { syncDualOperation } from "@/lib/supabase/dual-sync";
+import { deleteStorageFile, deleteStorageFiles } from "@/lib/supabase/storage-cleanup";
 import { revalidatePath } from "next/cache";
 
 export async function saveGalleryAlbumAction(
@@ -108,6 +109,16 @@ export async function saveGalleryAlbumAction(
     payload.event_id = data.event_id;
   }
 
+  let oldHeroImageUrl: string | null = null;
+  if (targetId) {
+    const { data: existingAlbum } = await supabase
+      .from("gallery_albums")
+      .select("hero_image_url")
+      .eq("id", targetId)
+      .maybeSingle();
+    oldHeroImageUrl = existingAlbum?.hero_image_url ?? null;
+  }
+
   const { error } = await syncDualOperation(async (client) => {
     if (targetId) {
       let { error: err } = await client
@@ -190,6 +201,10 @@ export async function saveGalleryAlbumAction(
     return { success: false, error: errorMsg };
   }
 
+  if (oldHeroImageUrl && oldHeroImageUrl !== payload.hero_image_url) {
+    await deleteStorageFile(supabase, oldHeroImageUrl).catch(() => {});
+  }
+
   // Log admin activity
   try {
     const { logAdminActivity } = await import("@/lib/actions/log-actions");
@@ -241,7 +256,7 @@ export async function deleteGalleryAlbumAction(id: string) {
   // Get album info before delete
   const { data: albumToDelete } = await supabase
     .from("gallery_albums")
-    .select("id, title")
+    .select("id, title, hero_image_url")
     .eq("id", id)
     .maybeSingle();
 
@@ -256,6 +271,10 @@ export async function deleteGalleryAlbumAction(id: string) {
 
   if (error) {
     return { success: false, error: error.message };
+  }
+
+  if (albumToDelete?.hero_image_url) {
+    await deleteStorageFile(supabase, albumToDelete.hero_image_url).catch(() => {});
   }
 
   // Log admin activity
@@ -306,6 +325,11 @@ export async function deleteMultipleGalleryAlbumsAction(ids: string[]) {
     };
   }
 
+  const { data: albumsToDelete } = await supabase
+    .from("gallery_albums")
+    .select("hero_image_url")
+    .in("id", ids);
+
   const { error } = await syncDualOperation(async (client) => {
     const { error: err } = await client
       .from("gallery_albums")
@@ -317,6 +341,11 @@ export async function deleteMultipleGalleryAlbumsAction(ids: string[]) {
 
   if (error) {
     return { success: false, error: error.message };
+  }
+
+  if (albumsToDelete && albumsToDelete.length > 0) {
+    const urls = albumsToDelete.map((a) => a.hero_image_url);
+    await deleteStorageFiles(supabase, urls).catch(() => {});
   }
 
   revalidatePath("/admin/galeri");

@@ -1,9 +1,9 @@
-import { Container } from "@/components/layout/container";
 import { RetryButton } from "@/components/ui/retry-button";
 import type { HomeData } from "@/lib/home-data";
 import { InhouseTrainingSection } from "./inhouse-training-section";
 import { ProgramStorySection } from "./program-story-section";
 import { SectionIntro } from "./section-intro";
+import { Accent } from "./ui/accent";
 
 export function ProgramChapter({
   programs,
@@ -13,47 +13,44 @@ export function ProgramChapter({
   inhouse: HomeData["inhouse"];
 }) {
   return (
-    <section id="program" className="section tone-canvas" aria-labelledby="program-title">
-      <Container className="max-w-7xl">
-        <SectionIntro
-          eyebrow="[ PROGRAM ]"
-          title={
-            <>
-              Setiap situasi bicara butuh{" "}
-              <em className="accent-serif">latihan yang berbeda</em>
-            </>
-          }
-          titleId="program-title"
-          description="Mempresentasikan gagasan, memandu acara, atau melatih tim — mulai dari situasi yang paling dekat dengan kebutuhanmu."
-        />
+    <>
+      <section id="program" className="tone-canvas home-section scroll-mt-8 pt-0" aria-labelledby="program-title">
+        <div className="home-container home-stack-head">
+          <SectionIntro
+            eyebrow="02 — Program"
+            titleId="program-title"
+            title={
+              <>
+                Setiap situasi bicara butuh <Accent>latihan yang berbeda.</Accent>
+              </>
+            }
+            description="Mulai dari jalur yang paling dekat dengan kebutuhanmu hari ini. Setiap kelas dibuka dengan praktik dan ditutup dengan masukan langsung dari trainer."
+            action={{ href: "#jadwal", label: "Bandingkan jadwal" }}
+          />
 
-        <div className="mt-12">
-          <div className="flex items-baseline justify-between gap-4 border-b border-[var(--tone-rule)] pb-4">
-            <h3 className="type-mega" data-motion="chapter">
-              Public <br className="sm:hidden" />
-              Training
-            </h3>
-            {programs !== "failed" ? (
-              <p className="eyebrow shrink-0">{String(programs.length).padStart(2, "0")} program</p>
-            ) : null}
-          </div>
-
-          {programs === "failed" ? (
-            <div className="mt-6 border border-[var(--tone-rule)] bg-[var(--tone-tile)] p-6 md:p-8" aria-live="polite">
-              <p className="text-[var(--tone-muted)]">Program belum bisa dimuat.</p>
-              <RetryButton />
+          <div>
+            <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-[var(--tone-ink)] pb-4">
+              <h3 className="type-title">Public Training</h3>
+              <p className="type-small text-[var(--tone-muted)]">
+                Kelas terjadwal — kamu berlatih bersama peserta lain.
+              </p>
             </div>
-          ) : (
-            <div className="mt-6">
-              {programs.map((program, index) => (
+
+            {programs === "failed" ? (
+              <div className="py-12" aria-live="polite">
+                <p className="type-body text-[var(--tone-muted)]">Program belum bisa dimuat.</p>
+                <RetryButton />
+              </div>
+            ) : (
+              programs.map((program, index) => (
                 <ProgramStorySection key={program.card.slug} program={program} index={index} />
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
         </div>
+      </section>
 
-        <InhouseTrainingSection inhouse={inhouse} />
-      </Container>
-    </section>
+      <InhouseTrainingSection inhouse={inhouse} />
+    </>
   );
 }

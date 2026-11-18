@@ -33,3 +33,36 @@ test("kiriman tanpa kunci idempoten atau harga sah ditolak", () => {
   assert.equal(parseAcademySubmission({ ...input, idempotencyKey: "x" }), null);
   assert.equal(parseAcademySubmission({ ...input, priceIdr: -1 }), null);
 });
+
+test("money fields from the browser are dropped", () => {
+  const value = parseAcademySubmission({
+    ...input,
+    totalIdr: 1,
+    subtotalIdr: 1,
+    uniqueCode: 1,
+    bankAccountId: 99,
+    invoiceId: 1,
+    status: "verified",
+  });
+  assert.ok(value);
+  assert.deepEqual(Object.keys(value).sort(), [
+    "answers",
+    "email",
+    "expectedDpPercent",
+    "expectedPriceIdr",
+    "formKind",
+    "fullName",
+    "idempotencyKey",
+    "offerSlug",
+    "paymentMethod",
+    "primaryBatchSlug",
+    "secondaryBatchSlug",
+    "whatsapp",
+  ]);
+});
+
+test("negative or fractional expected price is rejected", () => {
+  assert.equal(parseAcademySubmission({ ...input, priceIdr: -1 }), null);
+  assert.equal(parseAcademySubmission({ ...input, priceIdr: 0.5 }), null);
+  assert.equal(parseAcademySubmission({ ...input, priceIdr: "1300000" }), null);
+});

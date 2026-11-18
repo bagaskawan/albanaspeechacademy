@@ -4,8 +4,7 @@ import { useState, useTransition } from "react";
 import { saveAcademyProfile } from "./actions";
 import { useSettingsForm } from "@/components/admin/settings/settings-forms";
 import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
-import { Input } from "@/components/ui/Input";
-import { Textarea } from "@/components/ui/textarea";
+import { AdminInput, AdminTextarea } from "@/components/admin/ui/form/controls";
 
 export type AcademyProfile = {
   id: number;
@@ -77,10 +76,11 @@ export default function ProfilAkademiClient({ initialProfile }: ProfilAkademiCli
       <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-admin-line-strong bg-admin-canvas p-6 sm:p-8">
         <FieldGrid columns={1}>
           <Field label="Nama Akademi" htmlFor="academy-name" required>
-            <Input
+            <AdminInput
               id="academy-name"
               type="text"
               required
+              aria-required="true"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Albana Speech Academy"
@@ -92,7 +92,7 @@ export default function ProfilAkademiClient({ initialProfile }: ProfilAkademiCli
             htmlFor="teaching-method"
             hint='Teks ini ditampilkan pada bagian "Cara belajar" di halaman beranda.'
           >
-            <Textarea
+            <AdminTextarea
               id="teaching-method"
               rows={3}
               value={teachingMethod}
@@ -106,7 +106,7 @@ export default function ProfilAkademiClient({ initialProfile }: ProfilAkademiCli
             htmlFor="reschedule-policy"
             hint="Digunakan sebagai acuan kebijakan pembatalan dan pemindahan sesi belajar."
           >
-            <Textarea
+            <AdminTextarea
               id="reschedule-policy"
               rows={3}
               value={reschedulePolicy}

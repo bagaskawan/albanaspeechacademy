@@ -28,7 +28,7 @@ export function parseRegistration(input: unknown) {
 
   const a = input.answers;
   if (!record(a)) return null;
-  for (const key of ["institution", "socialName", "socialOther", "sourceOther"]) {
+  for (const key of ["institution", "socialName", "instagram", "tiktok", "youtube", "linkedin", "socialOther", "sourceOther"]) {
     const value = a[key];
     if (value != null && (typeof value !== "string" || value.trim().length > 500)) return null;
   }
@@ -51,7 +51,8 @@ export function parseRegistration(input: unknown) {
       answers: { nickname, domicile, profession, goal, challenge: formKind === "bnsp" ? null : challenge,
         institution: field(a.institution), age: a.age, gender: a.gender, priorExperience: a.priorExperience,
         attendance: a.attendance, source: a.source, sourceOther: a.source === "other" ? sourceOther : null,
-        socials, socialOther: socials.includes("other") ? socialOther : null, socialName: field(a.socialName) },
+        socials, socialOther: socials.includes("other") ? socialOther : null, socialName: field(a.socialName),
+        instagram: field(a.instagram), tiktok: field(a.tiktok), youtube: field(a.youtube), linkedin: field(a.linkedin) },
     },
   };
 }

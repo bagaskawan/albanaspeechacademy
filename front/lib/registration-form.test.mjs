@@ -3,7 +3,7 @@ import test from "node:test";
 import { parseRegistration } from "./registration-input.ts";
 import {
   REGISTRATION_STEPS,
-  buildRegistrationPayload, emptyRegistrationValues, formatWhatsapp, registrationFormCopy,
+  buildRegistrationPayload, confirmationSummary, emptyRegistrationValues, formatSocialHandle, formatWhatsapp, registrationFormCopy,
   registrationVariantCopy, validateRegistration,
   validateRegistrationStep,
 } from "./registration-form.ts";
@@ -51,9 +51,26 @@ test("nilai kurang menandai field wajib", () => {
 test("pilihan Lainnya butuh keterangan, media sosial opsional", () => {
   const errors = validateRegistration({ ...filled(), source: "other", sourceOther: "" }, batch);
   assert.ok(errors.sourceOther);
-  assert.equal(validateRegistration({ ...filled(), socialName: "" }, batch).socialName, undefined);
-  const payload = buildRegistrationPayload({ ...filled(), socialName: "Instagram @budi" }, batch);
-  assert.equal(parseRegistration(payload).participant.answers.socialName, "Instagram @budi");
+  assert.equal(validateRegistration({ ...filled(), instagram: "", tiktok: "", youtube: "", linkedin: "" }, batch).instagram, undefined);
+  const payload = buildRegistrationPayload({
+    ...filled(),
+    instagram: "@budi",
+    tiktok: "@budi.tt",
+    youtube: "@budichannel",
+    linkedin: "linkedin.com/in/budi",
+  }, batch);
+  const parsed = parseRegistration(payload);
+  assert.equal(parsed.participant.answers.instagram, "@budi");
+  assert.equal(parsed.participant.answers.tiktok, "@budi.tt");
+  assert.equal(parsed.participant.answers.youtube, "@budichannel");
+  assert.equal(parsed.participant.answers.linkedin, "linkedin.com/in/budi");
+
+  assert.equal(formatSocialHandle("budi"), "@budi");
+  assert.equal(formatSocialHandle("@budi"), "@budi");
+  assert.equal(formatSocialHandle("@@budi"), "@budi");
+  assert.equal(formatSocialHandle("@"), "");
+  assert.equal(formatSocialHandle(""), "");
+
 });
 
 test("batas panjang klien mengikuti validator server untuk Series", () => {
@@ -65,7 +82,10 @@ test("batas panjang klien mengikuti validator server untuk Series", () => {
     ["email", `a${"x".repeat(250)}@b.c`],
     ["profession", "x".repeat(501)],
     ["institution", "x".repeat(501)],
-    ["socialName", "x".repeat(501)],
+    ["instagram", "x".repeat(501)],
+    ["tiktok", "x".repeat(501)],
+    ["youtube", "x".repeat(501)],
+    ["linkedin", "x".repeat(501)],
     ["sourceOther", "x".repeat(501)],
   ]) {
     const values = { ...filled(), [field]: value };
@@ -127,4 +147,28 @@ test("pilihan paket mengirim harga paket dan DP paket", () => {
   assert.equal(payload.priceIdr, 2_900_000);
   assert.equal(payload.dpPercent, 20);
   assert.ok(parseRegistration(payload));
+});
+
+test("confirmation summary lists identity, program, and transfer now", () => {
+  const b = { ...batch, programName: "Public Speaking Series", batchName: "Batch 3", priceIdr: 1_300_000, dpPercent: 20 };
+  const v = {
+    ...filled(),
+    fullName: "Budi",
+    email: "budi@x.id",
+    whatsapp: "0812-3456-7890",
+    paymentMethod: "dp",
+  };
+  const rows = confirmationSummary(v, b, null);
+  assert.deepEqual(
+    rows.map((r) => r.label),
+    ["Nama lengkap", "Email", "WhatsApp", "Program", "Pembayaran", "Transfer sekarang"],
+  );
+  assert.equal(rows[3].value, "Public Speaking Series – Batch 3");
+  assert.equal(rows[4].value, "DP 20%");
+  assert.ok(rows[5].value.includes("260.000"));
+  assert.ok(rows[5].value.endsWith(" + kode unik"));
+
+  const bundleRows = confirmationSummary({ ...v, paymentMethod: "full" }, b, "Paket Speaker + BNSP");
+  assert.equal(bundleRows[3].value, "Paket Speaker + BNSP");
+  assert.equal(bundleRows[4].value, "Lunas");
 });

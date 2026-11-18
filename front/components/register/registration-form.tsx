@@ -5,11 +5,13 @@ import Link from "next/link";
 import { RegistrationStepFields } from "@/components/register/registration-steps";
 import type { RegistrationBatch } from "@/lib/registration";
 import { BundleOfferCard } from "@/components/register/bundle-offer-card";
+import { ConfirmRegistrationDialog } from "@/components/register/confirm-registration-dialog";
 import type { BundleOffer } from "@/lib/server/bundle-offer";
 import { registrationFailure, type RegistrationBanner } from "@/lib/registration-feedback";
 import {
   REGISTRATION_STEPS,
   buildRegistrationPayload,
+  confirmationSummary,
   emptyRegistrationValues,
   registrationFormCopy,
   validateRegistration,
@@ -20,7 +22,7 @@ import {
 
 type SubmitState = "idle" | "submitting" | "success";
 
-export function RegistrationForm({ batch, baseBatch, offer, withBundle = false, onBundleChange }: {
+export function RegistrationForm({ batch, baseBatch, offer, withBundle = false, onBundleChange, overview, onStepChange }: {
   /** Batch yang nilainya dikirim: program saja, atau paket bila peserta memilihnya. */
   batch: RegistrationBatch;
   /** Program yang sedang didaftari, untuk naskah kartu tawaran. */
@@ -28,11 +30,14 @@ export function RegistrationForm({ batch, baseBatch, offer, withBundle = false, 
   offer?: BundleOffer | null;
   withBundle?: boolean;
   onBundleChange?: (selected: boolean) => void;
+  overview?: React.ReactNode;
+  onStepChange?: (step: number) => void;
 }) {
   const copy = registrationFormCopy(batch);
   const [values, setValues] = useState<RegistrationValues>(emptyRegistrationValues);
   const [errors, setErrors] = useState<RegistrationErrors>({});
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [banner, setBanner] = useState<RegistrationBanner | null>(null);
   const [step, setStep] = useState(0);
   const [staleKey, setStaleKey] = useState<string | null>(null);
@@ -45,6 +50,8 @@ export function RegistrationForm({ batch, baseBatch, offer, withBundle = false, 
   const idempotencyKey = useRef<string | null>(null);
 
   useEffect(() => { idempotencyKey.current = null; }, [batch.priceIdr, withBundle]);
+
+  useEffect(() => { onStepChange?.(step); }, [step, onStepChange]);
 
   useEffect(() => {
     if (!didMount.current) {
@@ -109,6 +116,12 @@ export function RegistrationForm({ batch, baseBatch, offer, withBundle = false, 
       return;
     }
 
+    setConfirmOpen(true);
+  }
+
+  async function submitRegistration() {
+    if (submittingRef.current || isStale) return;
+
     submittingRef.current = true;
     setSubmitState("submitting");
     setBanner(null);
@@ -133,11 +146,13 @@ export function RegistrationForm({ batch, baseBatch, offer, withBundle = false, 
         window.location.assign(payload.redirectUrl);
         return;
       }
+      setConfirmOpen(false);
       setSubmitState("idle");
       if (response.status === 409) setStaleKey(choiceKey);
-      if (response.status === 409) idempotencyKey.current = null;
+      if (response.status === 409 || response.status === 423) idempotencyKey.current = null;
       setBanner(registrationFailure(response.status, message));
     } catch {
+      setConfirmOpen(false);
       setSubmitState("idle");
       setBanner({ message: "Pendaftaran belum bisa diproses. Periksa koneksi lalu coba lagi." });
     } finally {
@@ -146,31 +161,21 @@ export function RegistrationForm({ batch, baseBatch, offer, withBundle = false, 
   }
 
   return (
-    <form id="form-pendaftaran" className="mt-9" onSubmit={handleSubmit} noValidate aria-busy={submitState === "submitting"}>
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <h2 ref={headingRef} tabIndex={-1} className="font-display text-sm font-semibold uppercase tracking-[0.08em] text-ink">
-          Bagian {step + 1}: {currentStep.title}
-        </h2>
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">Langkah {step + 1} dari {REGISTRATION_STEPS.length}</p>
-      </div>
-      <div
-        className="mt-3 h-1 bg-rule"
-        role="progressbar"
-        aria-label="Kemajuan pendaftaran"
-        aria-valuemin={1}
-        aria-valuemax={REGISTRATION_STEPS.length}
-        aria-valuenow={step + 1}
-        aria-valuetext={`Langkah ${step + 1} dari ${REGISTRATION_STEPS.length}: ${currentStep.title}`}
-      >
-        <div className="h-full bg-accent" style={{ width: `${((step + 1) / REGISTRATION_STEPS.length) * 100}%` }} />
-      </div>
-      <p className="mt-3 text-sm text-muted">Pertanyaan bertanda * wajib diisi.</p>
+    <form id="form-pendaftaran" onSubmit={handleSubmit} noValidate aria-busy={submitState === "submitting"}>
+      {step === 0 && overview ? <div className="mb-8">{overview}</div> : null}
+      <p className="eyebrow text-[var(--tone-muted)]">
+        Langkah {step + 1} dari {REGISTRATION_STEPS.length}
+      </p>
+      <h2 ref={headingRef} tabIndex={-1} className="type-title mt-2">
+        Bagian {step + 1}: {currentStep.title}
+      </h2>
+      <p className="type-small mt-2 text-[var(--tone-muted)]">Pertanyaan bertanda * wajib diisi.</p>
 
       {banner ? (
-        <div role="alert" className="mt-6 border-l-4 border-danger bg-surface px-4 py-3">
-          <p className="font-medium">{banner.message}</p>
+        <div role="alert" className="mt-6 border-l-4 border-danger bg-[var(--tone-tile)] px-4 py-3">
+          <p className="type-small font-medium">{banner.message}</p>
           {banner.showProgramLink ? (
-            <Link className="mt-2 inline-block font-semibold text-accent underline" href="/#program">
+            <Link className="type-small mt-2 inline-block font-semibold text-[var(--tone-accent)] underline" href="/#program">
               Periksa pilihan program terbaru
             </Link>
           ) : null}
@@ -198,14 +203,27 @@ export function RegistrationForm({ batch, baseBatch, offer, withBundle = false, 
         />
       </div>
 
-      <div className="mt-9 flex flex-wrap items-center justify-between gap-3 border-t border-rule pt-6">
+      <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--tone-rule)] pt-6 max-lg:sticky max-lg:bottom-0 max-lg:bg-[var(--tone-bg)] max-lg:px-4 max-lg:py-3">
         {step > 0 ? (
-          <button type="button" className="button-secondary cursor-pointer" onClick={goBack}>Kembali</button>
+          <button
+            type="button"
+            className="type-small inline-flex min-h-11 cursor-pointer items-center rounded-xs border border-[var(--tone-rule)] bg-transparent px-6 py-2.5 font-display font-semibold text-[var(--tone-ink)]"
+            onClick={goBack}
+          >
+            Kembali
+          </button>
         ) : <span />}
         <button type="submit" className="button-primary ml-auto cursor-pointer disabled:cursor-not-allowed disabled:opacity-60" disabled={submitState === "submitting" || isStale}>
-          {submitState === "submitting" ? "Mengirim…" : isLastStep ? "Kirim pendaftaran" : "Lanjut →"}
+          {submitState === "submitting" ? "Mengirim…" : isLastStep ? "Tinjau & kirim" : "Lanjut →"}
         </button>
       </div>
+      <ConfirmRegistrationDialog
+        open={confirmOpen}
+        rows={confirmOpen ? confirmationSummary(values, batch, withBundle && offer ? offer.title : null) : []}
+        submitting={submitState === "submitting"}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={submitRegistration}
+      />
       <span className="sr-only" role="status">{submitState === "submitting" ? "Mengirim pendaftaran" : ""}</span>
     </form>
   );

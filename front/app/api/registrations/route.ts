@@ -1,12 +1,14 @@
 import { createHash, createHmac } from "node:crypto";
+import { after } from "next/server";
 import { parseAcademySubmission } from "@/lib/academy-registration-input";
 import { createReceiptToken } from "@/lib/receipt-token";
 import { academyBillingClient } from "@/lib/server/academy-billing";
+import { deliverInvoiceEmail } from "@/lib/server/registration-mail";
 
 export const runtime = "nodejs";
 
-function json(body: Record<string, unknown>, status: number) {
-  return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
+function json(body: Record<string, unknown>, status: number, extraHeaders?: Record<string, string>) {
+  return Response.json(body, { status, headers: { "Cache-Control": "no-store", ...extraHeaders } });
 }
 
 export async function POST(request: Request) {
@@ -45,10 +47,29 @@ export async function POST(request: Request) {
     if (result.status === "unavailable") return json({ message: "Kelas atau rekening pembayaran belum tersedia." }, 409);
     if (result.status === "duplicate") return json({ message: "Pendaftaran untuk batch dan email ini sudah ada." }, 409);
     if (result.status === "busy") return json({ message: "Terlalu banyak pengiriman. Coba lagi sebentar." }, 429);
+    if (result.status === "locked") {
+      const rawRetry = Number(result.retryAfterSeconds);
+      const retryAfter = Number.isInteger(rawRetry) && rawRetry >= 1 && rawRetry <= 1800 ? rawRetry : 1800;
+      const unlockTime = new Intl.DateTimeFormat("id-ID", {
+        timeZone: "Asia/Jakarta",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(new Date(Date.now() + retryAfter * 1000));
+      return json(
+        {
+          message: `Pendaftaranmu sebelumnya masih menunggu pembayaran. Selesaikan pembayaran sesuai email instruksi, atau daftar lagi setelah pukul ${unlockTime} WIB.`,
+          retryAfter,
+        },
+        423,
+        { "Retry-After": String(retryAfter) },
+      );
+    }
     if (result.status !== "received" || typeof result.registrationId !== "number" || typeof result.invoiceId !== "number") {
       throw new Error("Respons pendaftaran tidak valid.");
     }
     const receiptToken = createReceiptToken(result.registrationId, secret);
+    const invoiceId = result.invoiceId as number;
+    after(() => deliverInvoiceEmail(invoiceId, "payment_instructions"));
     return json({ registrationId: result.registrationId, invoiceId: result.invoiceId,
       receiptToken, redirectUrl: `/register/konfirmasi/${receiptToken}` }, 200);
   } catch (error) {

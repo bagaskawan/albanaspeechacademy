@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { academyBillingClient } from "@/lib/server/academy-billing";
+import { programBucket } from "@/lib/program-media";
 
 export const runtime = "nodejs";
 
@@ -7,8 +8,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const { id } = await params;
   if (!/^[1-9]\d{0,14}$/.test(id)) return new Response(null, { status: 404 });
   const storage = academyBillingClient();
-  const { data: asset, error } = await storage.from("media_assets").select("provider,object_key,published,consent_at")
-    .eq("id", Number(id)).maybeSingle();
+  const { data: asset, error } = await storage
+    .from("media_assets")
+    .select("provider,object_key,published,consent_at,program_slug")
+    .eq("id", Number(id))
+    .maybeSingle();
   if (error || !asset || asset.provider !== "supabase_storage") return new Response(null, { status: 404 });
   if (!asset.published || !asset.consent_at) {
     const session = await createClient();
@@ -17,7 +21,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     const { data: admin } = await session.from("admin_users").select("user_id").eq("user_id", user.id).maybeSingle();
     if (!admin) return new Response(null, { status: 404 });
   }
-  const { data, error: signError } = await storage.storage.from("academy-media").createSignedUrl(asset.object_key, 60);
+  const bucket = programBucket(asset.program_slug);
+  let { data, error: signError } = await storage.storage.from(bucket).createSignedUrl(asset.object_key, 60);
+  if ((signError || !data?.signedUrl) && bucket !== "academy-media") {
+    ({ data, error: signError } = await storage.storage.from("academy-media").createSignedUrl(asset.object_key, 60));
+  }
   if (signError || !data?.signedUrl) return new Response(null, { status: 503 });
   return new Response(null, { status: 302, headers: { Location: data.signedUrl, "Cache-Control": "no-store" } });
 }

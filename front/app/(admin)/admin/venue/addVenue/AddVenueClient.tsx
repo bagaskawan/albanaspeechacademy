@@ -11,9 +11,11 @@ import {
   Upload,
   Image as ImageIcon,
   Loader2,
+  RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { deleteStorageFiles, getRemovedStorageUrls } from "@/lib/supabase/storage-cleanup";
 import { compressImage } from "@/lib/file-compress";
 import { saveVenueAction } from "@/lib/actions/venue-actions";
 import { toast } from "sonner";
@@ -87,8 +89,11 @@ export default function AddVenueClient({ initialVenue }: AddVenueClientProps) {
   const [existingPhotos, setExistingPhotos] = useState<string[]>(
     initialVenue?.photo_urls || []
   );
+  const [replacedExistingPhotos, setReplacedExistingPhotos] = useState<Record<number, { file: File; previewUrl: string }>>({});
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const replaceInputRef = useRef<HTMLInputElement>(null);
+  const replaceIndexRef = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
@@ -97,7 +102,29 @@ export default function AddVenueClient({ initialVenue }: AddVenueClientProps) {
   }, [photoPreviews]);
 
   const handleRemoveExistingPhoto = (index: number) => {
+    const replaced = replacedExistingPhotos[index];
+    if (replaced?.previewUrl) URL.revokeObjectURL(replaced.previewUrl);
+    setReplacedExistingPhotos((prev) => {
+      const next: Record<number, { file: File; previewUrl: string }> = {};
+      for (const [k, v] of Object.entries(prev)) {
+        const ki = Number(k);
+        if (ki < index) next[ki] = v;
+        else if (ki > index) next[ki - 1] = v;
+      }
+      return next;
+    });
     setExistingPhotos(existingPhotos.filter((_, i) => i !== index));
+  };
+
+  const handleReplaceExistingPhoto = (index: number, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Hanya file gambar yang diizinkan!");
+      return;
+    }
+    const prev = replacedExistingPhotos[index];
+    if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl);
+    const previewUrl = URL.createObjectURL(file);
+    setReplacedExistingPhotos((curr) => ({ ...curr, [index]: { file, previewUrl } }));
   };
 
   const handleRemoveNewPhoto = (index: number) => {
@@ -159,52 +186,50 @@ export default function AddVenueClient({ initialVenue }: AddVenueClientProps) {
 
     try {
       const supabase = createClient();
-      const uploadedUrls: string[] = [];
+      const uploadSingleVenuePhoto = async (file: File): Promise<string> => {
+        const compressed = await compressImage(file);
+        const ext = compressed.name.split(".").pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
+        const filePath = `${fileName}`;
 
+        const { error: uploadError } = await supabase.storage
+          .from("venues")
+          .upload(filePath, compressed, {
+            cacheControl: "3600",
+            upsert: false,
+            contentType: compressed.type || "image/jpeg",
+          });
+
+        if (uploadError) {
+          console.error("Upload error:", uploadError);
+          throw new Error("Gagal mengunggah foto: " + uploadError.message);
+        }
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("venues").getPublicUrl(filePath);
+        return publicUrl;
+      };
+
+      const resolvedExistingPhotos: string[] = [];
+      for (let i = 0; i < existingPhotos.length; i += 1) {
+        const replaced = replacedExistingPhotos[i];
+        if (replaced?.file) {
+          resolvedExistingPhotos.push(await uploadSingleVenuePhoto(replaced.file));
+        } else {
+          resolvedExistingPhotos.push(existingPhotos[i]);
+        }
+      }
+
+      const uploadedUrls: string[] = [];
       // 1. Upload new photos
       if (newPhotos.length > 0) {
         for (const file of newPhotos) {
-          const compressed = await compressImage(file);
-          const ext = compressed.name.split(".").pop();
-          const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
-          const filePath = `${fileName}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from("venues")
-            .upload(filePath, compressed, {
-              cacheControl: "3600",
-              upsert: false,
-              contentType: compressed.type || "image/jpeg",
-            });
-
-          if (uploadError) {
-            console.error("Upload error:", uploadError);
-            throw new Error("Gagal mengunggah foto: " + uploadError.message);
-          }
-
-          const {
-            data: { publicUrl },
-          } = supabase.storage.from("venues").getPublicUrl(filePath);
-
-          uploadedUrls.push(publicUrl);
+          uploadedUrls.push(await uploadSingleVenuePhoto(file));
         }
       }
 
-      const finalPhotoUrls = [...existingPhotos, ...uploadedUrls];
-
-      // Clean deleted photos from storage
-      if (initialVenue?.photo_urls) {
-        const removedUrls = initialVenue.photo_urls.filter(
-          (oldUrl) => !existingPhotos.includes(oldUrl)
-        );
-        const pathsToDelete = removedUrls
-          .map((url) => getStoragePathFromUrl(url, "venues"))
-          .filter(Boolean) as string[];
-
-        if (pathsToDelete.length > 0) {
-          await supabase.storage.from("venues").remove(pathsToDelete);
-        }
-      }
+      const finalPhotoUrls = [...resolvedExistingPhotos, ...uploadedUrls];
 
       // 2. Save venue with dual-sync
       const res = await saveVenueAction(
@@ -223,6 +248,14 @@ export default function AddVenueClient({ initialVenue }: AddVenueClientProps) {
 
       if (!res.success) {
         throw new Error(res.error || "Gagal menyimpan data venue.");
+      }
+
+      // 3. Clean deleted/replaced photos from storage after DB save succeeds
+      if (initialVenue?.photo_urls) {
+        const removedUrls = getRemovedStorageUrls(initialVenue.photo_urls, finalPhotoUrls);
+        if (removedUrls.length > 0) {
+          await deleteStorageFiles(supabase, removedUrls).catch(() => {});
+        }
       }
 
       toast.success(
@@ -291,23 +324,54 @@ export default function AddVenueClient({ initialVenue }: AddVenueClientProps) {
             {existingPhotos.length > 0 && (
               <div className="space-y-1.5">
                 <p className="text-[11px] font-semibold text-text-muted">Foto Terunggah:</p>
+                <input
+                  ref={replaceInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    const idx = replaceIndexRef.current;
+                    e.target.value = "";
+                    replaceIndexRef.current = null;
+                    if (file && idx !== null) {
+                      handleReplaceExistingPhoto(idx, file);
+                    }
+                  }}
+                />
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {existingPhotos.map((url, idx) => (
-                    <div
-                      key={idx}
-                      className="relative group rounded-2xl overflow-hidden border border-border-default aspect-video"
-                    >
-                      <img src={url} alt="Venue" className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveExistingPhoto(idx)}
-                        className="absolute top-1.5 right-1.5 p-1 bg-black/60 hover:bg-red-600 text-white rounded-full transition-colors cursor-pointer"
-                        title="Hapus foto ini"
+                  {existingPhotos.map((url, idx) => {
+                    const displaySrc = replacedExistingPhotos[idx]?.previewUrl || url;
+                    return (
+                      <div
+                        key={idx}
+                        className="relative group rounded-2xl overflow-hidden border border-border-default aspect-video"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ))}
+                        <img src={displaySrc} alt="Venue" className="w-full h-full object-cover" />
+                        <div className="absolute top-1.5 right-1.5 flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              replaceIndexRef.current = idx;
+                              replaceInputRef.current?.click();
+                            }}
+                            className="p-1 bg-black/60 hover:bg-zinc-900 text-white rounded-full transition-colors cursor-pointer"
+                            title="Ganti foto ini"
+                          >
+                            <RefreshCw className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveExistingPhoto(idx)}
+                            className="p-1 bg-black/60 hover:bg-red-600 text-white rounded-full transition-colors cursor-pointer"
+                            title="Hapus foto ini"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}

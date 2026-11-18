@@ -16,10 +16,21 @@ const navigationItems = [
   { href: "/#kontak", label: "Kontak", id: "kontak" },
 ] as const;
 
-export function SiteHeaderClient({ showTrainer, showContact, home }: { showTrainer: boolean; showContact: boolean; home: boolean }) {
+export function SiteHeaderClient({
+  showTrainer,
+  showContact,
+  home,
+}: {
+  showTrainer: boolean;
+  showContact: boolean;
+  home: boolean;
+}) {
   const [active, setActive] = useState("");
   const [heroVisible, setHeroVisible] = useState(home);
-  const items = navigationItems.filter((item) => item.id !== "trainer" || showTrainer).filter((item) => item.id !== "kontak" || showContact);
+  const items = navigationItems
+    .filter((item) => item.id !== "trainer" || showTrainer)
+    .filter((item) => item.id !== "kontak" || showContact);
+
   useEffect(() => {
     const update = (event: Event) => setActive((event as CustomEvent<string>).detail);
     window.addEventListener("home:chapter", update);
@@ -46,23 +57,66 @@ export function SiteHeaderClient({ showTrainer, showContact, home }: { showTrain
         data-site-header
         aria-hidden={home && heroVisible}
         inert={home && heroVisible}
-        className={`${home ? "fixed inset-x-0 top-0 transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none" : "sticky top-0"} z-40 bg-card ${heroVisible ? "pointer-events-none -translate-y-full opacity-0" : "translate-y-0 opacity-100"}`}
+        className={`tone-canvas border-b border-[var(--tone-rule)] bg-[var(--tone-bg)] text-[var(--tone-ink)] ${home
+          ? "fixed inset-x-0 top-0 transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none"
+          : "sticky top-0"
+          } z-40 ${heroVisible
+            ? "pointer-events-none -translate-y-full opacity-0"
+            : "translate-y-0 opacity-100"
+          }`}
       >
-        <div className="mx-auto flex min-h-[var(--masthead-height)] max-w-7xl items-center justify-between gap-4 px-5 md:px-8 xl:px-12">
-          <Link className="inline-flex min-h-11 items-center" href="/" aria-label="Albana Speech Academy, beranda">
-            <BrandLogo className="h-9 md:h-10 dark:hidden" />
-            <BrandLogo src="/logo-white.png" imageClassName="object-contain" className="hidden h-9 md:h-10 dark:block" />
+        <div className="home-container flex min-h-[var(--masthead-height)] items-center justify-between gap-6">
+          <Link
+            className="inline-flex min-h-11 items-center"
+            href="/"
+            aria-label="Albana Speech Academy, beranda"
+          >
+            <span
+              className="academy-hero-logo-blue block aspect-[120/46] h-9 md:h-10 dark:hidden"
+              role="img"
+              aria-label="Albana Speech Academy"
+            />
+            <BrandLogo
+              src="/logo-white.png"
+              imageClassName="object-contain"
+              sizes="104px"
+              className="hidden h-9 md:h-10 dark:block"
+            />
           </Link>
-          <nav className="hidden items-center gap-5 md:flex" aria-label="Navigasi utama">
-            {items.map((item) => <Link key={item.id} className="relative inline-flex min-h-11 items-center text-sm font-medium text-ink hover:text-accent dark:text-white dark:hover:text-[#dcebfa]" href={item.href} aria-current={active === item.id ? "location" : undefined}>
-              {item.label}
-              {active === item.id ? <m.span layoutId="home-nav-active" className="absolute inset-x-0 bottom-1 h-0.5 bg-accent" /> : null}
-            </Link>)}
+
+          <nav className="ml-auto hidden items-center gap-6 md:flex" aria-label="Navigasi utama">
+            {items.map((item) => (
+              <Link
+                key={item.id}
+                className="text-xs relative inline-flex min-h-11 items-center font-medium uppercase tracking-wide text-[var(--tone-ink)] transition-colors hover:text-[var(--tone-accent)]"
+                href={item.href}
+                aria-current={active === item.id ? "location" : undefined}
+              >
+                {item.label}
+                {active === item.id ? (
+                  <m.span
+                    layoutId="home-nav-active"
+                    className="absolute inset-x-0 bottom-0 h-0.5 bg-[var(--tone-sun)]"
+                  />
+                ) : null}
+              </Link>
+            ))}
           </nav>
-          <div className="flex items-center gap-2"><Link className="button-primary hidden md:inline-flex" href="/#jadwal">Lihat jadwal</Link><ThemeToggle /><MobileMenu items={items} /></div>
+
+          <div className="flex items-center gap-2">
+            <Link className="button-primary hidden rounded-xs md:inline-flex" href="/#jadwal">
+              Lihat jadwal
+            </Link>
+            <MobileMenu items={items} />
+          </div>
         </div>
-        <div data-scroll-progress className="h-0.5 w-full origin-left scale-x-0 bg-accent" aria-hidden="true" />
+        <div
+          data-scroll-progress
+          className="h-0.5 w-full origin-left scale-x-0 bg-[var(--tone-sun)]"
+          aria-hidden="true"
+        />
       </header>
+      <ThemeToggle className="tone-canvas fixed right-5 bottom-5 z-50 inline-flex size-12 items-center justify-center rounded-full border border-[var(--tone-rule)] bg-[var(--tone-tile)] text-[var(--tone-ink)] shadow-lg transition-transform hover:scale-105 hover:bg-[var(--tone-bg)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--tone-accent)] sm:right-6 sm:bottom-6" />
     </MotionProvider>
   );
 }

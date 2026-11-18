@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { deleteStorageFile } from "@/lib/supabase/storage-cleanup";
 import { compressImage } from "@/lib/file-compress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { saveGalleryAlbumAction } from "@/lib/actions/gallery-actions";
@@ -253,10 +254,7 @@ export default function AddGalleryClient({
 
       // 3. Clean up old image if replaced or removed
       if (initialHeroImageUrl && initialHeroImageUrl !== finalHeroImageUrl) {
-        const oldPath = getStoragePathFromUrl(initialHeroImageUrl, "gallery");
-        if (oldPath) {
-          await supabase.storage.from("gallery").remove([oldPath]);
-        }
+        await deleteStorageFile(supabase, initialHeroImageUrl).catch(() => {});
       }
 
       toast.success(

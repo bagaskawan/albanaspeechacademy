@@ -1,72 +1,147 @@
 import Image from "next/image";
-import { ArrowUpRight } from "lucide-react";
 import { BrandLogo } from "@/components/layout/brand-logo";
-import { Container } from "@/components/layout/container";
-import type { HomeData } from "@/lib/home-data";
+import type { HomeData, HomeMedia } from "@/lib/home-data";
+import { Accent } from "./ui/accent";
+import { MoreLink } from "./ui/more-link";
 
-export function HeroSection({ hero }: { hero: HomeData["hero"] }) {
+function Photo({
+  media,
+  preload = false,
+  sizes,
+  className = "",
+}: {
+  media: HomeMedia;
+  preload?: boolean;
+  sizes: string;
+  className?: string;
+}) {
+  return (
+    <div
+      data-motion="media"
+      className={`relative overflow-hidden rounded-xs bg-[var(--tone-tile)] ${className}`}
+    >
+      <Image
+        fill
+        preload={preload}
+        src={media.src}
+        alt={media.alt}
+        quality={85}
+        sizes={sizes}
+        className="object-cover"
+      />
+    </div>
+  );
+}
+
+export function HeroSection({
+  hero,
+  moments,
+}: {
+  hero: HomeData["hero"];
+  moments: HomeMedia[];
+}) {
   const enter = "motion-safe:animate-[academy-hero-enter_0.55s_ease-out_both]";
+  const side = moments[10] ?? moments[0] ?? null;
 
   return (
-    <section id="beranda" aria-labelledby="hero-title" className="tone-canvas pt-6 md:pt-8">
-      <Container className="max-w-7xl">
-        <div
-          className="tone-night relative min-h-[min(88svh,52rem)] overflow-hidden max-lg:min-h-[36rem]"
-        >
-          {hero.photo ? (
-            <div data-motion="media" className="absolute inset-0 overflow-hidden">
-              <Image
-                fill
-                preload
-                src={hero.photo.src}
-                alt={hero.photo.alt}
-                sizes="(min-width:1280px) 1280px, 100vw"
-                className="object-cover"
+    <section
+      id="beranda"
+      aria-labelledby="hero-title"
+      className="tone-canvas border-b border-[var(--tone-rule)] py-12 lg:py-20"
+    >
+      <div className="home-container">
+        <div className="home-grid items-center gap-y-10">
+          <div className="col-span-4 flex flex-col items-start gap-6 sm:col-span-8 lg:col-span-6">
+            <div className={`flex flex-wrap items-center gap-4 ${enter}`}>
+              <span
+                className="academy-hero-logo-blue block aspect-[120/46] h-9 dark:hidden"
+                role="img"
+                aria-label="Albana Speech Academy"
               />
+              <BrandLogo
+                src="/logo-white.png"
+                imageClassName="object-contain"
+                sizes="104px"
+                className="hidden h-9 dark:block"
+              />
+              <span className="h-6 w-px bg-[var(--tone-rule)]" aria-hidden="true" />
+              <p className="eyebrow text-[var(--tone-muted)]">
+                Akademi Public Speaking · Bandung
+              </p>
             </div>
-          ) : null}
-          {/* 0.60 at 55% (<lg) / 45% (lg+): lead text >= 4.5:1 on worst-case white pixel (5.05:1) */}
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-[linear-gradient(to_top,rgb(7_15_28/0.88)_0%,rgb(7_15_28/0.60)_55%,transparent_90%)] lg:bg-[linear-gradient(to_top,rgb(7_15_28/0.88)_0%,rgb(7_15_28/0.60)_45%,transparent_75%)]"
-          />
-
-          <div className="absolute inset-x-0 bottom-0 max-w-[44rem] space-y-4 p-6 text-white md:p-12">
-            <p className={`eyebrow !text-white ${enter}`}>Presentasi · Diskusi · MC</p>
 
             <h1
               id="hero-title"
-              style={{ animationDelay: "0.08s" }}
-              className={`w-[clamp(14rem,30vw,24rem)] ${enter}`}
+              style={{ animationDelay: "0.09s" }}
+              className={`type-display max-w-[16ch] text-balance ${enter}`}
             >
-              <span role="img" aria-label="Albana Speech Academy" className="block">
-                <BrandLogo
-                  src="/logo-white.png"
-                  sizes="(min-width: 768px) 384px, 224px"
-                  className="w-full"
-                  imageClassName="object-contain"
-                />
-              </span>
+              Latih momen saat <Accent>semua mata</Accent> tertuju padamu.
             </h1>
 
-            <p
-              style={{ animationDelay: "0.16s" }}
-              className={`type-lead text-pretty text-white ${enter}`}
+            <div
+              style={{ animationDelay: "0.18s" }}
+              className={`flex flex-col items-start gap-6 ${enter}`}
             >
-              Saat tim menunggu usulanmu, bagaimana kamu memulai? Di kelas public speaking ini, kamu berlatih membuka presentasi, menjelaskan pilihan, dan menjawab pertanyaan di depan orang lain.
-            </p>
+              <p className="type-lead max-w-[34em] text-[var(--tone-muted)] text-pretty">
+                Rapat, presentasi, memandu acara, menjawab pertanyaan. <span className="highlight-stabilo">Di Albana kamu tidak sekadar belajar teori bicara kamu{" "}
+                  berlatih di depan orang, menerima masukan, lalu mencoba lagi
+                  sampai terbiasa</span>.
+              </p>
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                <a href="#jadwal" className="button-primary">
+                  Lihat jadwal kelas
+                </a>
+                <MoreLink href="#kontak">Konsultasi dulu</MoreLink>
+              </div>
+            </div>
+          </div>
 
-            <a
-              href="#jadwal"
-              style={{ animationDelay: "0.24s" }}
-              className={`inline-flex min-h-11 items-center gap-2 bg-white px-6 py-2.5 font-display text-sm font-semibold text-[var(--color-accent-strong)] transition-colors hover:bg-white/90 ${enter}`}
-            >
-              <span>Lihat jadwal</span>
-              <ArrowUpRight className="size-4" aria-hidden="true" />
-            </a>
+          <div className="col-span-4 grid grid-cols-5 gap-2 self-start sm:col-span-8 lg:col-span-6">
+            {hero.photo ? (
+              <Photo
+                media={hero.photo}
+                preload
+                sizes="(min-width: 1024px) 34vw, (min-width: 640px) 60vw, 100vw"
+                className="col-span-5 aspect-[4/5] sm:col-span-3 sm:aspect-[3/4]"
+              />
+            ) : (
+              // Belum ada foto dokumentasi: tampilkan tanda merek, bukan kotak kosong.
+              <div className="col-span-5 flex aspect-[4/5] items-center justify-center rounded-xs bg-[var(--tone-tile)] sm:col-span-3 sm:aspect-[3/4]">
+                <span
+                  role="img"
+                  aria-label="Albana Speech Academy"
+                  className="academy-hero-logo-blue block aspect-[120/46] w-1/2 opacity-90 dark:bg-[var(--tone-ink)]"
+                />
+              </div>
+            )}
+
+            <div className="col-span-5 flex flex-col gap-2 sm:col-span-2">
+              {side ? (
+                <Photo
+                  media={side}
+                  sizes="(min-width: 1024px) 22vw, 40vw"
+                  className="hidden aspect-square sm:block"
+                />
+              ) : null}
+
+              <div className="flex flex-1 flex-col justify-between gap-4 rounded-xs bg-[var(--tone-sun)] p-4 text-[var(--tone-on-sun)] sm:p-6">
+                <p className="eyebrow">Kelas berikutnya</p>
+                {hero.nextBatch ? (
+                  <div className="flex flex-col gap-1">
+                    <p className="type-title leading-tight">{hero.nextBatch.programTitle}</p>
+                    <p className="type-small">
+                      {hero.nextBatch.batchName} · {hero.nextBatch.firstDateLabel}
+                    </p>
+                    <p className="type-small font-semibold">{hero.nextBatch.statusLabel}</p>
+                  </div>
+                ) : (
+                  <p className="type-small">Jadwal kelas berikutnya belum tersedia.</p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-      </Container>
+      </div>
     </section>
   );
 }

@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { checkPermission } from "@/lib/check-permission";
 import { syncDualOperation } from "@/lib/supabase/dual-sync";
+import { deleteStorageFiles, getRemovedStorageUrls } from "@/lib/supabase/storage-cleanup";
 import { revalidatePath } from "next/cache";
 
 export async function saveVenueAction(
@@ -63,6 +64,18 @@ export async function saveVenueAction(
     order_index: data.order_index ?? 0,
   };
 
+  let oldPhotoUrls: string[] = [];
+  if (id) {
+    const { data: existingVenue } = await supabase
+      .from("venues")
+      .select("photo_urls")
+      .eq("id", id)
+      .maybeSingle();
+    if (Array.isArray(existingVenue?.photo_urls)) {
+      oldPhotoUrls = existingVenue.photo_urls;
+    }
+  }
+
   const { error } = await syncDualOperation(async (client) => {
     if (id) {
       const { error: err } = await client
@@ -81,6 +94,13 @@ export async function saveVenueAction(
 
   if (error) {
     return { success: false, error: error.message };
+  }
+
+  if (id && oldPhotoUrls.length > 0) {
+    const removedUrls = getRemovedStorageUrls(oldPhotoUrls, payload.photo_urls);
+    if (removedUrls.length > 0) {
+      await deleteStorageFiles(supabase, removedUrls).catch(() => {});
+    }
   }
 
   // Log admin activity
@@ -133,7 +153,7 @@ export async function deleteVenueAction(id: string) {
   // Get venue info before delete
   const { data: venueToDelete } = await supabase
     .from("venues")
-    .select("id, name, city")
+    .select("id, name, city, photo_urls")
     .eq("id", id)
     .maybeSingle();
 
@@ -148,6 +168,10 @@ export async function deleteVenueAction(id: string) {
 
   if (error) {
     return { success: false, error: error.message };
+  }
+
+  if (Array.isArray(venueToDelete?.photo_urls) && venueToDelete.photo_urls.length > 0) {
+    await deleteStorageFiles(supabase, venueToDelete.photo_urls).catch(() => {});
   }
 
   // Log admin activity

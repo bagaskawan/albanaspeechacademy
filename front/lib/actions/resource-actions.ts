@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { checkPermission } from "@/lib/check-permission";
 import { syncDualOperation } from "@/lib/supabase/dual-sync";
+import { deleteStorageFile } from "@/lib/supabase/storage-cleanup";
 import { revalidatePath } from "next/cache";
 
 export async function saveResourceAction(
@@ -60,6 +61,16 @@ export async function saveResourceAction(
     uploaded_by: session.user.id,
   };
 
+  let oldFileUrl: string | null = null;
+  if (id) {
+    const { data: existingResource } = await supabase
+      .from("resources")
+      .select("file_url")
+      .eq("id", id)
+      .maybeSingle();
+    oldFileUrl = existingResource?.file_url ?? null;
+  }
+
   const { error } = await syncDualOperation(async (client) => {
     if (id) {
       const { error: err } = await client
@@ -78,6 +89,10 @@ export async function saveResourceAction(
 
   if (error) {
     return { success: false, error: error.message };
+  }
+
+  if (oldFileUrl && oldFileUrl !== payload.file_url) {
+    await deleteStorageFile(supabase, oldFileUrl).catch(() => {});
   }
 
   // Log admin activity
@@ -130,7 +145,7 @@ export async function deleteResourceAction(id: string) {
   // Get resource info before delete
   const { data: resToDelete } = await supabase
     .from("resources")
-    .select("id, title")
+    .select("id, title, file_url")
     .eq("id", id)
     .maybeSingle();
 
@@ -145,6 +160,10 @@ export async function deleteResourceAction(id: string) {
 
   if (error) {
     return { success: false, error: error.message };
+  }
+
+  if (resToDelete?.file_url) {
+    await deleteStorageFile(supabase, resToDelete.file_url).catch(() => {});
   }
 
   // Log admin activity

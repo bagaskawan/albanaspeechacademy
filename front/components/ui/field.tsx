@@ -5,7 +5,10 @@ import type { ReactNode } from "react";
 export type FieldOption = { value: string; label: string };
 
 const controlClass =
-  "w-full min-h-11 rounded-control border-0 border-b border-control bg-transparent py-2 text-base text-ink placeholder:text-muted focus:border-accent aria-invalid:border-danger";
+  "w-full h-12 rounded-xs border border-[var(--tone-rule)] bg-[var(--tone-bg)] px-3 text-base text-[var(--tone-ink)] placeholder:text-[var(--tone-muted)] focus:border-2 focus:outline-none aria-invalid:border-danger";
+
+const areaClass =
+  "w-full rounded-xs border border-[var(--tone-rule)] bg-[var(--tone-bg)] p-3 text-base text-[var(--tone-ink)] placeholder:text-[var(--tone-muted)] focus:border-2 focus:outline-none aria-invalid:border-danger";
 
 function describedBy(id: string, hint?: string, error?: string): string | undefined {
   const ids: string[] = [];
@@ -18,12 +21,12 @@ function FieldMessages({ id, hint, error }: { id: string; hint?: string; error?:
   return (
     <>
       {hint ? (
-        <p id={`${id}-hint`} className="mt-2 text-sm text-muted">
+        <p id={`${id}-hint`} className="eyebrow mt-2 normal-case text-[var(--tone-muted)]">
           {hint}
         </p>
       ) : null}
       {error ? (
-        <p id={`${id}-error`} role="alert" className="mt-2 text-sm font-semibold text-danger">
+        <p id={`${id}-error`} role="alert" className="eyebrow mt-2 normal-case text-danger">
           {error}
         </p>
       ) : null}
@@ -33,7 +36,7 @@ function FieldMessages({ id, hint, error }: { id: string; hint?: string; error?:
 
 function Label({ htmlFor, children, required }: { htmlFor: string; children: ReactNode; required?: boolean }) {
   return (
-    <label htmlFor={htmlFor} className="eyebrow block">
+    <label htmlFor={htmlFor} className="text-xs block font-medium text-[var(--tone-ink)]">
       {children}
       {required ? <><span aria-hidden="true"> *</span><span className="sr-only"> (wajib)</span></> : null}
     </label>
@@ -76,7 +79,7 @@ export function TextField({
         onChange={(event) => onChange(event.target.value)}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy(id, hint, error)}
-        className={`mt-1.5 ${controlClass}`}
+        className={`mt-2 ${controlClass}`}
       />
       <FieldMessages id={id} hint={hint} error={error} />
     </div>
@@ -112,10 +115,10 @@ export function TextArea({
         onChange={(event) => onChange(event.target.value)}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy(id, hint, error)}
-        className={`mt-1.5 resize-y ${controlClass}`}
+        className={`mt-2 resize-y ${areaClass}`}
       />
       {maxLength ? (
-        <p aria-hidden="true" className="mt-1 text-right text-xs text-muted tabular-nums">
+        <p aria-hidden="true" className="eyebrow mt-1 text-right normal-case text-[var(--tone-muted)] tabular-nums">
           {value.length}/{maxLength}
         </p>
       ) : null}
@@ -141,21 +144,34 @@ export function RadioGroup({
 }: RadioGroupProps) {
   return (
     <fieldset id={id} tabIndex={-1} aria-invalid={error ? true : undefined} aria-describedby={describedBy(id, hint, error)}>
-      <legend className="eyebrow">{label}{required ? <><span aria-hidden="true"> *</span><span className="sr-only"> (wajib)</span></> : null}</legend>
-      <div className="mt-1.5 flex flex-wrap gap-x-6 gap-y-1">
-        {options.map((option) => (
-          <label key={option.value} className="flex min-h-11 cursor-pointer items-center gap-3">
-            <input
-              type="radio"
-              name={name}
-              value={option.value}
-              checked={value === option.value}
-              onChange={() => onChange(option.value)}
-              className="size-4 accent-accent"
-            />
-            <span>{option.label}</span>
-          </label>
-        ))}
+      <legend className="type-small font-medium text-[var(--tone-ink)]">
+        {label}
+        {required ? <><span aria-hidden="true"> *</span><span className="sr-only"> (wajib)</span></> : null}
+      </legend>
+      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        {options.map((option) => {
+          const selected = value === option.value;
+          return (
+            <label
+              key={option.value}
+              className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-xs px-4 py-2 ${
+                selected
+                  ? "border-2 border-[var(--tone-accent)] bg-[var(--tone-tile)]"
+                  : "border border-[var(--tone-rule)] bg-[var(--tone-bg)]"
+              }`}
+            >
+              <input
+                type="radio"
+                name={name}
+                value={option.value}
+                checked={selected}
+                onChange={() => onChange(option.value)}
+                className="size-4 accent-[var(--tone-accent)]"
+              />
+              <span className="type-small font-medium">{option.label}</span>
+            </label>
+          );
+        })}
       </div>
       <FieldMessages id={id} hint={hint} error={error} />
     </fieldset>
@@ -178,21 +194,31 @@ export function CheckboxGroup({
 }: CheckboxGroupProps) {
   return (
     <fieldset id={id} tabIndex={-1} aria-invalid={error ? true : undefined} aria-describedby={describedBy(id, hint, error)}>
-      <legend className="eyebrow">{label}</legend>
-      <div className="mt-1.5 grid gap-x-6 gap-y-1 sm:grid-cols-2">
-        {options.map((option) => (
-          <label key={option.value} className="flex min-h-11 cursor-pointer items-center gap-3">
-            <input
-              type="checkbox"
-              name={name}
-              value={option.value}
-              checked={values.includes(option.value)}
-              onChange={() => onToggle(option.value)}
-              className="size-4 accent-accent"
-            />
-            <span>{option.label}</span>
-          </label>
-        ))}
+      <legend className="type-small font-medium text-[var(--tone-ink)]">{label}</legend>
+      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        {options.map((option) => {
+          const checked = values.includes(option.value);
+          return (
+            <label
+              key={option.value}
+              className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-xs px-4 py-2 ${
+                checked
+                  ? "border-2 border-[var(--tone-accent)] bg-[var(--tone-tile)]"
+                  : "border border-[var(--tone-rule)] bg-[var(--tone-bg)]"
+              }`}
+            >
+              <input
+                type="checkbox"
+                name={name}
+                value={option.value}
+                checked={checked}
+                onChange={() => onToggle(option.value)}
+                className="size-4 accent-[var(--tone-accent)]"
+              />
+              <span className="type-small font-medium">{option.label}</span>
+            </label>
+          );
+        })}
       </div>
       <FieldMessages id={id} hint={hint} error={error} />
     </fieldset>

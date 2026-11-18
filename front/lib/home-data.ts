@@ -25,10 +25,18 @@ export type HomeTestimonial = {
   quote: string;
   attribution: string;
   roleLabel: string | null;
+  photoUrl: string | null;
+};
+
+export type HomeLegality = {
+  akta: string | null;
+  nib: string | null;
+  skt: string | null;
+  npwpFront: string | null;
+  npwpBack: string | null;
 };
 
 export type HomeData = {
-  preview: boolean;
   hero: {
     photo: HomeMedia | null;
     openPrograms: number;
@@ -49,4 +57,5 @@ export type HomeData = {
   };
   testimonials: HomeTestimonial[];
   moments: HomeMedia[];
+  legality: HomeLegality;
 };

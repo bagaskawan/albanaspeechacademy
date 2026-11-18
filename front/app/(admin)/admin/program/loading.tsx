@@ -1,5 +1,5 @@
-import { SkeletonCards } from "@/components/admin/ui/skeleton";
+﻿import { PageLoading } from "@/components/ui/PageLoading";
 
 export default function Loading() {
-  return <SkeletonCards />;
+  return <PageLoading fullScreen={false} />;
 }

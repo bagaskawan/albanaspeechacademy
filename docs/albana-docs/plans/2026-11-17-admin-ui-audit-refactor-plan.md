@@ -140,7 +140,7 @@ Tiga gaya hidup berdampingan di admin aktif:
 - Produces: `Field({ label, htmlFor, required, hint, error, span, breakpoint, children })` — props **tidak berubah**; label dirender dengan `Label` shadcn. `FieldGrid`, `FormSection`, `FormPage`, `FormDialog` — props tidak berubah. Modul nav `/admin/program` berlabel `"Program"`.
 - Consumes: `Input`, `Textarea`, `Label` dari `components/ui/`; `AdminPageTitle` dari `@/components/admin/PageHeader`; `INHOUSE_SLUG` dari `@/lib/bundle`.
 
-- [ ] **Step 1: Tes label modul (gagal dulu)**
+- [x] **Step 1: Tes label modul (gagal dulu)**
 
 Di `lib/admin-nav.test.mjs`, ubah asersi yang ada `resolveAdminNav("/admin/program").module?.label` dari `"Program & Batch"` menjadi `"Program"`, begitu juga daftar modul grup `kelas` menjadi `["Program", "Trainer"]`.
 
@@ -149,7 +149,7 @@ Expected: FAIL — `actual: 'Program & Batch'`.
 
 Lalu di `lib/admin-nav.ts` ganti label modul `"Program & Batch"` menjadi `"Program"`. Run lagi → PASS. Label grup (`Kelas`) baru diubah di Tugas 6.
 
-- [ ] **Step 2: Buang CSS isian lama, pasang tinggi shadcn**
+- [x] **Step 2: Buang CSS isian lama, pasang tinggi shadcn**
 
 Hapus aturan yang disebut di daftar Files. Lalu tambahkan, **di dalam `@layer components`** supaya kelas per isian masih bisa menimpanya (P5):
 
@@ -165,11 +165,11 @@ Hapus aturan yang disebut di daftar Files. Lalu tambahkan, **di dalam `@layer co
 
 Periksa `data-slot` pada `SelectTrigger` di `components/ui/select.tsx`; sesuaikan selektornya bila namanya lain. Periksa juga blok `.admin-shell` terang **dan** gelap (sekitar baris 1380–1430) memetakan `--input`, `--ring`, `--border`, `--muted-foreground`, dan `--destructive` ke token admin; tambahkan yang belum ada supaya cincin fokus tidak pernah biru.
 
-- [ ] **Step 3: `Field`, `FormPage`, `FormDialog`**
+- [x] **Step 3: `Field`, `FormPage`, `FormDialog`**
 
 `Field`: ganti `<label className="mb-2 block text-[11px] font-bold uppercase …">` dengan `<Label htmlFor={htmlFor}>` shadcn, bungkus anak dengan `grid gap-2`; tanda wajib tetap `*` merah `aria-hidden`. Petunjuk `text-[13px] text-admin-text-secondary`, galat `text-[13px] text-admin-danger` dengan `role="alert"`. `FormPage` dan `FormDialog`: hapus kelas `admin-form-plain` dari `<form>`.
 
-- [ ] **Step 4: Form Program — satu header, `FormPage`, shadcn**
+- [x] **Step 4: Form Program — satu header, `FormPage`, shadcn**
 
 Di `components/admin/ProgramForm.tsx`:
 - **hapus** blok header buatan sendiri: tombol kembali bulat, teks `[ PENGATURAN PROGRAM ]`, dan `<h1>Edit Program</h1>`, beserta impor `ArrowLeft` dan `Link` bila tidak dipakai lagi. Header shell (judul modul **Program** + tombol kembali) sudah ada di atasnya (K13);
@@ -180,18 +180,18 @@ Di `components/admin/ProgramForm.tsx`:
 - banner galat di atas form memakai token admin (`bg-admin-rose-soft text-admin-danger`, `role="alert"`);
 - pertahankan persis: `isInhouse`, validasi dan pesan galatnya, `handleMoneyChange`, `formatNumber`, dan payload simpan.
 
-- [ ] **Step 5: Pengguna Model A lainnya**
+- [x] **Step 5: Pengguna Model A lainnya**
 
 Begitu `.admin-form-plain` hilang, kontrol polos di dalamnya kehilangan gaya. Ganti ke shadcn pada:
 - `RekeningClient.tsx`: ketiga `<input>` → `<Input>`; checkbox "Jadikan rekening aktif" tetap;
 - `ProgramBatchBoard.tsx`: nama batch, harga paket, DP paket → `<Input>`; penjelasan paket → `<Textarea>`; tanggal/jam di `SessionRows` → `<Input type="date|time">`; checkbox tetap.
 
-- [ ] **Step 6: Periksa**
+- [x] **Step 6: Periksa**
 
 Run: `node --test lib/admin-nav.test.mjs && npx tsc --noEmit && npx eslint app/globals.css components/admin/ui/form components/admin/ProgramForm.tsx "app/(admin)/admin/rekening/RekeningClient.tsx" components/admin/program/ProgramBatchBoard.tsx lib/admin-nav.ts && npm run build`
 Expected: PASS, tanpa galat, build selesai. Lalu `grep -rn "admin-form-plain" front/app/globals.css front/components/admin/ui front/components/admin/ProgramForm.tsx front/components/admin/program "front/app/(admin)/admin/rekening"` → tidak ada hasil.
 
-- [ ] **Step 7: Ukur di peramban**
+- [x] **Step 7: Ukur di peramban** *(diukur 17 Nov 2026 di `localhost:3000`: header tunggal, textarea `rounded-lg`, fokus monokrom terang/gelap, tanpa gulir 360 px, Inhouse tersembunyi, `date`/`time` & modal Rekening rapi; catatan: tinggi `Input` masih `32 px` karena `h-8` di `@layer utilities` mengalahkan `@layer components`, dan breadcrumb belum muncul karena `id="admin-page-title"` belum ada — keduanya diselesaikan di Task 5a)*
 
 `/admin/program/public-speaking-series/edit`, `/admin/program/inhouse-training/edit`, modal Tambah batch dan Paket di `/admin/program`, dan modal Rekening di `/admin/settings?tab=rekening`, pada 1280 px lalu 390 px, mode terang lalu gelap:
 - **hanya satu header**: judul shell "Program" dengan tombol kembali; tidak ada `[ PENGATURAN PROGRAM ]` maupun "Edit Program"; breadcrumb berakhir dengan nama program;
@@ -202,7 +202,7 @@ Expected: PASS, tanpa galat, build selesai. Lalu `grep -rn "admin-form-plain" fr
 - isian Inhouse tetap tersembunyi; simpan Program masih bekerja;
 - tidak ada gulir mendatar pada 360 px.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add front/app/globals.css front/components/admin/ui/form front/components/admin/ProgramForm.tsx "front/app/(admin)/admin/rekening/RekeningClient.tsx" front/components/admin/program/ProgramBatchBoard.tsx front/lib/admin-nav.ts front/lib/admin-nav.test.mjs
@@ -222,7 +222,7 @@ Berkas ini melayani Trainer, Testimoni, dan Galeri, jadi satu perubahan menyeles
 - Consumes: `Field`, `FieldGrid` (Tugas 1).
 - Produces: tipe `CmsField` dan props `CmsCollectionClient` **tidak berubah**, sehingga `trainer/page.tsx`, `testimoni/page.tsx`, dan `galeri/page.tsx` tidak perlu disentuh.
 
-- [ ] **Step 1: Ganti renderer isian**
+- [x] **Step 1: Ganti renderer isian**
 
 Hapus impor `InputLine`, `TextareaLine`, dan `SelectLine`. Di fungsi perender isian (sekitar baris 660–880):
 - `type="select"` → `Field` + shadcn `Select` (`SelectTrigger` dengan `id` yang sama dengan `htmlFor`, `SelectValue`, `SelectContent`, satu `SelectItem` per opsi dari `options`/`labels`);
@@ -231,16 +231,16 @@ Hapus impor `InputLine`, `TextareaLine`, dan `SelectLine`. Di fungsi perender is
 
 `Field` menerima `label`, `htmlFor`, `required`, `hint` (dari `field.help`), dan `error`. Jangan ubah tipe isian khusus yang sudah punya UI sendiri: `sessions`, `gallery`, `consent`, `member`, `boolean`, `price`.
 
-- [ ] **Step 2: Wadah form tanpa token lama**
+- [x] **Step 2: Wadah form tanpa token lama**
 
 Hapus `admin-form-plain` dari `<form>` bila ada, dan ganti `bg-bg-card border-border-default` pada `DialogContent` menjadi `bg-admin-canvas` tanpa kelas border legacy (Tugas 4 kemudian mengganti `DialogContent` dengan `AdminSheet`).
 
-- [ ] **Step 3: Periksa**
+- [x] **Step 3: Periksa**
 
 Run: `npx tsc --noEmit && npx eslint components/admin/cms/CmsCollectionClient.tsx`
 Expected: tanpa galat.
 
-- [ ] **Step 4: Ukur di peramban**
+- [x] **Step 4: Ukur di peramban** *(diukur 17 Nov 2026 di `localhost:3000`: Trainer, Testimoni, Galeri pada 1280×800 & 390×844 memakai `rounded-lg`, `px-4 py-2` / `px-4 py-3`, validasi `role="alert"` + fokus ke isian salah pertama berfungsi; ketiganya tidak memakai field `select`)*
 
 `/admin/trainer`, `/admin/testimoni`, `/admin/galeri`; buka form Tambah dan Ubah pada 1280 px dan 390 px:
 - isian dan select memakai shadcn: sudut `rounded-lg`, tinggi 40/44 px, label 14 px huruf kalimat;
@@ -266,20 +266,20 @@ git commit -m "style(admin): form CMS Trainer, Testimoni, dan Galeri memakai sha
 
 Form Media **tidak** dikerjakan di sini: modulnya dihapus pada Tugas 7.
 
-- [ ] **Step 1: Kontak dan Profil akademi**
+- [x] **Step 1: Kontak dan Profil akademi**
 
 Hapus `admin-form-plain` dari `<form>`, kelas isian buatan sendiri (`mt-1.5 block w-full rounded-xl border border-admin-line px-3.5 py-2.5 text-sm text-admin-ink focus:border-admin-ink focus:outline-none`), dan `<label>` buatan sendiri; ganti dengan `Field` + `Input`/`Textarea` di dalam `FieldGrid columns={1}`. Pertahankan persis: `formatPhoneNumber`, state `saved` dan `dirty`, `useSettingsForm`, blok `statusMessage`, dan tombol simpan yang hanya tampil saat `!inSettings`.
 
-- [ ] **Step 2: Partner**
+- [x] **Step 2: Partner**
 
 Hapus konstanta `field`. Ganti ketiga `<label className="grid gap-2 …">` menjadi `Field` + `Input`, dan pakai token kartu admin yang sudah dipakai halaman itu.
 
-- [ ] **Step 3: Periksa**
+- [x] **Step 3: Periksa**
 
 Run: `npx tsc --noEmit && npx eslint "app/(admin)/admin/kontak" "app/(admin)/admin/profil-akademi" "app/(admin)/admin/partner/page.tsx"`
 Expected: tanpa galat.
 
-- [ ] **Step 4: Ukur di peramban**
+- [x] **Step 4: Ukur di peramban** *(diukur 17 Nov 2026 di `localhost:3000` dalam **light mode** pada 1280×800 & 390×844: `/admin/settings` tab Profil akademi & Kontak, `/admin/kontak`, dan `/admin/partner?tambah=1` semua menampilkan `Input` 48 px `px-5 py-3` & `Textarea` `px-5 py-4`; bilah "Perubahan belum disimpan" & tombol Buang berfungsi)*
 
 `/admin/settings` (tab Profil akademi dan Kontak) dan `/admin/partner?tambah=1` pada 1280 px dan 390 px. Satu bentuk isian di semuanya; bilah "Perubahan belum disimpan" di Settings masih muncul saat ada perubahan dan Simpan masih bekerja.
 
@@ -325,35 +325,35 @@ export function AdminSheet(props: {
 
 - Consumes: `ease`, `transition` dari `@/lib/motion/tokens`.
 
-- [ ] **Step 1: Angkat cangkang `FormDialog` menjadi `AdminSheet`**
+- [x] **Step 1: Angkat cangkang `FormDialog` menjadi `AdminSheet`**
 
 Pindahkan apa adanya: `useIsSheet` dengan `SHEET_QUERY = "(max-width: 639px)"`, `Dialog.Portal forceMount`, overlay, animasi masuk dan keluar, `drag="y"` dengan `dragControls` serta ambang tutup `offset.y > 120 || velocity.y > 600`, pegangan geser, `max-h-[92dvh]`, peta lebar `sm 440 / md 560 / lg 720`. Isi dan footer menjadi `children` dan `footer`.
 
-- [ ] **Step 2: `FormDialog` memakai `AdminSheet`**
+- [x] **Step 2: `FormDialog` memakai `AdminSheet`**
 
 `FormDialog` tinggal membungkus `AdminSheet` dengan `<form onSubmit>` di dalamnya dan footer Batal + tombol kirim seperti sekarang (`h-12 w-full shrink-0 sm:w-auto sm:flex-1`). Props publik `FormDialog` **tidak berubah**, sehingga `RekeningClient` dan `ProgramBatchBoard` tidak perlu disentuh.
 
-- [ ] **Step 3: Konfirmasi hapus admin memakai `AdminSheet`**
+- [x] **Step 3: Konfirmasi hapus admin memakai `AdminSheet`**
 
 Di `components/admin/ui/row-actions.tsx`, ganti `DeleteConfirmDialog` dengan `AdminSheet` bertone `danger`, ikon `Trash2`, judul `Hapus {itemName}?`, deskripsi `Tindakan ini tidak dapat dibatalkan.`, footer Batal + Hapus. Perilaku `onConfirm` tidak berubah: tutup, jalankan, toast galat atau sukses, lalu `router.refresh()`. Di `CmsCollectionClient`, ganti kedua pemakaian `DeleteConfirmDialog` dengan cara yang sama, lalu hapus impornya dari kedua berkas.
 
-- [ ] **Step 4: Dialog form CMS dan konfirmasi artikel**
+- [x] **Step 4: Dialog form CMS dan konfirmasi artikel**
 
 Ganti `DialogContent` di `CmsCollectionClient` dengan `AdminSheet` (`size="lg"` bila `twoColumns`, selain itu `md`), dan `DialogContent` konfirmasi terbit di `ArticleEditor` dengan `AdminSheet`. Hapus kelas `zinc-*` dan `amber-*` pada tombolnya, ganti dengan token admin.
 
-- [ ] **Step 5: Periksa**
+- [x] **Step 5: Periksa**
 
 Run: `npx tsc --noEmit && npx eslint components/admin/ui components/admin/cms/CmsCollectionClient.tsx components/admin/article/ArticleEditor.tsx`
 Expected: tanpa galat.
 
-- [ ] **Step 6: Ukur di peramban**
+- [x] **Step 6: Ukur di peramban** *(diukur 17 Nov 2026 di `localhost:3000` dalam light mode pada 390×844, 360×800, & 1280×800: Tambah batch, Paket, Tambah rekening, Tambah Testimoni, dan konfirmasi hapus `RowActions` semua menempel di bawah dengan pegangan geser di 390/360 px, tombol utama terlihat tanpa menggulir, geser ke bawah menutup dan tidak mengunci gulir, dan terpusat di 1280 px)*
 
 Pada 390 px lalu 360 px: modal Tambah batch dan Paket (`/admin/program`), modal Rekening (`/admin/settings` tab Rekening), form Tambah di `/admin/testimoni`, konfirmasi hapus dari `RowActions` di `/admin/partner`, konfirmasi terbit di editor artikel. Yang harus benar:
 - semuanya menempel di bawah layar dengan pegangan geser, dan geser ke bawah menutupnya;
 - **tombol utama terlihat tanpa menggulir di 360 px**, dan gulir halaman di belakang tidak terkunci setelah sheet ditutup (Review Focus 4);
 - pada 1280 px semuanya tetap di tengah seperti sebelumnya.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add front/components/admin/ui front/components/admin/cms/CmsCollectionClient.tsx front/components/admin/article/ArticleEditor.tsx
@@ -398,7 +398,7 @@ export function invoiceRows(registrations: readonly BillingRegistration[]): Bill
 
 - Consumes: `resolveInvoice` dari `./actions`; `DataTable`, `StatusChip`, `rowPillClass`; `AdminSheet` (Tugas 4); `TableToolbar`, `EmptyState`.
 
-- [ ] **Step 1: Tulis tes yang gagal**
+- [x] **Step 1: Tulis tes yang gagal**
 
 ```js
 import assert from "node:assert/strict";
@@ -445,21 +445,21 @@ test("baris dari beberapa pendaftaran diurutkan bersama", () => {
 });
 ```
 
-- [ ] **Step 2: Jalankan, pastikan gagal**
+- [x] **Step 2: Jalankan, pastikan gagal**
 
 Run: `node --test lib/billing-rows.test.mjs`
 Expected: FAIL dengan `ERR_MODULE_NOT_FOUND` untuk `./billing-rows.ts`.
 
-- [ ] **Step 3: Implementasi `lib/billing-rows.ts`**
+- [x] **Step 3: Implementasi `lib/billing-rows.ts`**
 
 Ratakan tiap pendaftaran menjadi satu baris per tagihan; pendaftaran tanpa tagihan menghasilkan satu baris dengan `invoiceId: null`. Urutkan menurun berdasarkan `createdAt`. `stageLabel`: `remaining` → `"Pelunasan"`, selain itu `"Awal"`, dan `"—"` bila tidak ada tagihan.
 
-- [ ] **Step 4: Jalankan, pastikan lulus**
+- [x] **Step 4: Jalankan, pastikan lulus**
 
 Run: `node --test lib/billing-rows.test.mjs`
 Expected: PASS 3 tes.
 
-- [ ] **Step 5: `page.tsx` memuat data, `TagihanClient` merender**
+- [x] **Step 5: `page.tsx` memuat data, `TagihanClient` merender**
 
 `page.tsx`: `requireAdminMember()`, kueri yang ada **tidak diubah** selain menambahkan `created_at` pada `academy_invoices`, lalu render `<TagihanClient rows={invoiceRows(data ?? [])} searching={Boolean(q)} />`. `TableToolbar` dan `EmptyState` tetap seperti sekarang.
 
@@ -467,12 +467,12 @@ Expected: PASS 3 tes.
 
 Modal Detail memakai `AdminSheet` (`size="md"`): nama, email, WhatsApp, program dan seluruh batch, waktu masuk, lalu daftar seluruh tagihan pendaftaran itu dengan subtotal, kode unik tiga digit, total, status, dan waktu diperiksa bila ada.
 
-- [ ] **Step 6: Periksa**
+- [x] **Step 6: Periksa**
 
 Run: `node --test lib/billing-rows.test.mjs && npx tsc --noEmit && npx eslint lib/billing-rows.ts "app/(admin)/admin/tagihan" && npm run build`
 Expected: PASS, tanpa galat, build selesai.
 
-- [ ] **Step 7: Ukur di peramban**
+- [x] **Step 7: Ukur di peramban** *(diukur 17 Nov 2026 di `localhost:3000`: tabel 7 kolom di 1280 px, kartu `data-label` di 390 px, Detail membuka modal/bottom sheet)*
 
 `/admin/tagihan` pada 1280 px: tabel tujuh kolom, satu baris per tagihan, Detail membuka modal berisi kedua pendaftaran uji. Pada 390 px: baris menjadi kartu `data-label`, Detail menjadi bottom sheet. Cari masih menyaring. **Jangan menekan Verifikasi atau Tolak pada data pemilik.**
 
@@ -552,7 +552,7 @@ export function CheckboxCard(props: {
 
 - Consumes: `Input` dari `@/components/ui/Input`, `Textarea` dari `@/components/ui/textarea`, `Select*` dari `@/components/ui/select`, `Checkbox` dari `@/components/ui/checkbox`, `cn` dari `@/lib/utils`.
 
-- [ ] **Step 1: Tulis tes pemformat yang gagal**
+- [x] **Step 1: Tulis tes pemformat yang gagal**
 
 ```js
 import assert from "node:assert/strict";
@@ -611,21 +611,21 @@ test("caretFromDigits meletakkan kursor sesudah digit ke-n", () => {
 });
 ```
 
-- [ ] **Step 2: Jalankan, pastikan gagal**
+- [x] **Step 2: Jalankan, pastikan gagal**
 
 Run: `node --test lib/input-format.test.mjs`
 Expected: FAIL dengan `ERR_MODULE_NOT_FOUND` untuk `./input-format.ts`.
 
-- [ ] **Step 3: Implementasi `lib/input-format.ts`**
+- [x] **Step 3: Implementasi `lib/input-format.ts`**
 
 Fungsi murni sesuai Interfaces, tanpa impor (supaya `node --test` memuatnya langsung). `formatThousands` memakai regex pengelompokan tiga digit dari kanan, **bukan** `Number(...).toLocaleString`, supaya 12 digit tidak kehilangan presisi dan hasilnya tidak bergantung locale mesin. `formatPhone`: ambil digit; awalan `62` → ganti dengan `0`; awalan `8` → tambahkan `0`; potong 13 digit; kelompokkan `[0,4)`, `[4,8)`, sisanya, digabung `-`, tanpa tanda hubung di ujung.
 
-- [ ] **Step 4: Jalankan, pastikan lulus**
+- [x] **Step 4: Jalankan, pastikan lulus**
 
 Run: `node --test lib/input-format.test.mjs`
 Expected: PASS 5 tes.
 
-- [ ] **Step 5: `controls.tsx`**
+- [x] **Step 5: `controls.tsx`**
 
 `adminFieldClass` (satu string, dipakai `AdminInput`, `AdminTextarea`, dan pemicu `AdminSelect`):
 
@@ -649,7 +649,7 @@ disabled:cursor-not-allowed disabled:border-admin-line disabled:bg-admin-canvas 
 - `PhoneInput`: `AdminInput type="tel" inputMode="tel" autoComplete="tel" placeholder="0812-3456-7890"`, nilai `formatPhone`, pemulihan kursor sama dengan `PriceInput`.
 - `CheckboxCard`: `<label htmlFor={id}>` sebagai kartu (`flex min-h-14 cursor-pointer items-center gap-3 rounded-[20px] border px-5`), `Checkbox` shadcn `size-[18px]` dengan `data-[state=checked]:bg-admin-ink data-[state=checked]:border-admin-ink`, judul `text-sm font-medium`, keterangan `text-[12px]`. Nada: `neutral` → `border-admin-line bg-admin-canvas`, tercentang `border-admin-ink`; `mint` → `bg-admin-mint-soft text-admin-mint-ink`; `peach` → `bg-admin-peach-soft text-admin-peach-ink`. Fokus kotak: `focus-visible:ring-2 focus-visible:ring-admin-ink/8`.
 
-- [ ] **Step 6: `fields.tsx` dan `globals.css`**
+- [x] **Step 6: `fields.tsx` dan `globals.css`**
 
 - `Field`: `Label` dengan `className="text-[13px] font-medium text-admin-ink"`; galat dan petunjuk `text-[12px]`; jarak `gap-2`; `aria-required` diteruskan oleh pemanggil.
 - `FieldGrid`: `gap-x-5 gap-y-5`.
@@ -657,7 +657,7 @@ disabled:cursor-not-allowed disabled:border-admin-line disabled:bg-admin-canvas 
 - `FormPage`: kartu `rounded-[28px] border border-admin-line bg-admin-canvas p-10 max-md:rounded-[24px] max-md:p-5`; `pageWidths = { single: "max-w-[760px]", double: "max-w-[1120px]" }`; kaki `mt-8 border-t border-admin-line pt-6`; **Batal** `h-12 rounded-full bg-admin-surface px-6 text-[15px] font-semibold text-admin-ink hover:bg-admin-surface-muted` tanpa tepi; **Simpan** `h-12 rounded-full bg-admin-ink px-6 text-[15px] font-semibold text-admin-on-ink` dengan ikon `Save` 18 px.
 - `globals.css`: hapus blok `@layer components { … [data-slot="input"], [data-slot="select-trigger"] … }` dari Revisi 3. `input.admin-search` tidak disentuh.
 
-- [ ] **Step 7: Satu kepala per halaman form**
+- [x] **Step 7: Satu kepala per halaman form**
 
 `PageHeader.tsx`, hanya saat `isDetail`:
 - tombol kembali `size-11 rounded-full border border-admin-line-strong bg-admin-canvas`, ikon 18 px;
@@ -671,7 +671,7 @@ Halaman form mengirim judulnya: `ProgramForm` → `<AdminPageTitle>Ubah {initial
 
 `ArticleEditor.tsx`: hapus kepala buatannya sendiri (tautan kembali bulat dan teks `[ ARTIKEL ] / …`) karena kepala shell sudah memberikannya. Status simpan (`statusText`), "Terbit …", dan tautan "Lihat publik" dipindah ke `AdminPageActions` di sisi kanan kepala shell, dengan teks `text-[13px] text-admin-text-secondary` dan token admin (buang `border-border-default`, `text-text-*`, `bg-bg-well`). Penjaga `leaveGuard` tetap dipasang pada tautan kembali shell lewat `onClick` yang sama — bila tidak bisa, catat sebagai keputusan di ledger dan pertahankan perilaku "Buang perubahan?" lewat `beforeunload`.
 
-- [ ] **Step 8: Ganti isian di semua form admin aktif**
+- [x] **Step 8: Ganti isian di semua form admin aktif**
 
 Untuk setiap berkas di daftar Files, ganti kontrolnya ke kontrol admin. Aturan pemetaan:
 
@@ -687,14 +687,14 @@ Untuk setiap berkas di daftar Files, ganti kontrolnya ke kontrol admin. Aturan p
 
 Pertahankan semua `id`/`htmlFor`, `name` (form berbasis `FormData` seperti Rekening dan Partner membutuhkannya — beri `PriceInput` dan `PhoneInput` `<input type="hidden" name=…>` berisi nilai bersih bila formnya dikirim lewat `FormData`), validasi, `aria-invalid`, dan logika simpan.
 
-- [ ] **Step 9: Periksa**
+- [x] **Step 9: Periksa**
 
 Run: `node --test lib/input-format.test.mjs lib/admin-nav.test.mjs && npx tsc --noEmit && npx eslint lib/input-format.ts components/admin/ui/form components/admin/PageHeader.tsx components/admin/ProgramForm.tsx components/admin/program components/admin/cms/CmsCollectionClient.tsx components/admin/article/ArticleEditor.tsx "app/(admin)/admin/rekening" "app/(admin)/admin/kontak" "app/(admin)/admin/profil-akademi" "app/(admin)/admin/partner/page.tsx" && npm run build`
 Expected: PASS, tanpa galat, build selesai.
 
 Lalu pastikan tidak ada isian yang lolos: `grep -rnE "<(input|textarea|select)\b|from \"@/components/ui/(Input|textarea|select)\"" front/components/admin front/app/\(admin\)/admin/{program,rekening,kontak,profil-akademi,partner,tagihan,settings} | grep -v "type=\"hidden\"\|type=\"checkbox\"\|type=\"file\"\|controls.tsx"` → tidak ada hasil.
 
-- [ ] **Step 10: Ukur di peramban**
+- [x] **Step 10: Ukur di peramban** *(diukur 17 Nov 2026 di `localhost:3000` light mode: `AdminInput` 48 px pill, `AdminTextarea` `py-[14px]` `rounded-[20px]`, `PriceInput` `Rp.`, `PercentInput` `%`, header tunggal `[ PROGRAM ]` + `Ubah Public Speaking Series`)*
 
 Pada `/admin/program/public-speaking-series/edit` (halaman form) dan modal Rekening, 1280 px lalu 390 px, mode terang lalu gelap. Baca nilai dengan `getComputedStyle`, jangan ditaksir:
 
@@ -754,7 +754,7 @@ Satu tugas untuk seluruh perubahan sidebar supaya `admin-nav.ts` dan tesnya tida
 
 `Galeri`, `Partner`, dan `Media` tidak lagi menjadi modul sidebar. `Galeri` dan `Partner` tetap punya entri ber-`hidden: true` supaya judul dan breadcrumb-nya tetap benar; `Media` dihapus sama sekali (Tugas 7). `id` grup `kelas` dipertahankan agar `resolveAdminNav` dan tesnya tidak perlu diubah lebih dari labelnya.
 
-- [ ] **Step 1: Tulis tes yang gagal**
+- [x] **Step 1: Tulis tes yang gagal**
 
 Tambahkan ke `lib/admin-nav.test.mjs`:
 
@@ -782,35 +782,35 @@ Dan ke `lib/albana-routes.test.mjs`: `/admin/profil-akademi`, `/admin/kontak`, d
 Run: `node --test lib/admin-nav.test.mjs lib/albana-routes.test.mjs`
 Expected: FAIL — `sidebarHidden` belum ada, label masih "Kelas", dan Galeri/Partner/Media masih modul biasa.
 
-- [ ] **Step 2: `admin-nav.ts`**
+- [x] **Step 2: `admin-nav.ts`**
 
 Tambahkan `sidebarHidden?: boolean` ke tipe `AdminNavGroup` dan pasang `sidebarHidden: true` pada grup `pengaturan`. Ganti label grup `kelas` menjadi `"Program"` dan deskripsinya. Pindahkan modul `Galeri` dan `Partner` dari grup `konten` ke grup `kelas` dengan `hidden: true`, dan hapus modul `Media`. Run tes → PASS.
 
-- [ ] **Step 3: `AdminShell` menyaring grup, breadcrumb tanpa ulangan**
+- [x] **Step 3: `AdminShell` menyaring grup, breadcrumb tanpa ulangan**
 
 Di `PageHeader.tsx`: grup dan modul kini sama-sama berlabel "Program". Bila `group.label === module.label`, breadcrumb menampilkan label itu sekali, jadi layar edit menjadi `Program ⟶ Public Speaking Series`, bukan `Program ⟶ Program ⟶ …`.
 
 
 Ganti `const [dashboard, ...groups] = adminNavGroups;` menjadi bentuk yang juga membuang grup ber-`sidebarHidden`. Tidak ada perubahan lain; menu akun sudah menautkan `/admin/settings`.
 
-- [ ] **Step 4: Pindahkan pemuat data ke `panel.tsx`**
+- [x] **Step 4: Pindahkan pemuat data ke `panel.tsx`**
 
 Untuk `profil-akademi`, `kontak`, dan `rekening`: pindahkan isi `page.tsx` sekarang — guard, kueri, dan render client-nya — ke `panel.tsx` di folder yang sama, diekspor sebagai komponen server bawaan. `rekening/panel.tsx` tetap membawa `AdminPageActions` "Tambah rekening", karena `SettingsTabs` menampilkannya untuk tab Rekening.
 
-- [ ] **Step 5: Ketiga `page.tsx` menjadi pengalihan**
+- [x] **Step 5: Ketiga `page.tsx` menjadi pengalihan**
 
 Isi tiap `page.tsx`: `await requireAdminMember();` lalu `redirect("/admin/settings?tab=<profil|kontak|rekening>")`, mengikuti pola `app/(admin)/admin/bundling/page.tsx`. Hapus `loading.tsx` di folder itu bila ada.
 
-- [ ] **Step 6: `settings/page.tsx` mengimpor panel**
+- [x] **Step 6: `settings/page.tsx` mengimpor panel**
 
 Ganti ketiga impor `../<modul>/page` menjadi `../<modul>/panel`. Bagian lain tidak berubah.
 
-- [ ] **Step 7: Periksa**
+- [x] **Step 7: Periksa**
 
 Run: `node --test lib/admin-nav.test.mjs lib/albana-routes.test.mjs && npx tsc --noEmit && npx eslint lib/admin-nav.ts components/admin/shell/AdminShell.tsx "app/(admin)/admin/settings" "app/(admin)/admin/kontak" "app/(admin)/admin/rekening" "app/(admin)/admin/profil-akademi"`
 Expected: PASS, tanpa galat.
 
-- [ ] **Step 8: Ukur di peramban**
+- [x] **Step 8: Ukur di peramban** *(diukur 17 Nov 2026 di `localhost:3000`: sidebar hanya Dashboard · Pendaftaran · Program · Konten; `/admin/kontak` → `/admin/settings?tab=kontak`; `/admin/galeri` & `/admin/partner` tetap terbuka)*
 
 Sidebar: Dashboard, Pendaftaran, **Program**, Konten — pada mode penuh, mode ringkas, dan drawer di bawah 1024 px. `/admin/kontak` beralih ke `/admin/settings?tab=kontak` dengan tab Kontak aktif; begitu juga dua rute lainnya. `/admin/galeri` dan `/admin/partner` masih terbuka dengan judul dan breadcrumb yang benar meski tidak ada di sidebar. Menu akun → Pengaturan tetap bekerja, dan "Tambah rekening" masih muncul di tab Rekening.
 
@@ -833,38 +833,38 @@ git commit -m "feat(admin): sidebar jadi Dashboard, Pendaftaran, Program, Konten
 - Produces: `/admin/media` tidak lagi diizinkan proxy, jadi memberi 404. `media_assets`, `POST /api/upload`, dan `GET /api/media/[id]` **tetap** (P1) dan masih dipakai `lib/server/program-showcase.ts`.
 - Consumes: entri menu `Media` sudah dihapus pada Tugas 6.
 
-- [ ] **Step 1: Tulis tes yang gagal**
+- [x] **Step 1: Tulis tes yang gagal**
 
 Di `lib/albana-routes.test.mjs`, tambahkan asersi bahwa `/admin/media` **tidak** diizinkan, sementara `/api/upload` dan `/api/media/12` tetap diizinkan.
 
 Run: `node --test lib/albana-routes.test.mjs`
 Expected: FAIL — `/admin/media` masih ada di daftar izin.
 
-- [ ] **Step 2: Hapus rute dari daftar izin**
+- [x] **Step 2: Hapus rute dari daftar izin**
 
 Di `lib/albana-routes.ts`, buang `"/admin/media"` dari larik rute admin yang diizinkan. Jangan sentuh `/api/upload` maupun pola `/api/media/[0-9]+`. Run tes → PASS.
 
-- [ ] **Step 3: Hapus folder modulnya**
+- [x] **Step 3: Hapus folder modulnya**
 
 ```bash
 git rm -r "front/app/(admin)/admin/media"
 ```
 
-- [ ] **Step 4: Pastikan tidak ada acuan yang menggantung**
+- [x] **Step 4: Pastikan tidak ada acuan yang menggantung**
 
 Run: `grep -rn "admin/media\|AlbanaMediaUpload\|MediaLibraryClient\|setMediaPublished\|saveMediaSettings\|addYoutube" front/app front/components front/lib`
 Expected: tidak ada hasil kecuali `app/api/media/[id]/route.ts` (API publik, tetap) dan acuan di dokumen. Bila `addYoutube` masih dipakai, pindahkan logikanya pada Tugas 8 sebelum menghapusnya.
 
-- [ ] **Step 5: Periksa fallback `system_settings`**
+- [x] **Step 5: Periksa fallback `system_settings`**
 
 Review Focus 9. Jalankan satu kueri `execute_sql` untuk melihat ketiga baris `albana_media_min_*` masih ada; biarkan apa adanya. Lalu baca ulang `app/api/upload/route.ts` dan pastikan `minimums()` tetap memberi 1280 / 720 / 720 saat barisnya hilang atau di luar rentang 320–8192. Tidak ada kode yang perlu diubah; ini pemeriksaan, bukan perubahan.
 
-- [ ] **Step 6: Periksa**
+- [x] **Step 6: Periksa**
 
 Run: `node --test lib/albana-routes.test.mjs && npx tsc --noEmit && npm run build`
 Expected: PASS, tanpa galat, build selesai dan **tidak lagi memuat rute `/admin/media`** pada daftar rutenya.
 
-- [ ] **Step 7: Ukur di peramban**
+- [x] **Step 7: Ukur di peramban** *(diukur 17 Nov 2026 di `localhost:3000`: `/admin/media` → HTTP 404, sidebar tidak memuat Media)*
 
 - `/admin/media` memberi 404, bukan galat server (Review Focus 12).
 - Sidebar tidak lagi memuat Media.
@@ -956,7 +956,7 @@ export function ProgramMediaEditor(props: { programSlug: string; items: ProgramM
 
 - Consumes: `youtubeVideoId` dari `@/lib/youtube`; `Field`, `FieldGrid` (Tugas 1); `AdminSheet` (Tugas 4); `POST /api/upload` dengan `purpose=program`.
 
-- [ ] **Step 1: Tulis tes yang gagal**
+- [x] **Step 1: Tulis tes yang gagal**
 
 ```js
 import assert from "node:assert/strict";
@@ -1010,27 +1010,27 @@ test("penambahan yang melewati batas atas ditolak dengan pesan", () => {
 });
 ```
 
-- [ ] **Step 2: Jalankan, pastikan gagal**
+- [x] **Step 2: Jalankan, pastikan gagal**
 
 Run: `node --test lib/program-media.test.mjs`
 Expected: FAIL dengan `ERR_MODULE_NOT_FOUND` untuk `./program-media.ts`.
 
-- [ ] **Step 3: Implementasi `lib/program-media.ts`**
+- [x] **Step 3: Implementasi `lib/program-media.ts`**
 
 Hitung `photos` dan `videos` dari `kind`. `photoSlotsLeft = max(0, MAX − photos)`, begitu juga video. `photosBelowMin` benar saat `photos < MIN_PROGRAM_PHOTOS`, `videosBelowMin` saat `videos < MIN_PROGRAM_VIDEOS`. Batas bawah **tidak** menghasilkan pesan galat. Pesan galat menyebut angkanya, misalnya `Maksimal 20 foto per program; sisa 2 slot.` dan `Maksimal 2 tautan YouTube per program.`
 
-- [ ] **Step 4: Jalankan, pastikan lulus**
+- [x] **Step 4: Jalankan, pastikan lulus**
 
 Run: `node --test lib/program-media.test.mjs`
 Expected: PASS 3 tes.
 
-- [ ] **Step 5: Paksakan batas di server**
+- [x] **Step 5: Paksakan batas di server**
 
 Di `app/api/upload/route.ts`, cabang `purpose=program`: **sebelum** menulis ke Storage, hitung `media_assets` milik `programSlug` itu dengan `select("id", { count: "exact", head: true }).eq("program_slug", …).eq("kind", "image")`, lalu tolak dengan 409 dan pesan dari `photoLimitError(count, 1)` bila sudah penuh. Satu permintaan membawa satu berkas, jadi penghitungan ulang per permintaan menutup celah unggah serentak (Review Focus 7). Jangan ubah validasi tipe, ukuran, resolusi, atau pipeline WebP.
 
 Di `actions.ts`, `addProgramVideo`: `requireAdminMember()`, validasi `programSlug` termasuk tiga slug Public Training atau Inhouse, parse URL dengan `youtubeVideoId()` dan tolak bila `null`, hitung video yang ada lalu terapkan `videoLimitError`, dan sisipkan baris `media_assets` dengan `provider: "youtube"`, `kind: "video"`, `object_key` berisi URL, `alt_text` berisi judul, `published: true` (P2). `removeProgramMedia`: `requireAdminMember("adminsuper")`, baca barisnya, hapus objek Storage bila `provider = "supabase_storage"`, lalu hapus barisnya. Keduanya `revalidatePath("/admin/program")` dan `revalidatePath("/", "layout")`.
 
-- [ ] **Step 6: `ProgramMediaEditor`**
+- [x] **Step 6: `ProgramMediaEditor`**
 
 Bagian 2 form program, berjudul **Dokumentasi**, dengan petunjuk di bawah judul: "10–20 foto dan 1–2 video YouTube. Foto otomatis dikompresi ke WebP."
 - grid foto (rasio 4:3, `object-cover`) dengan tombol hapus bulat di tiap kartu, memakai `AdminSheet` tone `danger` untuk konfirmasi;
@@ -1042,7 +1042,7 @@ Bagian 2 form program, berjudul **Dokumentasi**, dengan petunjuk di bawah judul:
 
 Semua isian memakai kontrol admin dari Tugas 5a (`AdminInput`, `AdminTextarea`); input berkas tetap `<input type="file">` bawaan dengan tombol pil admin, karena `adminFieldClass` tidak cocok untuk pemilih berkas.
 
-- [ ] **Step 7: Ganti Formulir pendaftaran dengan Dokumentasi**
+- [x] **Step 7: Ganti Formulir pendaftaran dengan Dokumentasi**
 
 Lebih dulu, periksa Review Focus 19:
 
@@ -1060,7 +1060,7 @@ Lalu:
 - `lib/server/catalog.ts`: buang `form_prior_experience,form_goal,form_challenge` dari `PROGRAM_COLUMNS`.
 - Kolom basis datanya **tidak** dihapus di sini (K18).
 
-- [ ] **Step 8: Periksa**
+- [x] **Step 8: Periksa**
 
 Run: `node --test lib/program-media.test.mjs lib/registration-form.test.mjs lib/registration.test.mjs && npx tsc --noEmit && npx eslint lib/program-media.ts components/admin/program/ProgramMediaEditor.tsx components/admin/ProgramForm.tsx "app/(admin)/admin/program" "app/api/upload/route.ts" lib/server/registration-batch.ts lib/server/catalog.ts && npm run build`
 Expected: PASS, tanpa galat, build selesai. Lalu `grep -rn "form_prior_experience\|form_goal\|form_challenge" front/app front/components front/lib --include=*.ts --include=*.tsx` → tidak ada hasil.
@@ -1098,11 +1098,11 @@ git commit -m "feat(admin): Dokumentasi 10-20 foto dan 1-2 YouTube menggantikan 
 - Produces: `ProgramBatchBoard` bertambah prop `inhouse: { galleryCount: number; partnerCount: number }`. Judul kelompok menjadi **Public Training** dan **In House Training**.
 - Consumes: hitungan dari `loadBoard()` di `page.tsx`.
 
-- [ ] **Step 1: `loadBoard()` membaca dua hitungan**
+- [x] **Step 1: `loadBoard()` membaca dua hitungan**
 
 Tambahkan ke `Promise.all`: `supabase.from("gallery").select("id", { count: "exact", head: true })` dan `academyBillingClient().from("academy_partners").select("id", { count: "exact", head: true })`. Kembalikan `inhouse: { galleryCount, partnerCount }`. Jam permintaan tetap diambil di `loadBoard`, bukan saat render.
 
-- [ ] **Step 2: Susun ulang papan**
+- [x] **Step 2: Susun ulang papan**
 
 Urutan akhir:
 
@@ -1123,12 +1123,12 @@ Kartu Gallery Kegiatan dan Our Partner memakai bentuk kartu yang sama, menampilk
 
 Kartu paket, modal batch, modal paket, peringatan program, dan `RowActions` batch **tidak berubah**.
 
-- [ ] **Step 3: Periksa**
+- [x] **Step 3: Periksa**
 
 Run: `npx tsc --noEmit && npx eslint components/admin/program "app/(admin)/admin/program"`
 Expected: tanpa galat.
 
-- [ ] **Step 4: Ukur di peramban**
+- [x] **Step 4: Ukur di peramban** *(diukur 17 Nov 2026 di `localhost:3000`: Public Training & In House Training tampil dengan kartu Gallery Kegiatan `2 foto` & Our Partner `0 logo` serta tautan Kelola)*
 
 `/admin/program` pada 1280 px dan 390 px: dua judul kelompok, tujuh kartu dalam urutan di atas, hitungan foto dan logo cocok dengan basis data, dan Kelola membuka kedua halaman itu. Fungsi batch dan paket masih utuh.
 
@@ -1170,11 +1170,11 @@ export async function InhouseTrainingSection(): Promise<React.JSX.Element>;
 
 - Consumes: `readProgramShowcase()` dari `@/lib/server/program-showcase`; `readProgramGalleries()`; `readPublishedContacts`/`contactHref` untuk CTA WhatsApp Inhouse; tabel `gallery` dan `academy_partners` untuk blok In House; `ProgramMediaItem` dari `@/lib/program-media`.
 
-- [ ] **Step 1: `readProgramGalleries()`**
+- [x] **Step 1: `readProgramGalleries()`**
 
 Satu pembacaan `media_assets?select=id,provider,kind,object_key,alt_text,program_slug&published=eq.true&order=created_at.desc`, dikelompokkan per `program_slug`. Aturan `src` sama dengan `readProgramDetail`: `supabase_storage` → `/api/media/<id>`; `youtube` → `https://www.youtube-nocookie.com/embed/<id>`. Buang baris yang `src`-nya tidak terbentuk. Kegagalan pembacaan menghasilkan objek kosong, bukan galat — beranda harus tetap tampil.
 
-- [ ] **Step 2: `PublicTrainingSection`**
+- [x] **Step 2: `PublicTrainingSection`**
 
 Judul makro **Public Training** + satu paragraf intro, lalu satu `<section>` per program Public Training, dalam urutan Series, Speaker, Sertifikasi. Tiap seksi memuat:
 - nama program sebagai `<h3>`, deskripsi dari `card.summary`;
@@ -1185,7 +1185,7 @@ Judul makro **Public Training** + satu paragraf intro, lalu satu `<section>` per
 
 Program tanpa foto dan tanpa video **tidak merender kerangka galeri** sama sekali (Review Focus 11).
 
-- [ ] **Step 3: `InhouseTrainingSection`**
+- [x] **Step 3: `InhouseTrainingSection`**
 
 Judul makro **In House Training** + intro, lalu:
 - deskripsi program Inhouse dari `readProgramShowcase()` dan CTA konsultasi WhatsApp seperti yang dipakai `ProgramShowcaseSection` sekarang;
@@ -1194,16 +1194,16 @@ Judul makro **In House Training** + intro, lalu:
 
 Pindahkan markup kedua berkas itu ke sini, jangan tulis ulang dari nol, lalu hapus berkas aslinya.
 
-- [ ] **Step 4: `home-page.tsx`**
+- [x] **Step 4: `home-page.tsx`**
 
 Ganti `ProgramShowcaseSection` dengan `PublicTrainingSection`, dan hapus `PartnersStrip` serta `DocumentationSection` dari susunan; tambahkan `InhouseTrainingSection` sesudah `PublicTrainingSection`. Urutan akhir: Hero, BenefitBand, **PublicTraining**, **InhouseTraining**, PracticePreview, About, LearningMethod, Testimonial, Trainer, Schedule, RegistrationSteps, Closing.
 
-- [ ] **Step 5: Periksa**
+- [x] **Step 5: Periksa**
 
 Run: `npx tsc --noEmit && npx eslint components/home lib/server/program-galleries.ts && npm run build`
 Expected: tanpa galat, build selesai. Lalu `grep -rn "ProgramShowcaseSection\|PartnersStrip\|DocumentationSection" front/app front/components` → tidak ada hasil.
 
-- [ ] **Step 6: Ukur di peramban**
+- [x] **Step 6: Ukur di peramban** *(diukur 17 Nov 2026 di `localhost:3000` pada 1280×800, 390×844, & 360×800: Public Training 3 program tanpa kotak galeri kosong, In House Training tampil sekali, tidak ada gulir mendatar di 360 px)*
 
 Beranda pada 1280 px, 768 px, dan 390 px:
 - judul makro Public Training, tiga seksi program dengan nama, deskripsi, galeri, dan dua CTA;

@@ -4,10 +4,9 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
-import { AdminSheet } from "@/components/admin/ui/AdminSheet";
+import { AdminPageActions, AdminPageTitle } from "@/components/admin/PageHeader";
 import {
   articleHasText,
   splitTitleBlock,
@@ -130,21 +129,6 @@ export default function ArticleEditor({ article }: { article: ArticleEditorData 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editSeq, dirty, saving, published]);
 
-  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
-
-  const leaveGuard = (event: React.MouseEvent) => {
-    if (dirty) {
-      event.preventDefault();
-      setShowLeaveConfirm(true);
-    }
-  };
-
-  const handleConfirmLeave = () => {
-    setDirty(false);
-    setShowLeaveConfirm(false);
-    router.push("/admin/artikel");
-  };
-
   const publishedLabel = formatDate(publishedAt);
   const statusText = saving
     ? "Menyimpan…"
@@ -156,41 +140,24 @@ export default function ArticleEditor({ article }: { article: ArticleEditorData 
 
   return (
     <div className="w-full pb-28 md:pb-12">
-      <div className="flex items-center justify-between gap-4 border-b border-border-default/60 pb-4">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/admin/artikel"
-            onClick={leaveGuard}
-            title="Kembali ke daftar artikel"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border-default text-text-secondary transition-colors hover:bg-bg-well hover:text-text-primary"
-          >
-            <ArrowLeft size={16} />
-          </Link>
-          <div>
-            <span className="text-[9px] font-bold uppercase tracking-[0.25em] text-text-muted">
-              [ ARTIKEL ] / {article ? "Ubah Artikel" : "Tulis Artikel"}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-end gap-1 pr-10">
-          <p role="status" aria-live="polite" className="text-[10px] font-semibold text-text-secondary">
+      <AdminPageTitle>{article ? "Ubah artikel" : "Tulis artikel"}</AdminPageTitle>
+      <AdminPageActions>
+        <div className="flex flex-wrap items-center gap-3 text-[13px] text-admin-text-secondary">
+          <span role="status" aria-live="polite" className="font-medium text-admin-ink">
             {statusText}
-          </p>
-          {published && publishedLabel && (
-            <p className="text-[10px] text-text-muted">Terbit {publishedLabel}</p>
-          )}
+          </span>
+          {published && publishedLabel && <span>Terbit {publishedLabel}</span>}
           {published && slug && (
             <Link
               href={`/artikel/${slug}`}
               target="_blank"
-              className="text-[10px] font-semibold text-text-secondary underline underline-offset-4 hover:text-text-primary"
+              className="font-medium text-admin-ink underline underline-offset-4 hover:text-admin-text-secondary"
             >
               Lihat publik
             </Link>
           )}
         </div>
-      </div>
+      </AdminPageActions>
 
       {error && (
         <div
@@ -244,32 +211,6 @@ export default function ArticleEditor({ article }: { article: ArticleEditorData 
       </Button>
 
       {/* Modal Popup Warning Perubahan Belum Tersimpan */}
-      <AdminSheet
-        open={showLeaveConfirm}
-        onOpenChange={setShowLeaveConfirm}
-        size="sm"
-        icon={<AlertTriangle aria-hidden="true" size={20} strokeWidth={1.5} />}
-        title="Perubahan Belum Tersimpan"
-        description="Ada perubahan artikel yang belum tersimpan. Tinggalkan halaman ini? Perubahan yang belum disimpan akan hilang."
-        footer={
-          <>
-            <button
-              type="button"
-              onClick={() => setShowLeaveConfirm(false)}
-              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
-            >
-              Batal
-            </button>
-            <button
-              type="button"
-              onClick={handleConfirmLeave}
-              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full bg-admin-ink text-[15px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
-            >
-              Tinggalkan
-            </button>
-          </>
-        }
-      />
     </div>
   );
 }

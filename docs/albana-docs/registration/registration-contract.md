@@ -25,9 +25,11 @@ Jangan memakai harga pada gambar sebagai harga aktif; nilai berlaku dibaca dari 
 
 Peserta memilih Program, melihat biayanya (Batch otomatis: batch yang sedang dibuka pada program itu). Tampilkan nama program, nama batch, biaya dalam rupiah dari Program, alamat dari Kontak, dan seluruh pertemuan dalam WIB sebelum peserta mengisi data.
 
-Satu halaman, tanpa akun, dengan satu tombol **Kirim pendaftaran**. Peserta mengisi identitas, latar belakang dan informasi teknis, memilih lunas atau DP 20%, lalu mencentang persetujuan penggunaan data untuk mengurus pendaftaran.
+Formulir bertahap tanpa akun dengan tombol **Tinjau & kirim** di langkah terakhir. Peserta mengisi identitas, latar belakang dan informasi teknis, memilih lunas atau DP 20%, lalu mencentang persetujuan penggunaan data untuk mengurus pendaftaran. Saat **Tinjau & kirim** ditekan dan validasi lolos, tampilkan modal konfirmasi *"Apakah data Anda sudah yakin?"* dengan ringkasan data dan tombol **Cek Lagi** serta **Yakin / Lanjut**.
 
-Setelah jawaban tersimpan, tampilkan **Pendaftaran diterima** dan tombol **Kirim bukti transfer via WhatsApp**. Ambil nomor tujuan dari menu Kontak (`contact_channels.kind = 'whatsapp'`). Setelah transfer, peserta membuka percakapan, melampirkan bukti, dan mengirimnya sendiri. Minta peserta menyebutkan nama dan Program - batch agar admin dapat mencocokkan pembayaran.
+Setelah peserta menekan **Yakin / Lanjut** dan jawaban tersimpan, arahkan ke halaman **Checkout pembayaran** (`/register/konfirmasi/[token]`) yang memuat subtotal, kode unik, total transfer, rekening tujuan, panduan konfirmasi 4 langkah, info pengiriman email instruksi, dan tombol **Kirim Bukti Transfer ke WhatsApp** (diambil dari `contact_channels.kind = 'whatsapp'` dengan pesan berisi nama, nomor pendaftaran, Program - batch, nomor tagihan, tahap, dan total). Selama ada tagihan awal `pending` yang dibuat kurang dari 30 menit lalu, email dan nomor WhatsApp yang sama ditahan dari pendaftaran baru (status 423) hingga tagihan diverifikasi/ditolak atau 30 menit berlalu.
+
+Secara asinkron (`after()`), server mengirim **Email #1 (Instruksi Pembayaran)** ke alamat email peserta. Saat admin memverifikasi tagihan di CMS dengan nominal mutasi yang cocok persis dengan total tagihan, server mengirim **Email #2 (Konfirmasi Pembayaran)** (varian lunas, DP diterima + instruksi pelunasan, atau pelunasan diterima) ke peserta.
 
 Jika harga berubah selama pengisian, tampilkan biaya terbaru. Jika batch ditutup atau sesi pertama sudah mulai, arahkan peserta ke Kontak. Bila peserta sudah mentransfer, arahkan ke pengelola dengan bukti yang sama agar pembayaran bisa dicocokkan. Pertahankan isian jika pengiriman gagal.
 

@@ -42,6 +42,6 @@ export function academyChannels(contacts: ContactRow[]) {
   return channelIcons.flatMap((channel) => {
     const row = contacts.find((contact) => contact.kind === channel.kind);
     const href = row && contactHref(row);
-    return href ? [{ label: channel.label, href, icon: channel.icon }] : [];
+    return href ? [{ label: channel.label, value: row.value, href, icon: channel.icon }] : [];
   });
 }

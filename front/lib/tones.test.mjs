@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const css = fs.readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
-const NAMES = ["canvas", "mist", "sand", "night"];
-const KEYS = ["bg", "ink", "muted", "rule", "accent", "tile"];
+const NAMES = ["canvas", "mist", "night"];
+const KEYS = ["bg", "ink", "muted", "rule", "accent", "tile", "sun", "on-sun"];
 
 function block(selector) {
   const esc = selector.replaceAll(".", String.raw`\.`);
@@ -14,7 +14,7 @@ function block(selector) {
 
 function vars(selector) {
   const out = {};
-  for (const m of block(selector).matchAll(/--tone-(\w+):\s*(#[0-9a-fA-F]{6})/g)) out[m[1]] = m[2];
+  for (const m of block(selector).matchAll(/--tone-([\w-]+):\s*(#[0-9a-fA-F]{6})/g)) out[m[1]] = m[2];
   return out;
 }
 
@@ -36,8 +36,8 @@ const cases = NAMES.flatMap((n) => [
   [`${n} gelap`, vars(`.dark .tone-${n}`)],
 ]);
 
-test("setiap nada punya enam variabel di terang dan gelap", () => {
-  assert.equal(cases.length, 8);
+test("setiap nada punya delapan variabel di terang dan gelap", () => {
+  assert.equal(cases.length, 6);
   for (const [label, v] of cases) assert.deepEqual(Object.keys(v).sort(), [...KEYS].sort(), label);
 });
 
@@ -48,7 +48,16 @@ test("teks utama dan muted terbaca", () => {
         assert.ok(contrast(v[fg], v[bg]) >= 4.5, `${label} ${fg}/${bg} = ${contrast(v[fg], v[bg]).toFixed(2)}`);
 });
 
+test("teks di atas sun terbaca", () => {
+  for (const [label, v] of cases)
+    assert.ok(contrast(v["on-sun"], v.sun) >= 4.5, `${label} on-sun/sun = ${contrast(v["on-sun"], v.sun).toFixed(2)}`);
+});
+
 test("aksen terlihat", () => {
   for (const [label, v] of cases)
     assert.ok(contrast(v.accent, v.bg) >= 3, `${label} accent/bg = ${contrast(v.accent, v.bg).toFixed(2)}`);
+});
+
+test("tone-sand sudah dihapus", () => {
+  assert.equal(css.includes(".tone-sand"), false);
 });

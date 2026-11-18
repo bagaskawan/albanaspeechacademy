@@ -1,39 +1,26 @@
-import { Container } from "@/components/layout/container";
 import type { HomeTestimonial } from "@/lib/home-data";
 import { SectionIntro } from "./section-intro";
+import { TestimonialSlider } from "./testimonial-slider";
+import { Accent } from "./ui/accent";
 
 export function TestimonialChapter({ testimonials }: { testimonials: HomeTestimonial[] }) {
   if (!testimonials.length) return null;
 
   return (
-    <section id="hasil" className="section tone-mist" aria-labelledby="hasil-title">
-      <Container className="max-w-7xl">
+    <section id="hasil" className="tone-canvas home-section" aria-labelledby="hasil-title">
+      <div className="home-container home-stack-head">
         <SectionIntro
-          eyebrow="[ CERITA PESERTA ]"
+          eyebrow="07 — Cerita peserta"
+          titleId="hasil-title"
           title={
             <>
-              Mereka pernah <em className="accent-serif">gugup juga</em>
+              Mereka pernah <Accent>gugup juga.</Accent>
             </>
           }
-          titleId="hasil-title"
-          description="Cerita singkat dari peserta yang sudah berlatih bersama Albana."
+          description="Cerita singkat dari peserta yang sudah berlatih bersama Albana — sebelum dan sesudah berdiri di depan orang."
         />
-        <ul className="mt-8 grid gap-x-10 gap-y-8 lg:grid-cols-[2fr_1fr_1fr]">
-          {testimonials.map((item, index) => (
-            <li
-              key={item.id}
-              data-motion="rise"
-              className={index === 0 ? "" : "border-t border-[var(--tone-rule)] pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0"}
-            >
-              <blockquote className={index === 0 ? "type-display" : "leading-relaxed"}>
-                <span className="font-[family-name:var(--font-serif)]" aria-hidden="true">“</span>{item.quote}<span className="font-[family-name:var(--font-serif)]" aria-hidden="true">”</span>
-              </blockquote>
-              <p className="mt-6 border-t border-[var(--tone-rule)] pt-4 font-semibold">{item.attribution}</p>
-              {item.roleLabel ? <p className="text-sm text-[var(--tone-muted)]">{item.roleLabel}</p> : null}
-            </li>
-          ))}
-        </ul>
-      </Container>
+        <TestimonialSlider testimonials={testimonials} />
+      </div>
     </section>
   );
 }

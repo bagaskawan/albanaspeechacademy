@@ -1,63 +1,71 @@
-import { Container } from "@/components/layout/container";
+import Image from "next/image";
+import type { HomeLegality } from "@/lib/home-data";
 import { SectionIntro } from "./section-intro";
+import { Accent } from "./ui/accent";
 
 const LEGAL_DOCUMENTS = [
-  {
-    title: "Akta Pendirian CV",
-    number: "Nomor 03 · 20 Januari 2026",
-    issuer: "Notaris & PPAT Alfian Faudi Mukdas, S.H., M.Kn.",
-    detail: "Pendirian Perseroan Komanditer CV Asa Albana sebagai badan hukum penyelenggara pelatihan.",
-  },
-  {
-    title: "Nomor Induk Berusaha (NIB)",
-    number: "2701260111907",
-    issuer: "Kementerian Investasi / BKPM (OSS)",
-    detail: "Perizinan berusaha berbasis risiko diterbitkan 27 Januari 2026 atas nama CV Asa Albana.",
-  },
-  {
-    title: "Surat Keterangan Terdaftar",
-    number: "S-02859/SKT-WPJ.09/KPP.0903/2026",
-    issuer: "KPP Pratama Bandung Cibeunying",
-    detail: "Terdaftar resmi sejak 22 Januari 2026 untuk administrasi perpajakan badan usaha.",
-  },
-  {
-    title: "NPWP Badan",
-    number: "1000 0000 0799 0364",
-    issuer: "a.n. ASA ALBANA · Kota Bandung",
-    detail: "Jl. Diponegoro No. 61, Cihaur Geulis, Cibeunying Kaler, Kota Bandung, Jawa Barat.",
-  },
+  { key: "akta", title: "Akta Pendirian CV", number: "Nomor 03 · 20 Januari 2026", issuer: "Notaris & PPAT Alfian Faudi Mukdas, S.H., M.Kn." },
+  { key: "nib", title: "Nomor Induk Berusaha (NIB)", number: "2701260111907", issuer: "Kementerian Investasi / BKPM (OSS)" },
+  { key: "skt", title: "Surat Keterangan Terdaftar", number: "S-02859/SKT-WPJ.09/KPP.0903/2026", issuer: "KPP Pratama Bandung Cibeunying" },
+  { key: "npwpFront", title: "NPWP Badan", number: "1000 0000 0799 0364", issuer: "a.n. ASA ALBANA · Kota Bandung" },
 ] as const;
 
-export function LegalitySection() {
+export function LegalitySection({ legality }: { legality: HomeLegality }) {
   return (
-    <section id="legalitas" className="section tone-canvas" aria-labelledby="legalitas-title">
-      <Container className="max-w-7xl">
+    <section id="legalitas" className="tone-mist home-section" aria-labelledby="legalitas-title">
+      <div className="home-container home-stack-head">
         <SectionIntro
-          eyebrow="[ LEGALITAS LEMBAGA ]"
+          eyebrow="06 — Legalitas"
+          titleId="legalitas-title"
           title={
             <>
-              Resmi terdaftar di bawah <em className="accent-serif">CV Asa Albana</em>
+              Resmi terdaftar di bawah <Accent>CV Asa Albana.</Accent>
             </>
           }
-          titleId="legalitas-title"
-          description="Seluruh program pelatihan publik maupun kerja sama inhouse diselenggarakan secara legal dan siap memenuhi kebutuhan administrasi instansi atau perusahaan."
+          description="Mengajukan pelatihan untuk instansi butuh lembaga yang jelas. Dokumen ini bisa kamu cek sebelum bekerja sama."
         />
-        <p data-motion="rise" className="eyebrow mt-8">Dokumen legal terverifikasi</p>
-        <ul className="mt-3 border-b border-[var(--tone-rule)]">
-          {LEGAL_DOCUMENTS.map((doc) => (
-            <li key={doc.title} data-motion="rise" className="grid gap-1 border-t border-[var(--tone-rule)] py-5 md:grid-cols-2 md:gap-8">
-              <div>
-                <h3 className="type-title">{doc.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--tone-muted)]">{doc.detail}</p>
-              </div>
-              <div className="md:text-right">
-                <p className="font-mono text-sm font-semibold tabular-nums break-all text-[var(--tone-accent)]">{doc.number}</p>
-                <p className="mt-1 text-sm text-[var(--tone-muted)]">{doc.issuer}</p>
-              </div>
-            </li>
-          ))}
+
+        <ul className="grid gap-x-4 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+          {LEGAL_DOCUMENTS.map((doc, index) => {
+            const imageUrl = legality[doc.key];
+            const backUrl = doc.key === "npwpFront" ? legality.npwpBack : null;
+            return (
+              <li key={doc.title} data-motion="rise" className="flex flex-col gap-4">
+                {imageUrl ? (
+                  <div className="flex flex-col gap-2">
+                    <div data-motion="media" className="relative aspect-[3/4] overflow-hidden rounded-xs border border-[var(--tone-rule)] bg-[var(--tone-tile)]">
+                      <Image
+                        fill
+                        src={imageUrl}
+                        alt={doc.title}
+                        sizes="(min-width: 1024px) 22vw, (min-width: 640px) 45vw, 90vw"
+                        className="object-cover"
+                      />
+                    </div>
+                    {backUrl ? (
+                      <div className="relative aspect-[16/10] w-1/2 overflow-hidden rounded-xs border border-[var(--tone-rule)] bg-[var(--tone-tile)]">
+                        <Image
+                          fill
+                          src={backUrl}
+                          alt={`${doc.title} — tampak belakang`}
+                          sizes="(min-width: 1024px) 11vw, 45vw"
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+                <div className="flex flex-col gap-1 border-t border-[var(--tone-ink)] pt-4">
+                  <span className="type-small italic text-[var(--tone-accent)]">{String(index + 1).padStart(2, "0")}</span>
+                  <h3 className="type-title">{doc.title}</h3>
+                  <p className="type-body tabular-nums break-all">{doc.number}</p>
+                  <p className="type-small text-[var(--tone-muted)]">{doc.issuer}</p>
+                </div>
+              </li>
+            );
+          })}
         </ul>
-      </Container>
+      </div>
     </section>
   );
 }
