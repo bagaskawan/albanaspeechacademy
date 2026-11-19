@@ -19,7 +19,7 @@ export function PartnerLogo({ src, alt }: { src: string; alt: string }) {
         }
       }}
       className={`h-auto w-auto max-w-full object-contain opacity-85 brightness-0 invert transition [@media(hover:hover)_and_(pointer:fine)]:hover:opacity-100 ${
-        portrait ? "max-h-14 sm:max-h-20" : "max-h-8 sm:max-h-11"
+        portrait ? "max-h-16 sm:max-h-20" : "max-h-10 sm:max-h-11"
       }`}
     />
   );

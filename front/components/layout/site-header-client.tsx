@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { m } from "motion/react";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { BrandLogo } from "./brand-logo";
@@ -27,6 +27,9 @@ export function SiteHeaderClient({
 }) {
   const [active, setActive] = useState("");
   const [heroVisible, setHeroVisible] = useState(home);
+  const [scrollHidden, setScrollHidden] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const hidden = home && (heroVisible || scrollHidden);
   const items = navigationItems
     .filter((item) => item.id !== "trainer" || showTrainer)
     .filter((item) => item.id !== "kontak" || showContact);
@@ -40,8 +43,33 @@ export function SiteHeaderClient({
   useEffect(() => {
     if (!home) return;
     const hero = document.getElementById("beranda");
-    if (!hero) return;
-    const update = () => setHeroVisible(hero.getBoundingClientRect().top + hero.offsetHeight / 2 > 0);
+    const header = headerRef.current;
+    if (!hero || !header) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let lastY = window.scrollY;
+
+    const update = () => {
+      const heroStillVisible = hero.getBoundingClientRect().top + hero.offsetHeight / 2 > 0;
+      setHeroVisible(heroStillVisible);
+
+      const y = window.scrollY;
+      if (
+        heroStillVisible ||
+        reduced ||
+        header.hasAttribute("data-menu-open") ||
+        header.contains(document.activeElement)
+      ) {
+        setScrollHidden(false);
+        lastY = y;
+        return;
+      }
+
+      const delta = y - lastY;
+      if (delta > 4) setScrollHidden(true);
+      else if (delta < -4) setScrollHidden(false);
+      lastY = y;
+    };
+
     update();
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update);
@@ -54,13 +82,14 @@ export function SiteHeaderClient({
   return (
     <MotionProvider>
       <header
+        ref={headerRef}
         data-site-header
-        aria-hidden={home && heroVisible}
-        inert={home && heroVisible}
+        aria-hidden={hidden}
+        inert={hidden}
         className={`tone-canvas border-b border-[var(--tone-rule)] bg-[var(--tone-bg)] text-[var(--tone-ink)] ${home
           ? "fixed inset-x-0 top-0 transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none"
           : "sticky top-0"
-          } z-40 ${heroVisible
+          } z-40 ${hidden
             ? "pointer-events-none -translate-y-full opacity-0"
             : "translate-y-0 opacity-100"
           }`}

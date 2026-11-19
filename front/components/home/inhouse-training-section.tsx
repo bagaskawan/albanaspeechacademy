@@ -1,6 +1,7 @@
 import type { HomeData, HomeMedia } from "@/lib/home-data";
 import { BentoGallery } from "./bento-gallery";
 import { PartnerLogo } from "./partner-logo";
+import { PartnerMarquee } from "./partner-marquee";
 import { SkeletonImage } from "./skeleton-image";
 import { Accent } from "./ui/accent";
 import { MoreLink } from "./ui/more-link";
@@ -22,7 +23,7 @@ export function InhouseTrainingSection({ inhouse }: { inhouse: HomeData["inhouse
         <div className="home-grid gap-y-10">
           <div className="col-span-4 flex flex-col justify-between gap-8 sm:col-span-8 lg:col-span-5">
             <div className="flex flex-col gap-4">
-              <p className="type-label text-[var(--tone-muted)]">03 — Inhouse Training</p>
+              <p className="type-label text-[var(--tone-muted)]">03 · Inhouse Training</p>
               <h2 id="inhouse-training-title" data-motion="heading" className="type-display text-balance">
                 Saat yang perlu berlatih adalah <Accent>satu tim.</Accent>
               </h2>
@@ -66,46 +67,28 @@ export function InhouseTrainingSection({ inhouse }: { inhouse: HomeData["inhouse
         </div>
 
         {rest.length > 0 ? (
-          <div className="flex flex-col gap-4 pt-8 lg:pt-12">
-            <p className="type-label text-[var(--tone-muted)]">Galeri Inhouse Training</p>
-            <BentoGallery media={rest} label="Galeri Inhouse Training" variant="mosaic" />
+          <div className="pt-8 lg:pt-12">
+            <BentoGallery
+              media={rest}
+              label="Galeri Inhouse Training"
+              variant="editorial"
+              editorialTitle="Inhouse Training"
+            />
           </div>
         ) : null}
       </div>
 
       {inhouse.partners.length > 0 ? (
         <div className="home-container pt-20 lg:pt-28">
-          <p className="text-center font-serif text-xl leading-tight tracking-tight text-[var(--tone-ink)] sm:text-2xl">
-            Partner kami
-          </p>
-
-          {/* Mobile: 2,5 logo per layar, geser otomatis & loop */}
-          <div className="mt-8 overflow-hidden sm:hidden">
-            <ul className="flex w-max motion-safe:animate-[partner-marquee_22s_linear_infinite] hover:[animation-play-state:paused] active:[animation-play-state:paused]">
-              {[...inhouse.partners, ...inhouse.partners].map((partner, idx) => {
-                const isClone = idx >= inhouse.partners.length;
-                return (
-                  <li
-                    key={`${partner.id}-${idx}`}
-                    aria-hidden={isClone || undefined}
-                    className="mr-4 flex h-20 w-36 shrink-0 items-center justify-center border-t border-[var(--tone-rule)] px-2 pt-3"
-                  >
-                    {partner.logoUrl ? (
-                      <PartnerLogo src={partner.logoUrl} alt={isClone ? "" : (partner.name || "Partner Albana Speech Academy")} />
-                    ) : partner.name ? (
-                      <span className="type-small text-center font-medium text-[var(--tone-ink)] opacity-80">{partner.name}</span>
-                    ) : null}
-                  </li>
-                );
-              })}
-            </ul>
-            <style>{`
-              @keyframes partner-marquee {
-                0% { transform: translateX(0); }
-                100% { transform: translateX(-50%); }
-              }
-            `}</style>
+          <div className="mx-auto flex max-w-xl flex-col items-center gap-2 text-center">
+            <p className="type-label text-[var(--tone-muted)]">Partner kami</p>
+            <p className="type-body text-[var(--tone-ink)] text-pretty">
+              Dipercaya untuk melatih tim di organisasi berikut.
+            </p>
           </div>
+
+          {/* Mobile: 2,5 logo per layar, geser otomatis, loop, dan bisa di-swipe */}
+          <PartnerMarquee partners={inhouse.partners} />
 
           {/* Tablet & Desktop: grid Logofolio */}
           <ul

@@ -36,12 +36,12 @@ export async function AboutSection({ moments }: { moments: HomeMedia[] }) {
           {/* Kiri: judul dan cerita, dengan foto detail kecil di bawah */}
           <div className="col-span-4 flex flex-col justify-between gap-8 sm:col-span-8 lg:col-span-4">
             <div className="flex flex-col gap-4">
-              <p className="type-label text-[var(--tone-muted)]">04 — Tentang kami</p>
+              <p className="type-label text-[var(--tone-muted)]">04 · Tentang kami</p>
               <h2 id="tentang-title" data-motion="heading" className="type-display text-balance">
                 Dibangun oleh <Accent>praktisi panggung,</Accent> untuk orang yang harus bicara.
               </h2>
               <p data-motion="rise" className="type-lead text-pretty">
-                {academyName} oleh CV Asa Albana melatih individu dan organisasi agar tampil lebih percaya diri, komunikatif, dan profesional — lewat praktik langsung, bukan teori panjang.
+                {academyName} oleh CV Asa Albana melatih individu dan organisasi agar tampil lebih percaya diri, komunikatif, dan profesional, lewat praktik langsung, bukan teori panjang.
               </p>
             </div>
             {detail ? (
@@ -63,16 +63,13 @@ export async function AboutSection({ moments }: { moments: HomeMedia[] }) {
 
           {/* Kanan: siapa Alan, singkat */}
           <div className="col-span-4 flex flex-col justify-end gap-6 sm:col-span-3 lg:col-span-4">
-            <p data-motion="rise" className="type-body text-[var(--tone-muted)] text-pretty">
-              Albana lahir dari ruang siaran dan panggung acara. Karena itu kelasnya terasa seperti latihan sebelum tampil: ada naskah, ada audiens, ada evaluasi.
-            </p>
             <div className="border-t border-[var(--tone-ink)] pt-4">
               <h3 className="type-title">Alan Albana, S.Kom.I., M.I.Kom.</h3>
               <p className="type-label mt-2 text-[var(--tone-muted)]">Founder · Trainer · MC · Penyiar RRI</p>
               <ul className="type-small mt-4 grid gap-2">
                 {alanPoints.map((point) => (
                   <li key={point} className="flex gap-2">
-                    <span aria-hidden="true" className="text-[var(--tone-accent)]">—</span>
+                    <span aria-hidden="true" className="text-[var(--tone-accent)]">•</span>
                     {point}
                   </li>
                 ))}

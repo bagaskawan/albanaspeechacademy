@@ -174,30 +174,48 @@ export function RecordPaymentDialog({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor={amountId} className="block text-[13px] font-medium text-admin-ink">
-              Nominal ditransfer <span className="text-admin-danger">*</span>
-            </label>
-            <input
-              id={amountId}
-              type="text"
-              inputMode="numeric"
-              autoComplete="off"
-              required
-              disabled={submitting}
-              value={amountInput}
-              onChange={(e) => {
-                setAmountInput(e.target.value);
-                setSubmitError(null);
-              }}
-              onBlur={() => {
-                const parsed = parseRupiahInput(amountInput);
-                if (parsed !== null) {
-                  setAmountInput(new Intl.NumberFormat("id-ID").format(parsed));
-                }
-              }}
-              placeholder="mis. 1.000.000"
-              className="mt-1.5 h-10 w-full rounded-xl border border-admin-line bg-admin-canvas px-3 font-mono text-[14px] tabular-nums text-admin-ink focus:border-admin-ink focus:outline-none"
-            />
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor={amountId} className="block text-[13px] font-medium text-admin-ink">
+                Nominal ditransfer <span className="text-admin-danger">*</span>
+              </label>
+              {beforeSummary.balanceIdr > 0 && (
+                <button
+                  type="button"
+                  disabled={submitting}
+                  onClick={() => {
+                    setAmountInput(new Intl.NumberFormat("id-ID").format(beforeSummary.balanceIdr));
+                    setSubmitError(null);
+                  }}
+                  className="cursor-pointer text-[12px] font-medium text-admin-text-secondary underline-offset-2 hover:text-admin-ink hover:underline disabled:opacity-50"
+                >
+                  Isi sisa ({rupiah(beforeSummary.balanceIdr)})
+                </button>
+              )}
+            </div>
+            <div className="relative mt-1.5">
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 font-mono text-[13px] font-semibold text-admin-text-secondary select-none"
+              >
+                Rp
+              </span>
+              <input
+                id={amountId}
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                required
+                disabled={submitting}
+                value={amountInput}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "");
+                  setAmountInput(digits ? new Intl.NumberFormat("id-ID").format(Number(digits)) : "");
+                  setSubmitError(null);
+                }}
+                placeholder="0"
+                className="h-11 w-full rounded-full border border-admin-line-strong bg-admin-canvas !pl-11 pr-4 font-mono text-[15px] font-semibold tabular-nums text-admin-ink placeholder:font-normal placeholder:text-admin-text-faint focus:border-admin-ink focus:outline-none"
+              />
+            </div>
             {afterSummary && (
               <p
                 className={`mt-1.5 text-[12px] font-medium ${

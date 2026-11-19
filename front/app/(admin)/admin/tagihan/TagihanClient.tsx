@@ -13,8 +13,8 @@ import {
 import { EmptyState } from "@/components/admin/ui/empty-state";
 import { TableToolbar } from "@/components/admin/ui/table-toolbar";
 import { paymentBalance } from "@/lib/billing";
-import type { BillingRegistration, BillingRow, InvoiceEmailStatus } from "@/lib/billing-rows";
-import { deleteBillingItem, resendInvoiceEmail, resolveInvoice } from "./actions";
+import type { BillingRegistration, BillingRow } from "@/lib/billing-rows";
+import { deleteBillingItem, resolveInvoice } from "./actions";
 
 const rupiah = (value: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
@@ -45,49 +45,6 @@ function sortedBatchNames(items: readonly { batch_slug: string }[]): string {
     .map((item) => item.batch_slug)
     .sort((a, b) => a.localeCompare(b))
     .join(" + ");
-}
-
-function EmailBadges({ invoiceId, emails }: { invoiceId: number; emails: readonly InvoiceEmailStatus[] }) {
-  if (!emails.length) return null;
-  return (
-    <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px]">
-      {emails.map((email) => {
-        const kindLabel =
-          email.kind === "payment_instructions"
-            ? "Email instruksi"
-            : email.kind === "payment_rejected"
-              ? "Email penolakan"
-              : "Email konfirmasi";
-        const statusLabel =
-          email.status === "sent" ? "terkirim" : email.status === "sending" ? "mengirim" : "gagal";
-        return (
-          <span key={email.kind} className="inline-flex items-center gap-1.5">
-            <span
-              className={
-                email.status === "failed"
-                  ? "font-medium text-admin-danger"
-                  : "text-admin-text-secondary"
-              }
-            >
-              {kindLabel}: {statusLabel}
-            </span>
-            {email.status === "failed" && (
-              <form action={resendInvoiceEmail} className="inline">
-                <input type="hidden" name="invoiceId" value={invoiceId} />
-                <input type="hidden" name="kind" value={email.kind} />
-                <button
-                  type="submit"
-                  className="inline-flex h-6 items-center rounded-full border border-admin-line px-2 text-[11px] font-medium text-admin-ink hover:bg-admin-surface"
-                >
-                  Kirim ulang
-                </button>
-              </form>
-            )}
-          </span>
-        );
-      })}
-    </div>
-  );
 }
 
 export default function TagihanClient({
@@ -152,9 +109,6 @@ export default function TagihanClient({
                     </p>
                     {batches && (
                       <p className="text-[12px] text-admin-text-secondary">{batches}</p>
-                    )}
-                    {row.invoiceId !== null && (
-                      <EmailBadges invoiceId={row.invoiceId} emails={row.emails} />
                     )}
                   </div>
 
@@ -222,7 +176,7 @@ export default function TagihanClient({
                   const balance = row.totalIdr !== null ? paymentBalance(row.totalIdr, activeAmounts) : null;
                   return (
                     <tr key={row.invoiceId ? `inv-${row.invoiceId}` : `reg-${row.registration.id}`}>
-                      <td className="whitespace-nowrap font-medium text-admin-ink">
+                      <td className="max-w-[240px] truncate font-medium text-admin-ink" title={row.registration.full_name}>
                         {row.registration.full_name}
                       </td>
                       <td className="min-w-[14rem]">
@@ -241,14 +195,11 @@ export default function TagihanClient({
                             <StatusChip tone="rose">Kurang {rupiah(balance.balanceIdr)}</StatusChip>
                           )}
                         </div>
-                        {row.invoiceId !== null && (
-                          <EmailBadges invoiceId={row.invoiceId} emails={row.emails} />
-                        )}
                       </td>
                       <td className="whitespace-nowrap text-admin-text-secondary">
                         {formatWib(row.createdAt)}
                       </td>
-                      <td className="text-right">
+                      <td className="whitespace-nowrap text-right">
                         <div className="inline-flex items-center justify-end gap-1.5">
                           {row.invoiceId !== null && row.status === "pending" && row.totalIdr !== null && (
                             <form action={resolveInvoice} className="inline-flex">
@@ -257,7 +208,7 @@ export default function TagihanClient({
                               <input type="hidden" name="receivedIdr" value={row.totalIdr} />
                               <button
                                 type="submit"
-                                className="inline-flex h-9 items-center rounded-full bg-admin-ink px-3.5 text-[13px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft"
+                                className="inline-flex h-9 cursor-pointer items-center rounded-full bg-admin-ink px-3.5 text-[13px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
                               >
                                 Konfirmasi
                               </button>

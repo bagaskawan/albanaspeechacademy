@@ -8,7 +8,7 @@ const benefits = [
   ["Tampil profesional", "saat mewakili tim atau organisasi"],
 ] as const;
 
-/** Bab 01 — alasan berlatih. Angka hanya dari data atau naskah bersumber. */
+/** Bab 01 · alasan berlatih. Angka hanya dari data atau naskah bersumber. */
 export function BenefitBand({ programCount }: { programCount: number }) {
   const facts = [
     { value: "80%", label: "waktu kelas dipakai untuk praktik dan simulasi" },
@@ -23,7 +23,7 @@ export function BenefitBand({ programCount }: { programCount: number }) {
       <div className="home-container home-stack-head">
         <SectionIntro
           align="center"
-          eyebrow="01 — Kenapa berlatih"
+          eyebrow="01 · Kenapa berlatih"
           titleId="alasan-title"
           title={
             <>

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { MoreLink } from "./ui/more-link";
 
 type SectionIntroProps = {
-  /** Penanda bab, mis. "02 — Program". */
+  /** Penanda bab, mis. "02 · Program". */
   eyebrow: string;
   title: ReactNode;
   titleId: string;

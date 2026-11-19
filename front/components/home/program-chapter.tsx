@@ -17,7 +17,7 @@ export function ProgramChapter({
       <section id="program" className="tone-canvas home-section scroll-mt-8 pt-0" aria-labelledby="program-title">
         <div className="home-container home-stack-head">
           <SectionIntro
-            eyebrow="02 — Program"
+            eyebrow="02 · Program"
             titleId="program-title"
             title={
               <>
@@ -32,7 +32,7 @@ export function ProgramChapter({
             <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-[var(--tone-ink)] pb-4">
               <h3 className="type-title">Public Training</h3>
               <p className="type-small text-[var(--tone-muted)]">
-                Kelas terjadwal — kamu berlatih bersama peserta lain.
+                Kelas terjadwal, kamu berlatih bersama peserta lain.
               </p>
             </div>
 

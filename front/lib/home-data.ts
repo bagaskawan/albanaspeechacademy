@@ -6,6 +6,7 @@ export type HomeMedia = {
   src: string;
   poster: string | null;
   alt: string;
+  blurDataURL?: string | null;
 };
 
 export type HomeProgram = {

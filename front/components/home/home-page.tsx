@@ -19,9 +19,13 @@ export async function HomePage() {
   return (
     <>
       <SiteHeader home />
-      <main id="main-content">
+      <main id="main-content" className="overflow-x-clip">
         <HomeScroll />
-        <HeroSection hero={data.hero} moments={data.moments} />
+        <HeroSection
+          hero={data.hero}
+          moments={data.moments}
+          whatsappHref={data.inhouse.whatsappHref}
+        />
         <BenefitBand programCount={data.programs === "failed" ? 0 : data.programs.length} />
         <ProgramChapter programs={data.programs} inhouse={data.inhouse} />
         <AboutSection moments={data.moments} />

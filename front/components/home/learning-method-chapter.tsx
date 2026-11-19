@@ -1,5 +1,4 @@
 import type { HomeMedia } from "@/lib/home-data";
-import { academyRequest } from "@/lib/server/academy-api";
 import { SectionIntro } from "./section-intro";
 import { SkeletonImage } from "./skeleton-image";
 import { Accent } from "./ui/accent";
@@ -26,63 +25,54 @@ const levels = [
   ["Expert", "pembicara dan fasilitator"],
 ] as const;
 
-const defaultMethod = "80% praktik dan simulasi, 20% coaching, konsep, dan feedback.";
-
-export async function LearningMethodChapter({ moments }: { moments: HomeMedia[] }) {
-  let method: string | null = null;
-  try {
-    const rows = await academyRequest("academy?select=teaching_method&id=eq.1&limit=1");
-    if (Array.isArray(rows) && typeof rows[0]?.teaching_method === "string") method = rows[0].teaching_method;
-  } catch { /* Editorial copy remains available. */ }
-
+export function LearningMethodChapter({ moments }: { moments: HomeMedia[] }) {
   return (
     <section id="cara-ngajar" className="tone-canvas home-section" aria-labelledby="cara-ngajar-title">
       <div className="home-container home-stack-head">
         <SectionIntro
-          eyebrow="05 — Cara belajar"
+          eyebrow="05 · Cara belajar"
           titleId="cara-ngajar-title"
           title={
             <>
               Kemampuan bicara tumbuh saat <Accent>benar-benar dipraktikkan.</Accent>
             </>
           }
-          description={
-            method && method !== defaultMethod
-              ? method
-              : "Sebagian besar waktumu dipakai untuk berbicara, bukan mendengar. Masukan trainer menajamkannya; kerangka komunikasi merapikannya."
-          }
+          description="80% praktik dan simulasi, 20% coaching, konsep, dan feedback."
         />
 
-        <div className="flex flex-col">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {approaches.map((item, index) => {
             const photo = moments[index];
             return (
-              <div
+              <article
                 key={item.value}
                 data-motion="rise"
-                className="home-grid items-center gap-y-6 border-t border-[var(--tone-rule)] py-10 last:border-b"
+                className="flex flex-col justify-between gap-6 rounded-xs border border-[var(--tone-rule)] bg-[var(--tone-bg)] p-6 sm:p-8"
               >
-                <div className="col-span-4 sm:col-span-3 lg:col-span-3">
-                  <p className="type-mega tabular-nums">
+                <div>
+                  <p className="type-mega tabular-nums leading-none">
                     <span data-motion="count" data-value={item.value}>{item.value}%</span>
                   </p>
-                  <div className="mt-4 h-1 bg-[var(--tone-tile)]">
-                    <div data-motion="bar" className="h-full origin-left bg-[var(--tone-sun)]" style={{ width: `${item.value}%` }} />
+                  <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-[var(--tone-tile)]">
+                    <div
+                      data-motion="bar"
+                      className="h-full origin-left rounded-full bg-[var(--tone-sun)]"
+                      style={{ width: `${item.value}%` }}
+                    />
                   </div>
+                  <h3 className="type-title mt-5">{item.title}</h3>
+                  <p className="type-body mt-2 text-[var(--tone-muted)] text-pretty">{item.description}</p>
                 </div>
-                <div className="col-span-4 sm:col-span-5 lg:col-span-4">
-                  <h3 className="type-title">{item.title}</h3>
-                  <p className="type-body mt-3 text-[var(--tone-muted)] text-pretty">{item.description}</p>
-                </div>
+
                 {photo ? (
-                  <figure className="col-span-4 sm:col-span-8 lg:col-span-4 lg:col-start-9">
-                    <div data-motion="media" className="relative aspect-[4/3] overflow-hidden rounded-xs bg-[var(--tone-tile)]">
-                      <SkeletonImage src={photo.src} alt="" fill sizes="(min-width: 1024px) 30vw, 90vw" className="object-cover" />
+                  <figure className="mt-auto">
+                    <div data-motion="media" className="relative aspect-[16/10] overflow-hidden rounded-xs bg-[var(--tone-tile)]">
+                      <SkeletonImage src={photo.src} alt="" fill sizes="(min-width: 768px) 45vw, 90vw" className="object-cover" />
                     </div>
                     <figcaption className="type-small mt-2 text-[var(--tone-muted)]">{item.caption}</figcaption>
                   </figure>
                 ) : null}
-              </div>
+              </article>
             );
           })}
         </div>

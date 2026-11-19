@@ -28,7 +28,7 @@ export async function ClosingSection({ moments }: { moments: HomeMedia[] }) {
               Usulan apa yang ingin <Accent>kamu latih</Accent>?
             </h2>
             <p className="type-lead mt-4 max-w-xl text-[var(--tone-muted)]">
-              Ceritakan situasinya — presentasi, memandu acara, atau pelatihan tim. Kami bantu memilih program yang pas.
+              Ceritakan situasinya: presentasi, memandu acara, atau pelatihan tim. Kami bantu memilih program yang pas.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-6">
               <a

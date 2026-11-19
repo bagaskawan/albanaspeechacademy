@@ -38,6 +38,7 @@ export function toHomeMedia(item: ProgramMediaItem): HomeMedia {
       ? `https://i.ytimg.com/vi/${item.youtubeId}/hqdefault.jpg`
       : null,
     alt: item.alt,
+    ...(item.blurDataURL ? { blurDataURL: item.blurDataURL } : {}),
   };
 }
 

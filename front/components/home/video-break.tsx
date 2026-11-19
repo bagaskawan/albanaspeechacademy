@@ -36,10 +36,10 @@ export function VideoBreak({ video, programTitle }: { video: HomeMedia; programT
           {video.poster ? (
             <SkeletonImage fill src={video.poster} alt="" sizes="(min-width: 1280px) 1200px, 100vw" className="object-cover hover-zoom" />
           ) : null}
-          <span aria-hidden="true" className="absolute inset-0 bg-[rgb(7_15_28/0.25)]" />
+          <span aria-hidden="true" className="absolute inset-0 bg-[rgb(7_15_28/0.25)] transition-colors duration-700 ease-out group-hover:bg-[rgb(7_15_28/0.16)] motion-reduce:transition-none" />
           <span
             aria-hidden="true"
-            className="absolute top-1/2 left-1/2 flex size-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xs bg-[var(--tone-sun)] text-[var(--tone-on-sun)] transition-transform group-hover:scale-105"
+            className="absolute top-1/2 left-1/2 flex size-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xs bg-[var(--tone-sun)] text-[var(--tone-on-sun)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105 motion-reduce:transition-none"
           >
             <Play className="size-7 translate-x-0.5 fill-current" />
           </span>

@@ -95,12 +95,19 @@ export function HomeScroll() {
         if (kind === "bar") {
           if (reduced) return;
           const vertical = element.classList.contains("origin-bottom");
+          gsap.set(element, vertical ? { scaleY: 0 } : { scaleX: 0 });
           triggers.push(ScrollTrigger.create({
-            trigger: element.closest("section") ?? element,
-            start: "top 80%",
-            end: "center 55%",
-            scrub: 0.8,
-            animation: gsap.fromTo(element, vertical ? { scaleY: 0 } : { scaleX: 0 }, vertical ? { scaleY: 1, ease: "none" } : { scaleX: 1, ease: "none" }),
+            trigger: element,
+            start: "top 85%",
+            once: true,
+            onEnter: () => {
+              gsap.to(element, {
+                ...(vertical ? { scaleY: 1 } : { scaleX: 1 }),
+                duration: 1.0,
+                ease: "power3.out",
+                overwrite: true,
+              });
+            },
           }));
           return;
         }

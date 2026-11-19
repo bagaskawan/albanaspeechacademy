@@ -21,6 +21,7 @@ export type ProgramMediaItem = {
   src: string;
   alt: string;
   youtubeId: string | null;
+  blurDataURL?: string | null;
 };
 
 export function mediaCapacity(items: readonly { kind: string }[]) {

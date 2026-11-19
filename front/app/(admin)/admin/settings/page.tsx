@@ -1,7 +1,6 @@
-import { BookOpen, Building2, FileCheck2, GraduationCap, Landmark, Phone } from "lucide-react";
+import { BookOpen, FileCheck2, GraduationCap, Landmark, Phone } from "lucide-react";
 import { SettingsTabs } from "@/components/admin/settings/SettingsTabs";
 import { requireAdminMember } from "@/lib/server/admin-guard";
-import ProfilAkademiPanel from "../profil-akademi/panel";
 import KontakPanel from "../kontak/panel";
 import RekeningPanel from "../rekening/panel";
 import { InhouseTrainingProgramPanel, PublicTrainingProgramPanel } from "./program-panel";
@@ -17,9 +16,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 
   return (
     <SettingsTabs
-      initialTab={tab ?? "profil"}
+      initialTab={tab ?? "kontak"}
       tabs={[
-        { id: "profil", label: "Profil akademi", hint: "Nama, metode belajar, penjadwalan ulang", icon: <Building2 {...icon} /> },
         { id: "kontak", label: "Kontak", hint: "Kanal kontak di situs publik", icon: <Phone {...icon} /> },
         { id: "rekening", label: "Rekening", hint: "Rekening tujuan transfer tagihan", icon: <Landmark {...icon} /> },
         { id: "public-training", label: "Public Training", hint: "Detail, biaya, dan materi Public Training", icon: <BookOpen {...icon} /> },
@@ -27,7 +25,6 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         { id: "legalitas", label: "Legalitas", hint: "Akta CV, NIB, SKT, dan kartu NPWP", icon: <FileCheck2 {...icon} /> },
       ]}
       panels={{
-        profil: <ProfilAkademiPanel />,
         kontak: <KontakPanel />,
         rekening: <RekeningPanel />,
         "public-training": <PublicTrainingProgramPanel />,

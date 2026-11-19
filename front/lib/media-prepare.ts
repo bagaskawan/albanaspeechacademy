@@ -28,6 +28,16 @@ export async function prepareImage(bytes: Buffer, minWidth: number, minHeight: n
   throw new Error("Gambar belum bisa dipadatkan ke 5 MiB tanpa menurunkan kualitas terlalu jauh. Pilih sumber yang lebih ringan.");
 }
 
+/** Buat pratinjau blur selebar ~10 px dalam format data URI WebP dari gambar yang sama. */
+export async function createBlurDataUrl(bytes: Buffer): Promise<string> {
+  const preview = await sharp(bytes)
+    .rotate()
+    .resize(10, undefined, { fit: "inside", withoutEnlargement: true })
+    .webp({ quality: 40 })
+    .toBuffer();
+  return `data:image/webp;base64,${preview.toString("base64")}`;
+}
+
 export function readMp4Resolution(bytes: Buffer): { width: number; height: number } | null {
   if (bytes.length < 16 || bytes.toString("ascii", 4, 8) !== "ftyp") return null;
   let largest: { width: number; height: number } | null = null;

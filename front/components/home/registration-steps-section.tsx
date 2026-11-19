@@ -19,7 +19,7 @@ export async function RegistrationStepsSection() {
     <section id="daftar" className="tone-canvas home-section" aria-labelledby="daftar-title">
       <div className="home-container home-stack-head">
         <SectionIntro
-          eyebrow="10 — Cara daftar"
+          eyebrow="10 · Cara daftar"
           titleId="daftar-title"
           title={
             <>

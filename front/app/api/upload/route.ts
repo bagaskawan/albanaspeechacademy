@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { academyBillingClient } from "@/lib/server/academy-billing";
-import { MAX_IMAGE_SOURCE, MAX_VIDEO_SOURCE, prepareImage, readMp4Resolution } from "@/lib/media-prepare";
+import { createBlurDataUrl, MAX_IMAGE_SOURCE, MAX_VIDEO_SOURCE, prepareImage, readMp4Resolution } from "@/lib/media-prepare";
 import { photoLimitError, programBucket } from "@/lib/program-media";
 import { deleteStorageFiles, parseStorageUrl } from "@/lib/supabase/storage-cleanup";
 
@@ -50,6 +50,7 @@ export async function POST(request: Request) {
     const source = Buffer.from(await file.arrayBuffer());
     let bytes: Buffer = source;
     let contentType = "video/mp4";
+    let blurDataUrl: string | null = null;
     if (isVideo) {
       const resolution = readMp4Resolution(source);
       if (!resolution) return json({ error: "MP4 tidak valid atau resolusinya tidak dapat dibaca." }, 422);
@@ -59,6 +60,9 @@ export async function POST(request: Request) {
         ? await prepareImage(source, 320, 320)
         : await prepareImage(source, 0, 0);
       contentType = "image/webp";
+      if (purpose === "program") {
+        blurDataUrl = await createBlurDataUrl(bytes);
+      }
     }
     const storage = academyBillingClient();
     const programSlug = purpose === "program" ? String(form.get("programSlug") ?? "").trim() || null : null;
@@ -114,6 +118,7 @@ export async function POST(request: Request) {
           provider: "supabase_storage",
           object_key: key,
           alt_text: altText || existingAsset.alt_text,
+          blur_data_url: blurDataUrl,
           consent_at: new Date().toISOString(),
         })
         .eq("id", existingAsset.id);
@@ -131,7 +136,7 @@ export async function POST(request: Request) {
     }
 
     const { data, error } = await storage.from("media_assets").insert({ provider: "supabase_storage", kind: isVideo ? "video" : "image",
-      object_key: key, alt_text: altText || null, program_slug: programSlug, batch_slug: batchSlug, published: true, consent_at: new Date().toISOString() }).select("id").single();
+      object_key: key, alt_text: altText || null, blur_data_url: blurDataUrl, program_slug: programSlug, batch_slug: batchSlug, published: true, consent_at: new Date().toISOString() }).select("id").single();
     if (error || !data) {
       await storage.storage.from(bucket).remove([key]);
       throw error ?? new Error("Metadata media tidak tersimpan.");

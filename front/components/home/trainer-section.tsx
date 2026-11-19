@@ -42,13 +42,13 @@ export async function TrainerSection() {
           intro={
             <>
               <div className="flex flex-col gap-4">
-                <p className="type-label text-[var(--tone-muted)]">08 — Trainer</p>
+                <p className="type-label text-[var(--tone-muted)]">08 · Trainer</p>
                 <h2 id="trainer-title" data-motion="heading" className="type-display text-balance">
                   Kenali <Accent>yang akan mendampingimu.</Accent>
                 </h2>
               </div>
               <p data-motion="rise" className="type-body text-[var(--tone-muted)] text-pretty">
-                Praktisi yang sehari-hari berbicara di depan audiens — di radio, panggung, ruang kelas, dan ruang rapat. Mereka akan menilai latihanmu dari pengalaman, bukan dari buku.
+                Praktisi yang sehari-hari berbicara di depan audiens: di radio, panggung, ruang kelas, dan ruang rapat. Mereka akan menilai latihanmu dari pengalaman, bukan dari buku.
               </p>
             </>
           }

@@ -10,14 +10,14 @@ export function TestimonialChapter({ testimonials }: { testimonials: HomeTestimo
     <section id="hasil" className="tone-canvas home-section" aria-labelledby="hasil-title">
       <div className="home-container home-stack-head">
         <SectionIntro
-          eyebrow="07 — Cerita peserta"
+          eyebrow="07 · Cerita peserta"
           titleId="hasil-title"
           title={
             <>
               Mereka pernah <Accent>gugup juga.</Accent>
             </>
           }
-          description="Cerita singkat dari peserta yang sudah berlatih bersama Albana — sebelum dan sesudah berdiri di depan orang."
+          description="Cerita singkat dari peserta yang sudah berlatih bersama Albana, sebelum dan sesudah berdiri di depan orang."
         />
         <TestimonialSlider testimonials={testimonials} />
       </div>

@@ -5,6 +5,7 @@ type BrandLogoProps = {
   imageClassName?: string;
   src?: string;
   sizes?: string;
+  priority?: boolean;
 };
 
 export function BrandLogo({
@@ -12,6 +13,7 @@ export function BrandLogo({
   imageClassName = "scale-[1.8]",
   src = "/images/alan-albana-transparent.png",
   sizes = "100px",
+  priority = true,
 }: BrandLogoProps) {
   return (
     <span className={`relative block aspect-[120/46] overflow-hidden ${className}`}>
@@ -19,7 +21,7 @@ export function BrandLogo({
         alt="Albana Speech Academy"
         className={`object-contain ${imageClassName}`}
         fill
-        priority
+        priority={priority}
         sizes={sizes}
         src={src}
       />

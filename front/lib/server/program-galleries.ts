@@ -16,6 +16,7 @@ type RawAsset = {
   object_key?: string | null;
   alt_text?: string | null;
   program_slug?: string | null;
+  blur_data_url?: string | null;
 };
 
 async function resolveSignedUrls(rows: RawAsset[]): Promise<Map<number, string>> {
@@ -61,7 +62,7 @@ async function resolveSignedUrls(rows: RawAsset[]): Promise<Map<number, string>>
 export async function readProgramGalleries(): Promise<Record<string, ProgramGallery>> {
   try {
     const rows = await academyRequest(
-      "media_assets?select=id,provider,kind,object_key,alt_text,program_slug&published=eq.true&consent_at=not.is.null&order=created_at.desc"
+      "media_assets?select=id,provider,kind,object_key,alt_text,program_slug,blur_data_url&published=eq.true&consent_at=not.is.null&order=created_at.desc"
     );
     if (!Array.isArray(rows)) return {};
     const typedRows = rows as RawAsset[];
@@ -86,6 +87,9 @@ export async function readProgramGalleries(): Promise<Record<string, ProgramGall
           };
         }
       } else if (row.provider === "supabase_storage") {
+        const blur = typeof row.blur_data_url === "string" && row.blur_data_url.startsWith("data:image/")
+          ? row.blur_data_url
+          : null;
         item = {
           id: row.id,
           kind: row.kind === "video" ? "video" : "image",
@@ -93,6 +97,7 @@ export async function readProgramGalleries(): Promise<Record<string, ProgramGall
           src: signedUrls.get(row.id) ?? `/api/media/${row.id}`,
           alt: row.alt_text || slug,
           youtubeId: null,
+          ...(blur ? { blurDataURL: blur } : {}),
         };
       }
 

@@ -38,7 +38,7 @@ export async function ScheduleSection({
     <section id="jadwal" className="tone-mist home-section" aria-labelledby="jadwal-title">
       <div className="home-container home-stack-head">
         <SectionIntro
-          eyebrow="09 — Jadwal dan biaya"
+          eyebrow="09 · Jadwal dan biaya"
           title={
             <>
               Pilih batch, <Accent>tandai kalendermu</Accent>
@@ -150,7 +150,7 @@ export async function ScheduleSection({
                           </p>
                         ) : null}
                         <p className="type-title mt-1 tabular-nums">
-                          {card.batch!.priceIdr ? rupiah(card.batch!.priceIdr) : "—"}
+                          {card.batch!.priceIdr ? rupiah(card.batch!.priceIdr) : "-"}
                         </p>
                       </div>
 

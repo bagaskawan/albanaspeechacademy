@@ -5,5 +5,5 @@ export const dynamic = "force-dynamic";
 
 export default async function ProfilAkademiPage() {
   await requireAdminMember();
-  redirect("/admin/settings?tab=profil");
+  redirect("/admin/settings");
 }

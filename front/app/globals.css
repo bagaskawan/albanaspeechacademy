@@ -592,16 +592,25 @@ html.lenis body {
   }
   /* Zoom foto saat hover: lambat dan lembut, hanya untuk pointer halus. */
   .hover-zoom {
-    transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: auto;
+    transform: translateZ(0) scale(1);
+    transform-origin: center;
+    transition:
+      transform 950ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 350ms ease-out;
   }
   @media (hover: hover) and (pointer: fine) {
-    .group:hover .hover-zoom { transform: scale(1.04); }
+    .group:hover .hover-zoom {
+      transform: translateZ(0) scale(1.035);
+      will-change: transform;
+    }
   }
-  .group:focus-visible .hover-zoom { transform: scale(1.04); }
+  .group:focus-visible .hover-zoom {
+    transform: translateZ(0) scale(1.035);
+    will-change: transform;
+  }
   @media (prefers-reduced-motion: reduce) {
-    .hover-zoom { transition: none; }
-    .group:hover .hover-zoom, .group:focus-visible .hover-zoom { transform: none; }
+    .hover-zoom { transition: none; transform: none; }
+    .group:hover .hover-zoom, .group:focus-visible .hover-zoom { transform: none; will-change: auto; }
   }
   .accent-italic {
     font-family: var(--font-serif);
@@ -1818,16 +1827,30 @@ body:has(.admin-shell) {
 .dark .academy-hero-image { background: #26599a; }
 .dark .academy-hero-gallery figcaption { color: #dcebfa; }
 
-@media (prefers-reduced-motion: no-preference) {
-  html.motion-ready .academy-hero-content > * { animation: academy-hero-enter .55s ease-out both; }
-  html.motion-ready .academy-hero-content > :nth-child(2) { animation-delay: .1s; }
-  html.motion-ready .academy-hero-content > :nth-child(3) { animation-delay: .2s; }
-  html.motion-ready .academy-hero-content > :nth-child(4) { animation-delay: .3s; }
+/* Varian CTA lokal hero: mendekati biru logo tanpa mengubah .button-primary global. */
+.hero-button-primary {
+  background: var(--color-hero-button);
+  color: var(--color-canvas);
+}
+.hero-button-primary:hover {
+  background: var(--color-hover);
+}
+.hero-button-primary:active {
+  background: var(--color-pressed);
+}
+.dark .hero-button-primary:focus-visible {
+  outline-color: #9cc4ee;
 }
 
-@keyframes academy-hero-enter {
+@keyframes hero-bento-in {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html.motion-ready .hero-anim-bento {
+    animation: hero-bento-in 500ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)) 180ms both;
+  }
 }
 
 .admin-shell :is(h1, h2, h3, h4, h5, h6) { font-family: var(--font-admin-display); }

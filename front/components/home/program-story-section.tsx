@@ -122,7 +122,7 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
                     data-motion="media"
                     className={`relative overflow-hidden rounded-xs bg-[var(--tone-tile)] ${photoIndex === 0 ? "aspect-[4/5]" : "aspect-[4/5] sm:translate-y-8"}`}
                   >
-                    <SkeletonImage fill src={item.src} alt={item.alt} sizes="(min-width: 1024px) 28vw, 50vw" className="object-cover object-top" />
+                    <SkeletonImage fill src={item.src} alt={item.alt} blurDataURL={item.blurDataURL ?? undefined} sizes="(min-width: 1024px) 28vw, 50vw" className="object-cover object-top" />
                   </div>
                 ))}
               </div>
@@ -157,7 +157,7 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
               <div>
                 <p className="type-small font-semibold">{card.statusLabel}</p>
                 <p className="type-title mt-1 tabular-nums">
-                  {card.batch?.priceIdr ? rupiah(card.batch.priceIdr) : "—"}
+                  {card.batch?.priceIdr ? rupiah(card.batch.priceIdr) : "-"}
                 </p>
                 {card.batch?.normalPriceIdr ? (
                   <p className="type-small tabular-nums line-through">{rupiah(card.batch.normalPriceIdr)}</p>
@@ -177,14 +177,15 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
         </div>
       </div>
 
-      {/* Dokumentasi lain kelas ini, selebar seksi (mosaik bila cukup foto). */}
+      {/* Dokumentasi lain kelas ini, selebar seksi dengan kolase editorial. */}
       {gallery.length > 0 ? (
-        <div className="mt-16 flex flex-col gap-4 lg:mt-24">
-          <div className="flex items-baseline justify-between gap-4">
-            <p className="type-label text-[var(--tone-muted)]">Galeri {card.title}</p>
-            <p className="type-small text-[var(--tone-muted)]">{gallery.length} foto</p>
-          </div>
-          <BentoGallery media={gallery} label={`Galeri ${card.title}`} variant="mosaic" />
+        <div className="mt-16 lg:mt-24">
+          <BentoGallery
+            media={gallery}
+            label={`Galeri ${card.title}`}
+            variant="editorial"
+            editorialTitle={card.title}
+          />
         </div>
       ) : null}
     </article>

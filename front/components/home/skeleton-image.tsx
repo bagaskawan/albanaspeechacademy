@@ -1,32 +1,28 @@
-"use client";
-
 import Image, { type ImageProps } from "next/image";
-import { useState } from "react";
 
-export function SkeletonImage({ className = "", onLoad, onError, alt, ...props }: ImageProps) {
-  const [loaded, setLoaded] = useState(false);
+function shouldBypassOptimizer(src: ImageProps["src"]): boolean {
+  if (typeof src !== "string") return false;
+  return src.startsWith("/api/media/") || src.includes(".supabase.co/") || src.includes("i.ytimg.com/");
+}
 
+export function SkeletonImage({
+  className = "",
+  alt,
+  unoptimized,
+  src,
+  placeholder,
+  blurDataURL,
+  ...props
+}: ImageProps) {
   return (
-    <>
-      {!loaded ? (
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 animate-pulse bg-[var(--tone-tile)]"
-        />
-      ) : null}
-      <Image
-        {...props}
-        alt={alt}
-        onLoad={(event) => {
-          setLoaded(true);
-          onLoad?.(event);
-        }}
-        onError={(event) => {
-          setLoaded(true);
-          onError?.(event);
-        }}
-        className={`${className} transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
-      />
-    </>
+    <Image
+      {...props}
+      src={src}
+      alt={alt}
+      unoptimized={unoptimized ?? shouldBypassOptimizer(src)}
+      placeholder={blurDataURL ? "blur" : placeholder}
+      blurDataURL={blurDataURL}
+      className={className}
+    />
   );
 }

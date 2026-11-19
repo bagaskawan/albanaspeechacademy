@@ -5,21 +5,101 @@ import { useEffect, useRef, useState } from "react";
 import { bentoLayout, mosaicLayout } from "@/lib/bento";
 import type { HomeMedia } from "@/lib/home-data";
 import { SkeletonImage } from "./skeleton-image";
+import { Accent } from "./ui/accent";
 
 // Galeri kecil (1–3 foto) memenuhi satu baris penuh agar tidak bolong.
 const FEW_COLUMNS: Record<number, string> = { 1: "grid-cols-1", 2: "grid-cols-2", 3: "grid-cols-3" };
+
+// Penempatan kolase editorial 3 kolom tanpa kotak latar, mengikuti ritme foto bertingkat.
+const EDITORIAL_LIMIT = 10;
+
+type EditorialTileProps = {
+  item: HomeMedia;
+  index: number;
+  aspectClass: string;
+  objectPosition: string;
+  sizes: string;
+  onOpen: (index: number, button: HTMLButtonElement) => void;
+  onOrientation: (id: number, img: HTMLImageElement) => void;
+};
+
+function EditorialTile({
+  item,
+  index,
+  aspectClass,
+  objectPosition,
+  sizes,
+  onOpen,
+  onOrientation,
+}: EditorialTileProps) {
+  return (
+    <div
+      data-motion="media"
+      className={`overflow-hidden rounded-xs bg-[var(--tone-tile)] ${aspectClass}`}
+    >
+      <button
+        type="button"
+        aria-label={`Perbesar: ${item.alt}`}
+        aria-haspopup="dialog"
+        className="group relative block size-full cursor-pointer overflow-hidden"
+        onClick={(event) => onOpen(index, event.currentTarget)}
+      >
+        {item.kind === "video" ? (
+          <>
+            {item.poster ? (
+              <SkeletonImage
+                fill
+                src={item.poster}
+                alt={item.alt}
+                quality={85}
+                sizes={sizes}
+                onLoad={(e) => onOrientation(item.id, e.currentTarget)}
+                className={`object-cover ${objectPosition} hover-zoom`}
+              />
+            ) : null}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 flex items-center justify-center"
+            >
+              <span className="flex size-10 items-center justify-center rounded-xs bg-ink/85 text-white transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105 motion-reduce:transition-none">
+                <Play className="size-4 translate-x-0.5 fill-current" />
+              </span>
+            </span>
+          </>
+        ) : (
+          <SkeletonImage
+            fill
+            src={item.src}
+            alt={item.alt}
+            quality={85}
+            sizes={sizes}
+            blurDataURL={item.blurDataURL ?? undefined}
+            onLoad={(e) => onOrientation(item.id, e.currentTarget)}
+            className={`object-cover ${objectPosition} hover-zoom`}
+          />
+        )}
+      </button>
+    </div>
+  );
+}
 
 export function BentoGallery({
   media,
   label,
   variant = "grid",
+  editorialTitle,
 }: {
   media: HomeMedia[];
   label: string;
-  /** mosaic: pola 10/8/4 petak untuk bab Dokumentasi. */
-  variant?: "grid" | "mosaic";
+  /** mosaic: pola 10/8/4 petak; editorial: kolase 3 kolom tanpa kotak latar. */
+  variant?: "grid" | "mosaic" | "editorial";
+  editorialTitle?: string;
 }) {
-  const { tiles, ordered, rest } = variant === "mosaic" ? mosaicLayout(media) : bentoLayout(media);
+  const isEditorial = variant === "editorial";
+  const baseLayout = variant === "mosaic" ? mosaicLayout(media) : bentoLayout(media);
+  const tiles = isEditorial ? baseLayout.tiles.slice(0, EDITORIAL_LIMIT) : baseLayout.tiles;
+  const ordered = baseLayout.ordered;
+  const rest = isEditorial ? Math.max(0, ordered.length - tiles.length) : baseLayout.rest;
   const mosaic = variant === "mosaic" && tiles[0]?.className !== "aspect-[4/3]";
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -52,90 +132,242 @@ export function BentoGallery({
     setActiveIndex((current) => (current === null ? null : (current + 1) % total));
   }
 
+  function openTile(index: number, button: HTMLButtonElement) {
+    triggerRef.current = button;
+    setActiveIndex(index);
+  }
+
+  function objectPosFor(id: number) {
+    return orientations[id] === "portrait" ? "object-top" : "object-center";
+  }
+
   return (
     <div>
-      <ul
-        data-bento
-        aria-label={label}
-        className={
-          mosaic
-            ? "grid grid-flow-dense auto-rows-[9rem] grid-cols-2 gap-2 sm:auto-rows-[12rem] lg:grid-cols-4 lg:auto-rows-[13rem]"
-            : `grid gap-1 ${FEW_COLUMNS[tiles.length] ?? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"}`
-        }
-      >
-        {tiles.map((tile, index) => {
-          const item = tile.media;
-          const orientation = orientations[item.id];
-          const tileClass = !mosaic && orientation === "portrait" ? "aspect-[3/4]" : tile.className;
-          const objectPosition = orientation === "portrait" ? "object-top" : "object-center";
-          return (
-            <li
-              key={item.id}
-              data-motion="media"
-              className={`overflow-hidden rounded-xs bg-[var(--tone-tile)] ${tileClass}`}
-            >
-              <button
-                type="button"
-                aria-label={`Perbesar: ${item.alt}`}
-                aria-haspopup="dialog"
-                className="group relative block size-full cursor-pointer overflow-hidden"
-                onClick={(event) => {
-                  triggerRef.current = event.currentTarget;
-                  setActiveIndex(index);
-                }}
-              >
-                {item.kind === "video" ? (
-                  <>
-                    {item.poster ? (
+      {isEditorial ? (
+        <div
+          data-bento
+          role="region"
+          aria-label={label}
+          className="grid grid-cols-1 gap-4 md:grid-cols-12 md:items-start md:gap-4 lg:gap-5"
+        >
+          {/* Kolom kiri: 1 foto bertangga + tipografi editorial + foto pengisi bawah */}
+          <div className="flex flex-col gap-5 md:col-span-4 md:mt-12">
+            {tiles[0] ? (
+              <EditorialTile
+                item={tiles[0].media}
+                index={0}
+                aspectClass="aspect-[3/4]"
+                objectPosition={objectPosFor(tiles[0].media.id)}
+                sizes="(min-width: 768px) 30vw, 100vw"
+                onOpen={openTile}
+                onOrientation={recordOrientation}
+              />
+            ) : null}
+
+            <div className="flex flex-col items-start gap-3 py-2 md:py-6">
+              <p className="type-display text-[var(--tone-accent)] text-balance">
+                Galeri <Accent>{editorialTitle ?? label}</Accent>
+              </p>
+              <p className="type-small max-w-[30ch] uppercase tracking-wider text-[var(--tone-accent)]/85">
+                Suasana latihan panggung, simulasi presentasi, dan masukan langsung di setiap sesi kelas.
+              </p>
+            </div>
+
+            {tiles[7] ? (
+              <EditorialTile
+                item={tiles[7].media}
+                index={7}
+                aspectClass="aspect-[4/3]"
+                objectPosition={objectPosFor(tiles[7].media.id)}
+                sizes="(min-width: 768px) 30vw, 100vw"
+                onOpen={openTile}
+                onOrientation={recordOrientation}
+              />
+            ) : null}
+            {tiles[9] ? (
+              <EditorialTile
+                item={tiles[9].media}
+                index={9}
+                aspectClass="aspect-[4/3]"
+                objectPosition={objectPosFor(tiles[9].media.id)}
+                sizes="(min-width: 768px) 30vw, 100vw"
+                onOpen={openTile}
+                onOrientation={recordOrientation}
+              />
+            ) : null}
+          </div>
+
+          {/* Kolom tengah: 3 foto vertikal berjenjang */}
+          <div className="grid grid-cols-2 gap-3 md:col-span-4 md:grid-cols-1 md:gap-4 lg:gap-5">
+            {tiles[1] ? (
+              <EditorialTile
+                item={tiles[1].media}
+                index={1}
+                aspectClass="aspect-[2/3]"
+                objectPosition={objectPosFor(tiles[1].media.id)}
+                sizes="(min-width: 768px) 30vw, 50vw"
+                onOpen={openTile}
+                onOrientation={recordOrientation}
+              />
+            ) : null}
+            {tiles[2] ? (
+              <EditorialTile
+                item={tiles[2].media}
+                index={2}
+                aspectClass="aspect-[3/4]"
+                objectPosition={objectPosFor(tiles[2].media.id)}
+                sizes="(min-width: 768px) 30vw, 50vw"
+                onOpen={openTile}
+                onOrientation={recordOrientation}
+              />
+            ) : null}
+            {tiles[8] ? (
+              <EditorialTile
+                item={tiles[8].media}
+                index={8}
+                aspectClass="aspect-square"
+                objectPosition={objectPosFor(tiles[8].media.id)}
+                sizes="(min-width: 768px) 30vw, 50vw"
+                onOpen={openTile}
+                onOrientation={recordOrientation}
+              />
+            ) : null}
+          </div>
+
+          {/* Kolom kanan: 4 foto ritme variatif */}
+          <div className="grid grid-cols-2 gap-3 md:col-span-4 md:mt-6 md:grid-cols-1 md:gap-4 lg:gap-5">
+            {tiles[3] ? (
+              <EditorialTile
+                item={tiles[3].media}
+                index={3}
+                aspectClass="aspect-square md:w-3/4"
+                objectPosition={objectPosFor(tiles[3].media.id)}
+                sizes="(min-width: 768px) 22vw, 50vw"
+                onOpen={openTile}
+                onOrientation={recordOrientation}
+              />
+            ) : null}
+            {tiles[4] ? (
+              <EditorialTile
+                item={tiles[4].media}
+                index={4}
+                aspectClass="aspect-[3/4]"
+                objectPosition={objectPosFor(tiles[4].media.id)}
+                sizes="(min-width: 768px) 30vw, 50vw"
+                onOpen={openTile}
+                onOrientation={recordOrientation}
+              />
+            ) : null}
+            {tiles[5] ? (
+              <EditorialTile
+                item={tiles[5].media}
+                index={5}
+                aspectClass="aspect-[4/3]"
+                objectPosition={objectPosFor(tiles[5].media.id)}
+                sizes="(min-width: 768px) 30vw, 50vw"
+                onOpen={openTile}
+                onOrientation={recordOrientation}
+              />
+            ) : null}
+            {tiles[6] ? (
+              <EditorialTile
+                item={tiles[6].media}
+                index={6}
+                aspectClass="aspect-square"
+                objectPosition={objectPosFor(tiles[6].media.id)}
+                sizes="(min-width: 768px) 30vw, 50vw"
+                onOpen={openTile}
+                onOrientation={recordOrientation}
+              />
+            ) : null}
+          </div>
+        </div>
+      ) : (
+        <>
+          <ul
+            data-bento
+            aria-label={label}
+            className={
+              mosaic
+                ? "grid grid-flow-dense auto-rows-[9rem] grid-cols-2 gap-2 sm:auto-rows-[12rem] lg:grid-cols-4 lg:auto-rows-[13rem]"
+                : `grid gap-1 ${FEW_COLUMNS[tiles.length] ?? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"}`
+            }
+          >
+            {tiles.map((tile, index) => {
+              const item = tile.media;
+              const orientation = orientations[item.id];
+              const tileClass = !mosaic && orientation === "portrait" ? "aspect-[3/4]" : tile.className;
+              const objectPosition = orientation === "portrait" ? "object-top" : "object-center";
+              return (
+                <li
+                  key={item.id}
+                  data-motion="media"
+                  className={`overflow-hidden rounded-xs bg-[var(--tone-tile)] ${tileClass}`}
+                >
+                  <button
+                    type="button"
+                    aria-label={`Perbesar: ${item.alt}`}
+                    aria-haspopup="dialog"
+                    className="group relative block size-full cursor-pointer overflow-hidden"
+                    onClick={(event) => {
+                      triggerRef.current = event.currentTarget;
+                      setActiveIndex(index);
+                    }}
+                  >
+                    {item.kind === "video" ? (
+                      <>
+                        {item.poster ? (
+                          <SkeletonImage
+                            fill
+                            src={item.poster}
+                            alt={item.alt}
+                            quality={85}
+                            sizes="(min-width:1024px) 40vw, 100vw"
+                            onLoad={(e) => recordOrientation(item.id, e.currentTarget)}
+                            className={`object-cover ${objectPosition} hover-zoom`}
+                          />
+                        ) : null}
+                        <span
+                          aria-hidden="true"
+                          className="pointer-events-none absolute inset-0 flex items-center justify-center"
+                        >
+                          <span className="flex size-10 items-center justify-center rounded-xs bg-ink/85 text-white transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105 motion-reduce:transition-none">
+                            <Play className="size-4 translate-x-0.5 fill-current" />
+                          </span>
+                        </span>
+                      </>
+                    ) : (
                       <SkeletonImage
                         fill
-                        src={item.poster}
+                        src={item.src}
                         alt={item.alt}
                         quality={85}
                         sizes="(min-width:1024px) 40vw, 100vw"
                         onLoad={(e) => recordOrientation(item.id, e.currentTarget)}
                         className={`object-cover ${objectPosition} hover-zoom`}
                       />
-                    ) : null}
-                    <span
-                      aria-hidden="true"
-                      className="pointer-events-none absolute inset-0 flex items-center justify-center"
-                    >
-                      <span className="flex size-10 items-center justify-center rounded-xs bg-ink/85 text-white">
-                        <Play className="size-4 translate-x-0.5 fill-current" />
-                      </span>
-                    </span>
-                  </>
-                ) : (
-                  <SkeletonImage
-                    fill
-                    src={item.src}
-                    alt={item.alt}
-                    quality={85}
-                    sizes="(min-width:1024px) 40vw, 100vw"
-                    onLoad={(e) => recordOrientation(item.id, e.currentTarget)}
-                    className={`object-cover ${objectPosition} hover-zoom`}
-                  />
-                )}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
 
-      {rest > 0 ? (
-        <button
-          type="button"
-          aria-haspopup="dialog"
-          className="type-small mt-4 inline-flex min-h-11 cursor-pointer items-center font-medium underline underline-offset-4"
-          onClick={(event) => {
-            triggerRef.current = event.currentTarget;
-            setActiveIndex(tiles.length);
-          }}
-        >
-          Lihat semua dokumentasi ({total})
-        </button>
-      ) : null}
+          {rest > 0 ? (
+            <button
+              type="button"
+              aria-haspopup="dialog"
+              className="type-small mt-4 inline-flex min-h-11 cursor-pointer items-center font-medium underline underline-offset-4"
+              onClick={(event) => {
+                triggerRef.current = event.currentTarget;
+                setActiveIndex(tiles.length);
+              }}
+            >
+              Lihat semua dokumentasi ({total})
+            </button>
+          ) : null}
+        </>
+      )}
 
       <dialog
         ref={dialogRef}
