@@ -81,7 +81,7 @@ export function HeroSection({
 
       <div className="home-container relative z-10">
         <div className="home-grid items-center gap-y-8 lg:gap-x-10 xl:gap-x-12">
-          <div className="col-span-4 flex min-h-[88dvh] flex-col justify-between py-7 sm:col-span-8 sm:min-h-0 sm:items-start sm:justify-start sm:py-0 lg:col-span-5">
+          <div className="col-span-4 flex min-h-[100dvh] flex-col justify-between pt-7 pb-10 sm:col-span-8 sm:min-h-0 sm:items-start sm:justify-start sm:py-0 lg:col-span-5">
             <div className="flex flex-wrap items-center gap-3.5 sm:mb-8 sm:gap-4">
               <span
                 className="academy-hero-logo-blue hidden aspect-[120/46] h-8 sm:block sm:h-9 dark:hidden"
