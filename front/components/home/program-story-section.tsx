@@ -43,7 +43,7 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
     <article
       id={card.slug}
       aria-labelledby={`${card.slug}-title`}
-      className={video ? "pt-12 pb-4 lg:pt-20 lg:pb-6" : "py-12 lg:py-20"}
+      className={video ? "scroll-mt-14 pt-12 pb-4 lg:pt-20 lg:pb-6" : "scroll-mt-14 py-12 lg:py-20"}
     >
       <div className="home-grid items-start gap-y-8">
         {/* Teks program */}

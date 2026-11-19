@@ -1,6 +1,7 @@
 import { RetryButton } from "@/components/ui/retry-button";
 import type { HomeData } from "@/lib/home-data";
 import { InhouseTrainingSection } from "./inhouse-training-section";
+import { ProgramMobileTracker } from "./program-mobile-tracker";
 import { ProgramStorySection } from "./program-story-section";
 import { SectionIntro } from "./section-intro";
 import { Accent } from "./ui/accent";
@@ -42,9 +43,17 @@ export function ProgramChapter({
                 <RetryButton />
               </div>
             ) : (
-              programs.map((program, index) => (
-                <ProgramStorySection key={program.card.slug} program={program} index={index} />
-              ))
+              <div>
+                <ProgramMobileTracker
+                  items={programs.map((p) => ({
+                    slug: p.card.slug,
+                    title: p.card.title,
+                  }))}
+                />
+                {programs.map((program, index) => (
+                  <ProgramStorySection key={program.card.slug} program={program} index={index} />
+                ))}
+              </div>
             )}
           </div>
         </div>
