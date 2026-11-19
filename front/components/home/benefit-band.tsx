@@ -1,3 +1,4 @@
+import { CountUp } from "@/components/ui/count-up";
 import { SectionIntro } from "./section-intro";
 import { Accent } from "./ui/accent";
 
@@ -10,12 +11,18 @@ const benefits = [
 
 /** Bab 01 · alasan berlatih. Angka hanya dari data atau naskah bersumber. */
 export function BenefitBand({ programCount }: { programCount: number }) {
-  const facts = [
-    { value: "80%", label: "waktu kelas dipakai untuk praktik dan simulasi" },
+  const facts: Array<{
+    key: string;
+    label: string;
+    num?: number;
+    suffix?: string;
+    text?: string;
+  }> = [
+    { key: "practice", num: 80, suffix: "%", label: "waktu kelas dipakai untuk praktik dan simulasi" },
     ...(programCount > 0
-      ? [{ value: String(programCount), label: "jalur Public Training sesuai situasi bicaramu" }]
+      ? [{ key: "programs", num: programCount, label: "jalur Public Training sesuai situasi bicaramu" }]
       : []),
-    { value: "BNSP", label: "Master Trainer bersertifikat yang memimpin kelas" },
+    { key: "bnsp", text: "BNSP", label: "Master Trainer bersertifikat yang memimpin kelas" },
   ];
 
   return (
@@ -35,9 +42,15 @@ export function BenefitBand({ programCount }: { programCount: number }) {
 
         <dl className="grid gap-y-10 border-y border-[var(--tone-rule)] py-10 sm:grid-cols-3 sm:py-12">
           {facts.map((fact) => (
-            <div key={fact.label} data-motion="rise" className="flex flex-col items-center gap-3 px-6 text-center">
+            <div key={fact.key} data-motion="rise" className="flex flex-col items-center gap-3 px-6 text-center">
               <dt className="sr-only">{fact.label}</dt>
-              <dd className="type-mega tabular-nums">{fact.value}</dd>
+              <dd className="type-mega tabular-nums">
+                {fact.num !== undefined ? (
+                  <CountUp value={fact.num} suffix={fact.suffix} />
+                ) : (
+                  fact.text
+                )}
+              </dd>
               <dd className="type-small max-w-[22ch] text-[var(--tone-muted)]">{fact.label}</dd>
             </div>
           ))}

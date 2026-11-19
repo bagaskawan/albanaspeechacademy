@@ -1,7 +1,9 @@
 "use client";
 
-import { Play } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Play, X } from "lucide-react";
+import { AnimatePresence, m } from "motion/react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { MotionProvider } from "@/components/motion/MotionProvider";
 import { bentoLayout, mosaicLayout } from "@/lib/bento";
 import type { HomeMedia } from "@/lib/home-data";
 import { SkeletonImage } from "./skeleton-image";
@@ -101,9 +103,11 @@ export function BentoGallery({
   const ordered = baseLayout.ordered;
   const rest = isEditorial ? Math.max(0, ordered.length - tiles.length) : baseLayout.rest;
   const mosaic = variant === "mosaic" && tiles[0]?.className !== "aspect-[4/3]";
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const touchStartX = useRef<number | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [direction, setDirection] = useState<1 | -1>(1);
   const [orientations, setOrientations] = useState<Record<number, "portrait" | "landscape">>({});
 
   function recordOrientation(id: number, img: HTMLImageElement) {
@@ -112,28 +116,58 @@ export function BentoGallery({
     setOrientations((prev) => (prev[id] === next ? prev : { ...prev, [id]: next }));
   }
 
+  const total = ordered.length;
+  const isOpen = activeIndex !== null && Boolean(ordered[activeIndex]);
+
+  const closeModal = useCallback(() => {
+    setActiveIndex(null);
+    requestAnimationFrame(() => triggerRef.current?.focus());
+  }, []);
+
+  const showPrevious = useCallback(() => {
+    setDirection(-1);
+    setActiveIndex((current) => (current === null ? null : (current - 1 + total) % total));
+  }, [total]);
+
+  const showNext = useCallback(() => {
+    setDirection(1);
+    setActiveIndex((current) => (current === null ? null : (current + 1) % total));
+  }, [total]);
+
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (activeIndex !== null && !dialog.open) dialog.showModal();
-    if (activeIndex === null && dialog.open) dialog.close();
-  }, [activeIndex]);
+    if (!isOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const frame = requestAnimationFrame(() => closeButtonRef.current?.focus());
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeModal();
+      } else if (total > 1 && event.key === "ArrowLeft") {
+        event.preventDefault();
+        showPrevious();
+      } else if (total > 1 && event.key === "ArrowRight") {
+        event.preventDefault();
+        showNext();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, total, closeModal, showPrevious, showNext]);
 
   if (tiles.length === 0) return null;
 
   const active = activeIndex !== null ? ordered[activeIndex] ?? null : null;
-  const total = ordered.length;
-
-  function showPrevious() {
-    setActiveIndex((current) => (current === null ? null : (current - 1 + total) % total));
-  }
-
-  function showNext() {
-    setActiveIndex((current) => (current === null ? null : (current + 1) % total));
-  }
 
   function openTile(index: number, button: HTMLButtonElement) {
     triggerRef.current = button;
+    setDirection(1);
     setActiveIndex(index);
   }
 
@@ -369,86 +403,157 @@ export function BentoGallery({
         </>
       )}
 
-      <dialog
-        ref={dialogRef}
-        aria-label={label}
-        className="tone-canvas m-auto max-h-screen w-full max-w-5xl overflow-y-auto rounded-xs border border-[var(--tone-rule)] bg-[var(--tone-bg)] p-0 text-[var(--tone-ink)] backdrop:bg-ink/75"
-        onClick={(event) => {
-          if (event.target === dialogRef.current) setActiveIndex(null);
-        }}
-        onClose={() => {
-          setActiveIndex(null);
-          triggerRef.current?.focus();
-        }}
-        onKeyDown={(event) => {
-          if (total <= 1) return;
-          if (event.key === "ArrowLeft") {
-            event.preventDefault();
-            showPrevious();
-          } else if (event.key === "ArrowRight") {
-            event.preventDefault();
-            showNext();
-          }
-        }}
-      >
-        {active && activeIndex !== null ? (
-          <div>
-            <div className="bg-[var(--tone-tile)]">
-              {active.kind === "video" ? (
-                active.src ? (
-                  <iframe
-                    src={`${active.src}${active.src.includes("?") ? "&" : "?"}rel=0&playsinline=1&iv_load_policy=3`}
-                    title={active.alt}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="aspect-video w-full border-0"
-                  />
-                ) : (
-                  <div className="flex aspect-video w-full items-center justify-center p-8 text-center text-sm text-[var(--tone-muted)]">
-                    {active.alt}
+      <MotionProvider>
+        <AnimatePresence>
+          {active && activeIndex !== null ? (
+            <m.div
+              role="dialog"
+              aria-modal="true"
+              aria-label={label}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              onClick={(event) => {
+                if (event.target === event.currentTarget) closeModal();
+              }}
+              className="fixed inset-0 z-50 flex items-end justify-center bg-[#070f1c]/80 backdrop-blur-xs sm:items-center sm:p-6"
+            >
+              <m.div
+                initial={{ y: 40, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 40, opacity: 0 }}
+                transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                className="tone-canvas flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-none border-t border-[var(--tone-rule)] bg-[var(--tone-bg)] text-[var(--tone-ink)] shadow-2xl sm:max-w-4xl sm:rounded-xs sm:border"
+              >
+                {/* Top bar: counter & close */}
+                <div className="flex items-center justify-between gap-4 border-b border-[var(--tone-rule)] px-4 py-3 sm:px-5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xs font-semibold tabular-nums tracking-wider text-[var(--tone-accent)]">
+                      {String(activeIndex + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+                    </span>
+                    <span className="h-3.5 w-px bg-[var(--tone-rule)]" aria-hidden="true" />
+                    <span className="type-small truncate text-[var(--tone-muted)]">{label}</span>
                   </div>
-                )
-              ) : (
-                <div className="relative aspect-video w-full">
-                  <SkeletonImage
-                    fill
-                    src={active.src}
-                    alt={active.alt}
-                    quality={90}
-                    sizes="(min-width:1024px) 64rem, 100vw"
-                    className="object-contain"
-                  />
+
+                  <button
+                    ref={closeButtonRef}
+                    type="button"
+                    onClick={closeModal}
+                    aria-label="Tutup galeri"
+                    className="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-none border border-[var(--tone-rule)] bg-[var(--tone-tile)] text-[var(--tone-ink)] transition-colors hover:border-[var(--tone-accent)] hover:text-[var(--tone-accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--tone-accent)] sm:rounded-xs"
+                  >
+                    <X className="size-4" aria-hidden="true" />
+                  </button>
                 </div>
-              )}
-            </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--tone-rule)] p-4 md:p-6">
-              <p className="type-small min-w-0 flex-1 text-[var(--tone-muted)]">
-                <span className="mr-2 font-semibold tabular-nums text-[var(--tone-ink)]">
-                  {activeIndex + 1}/{total}
-                </span>
-                {active.alt}
-              </p>
+                {/* Media stage with smooth directional slide & touch swipe */}
+                <div
+                  className="relative overflow-hidden bg-[#0d1829]"
+                  onTouchStart={(event) => {
+                    touchStartX.current = event.changedTouches[0]?.clientX ?? null;
+                  }}
+                  onTouchEnd={(event) => {
+                    if (total <= 1 || touchStartX.current === null) return;
+                    const endX = event.changedTouches[0]?.clientX ?? touchStartX.current;
+                    const deltaX = endX - touchStartX.current;
+                    touchStartX.current = null;
+                    if (deltaX > 40) showPrevious();
+                    else if (deltaX < -40) showNext();
+                  }}
+                >
+                  <AnimatePresence mode="wait" initial={false}>
+                    <m.div
+                      key={active.id ?? activeIndex}
+                      initial={{ opacity: 0, x: direction * 28 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: direction * -28 }}
+                      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                      className="w-full"
+                    >
+                      {active.kind === "video" ? (
+                        active.src ? (
+                          <iframe
+                            src={`${active.src}${active.src.includes("?") ? "&" : "?"}rel=0&playsinline=1&iv_load_policy=3`}
+                            title={active.alt}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="aspect-video w-full border-0"
+                          />
+                        ) : (
+                          <div className="flex aspect-video w-full items-center justify-center p-8 text-center text-sm text-white/75">
+                            {active.alt}
+                          </div>
+                        )
+                      ) : (
+                        <div className="relative aspect-[4/3] w-full sm:aspect-video">
+                          <SkeletonImage
+                            fill
+                            src={active.src}
+                            alt={active.alt}
+                            quality={90}
+                            sizes="(min-width:1024px) 56rem, 100vw"
+                            className="object-contain"
+                          />
+                        </div>
+                      )}
+                    </m.div>
+                  </AnimatePresence>
 
-              <div className="flex shrink-0 flex-wrap items-center gap-2">
-                {total > 1 ? (
-                  <>
-                    <button type="button" className="button-secondary cursor-pointer" onClick={showPrevious}>
-                      Sebelumnya
-                    </button>
-                    <button type="button" className="button-secondary cursor-pointer" onClick={showNext}>
-                      Berikutnya
-                    </button>
-                  </>
-                ) : null}
-                <button type="button" className="button-primary cursor-pointer" onClick={() => setActiveIndex(null)}>
-                  Tutup
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : null}
-      </dialog>
+                  {total > 1 ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={showPrevious}
+                        aria-label="Foto sebelumnya"
+                        className="absolute top-1/2 left-3 hidden size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-xs border border-white/15 bg-[#070f1c]/70 text-white backdrop-blur-xs transition-colors hover:bg-[#070f1c]/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:inline-flex"
+                      >
+                        <ChevronLeft className="size-5" aria-hidden="true" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={showNext}
+                        aria-label="Foto berikutnya"
+                        className="absolute top-1/2 right-3 hidden size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-xs border border-white/15 bg-[#070f1c]/70 text-white backdrop-blur-xs transition-colors hover:bg-[#070f1c]/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:inline-flex"
+                      >
+                        <ChevronRight className="size-5" aria-hidden="true" />
+                      </button>
+                    </>
+                  ) : null}
+                </div>
+
+                {/* Bottom caption & controls */}
+                <div className="flex flex-col gap-3 border-t border-[var(--tone-rule)] bg-[var(--tone-bg)] p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4">
+                  <p className="type-small line-clamp-2 min-w-0 flex-1 break-words text-[var(--tone-muted)]">
+                    {active.alt}
+                  </p>
+
+                  {total > 1 ? (
+                    <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex sm:items-center">
+                      <button
+                        type="button"
+                        className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-1.5 rounded-none border border-[var(--tone-rule)] bg-[var(--tone-tile)] px-4 text-sm font-semibold text-[var(--tone-ink)] transition-colors hover:border-[var(--tone-accent)] hover:text-[var(--tone-accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--tone-accent)] sm:rounded-xs"
+                        onClick={showPrevious}
+                      >
+                        <ChevronLeft className="size-4" aria-hidden="true" />
+                        <span>Sebelumnya</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-1.5 rounded-none border border-[var(--tone-accent)] bg-[var(--tone-accent)] px-4 text-sm font-semibold text-[var(--tone-bg)] transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--tone-accent)] sm:rounded-xs"
+                        onClick={showNext}
+                      >
+                        <span>Berikutnya</span>
+                        <ChevronRight className="size-4" aria-hidden="true" />
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              </m.div>
+            </m.div>
+          ) : null}
+        </AnimatePresence>
+      </MotionProvider>
     </div>
   );
 }
