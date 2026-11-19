@@ -1,13 +1,13 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Play, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { AnimatePresence, m } from "motion/react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { MotionProvider } from "@/components/motion/MotionProvider";
+import { useCallback, useRef, useState } from "react";
 import { bentoLayout, mosaicLayout } from "@/lib/bento";
 import type { HomeMedia } from "@/lib/home-data";
 import { SkeletonImage } from "./skeleton-image";
 import { Accent } from "./ui/accent";
+import { MediaModal } from "./ui/media-modal";
 
 // Galeri kecil (1–3 foto) memenuhi satu baris penuh agar tidak bolong.
 const FEW_COLUMNS: Record<number, string> = { 1: "grid-cols-1", 2: "grid-cols-2", 3: "grid-cols-3" };
@@ -104,7 +104,6 @@ export function BentoGallery({
   const rest = isEditorial ? Math.max(0, ordered.length - tiles.length) : baseLayout.rest;
   const mosaic = variant === "mosaic" && tiles[0]?.className !== "aspect-[4/3]";
   const triggerRef = useRef<HTMLButtonElement | null>(null);
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const touchStartX = useRef<number | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [direction, setDirection] = useState<1 | -1>(1);
@@ -121,7 +120,6 @@ export function BentoGallery({
 
   const closeModal = useCallback(() => {
     setActiveIndex(null);
-    requestAnimationFrame(() => triggerRef.current?.focus());
   }, []);
 
   const showPrevious = useCallback(() => {
@@ -134,32 +132,19 @@ export function BentoGallery({
     setActiveIndex((current) => (current === null ? null : (current + 1) % total));
   }, [total]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const frame = requestAnimationFrame(() => closeButtonRef.current?.focus());
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        closeModal();
-      } else if (total > 1 && event.key === "ArrowLeft") {
+  const handleModalKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (total <= 1) return;
+      if (event.key === "ArrowLeft") {
         event.preventDefault();
         showPrevious();
-      } else if (total > 1 && event.key === "ArrowRight") {
+      } else if (event.key === "ArrowRight") {
         event.preventDefault();
         showNext();
       }
-    }
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      cancelAnimationFrame(frame);
-      document.body.style.overflow = prevOverflow;
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, total, closeModal, showPrevious, showNext]);
+    },
+    [total, showPrevious, showNext]
+  );
 
   if (tiles.length === 0) return null;
 
@@ -403,157 +388,130 @@ export function BentoGallery({
         </>
       )}
 
-      <MotionProvider>
-        <AnimatePresence>
-          {active && activeIndex !== null ? (
-            <m.div
-              role="dialog"
-              aria-modal="true"
-              aria-label={label}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-              onClick={(event) => {
-                if (event.target === event.currentTarget) closeModal();
-              }}
-              className="fixed inset-0 z-50 flex items-end justify-center bg-[#070f1c]/80 backdrop-blur-xs sm:items-center sm:p-6"
-            >
-              <m.div
-                initial={{ y: 40, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: 40, opacity: 0 }}
-                transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-                className="tone-canvas flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-none border-t border-[var(--tone-rule)] bg-[var(--tone-bg)] text-[var(--tone-ink)] shadow-2xl sm:max-w-4xl sm:rounded-xs sm:border"
-              >
-                {/* Top bar: counter & close */}
-                <div className="flex items-center justify-between gap-4 border-b border-[var(--tone-rule)] px-4 py-3 sm:px-5">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xs font-semibold tabular-nums tracking-wider text-[var(--tone-accent)]">
-                      {String(activeIndex + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-                    </span>
-                    <span className="h-3.5 w-px bg-[var(--tone-rule)]" aria-hidden="true" />
-                    <span className="type-small truncate text-[var(--tone-muted)]">{label}</span>
-                  </div>
+      <MediaModal
+        open={isOpen}
+        onClose={closeModal}
+        ariaLabel={label}
+        onKeyDown={handleModalKeyDown}
+        returnFocusTo={triggerRef}
+        headerLeft={
+          active && activeIndex !== null ? (
+            <>
+              <span className="shrink-0 text-xs font-semibold tabular-nums tracking-wider text-[var(--tone-accent)]">
+                {String(activeIndex + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+              </span>
+              <span className="h-3.5 w-px shrink-0 bg-[var(--tone-rule)]" aria-hidden="true" />
+              <span className="type-small truncate text-[var(--tone-muted)]">{label}</span>
+            </>
+          ) : null
+        }
+        footer={
+          active ? (
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="type-small line-clamp-2 min-w-0 flex-1 break-words text-[var(--tone-muted)]">
+                {active.alt}
+              </p>
 
+              {total > 1 ? (
+                <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex sm:items-center">
                   <button
-                    ref={closeButtonRef}
                     type="button"
-                    onClick={closeModal}
-                    aria-label="Tutup galeri"
-                    className="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-none border border-[var(--tone-rule)] bg-[var(--tone-tile)] text-[var(--tone-ink)] transition-colors hover:border-[var(--tone-accent)] hover:text-[var(--tone-accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--tone-accent)] sm:rounded-xs"
+                    className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-1.5 rounded-none border border-[var(--tone-rule)] bg-[var(--tone-tile)] px-4 text-sm font-semibold text-[var(--tone-ink)] transition-colors hover:border-[var(--tone-accent)] hover:text-[var(--tone-accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--tone-accent)] sm:rounded-xs"
+                    onClick={showPrevious}
                   >
-                    <X className="size-4" aria-hidden="true" />
+                    <ChevronLeft className="size-4" aria-hidden="true" />
+                    <span>Sebelumnya</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-1.5 rounded-none border border-[var(--tone-accent)] bg-[var(--tone-accent)] px-4 text-sm font-semibold text-[var(--tone-bg)] transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--tone-accent)] sm:rounded-xs"
+                    onClick={showNext}
+                  >
+                    <span>Berikutnya</span>
+                    <ChevronRight className="size-4" aria-hidden="true" />
                   </button>
                 </div>
-
-                {/* Media stage with smooth directional slide & touch swipe */}
-                <div
-                  className="relative overflow-hidden bg-[#0d1829]"
-                  onTouchStart={(event) => {
-                    touchStartX.current = event.changedTouches[0]?.clientX ?? null;
-                  }}
-                  onTouchEnd={(event) => {
-                    if (total <= 1 || touchStartX.current === null) return;
-                    const endX = event.changedTouches[0]?.clientX ?? touchStartX.current;
-                    const deltaX = endX - touchStartX.current;
-                    touchStartX.current = null;
-                    if (deltaX > 40) showPrevious();
-                    else if (deltaX < -40) showNext();
-                  }}
-                >
-                  <AnimatePresence mode="wait" initial={false}>
-                    <m.div
-                      key={active.id ?? activeIndex}
-                      initial={{ opacity: 0, x: direction * 28 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: direction * -28 }}
-                      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-                      className="w-full"
-                    >
-                      {active.kind === "video" ? (
-                        active.src ? (
-                          <iframe
-                            src={`${active.src}${active.src.includes("?") ? "&" : "?"}rel=0&playsinline=1&iv_load_policy=3`}
-                            title={active.alt}
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="aspect-video w-full border-0"
-                          />
-                        ) : (
-                          <div className="flex aspect-video w-full items-center justify-center p-8 text-center text-sm text-white/75">
-                            {active.alt}
-                          </div>
-                        )
-                      ) : (
-                        <div className="relative aspect-[4/3] w-full sm:aspect-video">
-                          <SkeletonImage
-                            fill
-                            src={active.src}
-                            alt={active.alt}
-                            quality={90}
-                            sizes="(min-width:1024px) 56rem, 100vw"
-                            className="object-contain"
-                          />
-                        </div>
-                      )}
-                    </m.div>
-                  </AnimatePresence>
-
-                  {total > 1 ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={showPrevious}
-                        aria-label="Foto sebelumnya"
-                        className="absolute top-1/2 left-3 hidden size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-xs border border-white/15 bg-[#070f1c]/70 text-white backdrop-blur-xs transition-colors hover:bg-[#070f1c]/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:inline-flex"
-                      >
-                        <ChevronLeft className="size-5" aria-hidden="true" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={showNext}
-                        aria-label="Foto berikutnya"
-                        className="absolute top-1/2 right-3 hidden size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-xs border border-white/15 bg-[#070f1c]/70 text-white backdrop-blur-xs transition-colors hover:bg-[#070f1c]/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:inline-flex"
-                      >
-                        <ChevronRight className="size-5" aria-hidden="true" />
-                      </button>
-                    </>
-                  ) : null}
-                </div>
-
-                {/* Bottom caption & controls */}
-                <div className="flex flex-col gap-3 border-t border-[var(--tone-rule)] bg-[var(--tone-bg)] p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4">
-                  <p className="type-small line-clamp-2 min-w-0 flex-1 break-words text-[var(--tone-muted)]">
-                    {active.alt}
-                  </p>
-
-                  {total > 1 ? (
-                    <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex sm:items-center">
-                      <button
-                        type="button"
-                        className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-1.5 rounded-none border border-[var(--tone-rule)] bg-[var(--tone-tile)] px-4 text-sm font-semibold text-[var(--tone-ink)] transition-colors hover:border-[var(--tone-accent)] hover:text-[var(--tone-accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--tone-accent)] sm:rounded-xs"
-                        onClick={showPrevious}
-                      >
-                        <ChevronLeft className="size-4" aria-hidden="true" />
-                        <span>Sebelumnya</span>
-                      </button>
-                      <button
-                        type="button"
-                        className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-1.5 rounded-none border border-[var(--tone-accent)] bg-[var(--tone-accent)] px-4 text-sm font-semibold text-[var(--tone-bg)] transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--tone-accent)] sm:rounded-xs"
-                        onClick={showNext}
-                      >
-                        <span>Berikutnya</span>
-                        <ChevronRight className="size-4" aria-hidden="true" />
-                      </button>
+              ) : null}
+            </div>
+          ) : null
+        }
+      >
+        {active && activeIndex !== null ? (
+          <div
+            className="relative w-full"
+            onTouchStart={(event) => {
+              touchStartX.current = event.changedTouches[0]?.clientX ?? null;
+            }}
+            onTouchEnd={(event) => {
+              if (total <= 1 || touchStartX.current === null) return;
+              const endX = event.changedTouches[0]?.clientX ?? touchStartX.current;
+              const deltaX = endX - touchStartX.current;
+              touchStartX.current = null;
+              if (deltaX > 40) showPrevious();
+              else if (deltaX < -40) showNext();
+            }}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <m.div
+                key={active.id ?? activeIndex}
+                initial={{ opacity: 0, x: direction * 28 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: direction * -28 }}
+                transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full"
+              >
+                {active.kind === "video" ? (
+                  active.src ? (
+                    <iframe
+                      src={`${active.src}${active.src.includes("?") ? "&" : "?"}rel=0&playsinline=1&iv_load_policy=3`}
+                      title={active.alt}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="aspect-video w-full border-0"
+                    />
+                  ) : (
+                    <div className="flex aspect-video w-full items-center justify-center p-8 text-center text-sm text-white/75">
+                      {active.alt}
                     </div>
-                  ) : null}
-                </div>
+                  )
+                ) : (
+                  <div className="relative aspect-[4/3] w-full sm:aspect-video">
+                    <SkeletonImage
+                      fill
+                      src={active.src}
+                      alt={active.alt}
+                      quality={90}
+                      sizes="(min-width:1024px) 56rem, 100vw"
+                      className="object-contain"
+                    />
+                  </div>
+                )}
               </m.div>
-            </m.div>
-          ) : null}
-        </AnimatePresence>
-      </MotionProvider>
+            </AnimatePresence>
+
+            {total > 1 ? (
+              <>
+                <button
+                  type="button"
+                  onClick={showPrevious}
+                  aria-label="Foto sebelumnya"
+                  className="absolute top-1/2 left-3 hidden size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-xs border border-white/15 bg-[#070f1c]/70 text-white backdrop-blur-xs transition-colors hover:bg-[#070f1c]/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:inline-flex"
+                >
+                  <ChevronLeft className="size-5" aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  onClick={showNext}
+                  aria-label="Foto berikutnya"
+                  className="absolute top-1/2 right-3 hidden size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-xs border border-white/15 bg-[#070f1c]/70 text-white backdrop-blur-xs transition-colors hover:bg-[#070f1c]/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:inline-flex"
+                >
+                  <ChevronRight className="size-5" aria-hidden="true" />
+                </button>
+              </>
+            ) : null}
+          </div>
+        ) : null}
+      </MediaModal>
     </div>
   );
 }
