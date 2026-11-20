@@ -51,6 +51,12 @@ export function RegistrationForm({ batch, baseBatch, offer, withBundle = false, 
 
   useEffect(() => { idempotencyKey.current = null; }, [batch.priceIdr, withBundle]);
 
+  useEffect(() => {
+    if (batch.dpPercent === null && values.paymentMethod === "dp") {
+      setValues((previous) => ({ ...previous, paymentMethod: "full" }));
+    }
+  }, [batch.dpPercent, values.paymentMethod]);
+
   useEffect(() => { onStepChange?.(step); }, [step, onStepChange]);
 
   useEffect(() => {
@@ -73,6 +79,16 @@ export function RegistrationForm({ batch, baseBatch, offer, withBundle = false, 
   const update = <K extends keyof RegistrationValues>(key: K, value: RegistrationValues[K]) => {
     idempotencyKey.current = null;
     setValues((previous) => ({ ...previous, [key]: value }));
+    setErrors((previous) => {
+      if (!previous[key] && !(key === "professionCategory" && previous.profession) && !(key === "source" && previous.sourceOther)) {
+        return previous;
+      }
+      const next = { ...previous };
+      delete next[key];
+      if (key === "professionCategory") delete next.profession;
+      if (key === "source") delete next.sourceOther;
+      return next;
+    });
   };
 
   function showErrors(nextErrors: RegistrationErrors, targetStep: number) {

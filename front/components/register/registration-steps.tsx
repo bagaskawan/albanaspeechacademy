@@ -1,8 +1,9 @@
 "use client";
 
+import { DomicileField } from "@/components/register/domicile-field";
 import { RadioGroup, TextArea, TextField } from "@/components/ui/field";
 import { formatRupiah } from "@/lib/format";
-import { REGIONS, professionOptions } from "@/lib/demographics";
+import { professionOptions } from "@/lib/demographics";
 import { paymentSummary } from "@/lib/bundle";
 import {
   MAX_CHALLENGE,
@@ -44,8 +45,7 @@ export function RegistrationStepFields({
       <>
         <TextField id="fullName" label="Nama lengkap" value={values.fullName} onChange={(v) => onUpdate("fullName", v)} autoComplete="name" maxLength={MAX_NAME} placeholder="Nama sesuai identitas" required error={errors.fullName} />
         <TextField id="nickname" label="Nama panggilan" value={values.nickname} onChange={(v) => onUpdate("nickname", v)} maxLength={MAX_NAME} placeholder="Nama yang biasa dipakai" required error={errors.nickname} />
-        <TextField id="domicile" label="Domisili" value={values.domicile} onChange={(v) => onUpdate("domicile", v)} maxLength={MAX_TEXT} placeholder="Ketik lalu pilih, mis. Kota Bandung" hint="Pilih kota atau kabupaten dari daftar saran." list="domicile-options" autoComplete="off" required error={errors.domicile} />
-        <datalist id="domicile-options">{REGIONS.map((name) => <option key={name} value={name} />)}</datalist>
+        <DomicileField value={values.domicile} onChange={(v) => onUpdate("domicile", v)} error={errors.domicile} />
         <TextField id="whatsapp" label="Nomor WhatsApp" value={values.whatsapp} onChange={(v) => onUpdate("whatsapp", formatWhatsapp(v))} type="tel" inputMode="tel" autoComplete="tel" placeholder="0212-1231-2123" hint="" required error={errors.whatsapp} />
         <TextField id="email" label="Email" value={values.email} onChange={(v) => onUpdate("email", v)} type="email" inputMode="email" autoComplete="email" maxLength={MAX_EMAIL} placeholder="nama@email.com" required error={errors.email} />
         <RadioGroup id="gender" label="Jenis kelamin" name="gender" value={values.gender} onChange={(v) => onUpdate("gender", v as RegistrationValues["gender"])} options={genderOptions} required error={errors.gender} />
