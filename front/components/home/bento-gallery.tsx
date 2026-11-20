@@ -187,7 +187,7 @@ export function BentoGallery({
               <p className="type-display text-[var(--tone-accent)] text-balance">
                 Galeri <Accent>{editorialTitle ?? label}</Accent>
               </p>
-              <p className="type-small max-w-[30ch] uppercase tracking-wider text-[var(--tone-accent)]/85">
+              <p className="type-small w-full uppercase tracking-wider text-[var(--tone-accent)]/85 md:max-w-[30ch]">
                 Suasana latihan panggung, simulasi presentasi, dan masukan langsung di setiap sesi kelas.
               </p>
             </div>

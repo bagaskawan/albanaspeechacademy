@@ -40,6 +40,17 @@ function revealTo(kind: RevealKind): gsap.TweenVars {
 
 const REVEAL_KINDS: RevealKind[] = ["heading", "rise", "slide", "media"];
 
+/** Kurva ease-in-out quartic untuk lompatan anchor yang halus dan bertenaga. */
+function easeInOutQuart(t: number): number {
+  return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
+}
+
+function getAnchorTargetY(target: HTMLElement): number {
+  const rawTop = target.getBoundingClientRect().top + window.scrollY;
+  const scrollMarginTop = Number.parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+  return Math.max(0, rawTop - scrollMarginTop);
+}
+
 export function HomeScroll() {
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -55,6 +66,89 @@ export function HomeScroll() {
       gsap.ticker.add(tick);
       gsap.ticker.lagSmoothing(0);
     }
+
+    let anchorRaf = 0;
+    const clearAnchorState = () => {
+      if (anchorRaf) {
+        cancelAnimationFrame(anchorRaf);
+        anchorRaf = 0;
+      }
+      delete document.documentElement.dataset.anchorScrolling;
+    };
+
+    const scrollToTarget = (target: HTMLElement) => {
+      clearAnchorState();
+      const targetY = getAnchorTargetY(target);
+
+      if (reduced) {
+        window.scrollTo({ top: targetY, behavior: "auto" });
+        return;
+      }
+
+      document.documentElement.dataset.anchorScrolling = "true";
+      const distance = Math.abs(targetY - window.scrollY);
+      const durationSec = Math.min(1.25, Math.max(0.75, distance / 2000));
+
+      if (lenis) {
+        lenis.scrollTo(targetY, {
+          duration: durationSec,
+          easing: easeInOutQuart,
+          onComplete: clearAnchorState,
+        });
+        return;
+      }
+
+      const startY = window.scrollY;
+      const deltaY = targetY - startY;
+      const durationMs = durationSec * 1000;
+      const startTime = performance.now();
+
+      const step = (now: number) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(1, elapsed / durationMs);
+        window.scrollTo({ top: startY + deltaY * easeInOutQuart(progress), behavior: "auto" });
+        if (progress < 1) {
+          anchorRaf = requestAnimationFrame(step);
+        } else {
+          clearAnchorState();
+        }
+      };
+
+      anchorRaf = requestAnimationFrame(step);
+    };
+
+    const handleAnchorClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+      }
+      const anchor = (event.target as Element | null)?.closest<HTMLAnchorElement>("a[href]");
+      if (!anchor || anchor.target === "_blank" || anchor.hasAttribute("download")) return;
+
+      const rawHref = anchor.getAttribute("href");
+      if (!rawHref || !rawHref.includes("#")) return;
+
+      let url: URL;
+      try {
+        url = new URL(anchor.href, window.location.href);
+      } catch {
+        return;
+      }
+      if (url.origin !== window.location.origin || url.pathname !== window.location.pathname || !url.hash) return;
+
+      const id = decodeURIComponent(url.hash.slice(1));
+      const target = id ? document.getElementById(id) : null;
+      if (!target) return;
+
+      event.preventDefault();
+      if (window.location.hash !== url.hash) {
+        history.pushState(null, "", url.hash);
+      }
+      scrollToTarget(target);
+    };
+
+    document.addEventListener("click", handleAnchorClick);
+    window.addEventListener("wheel", clearAnchorState, { passive: true });
+    window.addEventListener("touchstart", clearAnchorState, { passive: true });
 
     const triggers: ScrollTrigger[] = [];
     const header = document.querySelector<HTMLElement>("[data-site-header]");
@@ -179,6 +273,10 @@ export function HomeScroll() {
     observer.observe(document.querySelector("main") ?? document.body, { childList: true, subtree: true });
 
     return () => {
+      clearAnchorState();
+      document.removeEventListener("click", handleAnchorClick);
+      window.removeEventListener("wheel", clearAnchorState);
+      window.removeEventListener("touchstart", clearAnchorState);
       observer.disconnect();
       cancelAnimationFrame(queued);
       triggers.forEach((trigger) => trigger.kill());

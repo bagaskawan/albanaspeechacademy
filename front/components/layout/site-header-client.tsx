@@ -53,6 +53,12 @@ export function SiteHeaderClient({
       setHeroVisible(heroStillVisible);
 
       const y = window.scrollY;
+      if (!heroStillVisible && document.documentElement.dataset.anchorScrolling === "true") {
+        setScrollHidden(true);
+        lastY = y;
+        return;
+      }
+
       if (
         heroStillVisible ||
         reduced ||

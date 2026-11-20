@@ -43,7 +43,7 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
     <article
       id={card.slug}
       aria-labelledby={`${card.slug}-title`}
-      className={video ? "scroll-mt-14 pt-12 pb-4 lg:pt-20 lg:pb-6" : "scroll-mt-14 py-12 lg:py-20"}
+      className={video ? "scroll-mt-14 md:scroll-mt-0 pt-12 pb-4 lg:pt-20 lg:pb-6" : "scroll-mt-14 md:scroll-mt-0 py-12 lg:py-20"}
     >
       <div className="home-grid items-start gap-y-8">
         {/* Teks program */}
@@ -114,18 +114,16 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
         <div className={`col-span-4 flex flex-col gap-4 sm:col-span-8 lg:col-span-7 ${flip ? "lg:col-start-1" : ""}`}>
           {/* Pratinjau dua foto; dokumentasi lengkap ada di bab Dokumentasi. */}
           {previews.length > 0 ? (
-            <div className="flex flex-col gap-2 sm:pb-8">
-              <div className="grid grid-cols-2 gap-2">
-                {previews.map((item, photoIndex) => (
-                  <div
-                    key={item.id}
-                    data-motion="media"
-                    className={`relative overflow-hidden rounded-xs bg-[var(--tone-tile)] ${photoIndex === 0 ? "aspect-[4/5]" : "aspect-[4/5] sm:translate-y-8"}`}
-                  >
-                    <SkeletonImage fill src={item.src} alt={item.alt} blurDataURL={item.blurDataURL ?? undefined} sizes="(min-width: 1024px) 28vw, 50vw" className="object-cover object-top" />
-                  </div>
-                ))}
-              </div>
+            <div className="grid grid-cols-2 items-start gap-2">
+              {previews.map((item, photoIndex) => (
+                <div
+                  key={item.id}
+                  data-motion="media"
+                  className={`relative aspect-[4/5] overflow-hidden rounded-xs bg-[var(--tone-tile)]${photoIndex === 1 ? " sm:mt-8" : ""}`}
+                >
+                  <SkeletonImage fill src={item.src} alt={item.alt} blurDataURL={item.blurDataURL ?? undefined} sizes="(min-width: 1024px) 28vw, 50vw" className="object-cover object-top" />
+                </div>
+              ))}
             </div>
           ) : (
             <div className="flex aspect-[2/1] items-center justify-center rounded-xs bg-[var(--tone-tile)] p-6 text-center">

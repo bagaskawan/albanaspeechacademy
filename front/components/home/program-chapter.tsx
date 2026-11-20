@@ -15,7 +15,7 @@ export function ProgramChapter({
 }) {
   return (
     <>
-      <section id="program" className="tone-canvas home-section scroll-mt-8 pt-0" aria-labelledby="program-title">
+      <section id="program" className="tone-canvas home-section pt-12 sm:pt-16 lg:pt-20" aria-labelledby="program-title">
         <div className="home-container home-stack-head">
           <SectionIntro
             eyebrow="02 · Program"
