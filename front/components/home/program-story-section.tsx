@@ -25,9 +25,6 @@ const copy: Record<string, { audience: string; story: string; topics: string[] }
   },
 };
 
-const rupiah = (value: number) =>
-  new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
-
 export function ProgramStorySection({ program, index }: { program: HomeProgram; index: number }) {
   const { card, media, bundleNote } = program;
   const text = copy[card.slug];
@@ -40,130 +37,120 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
 
   return (
     <div className="border-b border-[var(--tone-rule)]">
-    <article
-      id={card.slug}
-      aria-labelledby={`${card.slug}-title`}
-      className={video ? "scroll-mt-14 md:scroll-mt-0 pt-12 pb-4 lg:pt-20 lg:pb-6" : "scroll-mt-14 md:scroll-mt-0 py-12 lg:py-20"}
-    >
-      <div className="home-grid items-start gap-y-8">
-        {/* Teks program */}
-        <div className={`col-span-4 flex flex-col gap-6 sm:col-span-8 lg:col-span-5 ${flip ? "lg:order-last lg:col-start-8" : ""}`}>
-          <p aria-hidden="true" className="type-mega italic text-[var(--tone-rule)]">
-            {String(index + 1).padStart(2, "0")}
-          </p>
-          <div className="flex flex-col gap-3">
-            <h4 id={`${card.slug}-title`} data-motion="heading" className="type-display text-balance">
-              {card.title}
-            </h4>
-            <p data-motion="rise" className="type-lead text-[var(--tone-ink)] text-pretty">
-              {text?.audience ?? card.summary}
+      <article
+        id={card.slug}
+        aria-labelledby={`${card.slug}-title`}
+        className={video ? "scroll-mt-14 md:scroll-mt-0 pt-12 pb-4 lg:pt-20 lg:pb-6" : "scroll-mt-14 md:scroll-mt-0 py-12 lg:py-20"}
+      >
+        <div className="home-grid items-start gap-y-8">
+          {/* Teks program */}
+          <div className={`col-span-4 flex flex-col gap-6 sm:col-span-8 lg:col-span-5 ${flip ? "lg:order-last lg:col-start-8" : ""}`}>
+            <p aria-hidden="true" className="type-mega italic text-[var(--tone-rule)]">
+              {String(index + 1).padStart(2, "0")}
             </p>
-            {text?.story ? (
-              <p data-motion="rise" className="type-body text-[var(--tone-muted)] text-pretty">{text.story}</p>
-            ) : null}
-          </div>
-
-          <div data-motion="rise" className="mt-2 border-t border-[var(--tone-rule)] pt-6">
-            <div className="flex items-baseline justify-between gap-2">
-              <p className="type-label text-[var(--tone-muted)]">Yang kamu latih</p>
-              {topics.length > 0 ? (
-                <span className="type-small tabular-nums text-[var(--tone-muted)]">{topics.length} materi</span>
+            <div className="flex flex-col gap-3">
+              <h4 id={`${card.slug}-title`} data-motion="heading" className="type-display text-balance">
+                {card.title}
+              </h4>
+              <p data-motion="rise" className="type-lead text-[var(--tone-ink)] text-pretty">
+                {text?.audience ?? card.summary}
+              </p>
+              {text?.story ? (
+                <p data-motion="rise" className="type-body text-[var(--tone-muted)] text-pretty">{text.story}</p>
               ) : null}
             </div>
-            {topics.length > 0 ? (
-              topics.length > 4 ? (
-                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 sm:gap-x-8">
-                  {[
-                    topics.slice(0, Math.ceil(topics.length / 2)),
-                    topics.slice(Math.ceil(topics.length / 2)),
-                  ].map((col, colIndex) => {
-                    const offset = colIndex === 0 ? 0 : Math.ceil(topics.length / 2);
-                    return (
-                      <ol key={colIndex} className="border-t border-[var(--tone-rule)]">
-                        {col.map((topic, itemIndex) => (
-                          <li key={topic} className="flex items-baseline gap-3 border-b border-[var(--tone-rule)] py-3">
-                            <span className="type-small shrink-0 italic tabular-nums text-[var(--tone-accent)]">
-                              {String(offset + itemIndex + 1).padStart(2, "0")}
-                            </span>
-                            <span className="type-small leading-snug text-[var(--tone-ink)]">{topic}</span>
-                          </li>
-                        ))}
-                      </ol>
-                    );
-                  })}
-                </div>
-              ) : (
-                <ol className="mt-4 border-t border-[var(--tone-rule)]">
-                  {topics.map((topic, topicIndex) => (
-                    <li key={topic} className="flex items-baseline gap-4 border-b border-[var(--tone-rule)] py-3">
-                      <span className="type-small shrink-0 italic tabular-nums text-[var(--tone-accent)]">
-                        {String(topicIndex + 1).padStart(2, "0")}
-                      </span>
-                      <span className="type-body">{topic}</span>
-                    </li>
-                  ))}
-                </ol>
-              )
-            ) : (
-              <p className="type-small mt-3 text-[var(--tone-muted)]">Materi diumumkan bersama jadwal.</p>
-            )}
-          </div>
-        </div>
 
-        {/* Dokumentasi lalu batch terdekat */}
-        <div className={`col-span-4 flex flex-col gap-4 sm:col-span-8 lg:col-span-7 ${flip ? "lg:col-start-1" : ""}`}>
-          {/* Pratinjau dua foto; dokumentasi lengkap ada di bab Dokumentasi. */}
-          {previews.length > 0 ? (
-            <div className="grid grid-cols-2 items-start gap-2">
-              {previews.map((item, photoIndex) => (
-                <div
-                  key={item.id}
-                  data-motion="media"
-                  className={`relative aspect-[4/5] overflow-hidden rounded-xs bg-[var(--tone-tile)]${photoIndex === 1 ? " sm:mt-8" : ""}`}
-                >
-                  <SkeletonImage fill src={item.src} alt={item.alt} blurDataURL={item.blurDataURL ?? undefined} sizes="(min-width: 1024px) 28vw, 50vw" className="object-cover object-top" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex aspect-[2/1] items-center justify-center rounded-xs bg-[var(--tone-tile)] p-6 text-center">
-              <p className="type-small max-w-[30ch] text-[var(--tone-muted)]">
-                Dokumentasi kelas ini tampil setelah batch pertama berjalan.
-              </p>
-            </div>
-          )}
-
-          <div className="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-stretch">
-            <div className="flex flex-col gap-2 rounded-xs bg-[var(--tone-tile)] p-4 sm:p-6">
-              <p className="type-label text-[var(--tone-muted)]">Batch terdekat</p>
-              {card.batch ? (
-                <>
-                  <p className="type-body font-medium">{card.batch.name}</p>
-                  <p className="type-small tabular-nums text-[var(--tone-muted)]">
-                    {card.batch.scheduleMode === "start_only"
-                      ? `${card.batch.dateLabels[0]} · ${card.batch.formatLabel}`
-                      : card.batch.dateLabels.join(" · ")}
-                  </p>
-                </>
-              ) : (
-                <p className="type-body">Jadwal menyusul</p>
-              )}
-              {bundleNote ? <p className="type-small text-[var(--tone-accent)]">{bundleNote}</p> : null}
-            </div>
-
-            <div className="flex flex-col justify-between gap-4 rounded-xs bg-[var(--tone-sun)] p-4 text-[var(--tone-on-sun)] sm:min-w-[15rem] sm:p-6">
-              <div>
-                <p className="type-small font-semibold">{card.statusLabel}</p>
-                <p className="type-title mt-1 tabular-nums">
-                  {card.batch?.priceIdr ? rupiah(card.batch.priceIdr) : "-"}
-                </p>
-                {card.batch?.normalPriceIdr ? (
-                  <p className="type-small tabular-nums line-through">{rupiah(card.batch.normalPriceIdr)}</p>
+            <div data-motion="rise" className="mt-2 border-t border-[var(--tone-rule)] pt-6">
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="type-label text-[var(--tone-muted)]">Yang kamu latih</p>
+                {topics.length > 0 ? (
+                  <span className="type-small tabular-nums text-[var(--tone-muted)]">{topics.length} materi</span>
                 ) : null}
               </div>
-              <div className="flex flex-wrap items-center gap-x-4">
+              {topics.length > 0 ? (
+                topics.length > 4 ? (
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 sm:gap-x-8">
+                    {[
+                      topics.slice(0, Math.ceil(topics.length / 2)),
+                      topics.slice(Math.ceil(topics.length / 2)),
+                    ].map((col, colIndex) => {
+                      const offset = colIndex === 0 ? 0 : Math.ceil(topics.length / 2);
+                      return (
+                        <ol key={colIndex} className="border-t border-[var(--tone-rule)]">
+                          {col.map((topic, itemIndex) => (
+                            <li key={topic} className="flex items-baseline gap-3 border-b border-[var(--tone-rule)] py-3">
+                              <span className="type-small shrink-0 italic tabular-nums text-[var(--tone-accent)]">
+                                {String(offset + itemIndex + 1).padStart(2, "0")}
+                              </span>
+                              <span className="type-small leading-snug text-[var(--tone-ink)]">{topic}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <ol className="mt-4 border-t border-[var(--tone-rule)]">
+                    {topics.map((topic, topicIndex) => (
+                      <li key={topic} className="flex items-baseline gap-4 border-b border-[var(--tone-rule)] py-3">
+                        <span className="type-small shrink-0 italic tabular-nums text-[var(--tone-accent)]">
+                          {String(topicIndex + 1).padStart(2, "0")}
+                        </span>
+                        <span className="type-body">{topic}</span>
+                      </li>
+                    ))}
+                  </ol>
+                )
+              ) : (
+                <p className="type-small mt-3 text-[var(--tone-muted)]">Materi diumumkan bersama jadwal.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Dokumentasi lalu batch terdekat */}
+          <div className={`col-span-4 flex flex-col gap-4 sm:col-span-8 lg:col-span-7 ${flip ? "lg:col-start-1" : ""}`}>
+            {/* Pratinjau dua foto; dokumentasi lengkap ada di bab Dokumentasi. */}
+            {previews.length > 0 ? (
+              <div className="grid grid-cols-2 items-start gap-2">
+                {previews.map((item, photoIndex) => (
+                  <div
+                    key={item.id}
+                    data-motion="media"
+                    className={`relative aspect-[4/5] overflow-hidden rounded-xs bg-[var(--tone-tile)]${photoIndex === 1 ? " sm:mt-8" : ""}`}
+                  >
+                    <SkeletonImage fill src={item.src} alt={item.alt} blurDataURL={item.blurDataURL ?? undefined} sizes="(min-width: 1024px) 28vw, 50vw" className="object-cover object-top" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex aspect-[2/1] items-center justify-center rounded-xs bg-[var(--tone-tile)] p-6 text-center">
+                <p className="type-small max-w-[30ch] text-[var(--tone-muted)]">
+                  Dokumentasi kelas ini tampil setelah batch pertama berjalan.
+                </p>
+              </div>
+            )}
+
+            <div className="flex flex-col justify-between gap-4 rounded-xs bg-[var(--tone-tile)] p-4 sm:flex-row sm:items-center sm:p-6">
+              <div className="flex flex-col gap-1.5">
+                <p className="type-label text-[var(--tone-muted)]">Batch terdekat</p>
+                {card.batch ? (
+                  <>
+                    <p className="type-body font-medium">{card.batch.name}</p>
+                    <p className="type-small tabular-nums text-[var(--tone-muted)]">
+                      {card.batch.scheduleMode === "start_only"
+                        ? `${card.batch.dateLabels[0]} · ${card.batch.formatLabel}`
+                        : card.batch.dateLabels.join(" · ")}
+                    </p>
+                  </>
+                ) : (
+                  <p className="type-body">Jadwal menyusul</p>
+                )}
+                {bundleNote ? <p className="type-small text-[var(--tone-accent)]">{bundleNote}</p> : null}
+              </div>
+
+              <div className="shrink-0">
                 {card.registrationUrl ? (
-                  <Link className="button-primary w-full justify-center" href={card.registrationUrl}>
+                  <Link className="button-primary w-full justify-center sm:w-auto" href={card.registrationUrl}>
                     Daftar
                   </Link>
                 ) : (
@@ -173,23 +160,22 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Dokumentasi lain kelas ini, selebar seksi dengan kolase editorial. */}
-      {gallery.length > 0 ? (
-        <div className="mt-16 lg:mt-24">
-          <BentoGallery
-            media={gallery}
-            label={`Galeri ${card.title}`}
-            variant="editorial"
-            editorialTitle={card.title}
-          />
-        </div>
-      ) : null}
-    </article>
+        {/* Dokumentasi lain kelas ini, selebar seksi dengan kolase editorial. */}
+        {gallery.length > 0 ? (
+          <div className="mt-16 lg:mt-24">
+            <BentoGallery
+              media={gallery}
+              label={`Galeri ${card.title}`}
+              variant="editorial"
+              editorialTitle={card.title}
+            />
+          </div>
+        ) : null}
+      </article>
 
-    {/* Video kelas menjadi jeda antarprogram. */}
-    {video ? <VideoBreak video={video} programTitle={card.title} /> : null}
+      {/* Video kelas menjadi jeda antarprogram. */}
+      {video ? <VideoBreak video={video} programTitle={card.title} /> : null}
     </div>
   );
 }

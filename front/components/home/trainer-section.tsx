@@ -42,7 +42,7 @@ export async function TrainerSection() {
           intro={
             <>
               <div className="flex flex-col gap-4">
-                <p className="type-label text-[var(--tone-muted)]">08 · Trainer</p>
+                <p className="type-label text-[var(--tone-muted)]">07 · Trainer</p>
                 <h2 id="trainer-title" data-motion="heading" className="type-display text-balance">
                   Kenali <Accent>yang akan mendampingimu.</Accent>
                 </h2>

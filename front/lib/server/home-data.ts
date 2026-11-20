@@ -54,6 +54,9 @@ function galleryToHomeMedia(gallery?: ProgramGallery): HomeMedia[] {
   return [...gallery.images, ...gallery.videos].map(toHomeMedia);
 }
 
+const HERO_PHOTO_URL =
+  "https://clgjsekfnexmanjdxmqy.supabase.co/storage/v1/object/public/gallery/1794985211629-bswi9olg.webp";
+
 export async function readHomeData(): Promise<HomeData> {
   const [
     showcase,
@@ -96,8 +99,15 @@ export async function readHomeData(): Promise<HomeData> {
 
   const publicCards = publicPrograms.map((item) => item.card);
   const inhouseMedia = [...inhouseGallery, ...galleryToHomeMedia(galleries["inhouse-training"])];
-  const heroPhoto = pickHeroPhoto(publicPrograms, contentGallery);
-  const moments = buildMoments([], contentGallery, heroPhoto ? [heroPhoto.id] : []);
+  const heroPhoto: HomeMedia =
+    contentGallery.find((item) => item.src === HERO_PHOTO_URL) ?? {
+      id: 200026,
+      kind: "image",
+      src: HERO_PHOTO_URL,
+      poster: null,
+      alt: "Dokumentasi Albana Speech Academy",
+    };
+  const moments = buildMoments([], contentGallery, [heroPhoto.id]);
 
   return {
     hero: {

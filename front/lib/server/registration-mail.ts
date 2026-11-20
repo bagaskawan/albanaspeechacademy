@@ -135,13 +135,16 @@ export async function deliverInvoiceEmail(
     const secret = process.env.REGISTRATION_RECEIPT_SECRET?.trim() || "";
 
     if (!config || !secret) {
-      console.warn("Email tagihan dilewati: SMTP_USER/SMTP_PASS atau URL situs belum diisi", {
-        invoiceId,
-        kind,
-      });
+      const missing: string[] = [];
+      if (!process.env.SMTP_USER?.trim()) missing.push("SMTP_USER");
+      if (!process.env.SMTP_PASS?.trim()) missing.push("SMTP_PASS");
+      if (!config && process.env.SMTP_USER?.trim() && process.env.SMTP_PASS?.trim()) missing.push("SITE_URL");
+      if (!secret) missing.push("REGISTRATION_RECEIPT_SECRET");
+      const reason = `Pengirim email belum dikonfigurasi (${missing.join(", ") || "config"})`;
+      console.warn("Email tagihan dilewati:", { invoiceId, kind, reason });
       claimed = await claimDelivery(client, invoiceId, kind, retry);
       if (!claimed) return "skipped";
-      await markDeliveryFailed(client, invoiceId, kind, "Pengirim email belum dikonfigurasi");
+      await markDeliveryFailed(client, invoiceId, kind, reason);
       return "unconfigured";
     }
 

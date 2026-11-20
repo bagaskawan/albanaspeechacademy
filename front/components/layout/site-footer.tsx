@@ -14,7 +14,7 @@ const FOOTER_NAV_GROUPS = [
   {
     heading: "Informasi",
     links: [
-      { href: "/#jadwal", label: "Jadwal & Biaya" },
+      { href: "/#jadwal", label: "Jadwal Kelas" },
       { href: "/register", label: "Daftar Kelas" },
       { href: "/#kontak", label: "Kontak" },
     ],

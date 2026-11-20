@@ -218,13 +218,12 @@ export function RecordPaymentDialog({
             </div>
             {afterSummary && (
               <p
-                className={`mt-1.5 text-[12px] font-medium ${
-                  afterSummary.state === "short"
+                className={`mt-1.5 text-[12px] font-medium ${afterSummary.state === "short"
                     ? "text-admin-danger"
                     : afterSummary.state === "exact"
                       ? "text-emerald-700 dark:text-emerald-400"
                       : "text-amber-700 dark:text-amber-400"
-                }`}
+                  }`}
               >
                 {afterSummary.state === "short"
                   ? `Kurang ${rupiah(afterSummary.balanceIdr)}`
@@ -321,11 +320,10 @@ export function RecordPaymentDialog({
                   setDragging(false);
                   if (!submitting) acceptFile(e.dataTransfer.files?.[0]);
                 }}
-                className={`mt-1.5 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed px-4 py-5 text-center transition-colors ${
-                  dragging
+                className={`mt-1.5 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed px-4 py-5 text-center transition-colors ${dragging
                     ? "border-admin-ink bg-admin-surface"
                     : "border-admin-line-strong bg-admin-canvas hover:bg-admin-surface"
-                }`}
+                  }`}
               >
                 <UploadCloud size={20} className="text-admin-text-secondary" aria-hidden="true" />
                 <p className="text-[13px] font-medium text-admin-ink">

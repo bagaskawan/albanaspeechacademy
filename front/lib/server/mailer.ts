@@ -24,6 +24,9 @@ export async function sendMail(
     port: config.port,
     secure: config.secure,
     auth: { user: config.user, pass: config.pass },
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 15_000,
   });
 
   const info = await transporter.sendMail({

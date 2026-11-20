@@ -8,13 +8,6 @@ import { SkeletonImage } from "./skeleton-image";
 import { Accent } from "./ui/accent";
 import { Tile } from "./ui/tile";
 
-const rupiah = (value: number) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(value);
-
 export async function ScheduleSection({
   programs,
   moments,
@@ -38,14 +31,14 @@ export async function ScheduleSection({
     <section id="jadwal" className="tone-mist home-section" aria-labelledby="jadwal-title">
       <div className="home-container home-stack-head">
         <SectionIntro
-          eyebrow="09 · Jadwal dan biaya"
+          eyebrow="08 · Jadwal"
           title={
             <>
               Pilih batch, <Accent>tandai kalendermu</Accent>
             </>
           }
           titleId="jadwal-title"
-          description="Pilih batch yang cocok dengan kalendermu. Semua tanggal, jam, tempat, dan biaya ada di sini."
+          description="Pilih batch yang cocok dengan kalendermu. Semua tanggal, jam, dan tempat ada di sini."
         />
 
         {showcase.status === "failed" ? (
@@ -85,7 +78,7 @@ export async function ScheduleSection({
                     ) : null}
 
                     <div
-                      className={`col-span-4 flex flex-col gap-4 sm:col-span-8 ${thumb ? "lg:col-span-5" : "lg:col-span-8"
+                      className={`col-span-4 flex flex-col gap-4 sm:col-span-8 ${thumb ? "lg:col-span-6" : "lg:col-span-9"
                         }`}
                     >
                       <div>
@@ -143,33 +136,20 @@ export async function ScheduleSection({
                       </p>
                     </div>
 
-                    <div className="col-span-4 flex flex-col justify-between gap-3 border-t border-[var(--tone-rule)] pt-3.5 sm:col-span-8 lg:col-span-4 lg:gap-4 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6">
-                      <div>
-                        <span className="type-micro hidden h-5 items-center rounded-xs bg-[var(--tone-sun)] px-1.5 text-[var(--tone-on-sun)] lg:inline-flex">
-                          {card.statusLabel}
-                        </span>
-                        <p className="eyebrow text-[var(--tone-muted)] lg:mt-4">Biaya</p>
-                        <div className="mt-1 flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5 lg:block">
-                          <p className="type-title tabular-nums">
-                            {card.batch!.priceIdr ? rupiah(card.batch!.priceIdr) : "-"}
-                          </p>
-                          {card.batch!.normalPriceIdr ? (
-                            <p className="type-small line-through tabular-nums text-[var(--tone-muted)] lg:mt-1">
-                              {rupiah(card.batch!.normalPriceIdr)}
-                            </p>
-                          ) : null}
-                        </div>
-                      </div>
+                    <div className="col-span-4 flex flex-col justify-between gap-4 border-t border-[var(--tone-rule)] pt-4 sm:col-span-8 lg:col-span-3 lg:items-end lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6">
+                      <span className="type-micro hidden h-5 items-center rounded-xs bg-[var(--tone-sun)] px-1.5 text-[var(--tone-on-sun)] lg:inline-flex">
+                        {card.statusLabel}
+                      </span>
 
-                      <div>
+                      <div className="w-full lg:w-auto">
                         {card.registrationUrl ? (
-                          <Link href={card.registrationUrl} className="button-primary w-full justify-center lg:w-auto">
+                          <Link href={card.registrationUrl} className="button-primary w-full justify-center">
                             Daftar kelas ini
                           </Link>
                         ) : whatsapp ? (
                           <a
                             href={whatsapp}
-                            className="button-primary w-full justify-center lg:w-auto"
+                            className="button-primary w-full justify-center"
                             target="_blank"
                             rel="noopener noreferrer"
                           >

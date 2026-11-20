@@ -120,7 +120,7 @@ export function HeroSection({
                   href={hasBatch ? "#jadwal" : "#program"}
                   className="button-primary hero-button-primary px-6 max-sm:w-full max-sm:justify-center max-sm:border-white max-sm:bg-white max-sm:text-[#26599A] max-sm:hover:bg-white/90"
                 >
-                  {hasBatch ? "Lihat jadwal dan biaya" : "Jelajahi program"}
+                  {hasBatch ? "Lihat jadwal kelas" : "Jelajahi program"}
                 </a>
                 {whatsappHref ? (
                   <span className="hidden sm:inline-flex">

@@ -7,10 +7,10 @@ export function TestimonialChapter({ testimonials }: { testimonials: HomeTestimo
   if (!testimonials.length) return null;
 
   return (
-    <section id="hasil" className="tone-canvas home-section" aria-labelledby="hasil-title">
+    <section id="hasil" className="tone-mist home-section" aria-labelledby="hasil-title">
       <div className="home-container home-stack-head">
         <SectionIntro
-          eyebrow="07 · Cerita peserta"
+          eyebrow="06 · Cerita peserta"
           titleId="hasil-title"
           title={
             <>

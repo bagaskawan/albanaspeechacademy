@@ -1,5 +1,4 @@
 import { createHash, createHmac } from "node:crypto";
-import { after } from "next/server";
 import { parseAcademySubmission } from "@/lib/academy-registration-input";
 import { createReceiptToken } from "@/lib/receipt-token";
 import { academyBillingClient } from "@/lib/server/academy-billing";
@@ -69,7 +68,7 @@ export async function POST(request: Request) {
     }
     const receiptToken = createReceiptToken(result.registrationId, secret);
     const invoiceId = result.invoiceId as number;
-    after(() => deliverInvoiceEmail(invoiceId, "payment_instructions"));
+    await deliverInvoiceEmail(invoiceId, "payment_instructions");
     return json({ registrationId: result.registrationId, invoiceId: result.invoiceId,
       receiptToken, redirectUrl: `/register/konfirmasi/${receiptToken}` }, 200);
   } catch (error) {

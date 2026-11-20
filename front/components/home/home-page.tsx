@@ -7,7 +7,6 @@ import { BenefitBand } from "./benefit-band";
 import { ClosingSection } from "./closing-section";
 import { HeroSection } from "./hero-section";
 import { LearningMethodChapter } from "./learning-method-chapter";
-import { LegalitySection } from "./legality-section";
 import { ProgramChapter } from "./program-chapter";
 import { ScheduleSection } from "./schedule-section";
 import { TestimonialChapter } from "./testimonial-chapter";
@@ -30,7 +29,6 @@ export async function HomePage() {
         <ProgramChapter programs={data.programs} inhouse={data.inhouse} />
         <AboutSection moments={data.moments} />
         <LearningMethodChapter moments={data.moments} />
-        <LegalitySection legality={data.legality} />
         <TestimonialChapter testimonials={data.testimonials} />
         <TrainerSection />
         <ScheduleSection programs={data.programs} moments={data.moments} />

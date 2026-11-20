@@ -773,17 +773,17 @@ html.lenis body {
   }
 
   .button-secondary {
-    border: 1px solid var(--color-control);
-    background: var(--color-card);
-    color: var(--color-ink);
+    border: 1px solid var(--tone-rule, var(--color-control));
+    background: var(--tone-tile, var(--color-card));
+    color: var(--tone-ink, var(--color-ink));
   }
 
   .button-secondary:hover {
-    background: var(--color-surface);
+    background: var(--tone-bg, var(--color-surface));
   }
 
   .button-secondary:active {
-    border-color: var(--color-ink);
+    border-color: var(--tone-ink, var(--color-ink));
   }
 
   .button-highlight {
