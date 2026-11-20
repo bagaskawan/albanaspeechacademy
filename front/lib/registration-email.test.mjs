@@ -38,7 +38,8 @@ test("instructions email carries the exact transfer data", () => {
   assert.equal(email.subject, "Instruksi pembayaran pendaftaran #41 – Albana Speech Academy");
   for (const body of [email.html, email.text]) {
     assert.ok(body.includes(idr(1_300_123)));
-    assert.ok(body.includes(idr(123)));
+    assert.equal(body.includes("Kode unik"), false);
+    assert.ok(body.includes("3 digit terakhir"));
     assert.ok(body.includes("1234567890"));
     assert.ok(body.includes("PT Albana"));
     assert.ok(body.includes(base.receiptUrl));
@@ -124,4 +125,15 @@ test("rejected payment email notifies participant and escapes html", () => {
   assert.ok(email.html.includes("&lt;script&gt;"));
   assert.ok(email.text.includes("ditolak"));
   assert.ok(email.text.includes(base.receiptUrl));
+});
+
+test("renders logo header and whatsapp green button when provided", () => {
+  const email = paymentInstructionsEmail({
+    ...base,
+    logoUrl: "cid:albana-logo",
+    whatsappUrl: "https://wa.me/62811?text=halo",
+  });
+  assert.ok(email.html.includes('src="cid:albana-logo"'));
+  assert.ok(email.html.includes("background:#128C7E;"));
+  assert.ok(email.html.includes("width:100%;box-sizing:border-box;"));
 });

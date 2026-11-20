@@ -1,4 +1,25 @@
+import Link from "next/link";
 import { ArrowUpRight, MapPin } from "lucide-react";
+
+const FOOTER_NAV_GROUPS = [
+  {
+    heading: "Navigasi",
+    links: [
+      { href: "/#program", label: "Public Training" },
+      { href: "/#inhouse-training", label: "Inhouse Training" },
+      { href: "/#tentang", label: "Tentang Kami" },
+      { href: "/#trainer", label: "Trainer" },
+    ],
+  },
+  {
+    heading: "Informasi",
+    links: [
+      { href: "/#jadwal", label: "Jadwal & Biaya" },
+      { href: "/register", label: "Daftar Kelas" },
+      { href: "/#kontak", label: "Kontak" },
+    ],
+  },
+] as const;
 
 const RRI_BANDUNG_EMBED =
   "https://www.google.com/maps?q=RRI+Bandung,+Jl.+Diponegoro+No.+61,+Bandung&output=embed";
@@ -19,12 +40,28 @@ export function SiteFooter({ className = "" }: { className?: string } = {}) {
             <p className="type-small mt-4 max-w-[42ch] uppercase leading-relaxed text-[var(--tone-muted)]">
               Lembaga pelatihan public speaking berbasis praktik untuk individu, pembicara profesional, dan tim organisasi.
             </p>
-            <div className="mt-6 border-t border-[var(--tone-rule)] pt-5">
-              <p className="eyebrow text-[var(--tone-muted)]">[ Badan Hukum ]</p>
-              <p className="eyebrow mt-1.5 text-[var(--tone-ink)]">
-                CV Asa Albana · NIB 2701260111907
-              </p>
-            </div>
+            <nav
+              aria-label="Navigasi footer"
+              className="mt-8 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-[var(--tone-rule)] pt-6"
+            >
+              {FOOTER_NAV_GROUPS.map((group) => (
+                <div key={group.heading}>
+                  <p className="eyebrow text-[var(--tone-muted)]">{group.heading}</p>
+                  <ul className="mt-3 flex flex-col gap-1">
+                    {group.links.map((item) => (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          className="type-small inline-flex min-h-9 items-center text-[var(--tone-ink)]/90 underline-offset-4 transition-colors hover:text-[var(--tone-sun)] hover:underline"
+                        >
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </nav>
           </div>
 
           <div className="lg:col-span-6 lg:border-l lg:border-[var(--tone-rule)] lg:pl-10">

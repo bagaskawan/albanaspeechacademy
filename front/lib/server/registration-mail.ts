@@ -1,4 +1,6 @@
 import "server-only";
+import { existsSync } from "node:fs";
+import path from "node:path";
 import { readMailConfig } from "@/lib/mail-config";
 import { createReceiptToken } from "@/lib/receipt-token";
 import {
@@ -269,6 +271,11 @@ export async function deliverInvoiceEmail(
       whatsappUrl = null;
     }
 
+    const emailLogoPath = path.join(process.cwd(), "public", "logo-email.png");
+    const fallbackLogoPath = path.join(process.cwd(), "public", "logo-blue.png");
+    const logoPath = existsSync(emailLogoPath) ? emailLogoPath : fallbackLogoPath;
+    const hasLogo = existsSync(logoPath);
+
     const emailData = {
       registrationId: registration.id,
       fullName: registration.full_name,
@@ -286,6 +293,7 @@ export async function deliverInvoiceEmail(
       whatsappUrl,
       firstSessionAt,
       remaining,
+      logoUrl: hasLogo ? "cid:albana-logo" : null,
     };
 
     const rendered =
@@ -300,6 +308,16 @@ export async function deliverInvoiceEmail(
       subject: rendered.subject,
       html: rendered.html,
       text: rendered.text,
+      attachments: hasLogo
+        ? [
+            {
+              filename: "albana-logo.png",
+              path: logoPath,
+              cid: "albana-logo",
+              contentDisposition: "inline",
+            },
+          ]
+        : undefined,
     });
 
     await client

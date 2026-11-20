@@ -111,8 +111,24 @@ export async function deleteBillingItem(form: FormData): Promise<void> {
     if (!Number.isSafeInteger(invoiceId) || invoiceId < 1) {
       throw new Error("ID tagihan tidak valid.");
     }
+    const { data: targetInv } = await client
+      .from("academy_invoices")
+      .select("registration_id")
+      .eq("id", invoiceId)
+      .maybeSingle();
+
     const { error } = await client.from("academy_invoices").delete().eq("id", invoiceId);
     if (error) throw new Error("Gagal menghapus tagihan.");
+
+    if (targetInv?.registration_id) {
+      const { count } = await client
+        .from("academy_invoices")
+        .select("id", { count: "exact", head: true })
+        .eq("registration_id", targetInv.registration_id);
+      if (count === 0) {
+        await client.from("academy_registrations").delete().eq("id", targetInv.registration_id);
+      }
+    }
   } else if (rawRegistrationId) {
     const registrationId = Number(rawRegistrationId);
     if (!Number.isSafeInteger(registrationId) || registrationId < 1) {

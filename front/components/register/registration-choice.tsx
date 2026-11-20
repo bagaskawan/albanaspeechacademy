@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { NumberChip } from "@/components/home/ui/number-chip";
 import { Tile } from "@/components/home/ui/tile";
@@ -14,11 +13,9 @@ import { RegistrationOverview } from "./registration-overview";
 export function RegistrationChoice({
   batch,
   offer,
-  programPhoto = null,
 }: {
   batch: RegistrationBatch;
   offer: BundleOffer | null;
-  programPhoto?: { src: string; alt: string } | null;
 }) {
   const [withBundle, setWithBundle] = useState(false);
   const [step, setStep] = useState(0);
@@ -41,18 +38,6 @@ export function RegistrationChoice({
     <div className="home-grid gap-y-8">
       <aside className="hidden lg:sticky lg:top-8 lg:col-span-4 lg:flex lg:flex-col lg:gap-6 lg:self-start">
         <RegisterBrandBar />
-
-        {programPhoto ? (
-          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xs bg-[var(--tone-tile)]">
-            <Image
-              src={programPhoto.src}
-              alt={programPhoto.alt}
-              fill
-              sizes="24rem"
-              className="object-cover"
-            />
-          </div>
-        ) : null}
 
         <div>
           <p className="eyebrow text-[var(--tone-muted)]">Kamu mendaftar untuk</p>

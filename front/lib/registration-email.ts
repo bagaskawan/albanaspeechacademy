@@ -20,6 +20,7 @@ export type InvoiceEmailData = {
   whatsappUrl: string | null;
   firstSessionAt: string | null;
   remaining: InvoiceAmounts | null;
+  logoUrl?: string | null;
 };
 export type RenderedEmail = { subject: string; html: string; text: string };
 
@@ -89,7 +90,13 @@ export function maskEmail(email: string): string {
   return `${visible}***@${domain}`;
 }
 
-function wrapEmailHtml(title: string, bodyHtml: string): string {
+function wrapEmailHtml(title: string, bodyHtml: string, logoUrl?: string | null): string {
+  const headerHtml = logoUrl
+    ? `<div style="padding-bottom:16px;margin-bottom:20px;border-bottom:1px solid #e5e2da;">
+        <img src="${escapeHtml(logoUrl)}" alt="Albana Speech Academy" width="160" style="display:block;height:auto;max-width:160px;border:0;" />
+      </div>`
+    : `<p style="margin:0 0 20px;padding-bottom:14px;border-bottom:1px solid #e5e2da;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6b685f;">Albana Speech Academy</p>`;
+
   return `<!DOCTYPE html>
 <html lang="id">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title></head>
@@ -97,7 +104,7 @@ function wrapEmailHtml(title: string, bodyHtml: string): string {
   <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e5e2da;border-radius:10px;">
     <tr>
       <td style="padding:24px;">
-        <p style="margin:0 0 16px;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6b685f;">Albana Speech Academy</p>
+        ${headerHtml}
         ${bodyHtml}
       </td>
     </tr>
@@ -109,9 +116,7 @@ function wrapEmailHtml(title: string, bodyHtml: string): string {
 function renderAmountsTable(label: string, amounts: InvoiceAmounts): string {
   return `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:16px 0;border:1px solid #e5e2da;border-radius:8px;border-collapse:collapse;">
     <tr><td colspan="2" style="padding:10px 14px;background:#f7f6f2;font-size:13px;font-weight:600;border-bottom:1px solid #e5e2da;">Tagihan #${amounts.invoiceId} · ${escapeHtml(label)}</td></tr>
-    <tr><td style="padding:8px 14px;font-size:14px;color:#55524b;">Subtotal</td><td style="padding:8px 14px;font-size:14px;text-align:right;">${escapeHtml(formatRupiah(amounts.subtotalIdr))}</td></tr>
-    <tr><td style="padding:8px 14px;font-size:14px;color:#55524b;">Kode unik</td><td style="padding:8px 14px;font-size:14px;text-align:right;">${escapeHtml(formatRupiah(amounts.uniqueCode))}</td></tr>
-    <tr><td style="padding:10px 14px;font-size:15px;font-weight:700;border-top:1px solid #e5e2da;">Total transfer</td><td style="padding:10px 14px;font-size:15px;font-weight:700;text-align:right;border-top:1px solid #e5e2da;">${escapeHtml(formatRupiah(amounts.totalIdr))}</td></tr>
+    <tr><td style="padding:12px 14px;font-size:15px;font-weight:700;">Total transfer</td><td style="padding:12px 14px;font-size:15px;font-weight:700;text-align:right;">${escapeHtml(formatRupiah(amounts.totalIdr))}</td></tr>
   </table>`;
 }
 
@@ -124,11 +129,30 @@ function renderBankBox(bank: InvoiceEmailData["bank"]): string {
   </div>`;
 }
 
-function renderButton(href: string, label: string, primary = true): string {
-  const style = primary
-    ? "display:inline-block;padding:11px 18px;background:#1f2421;color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;"
-    : "display:inline-block;padding:10px 16px;background:#ffffff;color:#1f2421;border:1px solid #1f2421;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;";
+type ButtonVariant = "primary" | "whatsapp" | "secondary";
+
+function renderButton(href: string, label: string, variant: ButtonVariant = "primary"): string {
+  const palette =
+    variant === "whatsapp"
+      ? "background:#128C7E;color:#ffffff;border:1px solid #128C7E;"
+      : variant === "primary"
+        ? "background:#1f2421;color:#ffffff;border:1px solid #1f2421;"
+        : "background:#ffffff;color:#1f2421;border:1px solid #1f2421;";
+  const style = `display:block;width:100%;box-sizing:border-box;padding:12px 18px;text-align:center;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;line-height:1.3;${palette}`;
   return `<a href="${escapeHtml(href)}" style="${style}">${escapeHtml(label)}</a>`;
+}
+
+function renderActionButtons(
+  buttons: { href: string; label: string; variant: ButtonVariant }[],
+): string {
+  if (buttons.length === 0) return "";
+  const rows = buttons
+    .map(
+      (btn, idx) =>
+        `<tr><td style="padding:${idx === 0 ? "0" : "10px 0 0"};">${renderButton(btn.href, btn.label, btn.variant)}</td></tr>`,
+    )
+    .join("");
+  return `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:20px 0 16px;">${rows}</table>`;
 }
 
 export function paymentInstructionsEmail(d: InvoiceEmailData): RenderedEmail {
@@ -136,9 +160,12 @@ export function paymentInstructionsEmail(d: InvoiceEmailData): RenderedEmail {
   const stageLabel = invoiceStageLabel(d.stage, d.paymentMethod);
   const programLine = `${d.offerTitle} – ${d.batchNames}`;
 
-  const waButton = d.whatsappUrl
-    ? `<p style="margin:12px 0;">${renderButton(d.whatsappUrl, "Kirim bukti ke WhatsApp Admin", false)}</p>`
-    : "";
+  const actionButtons = renderActionButtons([
+    ...(d.whatsappUrl
+      ? [{ href: d.whatsappUrl, label: "Kirim bukti ke WhatsApp Admin", variant: "whatsapp" as const }]
+      : []),
+    { href: d.receiptUrl, label: "Lihat halaman pembayaran", variant: "primary" as const },
+  ]);
 
   const html = wrapEmailHtml(
     subject,
@@ -148,14 +175,14 @@ export function paymentInstructionsEmail(d: InvoiceEmailData): RenderedEmail {
     ${renderBankBox(d.bank)}
     <p style="margin:16px 0 6px;font-weight:600;">Cara pembayaran:</p>
     <ol style="margin:0 0 16px;padding-left:20px;font-size:14px;">
-      <li>Transfer <strong>tepat</strong> sebesar total di atas termasuk kode unik.</li>
+      <li>Transfer <strong>tepat</strong> sebesar total di atas <strong>hingga 3 digit terakhir</strong> ke rekening tujuan.</li>
       <li>Simpan bukti transfer.</li>
       <li>Kirim bukti transfer lewat WhatsApp admin.</li>
       <li>Admin akan memverifikasi pembayaranmu lalu mengirim email konfirmasi.</li>
     </ol>
-    ${waButton}
-    <p style="margin:16px 0;">${renderButton(d.receiptUrl, "Lihat halaman pembayaran", true)}</p>
+    ${actionButtons}
     <p style="margin:16px 0 0;font-size:12px;color:#6b685f;">Tautan berlaku 30 hari. Abaikan email ini jika kamu tidak merasa mendaftar.</p>`,
+    d.logoUrl,
   );
 
   const textLines = [
@@ -164,8 +191,6 @@ export function paymentInstructionsEmail(d: InvoiceEmailData): RenderedEmail {
     `Pendaftaranmu untuk ${programLine} sudah kami terima.`,
     "",
     `Tagihan #${d.invoice.invoiceId} · ${stageLabel}`,
-    `Subtotal: ${formatRupiah(d.invoice.subtotalIdr)}`,
-    `Kode unik: ${formatRupiah(d.invoice.uniqueCode)}`,
     `Total transfer: ${formatRupiah(d.invoice.totalIdr)}`,
     "",
     "Rekening tujuan:",
@@ -174,7 +199,7 @@ export function paymentInstructionsEmail(d: InvoiceEmailData): RenderedEmail {
     `Atas nama: ${d.bank.holder}`,
     "",
     "Cara pembayaran:",
-    "1. Transfer tepat sebesar total di atas termasuk kode unik.",
+    "1. Transfer tepat sebesar total di atas hingga 3 digit terakhir ke rekening tujuan.",
     "2. Simpan bukti transfer.",
     "3. Kirim bukti transfer lewat WhatsApp admin.",
     "4. Admin akan memverifikasi pembayaranmu lalu mengirim email konfirmasi.",
@@ -200,11 +225,14 @@ export function paymentConfirmedEmail(d: InvoiceEmailData): RenderedEmail {
       ? `<p style="margin:16px 0 6px;font-weight:600;">Sisa pembayaran</p>
          ${renderAmountsTable("Pelunasan", d.remaining)}
          ${renderBankBox(d.bank)}
-         <p style="margin:12px 0;font-size:14px;">Silakan transfer sisa pembayaran sebelum sesi pertama dimulai.</p>`
+         <p style="margin:12px 0;font-size:14px;">Silakan transfer sisa pembayaran tepat hingga 3 digit terakhir sebelum sesi pertama dimulai.</p>`
       : "";
-    const waButton = d.whatsappUrl
-      ? `<p style="margin:12px 0;">${renderButton(d.whatsappUrl, "Hubungi Admin via WhatsApp", false)}</p>`
-      : "";
+    const actionButtons = renderActionButtons([
+      { href: d.receiptUrl, label: "Lihat tagihan pelunasan", variant: "primary" as const },
+      ...(d.whatsappUrl
+        ? [{ href: d.whatsappUrl, label: "Hubungi Admin via WhatsApp", variant: "whatsapp" as const }]
+        : []),
+    ]);
 
     const html = wrapEmailHtml(
       subject,
@@ -212,8 +240,8 @@ export function paymentConfirmedEmail(d: InvoiceEmailData): RenderedEmail {
       <p style="margin:0 0 14px;">DP sebesar <strong>${escapeHtml(formatRupiah(d.invoice.totalIdr))}</strong> untuk pendaftaran <strong>#${d.registrationId}</strong> (${escapeHtml(programLine)}) sudah kami terima. Tempat kelasmu sudah diamankan.</p>
       ${remainingBlockHtml}
       ${firstSession ? `<p style="margin:12px 0;font-size:14px;">Sesi pertama: <strong>${escapeHtml(firstSession)}</strong></p>` : ""}
-      <p style="margin:16px 0;">${renderButton(d.receiptUrl, "Lihat tagihan pelunasan", true)}</p>
-      ${waButton}`,
+      ${actionButtons}`,
+      d.logoUrl,
     );
 
     const textLines = [
@@ -225,15 +253,13 @@ export function paymentConfirmedEmail(d: InvoiceEmailData): RenderedEmail {
             "",
             "Sisa pembayaran",
             `Tagihan #${d.remaining.invoiceId} · Pelunasan`,
-            `Subtotal: ${formatRupiah(d.remaining.subtotalIdr)}`,
-            `Kode unik: ${formatRupiah(d.remaining.uniqueCode)}`,
             `Total transfer: ${formatRupiah(d.remaining.totalIdr)}`,
             "",
             "Rekening tujuan:",
             `Bank: ${d.bank.bank}`,
             `Nomor rekening: ${d.bank.accountNumber}`,
             `Atas nama: ${d.bank.holder}`,
-            "Silakan transfer sisa pembayaran sebelum sesi pertama dimulai.",
+            "Silakan transfer sisa pembayaran tepat hingga 3 digit terakhir sebelum sesi pertama dimulai.",
           ]
         : []),
       ...(firstSession ? ["", `Sesi pertama: ${firstSession}`] : []),
@@ -247,7 +273,9 @@ export function paymentConfirmedEmail(d: InvoiceEmailData): RenderedEmail {
 
   const subject = `Pembayaran diterima – pendaftaran #${d.registrationId} terkonfirmasi`;
   const waButton = d.whatsappUrl
-    ? `<p style="margin:12px 0;">${renderButton(d.whatsappUrl, "Hubungi Admin via WhatsApp", false)}</p>`
+    ? renderActionButtons([
+        { href: d.whatsappUrl, label: "Hubungi Admin via WhatsApp", variant: "whatsapp" as const },
+      ])
     : "";
 
   const html = wrapEmailHtml(
@@ -262,6 +290,7 @@ export function paymentConfirmedEmail(d: InvoiceEmailData): RenderedEmail {
     </ol>
     ${waButton}
     <p style="margin:16px 0 0;font-size:13px;"><a href="${escapeHtml(d.receiptUrl)}" style="color:#1f2421;">Lihat ringkasan pendaftaran</a></p>`,
+    d.logoUrl,
   );
 
   const nextStepsText: string[] = [];
@@ -296,7 +325,9 @@ export function paymentRejectedEmail(d: InvoiceEmailData): RenderedEmail {
   const stageLabel = invoiceStageLabel(d.stage, d.paymentMethod);
   const programLine = `${d.offerTitle} – ${d.batchNames}`;
   const waButton = d.whatsappUrl
-    ? `<p style="margin:14px 0;">${renderButton(d.whatsappUrl, "Hubungi Admin via WhatsApp", true)}</p>`
+    ? renderActionButtons([
+        { href: d.whatsappUrl, label: "Hubungi Admin via WhatsApp", variant: "whatsapp" as const },
+      ])
     : "";
 
   const html = wrapEmailHtml(
@@ -306,6 +337,7 @@ export function paymentRejectedEmail(d: InvoiceEmailData): RenderedEmail {
     <p style="margin:0 0 14px;font-size:14px;">Silakan hubungi admin melalui WhatsApp untuk konfirmasi atau penyelesaian pembayaran, atau periksa status tagihan pada halaman pembayaran.</p>
     ${waButton}
     <p style="margin:14px 0 0;font-size:13px;"><a href="${escapeHtml(d.receiptUrl)}" style="color:#1f2421;">Lihat halaman pembayaran</a></p>`,
+    d.logoUrl,
   );
 
   const textLines = [

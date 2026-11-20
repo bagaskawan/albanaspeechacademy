@@ -20,5 +20,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
   const { data, error } = await request;
   if (error) throw new Error("Tagihan belum bisa dimuat.");
 
-  return <TagihanClient rows={invoiceRows(data ?? [])} searching={Boolean(q)} />;
+  const activeRows = invoiceRows(data ?? []).filter((row) => row.status !== "verified");
+
+  return <TagihanClient rows={activeRows} searching={Boolean(q)} />;
 }

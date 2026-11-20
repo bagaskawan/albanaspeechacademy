@@ -66,7 +66,7 @@ export async function ScheduleSection({
 
               return (
                 <Tile key={card.slug} tone="tile">
-                  <article data-motion="rise" className="home-grid gap-y-6">
+                  <article data-motion="rise" className="home-grid gap-y-4 lg:gap-y-6">
                     {thumb ? (
                       <div className="col-span-4 sm:col-span-8 lg:col-span-3">
                         <div
@@ -89,7 +89,12 @@ export async function ScheduleSection({
                         }`}
                     >
                       <div>
-                        <p className="eyebrow text-[var(--tone-muted)]">Program</p>
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="eyebrow text-[var(--tone-muted)]">Program</p>
+                          <span className="type-micro inline-flex h-5 shrink-0 items-center rounded-xs bg-[var(--tone-sun)] px-1.5 text-[var(--tone-on-sun)] lg:hidden">
+                            {card.statusLabel}
+                          </span>
+                        </div>
                         <h3 className="type-title mt-1">
                           {card.title} · {card.batch!.name}
                         </h3>
@@ -138,31 +143,33 @@ export async function ScheduleSection({
                       </p>
                     </div>
 
-                    <div className="col-span-4 flex flex-col justify-between gap-4 border-t border-[var(--tone-rule)] pt-4 sm:col-span-8 lg:col-span-4 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6">
+                    <div className="col-span-4 flex flex-col justify-between gap-3 border-t border-[var(--tone-rule)] pt-3.5 sm:col-span-8 lg:col-span-4 lg:gap-4 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6">
                       <div>
-                        <span className="type-micro inline-flex h-5 items-center rounded-xs bg-[var(--tone-sun)] px-1.5 text-[var(--tone-on-sun)]">
+                        <span className="type-micro hidden h-5 items-center rounded-xs bg-[var(--tone-sun)] px-1.5 text-[var(--tone-on-sun)] lg:inline-flex">
                           {card.statusLabel}
                         </span>
-                        <p className="eyebrow mt-4 text-[var(--tone-muted)]">Biaya</p>
-                        {card.batch!.normalPriceIdr ? (
-                          <p className="type-small mt-1 line-through tabular-nums text-[var(--tone-muted)]">
-                            {rupiah(card.batch!.normalPriceIdr)}
+                        <p className="eyebrow text-[var(--tone-muted)] lg:mt-4">Biaya</p>
+                        <div className="mt-1 flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5 lg:block">
+                          <p className="type-title tabular-nums">
+                            {card.batch!.priceIdr ? rupiah(card.batch!.priceIdr) : "-"}
                           </p>
-                        ) : null}
-                        <p className="type-title mt-1 tabular-nums">
-                          {card.batch!.priceIdr ? rupiah(card.batch!.priceIdr) : "-"}
-                        </p>
+                          {card.batch!.normalPriceIdr ? (
+                            <p className="type-small line-through tabular-nums text-[var(--tone-muted)] lg:mt-1">
+                              {rupiah(card.batch!.normalPriceIdr)}
+                            </p>
+                          ) : null}
+                        </div>
                       </div>
 
                       <div>
                         {card.registrationUrl ? (
-                          <Link href={card.registrationUrl} className="button-primary">
+                          <Link href={card.registrationUrl} className="button-primary w-full justify-center lg:w-auto">
                             Daftar kelas ini
                           </Link>
                         ) : whatsapp ? (
                           <a
                             href={whatsapp}
-                            className="button-primary"
+                            className="button-primary w-full justify-center lg:w-auto"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
