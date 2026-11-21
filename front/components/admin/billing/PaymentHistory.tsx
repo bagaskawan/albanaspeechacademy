@@ -27,12 +27,14 @@ const formatWib = (iso: string) =>
 
 export function PaymentHistory({
   invoiceId,
+  invoiceNumber,
   totalIdr,
   invoiceStatus,
   payments,
   recordLabel = "Catat transfer",
 }: {
   invoiceId: number;
+  invoiceNumber: string;
   totalIdr: number;
   invoiceStatus: string;
   payments: readonly InvoicePaymentItem[];
@@ -131,6 +133,7 @@ export function PaymentHistory({
           </button>
           <RecordPaymentDialog
             invoiceId={invoiceId}
+            invoiceNumber={invoiceNumber}
             totalIdr={totalIdr}
             recordedIdr={activeAmounts}
             open={dialogOpen}

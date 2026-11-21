@@ -7,6 +7,7 @@ import { Banknote, Calendar, CalendarPlus, Eye, Images, Layers, Package, Pencil,
 import { toast } from "sonner";
 import { AdminPageActions } from "@/components/admin/PageHeader";
 import { AdminSheet } from "@/components/admin/ui/AdminSheet";
+import { DeleteSheet } from "@/components/admin/ui/delete-sheet";
 import { DataTable, StatusChip } from "@/components/admin/ui/data-table";
 import { EmptyState } from "@/components/admin/ui/empty-state";
 import { RowActions } from "@/components/admin/ui/row-actions";
@@ -62,6 +63,7 @@ export function ProgramDetailBoard({
   const router = useRouter();
   const isAdminSuper = useIsAdminSuper();
   const [pending, startTransition] = useTransition();
+  const [batchToDelete, setBatchToDelete] = useState<BoardBatch | null>(null);
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -424,17 +426,7 @@ export function ProgramDetailBoard({
                     {isAdminSuper && (
                       <button
                         type="button"
-                        disabled={pending}
-                        onClick={() => {
-                          startTransition(async () => {
-                            const res = await deleteBatch(batch.slug);
-                            if (res.error) toast.error(res.error);
-                            else {
-                              toast.success("Batch dihapus.");
-                              router.refresh();
-                            }
-                          });
-                        }}
+                        onClick={() => setBatchToDelete(batch)}
                         aria-label={`Hapus batch ${batch.title}`}
                         title="Hapus batch"
                         className="inline-flex size-9 items-center justify-center rounded-full border border-admin-line bg-admin-canvas text-admin-danger transition-colors hover:bg-admin-rose-soft disabled:opacity-50"
@@ -671,6 +663,14 @@ export function ProgramDetailBoard({
           </FieldGrid>
         )}
       </FormDialog>
+
+      <DeleteSheet
+        open={batchToDelete !== null}
+        onOpenChange={(open) => { if (!open) setBatchToDelete(null); }}
+        title={`Hapus batch ${batchToDelete?.title ?? ""}?`}
+        successMessage="Batch dihapus."
+        onConfirm={() => (batchToDelete ? deleteBatch(batchToDelete.slug) : undefined)}
+      />
 
       {/* Modal Galeri & Dokumentasi */}
       <AdminSheet

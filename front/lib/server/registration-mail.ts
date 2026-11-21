@@ -154,7 +154,7 @@ export async function deliverInvoiceEmail(
     const { data: invoice, error: invoiceError } = await client
       .from("academy_invoices")
       .select(
-        "id,registration_id,stage,subtotal_idr,unique_code,total_idr,status,bank_accounts(bank,account_number,holder)",
+        "id,invoice_number,registration_id,stage,subtotal_idr,unique_code,total_idr,status,bank_accounts(bank,account_number,holder)",
       )
       .eq("id", invoiceId)
       .single();
@@ -216,6 +216,7 @@ export async function deliverInvoiceEmail(
     const paymentMethod = registration.payment_method as PaymentMethod;
     const amounts: InvoiceAmounts = {
       invoiceId: invoice.id,
+      invoiceNumber: invoice.invoice_number,
       subtotalIdr: Number(invoice.subtotal_idr),
       uniqueCode: Number(invoice.unique_code),
       totalIdr: Number(invoice.total_idr),
@@ -225,7 +226,7 @@ export async function deliverInvoiceEmail(
     if (kind === "payment_confirmed" && stage === "initial" && paymentMethod === "dp") {
       const { data: remRow } = await client
         .from("academy_invoices")
-        .select("id,subtotal_idr,unique_code,total_idr")
+        .select("id,invoice_number,subtotal_idr,unique_code,total_idr")
         .eq("registration_id", registration.id)
         .eq("stage", "remaining")
         .eq("status", "pending")
@@ -235,6 +236,7 @@ export async function deliverInvoiceEmail(
       if (remRow) {
         remaining = {
           invoiceId: remRow.id,
+          invoiceNumber: remRow.invoice_number,
           subtotalIdr: Number(remRow.subtotal_idr),
           uniqueCode: Number(remRow.unique_code),
           totalIdr: Number(remRow.total_idr),
@@ -258,7 +260,7 @@ export async function deliverInvoiceEmail(
         const waText = useProofMessage
           ? paymentProofMessage({
               registrationId: registration.id,
-              invoiceId: amounts.invoiceId,
+              invoiceNumber: amounts.invoiceNumber,
               fullName: registration.full_name,
               offerTitle: registration.offer_title,
               batchNames,
@@ -266,7 +268,7 @@ export async function deliverInvoiceEmail(
               totalIdr: amounts.totalIdr,
             })
           : kind === "payment_rejected"
-            ? `Halo Admin Albana, saya ${registration.full_name} (pendaftaran #${registration.id}, tagihan #${amounts.invoiceId}) ingin menanyakan penolakan tagihan.`
+            ? `Halo Admin Albana, saya ${registration.full_name} (pendaftaran #${registration.id}, tagihan ${amounts.invoiceNumber}) ingin menanyakan penolakan tagihan.`
             : `Halo Admin Albana, saya ${registration.full_name} (pendaftaran #${registration.id}).`;
         whatsappUrl = `${baseWa}?text=${encodeURIComponent(waText)}`;
       }

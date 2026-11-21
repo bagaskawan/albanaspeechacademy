@@ -140,7 +140,7 @@ export async function sendReferralRewardNotificationEmail({
     const formatRupiah = (val: number) => `Rp ${val.toLocaleString("id-ID")}`;
 
     await transporter.sendMail({
-      from: `"Panggung Kreator" <${process.env.SMTP_USER}>`,
+      from: `"Panggung Kreator" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
       to: recipientEmail,
       subject: `🎉 Komisi Referral Masuk: ${formatRupiah(rewardAmount)} - Panggung Kreator`,
       html: `
@@ -524,7 +524,7 @@ export async function confirmPaymentWithRewardAction({
         const memberUsername = payingMember.username || payingMember.email;
 
         await transporter.sendMail({
-          from: `"Panggung Kreator" <${process.env.SMTP_USER}>`,
+          from: `"Panggung Kreator" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
           to: payingMember.email,
           subject: "Pembayaran Terkonfirmasi & Kredensial Akun - Panggung Kreator",
           html: `
@@ -1453,7 +1453,7 @@ export async function processAffiliatePayoutAction({
         const recipientName = member.stage_name || member.full_name || "Kreator";
 
         await transporter.sendMail({
-          from: `"Panggung Kreator" <${process.env.SMTP_USER}>`,
+          from: `"Panggung Kreator" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
           to: member.email,
           subject: "🎉 Pembayaran Komisi Affiliate Berhasil - Panggung Kreator",
           html: `

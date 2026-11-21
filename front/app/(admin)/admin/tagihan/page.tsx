@@ -12,7 +12,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
   let request = academyBillingClient()
     .from("academy_registrations")
     .select(
-      "id,full_name,email,whatsapp,offer_title,payment_method,price_idr_at_signup,dp_percent_at_signup,received_at,academy_registration_items(batch_slug),academy_invoices(id,stage,subtotal_idr,unique_code,total_idr,received_idr,status,reviewed_by,reviewed_at,created_at,academy_email_deliveries(kind,status,attempts),academy_invoice_payments(id,amount_idr,balance_after_idr,note,recorded_at,recorded_by,voided_at))"
+      "id,full_name,email,whatsapp,offer_title,payment_method,price_idr_at_signup,dp_percent_at_signup,received_at,academy_registration_items(batch_slug),academy_invoices(id,invoice_number,stage,subtotal_idr,unique_code,total_idr,received_idr,status,reviewed_by,reviewed_at,created_at,academy_email_deliveries(kind,status,attempts),academy_invoice_payments(id,amount_idr,balance_after_idr,note,recorded_at,recorded_by,voided_at))"
     )
     .order("received_at", { ascending: false })
     .limit(200);

@@ -72,9 +72,10 @@ async function load(module: ExportModule, params: URLSearchParams): Promise<Load
     case "tagihan":
       return {
         rows: await run(db.from("academy_invoices")
-          .select("created_at,stage,subtotal_idr,unique_code,total_idr,status,reviewed_by,reviewed_at,academy_registrations(full_name,offer_title,primary_batch_slug)")
+          .select("invoice_number,created_at,stage,subtotal_idr,unique_code,total_idr,status,reviewed_by,reviewed_at,academy_registrations(full_name,offer_title,primary_batch_slug)")
           .order("created_at", { ascending: false }).limit(limit)),
         columns: [
+          { header: "No. tagihan", value: (row) => row.invoice_number },
           { header: "Dibuat (WIB)", value: (row) => wibDateTime(row.created_at as string) },
           { header: "Nama", value: (row) => (row.academy_registrations as Row | null)?.full_name },
           { header: "Program – batch", value: (row) => { const r = row.academy_registrations as Row | null; return r ? `${r.offer_title} – ${r.primary_batch_slug ?? ""}` : ""; } },

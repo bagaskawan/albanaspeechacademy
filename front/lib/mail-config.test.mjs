@@ -28,6 +28,12 @@ test("from always uses the SMTP account with the Albana display name", () => {
   assert.equal(readMailConfig(gmail).from, '"Albana Speech Academy" <albana.test@gmail.com>');
 });
 
+test("SMTP_FROM overrides the sender for relays like Resend", () => {
+  const resend = { ...gmail, SMTP_HOST: "smtp.resend.com", SMTP_USER: "resend", SMTP_FROM: "noreply@albanaspeechacademy.com" };
+  assert.equal(readMailConfig(resend).from, '"Albana Speech Academy" <noreply@albanaspeechacademy.com>');
+  assert.equal(readMailConfig(resend).user, "resend");
+});
+
 test("SMTP_SECURE is false only for the exact string false", () => {
   assert.equal(readMailConfig({ ...gmail, SMTP_PORT: "587", SMTP_SECURE: "false" }).secure, false);
   assert.equal(readMailConfig({ ...gmail, SMTP_SECURE: "no" }).secure, true);

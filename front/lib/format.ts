@@ -21,8 +21,21 @@ function parseWib(iso: string) {
   return new Date(/(?:Z|[+-]\d{2}:?\d{2})$/.test(iso) ? iso : `${iso}+07:00`);
 }
 
+const isoDateFormatter = new Intl.DateTimeFormat("en-CA", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: "Asia/Jakarta",
+});
+
 export function formatSessionDate(iso: string) {
   return dateFormatter.format(parseWib(iso));
+}
+
+export function formatSessionIsoDate(iso: string) {
+  const date = parseWib(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return isoDateFormatter.format(date);
 }
 
 export function formatTimeRange(startsAt: string, endsAt: string) {

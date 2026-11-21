@@ -42,7 +42,7 @@ test("instructions email carries the exact transfer data", () => {
     assert.ok(body.includes("3 digit terakhir"));
     assert.ok(body.includes("1234567890"));
     assert.ok(body.includes("PT Albana"));
-    assert.ok(body.includes(base.receiptUrl));
+    assert.equal(body.includes("Lihat halaman pembayaran"), false);
   }
 });
 

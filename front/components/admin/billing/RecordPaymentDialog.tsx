@@ -33,6 +33,7 @@ function formatFileSize(bytes: number): string {
 
 export function RecordPaymentDialog({
   invoiceId,
+  invoiceNumber,
   totalIdr,
   recordedIdr,
   open,
@@ -40,6 +41,7 @@ export function RecordPaymentDialog({
   title = "Catat transfer masuk",
 }: {
   invoiceId: number;
+  invoiceNumber: string;
   totalIdr: number;
   recordedIdr: number[];
   open: boolean;
@@ -153,7 +155,7 @@ export function RecordPaymentDialog({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            Tagihan #{invoiceId} · Total {rupiah(totalIdr)}
+            {invoiceNumber} · Total {rupiah(totalIdr)}
           </DialogDescription>
         </DialogHeader>
 

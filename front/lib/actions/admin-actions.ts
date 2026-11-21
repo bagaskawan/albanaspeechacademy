@@ -327,7 +327,7 @@ export async function approveAdminAction(
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
         await transporter.sendMail({
-          from: `"Panggung Kreator" <${process.env.SMTP_USER}>`,
+          from: `"Panggung Kreator" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
           to: email,
           subject: "Akses Admin Disetujui - Panggung Kreator",
           html: `

@@ -503,7 +503,7 @@ export async function registerMemberAction(payload: CheckoutPayload) {
         );
 
         await transporter.sendMail({
-          from: `"Panggung Kreator" <${process.env.SMTP_USER}>`,
+          from: `"Panggung Kreator" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
           to: payload.email.trim(),
           subject: "Instruksi Pembayaran - Panggung Kreator Akademi",
           html: `
@@ -744,7 +744,7 @@ export async function verifyMemberPaymentAction(memberId: string) {
         const memberUsername = memberToVerify.username || memberToVerify.email;
 
         await transporter.sendMail({
-          from: `"Panggung Kreator" <${process.env.SMTP_USER}>`,
+          from: `"Panggung Kreator" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
           to: memberToVerify.email,
           subject: "Pembayaran Terkonfirmasi & Kredensial Akun - Panggung Kreator",
           html: `

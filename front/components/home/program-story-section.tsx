@@ -20,7 +20,7 @@ const copy: Record<string, { audience: string; story: string; topics: string[] }
   },
   "sertifikasi-pembicara-profesional": {
     audience: "Untukmu yang membutuhkan pengakuan kompetensi sebagai pembicara.",
-    story: "Untuk kamu yang ingin kemampuan bicaranya diakui secara formal.",
+    story: "",
     topics: [],
   },
 };

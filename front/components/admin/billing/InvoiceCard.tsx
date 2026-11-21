@@ -76,7 +76,7 @@ export function InvoiceCard({
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <p className="font-semibold text-admin-ink">Tagihan #{invoice.id}</p>
+          <p className="font-mono text-[13px] font-semibold tracking-wide text-admin-ink">{invoice.invoice_number}</p>
           <span className="inline-flex h-6 items-center rounded-full bg-admin-surface px-2.5 text-[11px] font-medium text-admin-text-secondary">
             {invoice.stage === "remaining" ? "Pelunasan" : "Awal"}
           </span>
@@ -150,6 +150,7 @@ export function InvoiceCard({
 
       <PaymentHistory
         invoiceId={invoice.id}
+        invoiceNumber={invoice.invoice_number}
         totalIdr={total}
         invoiceStatus={invoice.status}
         payments={payments}

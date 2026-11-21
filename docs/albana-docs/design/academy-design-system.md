@@ -132,7 +132,7 @@ Beranda memakai **lima ukuran**; ukuran lain di beranda diganti ke salah satunya
 
 | Token | Nilai | Dipakai untuk |
 |---|---|---|
-| `--text-mega` | `clamp(3.25rem, 9vw, 8.5rem)`, tinggi baris 0.92, tracking −0.055em, tebal 700 | Kata bab (**Public Training**, **Inhouse Training**), angka 70/20/10 |
+| `--text-mega` | `clamp(3.25rem, 9vw, 8.5rem)`, tinggi baris 0.92, tracking −0.055em, tebal 700 | Kata bab (**Public Training**, **Inhouse Training**), angka 80/20 |
 | `--text-display` | `clamp(2.25rem, 5vw, 4.25rem)`, tinggi baris 1, −0.045em, 600 | H2, judul hero |
 | `--text-title` | `clamp(1.5rem, 2.6vw, 2.25rem)`, tinggi baris 1.1, −0.03em, 600 | H3 nama program, nama trainer |
 | `--text-lead` | `clamp(1.0625rem, 1.3vw, 1.25rem)`, tinggi baris 1.55 | Lead, paragraf kanan |
@@ -311,7 +311,7 @@ Urutan informasi mengikuti pertanyaan pengunjung pada [revisi kebutuhan](../proj
 |---|---|---|
 | 1 | **Manfaat training** — hero dan pita manfaat | H1 dan CTA berada di kiri; foto kegiatan atau poster video berizin di kanan. Bila belum ada dokumentasi, fallback potret Alan dilabeli sebagai profil. Empat hasil yang dituju menyusul sebagai pita bergaris di bawah hero. |
 | 2 | **Program training** — pilihan program dan bukti proses | Tiga program Public Training serta panel Inhouse mudah dibandingkan; satu foto relevan boleh mendampingi tiap program bila tersedia. Satu media lebar tentang latihan nyata menutup bab ini; hilangkan bila belum ada media berizin. |
-| 3 | **Kredibilitas lembaga** — tentang ASA dan Alan, cara belajar, pita klien | Bidang permukaan sekunder. Potret Alan berizin dan narasi lembaga (jangan mengulang foto hero); model 70/20/10 dan kerangka empat tingkat; pita klien hanya bila izin tercatat. |
+| 3 | **Kredibilitas lembaga** — tentang ASA dan Alan, cara belajar, pita klien | Bidang permukaan sekunder. Potret Alan berizin dan narasi lembaga (jangan mengulang foto hero); model 80/20 (80% praktik, 20% coaching, konsep & feedback) dan kerangka empat tingkat; pita klien hanya bila izin tercatat. |
 | 4 | **Testimoni & hasil** — testimoni dan dokumentasi | Kutipan berizin, lalu galeri editorial foto serta video dengan caption, poster, dan kontrol pemutaran; jumlah sel mengikuti aset nyata. Tanpa testimoni terbit, bab ini hanya berisi dokumentasi. |
 | 5 | **Trainer / mentor** | Profil yang benar dan sesuai program; potret resmi hanya bila izin tersedia. |
 | 6 | **Harga & jadwal** | Bidang permukaan sekunder. Data terbit yang mudah dipindai; keadaan terbuka, penuh, tutup, dan belum ada jadwal terlihat jelas. |

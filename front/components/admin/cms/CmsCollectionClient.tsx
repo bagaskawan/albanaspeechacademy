@@ -779,10 +779,10 @@ export default function CmsCollectionClient({
       }
 
       await refresh();
-      toast.success("Data berhasil dihapus.");
       announce("Data berhasil dihapus.");
     } catch (err) {
-      setError(errorMessage(err, "Gagal menghapus data."));
+      // RowActions' DeleteSheet toasts this and keeps the dialog open.
+      return { error: errorMessage(err, "Gagal menghapus data.") };
     }
   };
 

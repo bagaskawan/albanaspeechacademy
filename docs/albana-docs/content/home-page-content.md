@@ -38,7 +38,7 @@ Babak 1 dan penutup sengaja bergema: hero membuka dengan momen *menunggu kamu bi
 | Sapaan **kamu**; kalimat pendek; satu gagasan per kalimat. | “Anda” bercampur “kamu”; kalimat > 25 kata. |
 | Situasi konkret: rapat, presentasi, memandu acara, menjawab pertanyaan. | Abstraksi: “potensi”, “transformasi”, “level berikutnya”. |
 | Kata kerja latihan: *berlatih, mencoba, menerima masukan, mengulang*. | Janji hasil: “pasti”, “dijamin”, “langsung mahir”. |
-| Angka hanya dari data atau proposal (70/20/10, empat trainer). | Statistik karangan: “1000+ alumni”, “98% puas”. |
+| Angka hanya dari data atau proposal (80/20, empat trainer). | Statistik karangan: “1000+ alumni”, “98% puas”. |
 | Istilah tetap: **Public Training**, **Inhouse Training**, **batch**, **sesi**. | Sinonim berganti-ganti: kelas/kursus/workshop untuk hal yang sama. |
 
 Panjang maksimal: eyebrow 24 karakter, H2 64 karakter, lead 180 karakter, label tombol 24 karakter.
@@ -53,9 +53,9 @@ Gerak beranda bersifat **dua arah**: setiap kelompok masuk saat digulir ke bawah
 | **G2** | Tekan | Garis bawah frasa serif tergambar (`.accent-serif`, lihat [sistem desain](../design/academy-design-system.md#aksen-serif-pengganti-stabilo)) | `scaleX 0→1`, origin kiri, 450 ms, `--ease-out`, mulai 200 ms setelah G1 judulnya selesai; judul tanpa gerak dan reduced motion langsung memperlihatkan garis | Satu frasa per H2 |
 | **G3** | Angkat | Kelompok isi muncul searah gulir | `opacity 0→1` + `y ±28px→0`, 600 ms, `--ease-out`, jeda 70 ms antar-anak | Paragraf, kartu, daftar |
 | **G4** | Bingkai | Media terbuka dari wadah bermasker | wadah `yPercent 12→0` + gambar `scale 1.12→1`, 900 ms, `--ease-expo` | Foto dan poster video |
-| **G5** | Isi | Nilai mengikuti posisi gulir (*scrub*) | `scaleX 0→1` terikat jarak gulir, `scrub: 0.6` | Bilah 70/20/10, garis kemajuan bab |
+| **G5** | Isi | Nilai mengikuti posisi gulir (*scrub*) | `scaleX 0→1` terikat jarak gulir, `scrub: 0.6` | Bilah 80/20, garis kemajuan bab |
 | **G6** | Geser | Deret horizontal masuk berurutan | `opacity 0→1` + `x ±32px→0`, 500 ms, jeda 90 ms | Trainer, tiga langkah, pita manfaat |
-| **G7** | Hitung | Angka naik ke nilai akhir | 900 ms, `--ease-out`, `tabular-nums`, lebar dikunci | Hanya angka bersumber (70/20/10, persen DP) |
+| **G7** | Hitung | Angka naik ke nilai akhir | 900 ms, `--ease-out`, `tabular-nums`, lebar dikunci | Hanya angka bersumber (80/20, persen DP) |
 | **G8** | Skala bab | Kata bab ukuran `mega` membesar terikat gulir (*scrub*) | `scale 0.86→1`, `opacity 0.2→1`, `xPercent -4→0`, origin kiri bawah, `scrub: 0.6`, dari `top 90%` ke `top 35%`; hanya ≥ 1024 px dan bukan reduced motion, selain itu G1 | Kata “Public Training” dan “Inhouse Training” |
 
 **Arah.** Saat masuk dari bawah (gulir turun), `y` dan `x` dimulai dari nilai positif. Saat masuk dari atas (gulir naik), dari nilai negatif. Implementasi dengan GSAP ScrollTrigger yang sudah terpasang:
@@ -239,9 +239,8 @@ Bidang biru pucat. Tiga bagian dalam satu bidang.
 
 | Porsi | Judul | Isi |
 | --- | --- | --- |
-| **70%** | Praktik & simulasi | Praktik langsung, simulasi panggung, role play MC dan pembicara, presentasi kasus nyata. |
-| **20%** | Coaching & feedback | Evaluasi performa pribadi, tinjauan sesama peserta, masukan trainer. |
-| **10%** | Konsep & kerangka | Teori komunikasi profesional, struktur bicara, alat komunikasi praktis. |
+| **80%** | Praktik & simulasi | Praktik langsung, simulasi panggung, role play MC dan pembicara, serta presentasi kasus nyata. |
+| **20%** | Coaching, konsep & feedback | Evaluasi performa pribadi, masukan langsung dari trainer, dan kerangka komunikasi yang merapikan pesan. |
 
 Baris di bawahnya — label **Kerangka pengembangan**:
 **Fundamental** · membangun percaya diri → **Professional** · komunikasi efektif → **Advance** · performa panggung → **Expert** · pembicara dan fasilitator
@@ -253,12 +252,12 @@ Tujuh bidang ini adalah cakupan keahlian, **bukan** program yang dijual. Jangan 
 
 **Gerak:** inti bab ini.
 
-- Tiga bilah porsi **G5** terikat gulir: saat seksi melintas dari `top 80%` ke `center 50%`, bilah 70% terisi lebih dulu, lalu 20%, lalu 10% (rentang gulir berurutan). Gulir naik mengosongkannya kembali.
+- Dua bilah porsi **G5** terikat gulir: saat seksi melintas dari `top 80%` ke `center 50%`, bilah 80% terisi lebih dulu, lalu 20% (rentang gulir berurutan). Gulir naik mengosongkannya kembali.
 - Angka **G7** berjalan sekali saat bilahnya mulai terisi; nilai akhir sudah ada di HTML.
 - Kerangka empat tingkat: panah antartingkat tergambar `scaleX` berurutan, lalu label **G6**.
 - Chip bidang **G3** dalam satu kelompok (jeda 40 ms).
 
-**Media:** satu foto per baris 70/20/10 (tiga foto berbeda, 4:3), caption di bawah foto. Foto contoh tidak boleh berulang antarbaris maupun dengan hero dan bento. Bab ini bernada **sand**; angka 70/20/10 memakai ukuran `mega`.
+**Media:** satu foto per baris 80/20 (dua foto berbeda, 16:10 atau 4:3), caption di bawah foto. Foto contoh tidak boleh berulang antarbaris maupun dengan hero dan bento. Bab ini bernada **sand**; angka 80/20 memakai ukuran `mega`.
 
 ### 5.3 Pernah melatih
 
@@ -449,7 +448,7 @@ Field memakai line style akademi. Pesan galat tepat di bawah field. Tombol **Kem
 - [ ] Seksi tanpa data hilang beserta tautan navigasinya.
 - [ ] Tidak ada satu pun butir §1.4.
 - [ ] Setiap kelompok beranimasi saat digulir turun **dan** naik, dengan arah yang benar.
-- [ ] Bilah 70/20/10 dan garis tiga langkah mengikuti posisi gulir dan kosong lagi saat digulir balik.
+- [ ] Bilah 80/20 dan garis tiga langkah mengikuti posisi gulir dan kosong lagi saat digulir balik.
 - [ ] Header muncul halus setelah gulir melewati setengah hero dan tersembunyi lagi saat kembali ke atas; navigasi tetap dapat dipakai dengan keyboard ketika tampil.
 - [ ] Reduced motion: fade satu arah, tanpa scrub, tanpa Lenis.
 - [ ] Gulir naik-turun cepat di ponsel kelas menengah tanpa tersendat.

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Eye, MessageCircle, Receipt, Trash2 } from "lucide-react";
 import { InvoiceCard, whatsappParticipantHref } from "@/components/admin/billing/InvoiceCard";
 import { AdminSheet } from "@/components/admin/ui/AdminSheet";
+import { DeleteSheet } from "@/components/admin/ui/delete-sheet";
 import {
   DataTable,
   StatusChip,
@@ -349,50 +350,23 @@ export default function TagihanClient({
         )}
       </AdminSheet>
 
-      <AdminSheet
+      <DeleteSheet
         open={deleteTarget !== null}
         onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
-        size="sm"
-        tone="danger"
-        icon={<Trash2 aria-hidden="true" size={20} strokeWidth={1.5} />}
         title={
           deleteTarget?.invoiceId
-            ? `Hapus Tagihan #${deleteTarget.invoiceId}?`
+            ? `Hapus tagihan ${deleteTarget.invoiceNumber}?`
             : `Hapus pendaftaran ${deleteTarget?.registration.full_name ?? ""}?`
         }
-        description="Tindakan ini tidak dapat dibatalkan."
-        footer={
-          deleteTarget && (
-            <>
-              <button
-                type="button"
-                onClick={() => setDeleteTarget(null)}
-                className="inline-flex h-12 w-full shrink-0 items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface sm:w-auto sm:flex-1"
-              >
-                Batal
-              </button>
-              <form
-                action={async (formData) => {
-                  await deleteBillingItem(formData);
-                  setDeleteTarget(null);
-                }}
-                className="w-full sm:w-auto sm:flex-1"
-              >
-                {deleteTarget.invoiceId ? (
-                  <input type="hidden" name="invoiceId" value={deleteTarget.invoiceId} />
-                ) : (
-                  <input type="hidden" name="registrationId" value={deleteTarget.registration.id} />
-                )}
-                <button
-                  type="submit"
-                  className="inline-flex h-12 w-full items-center justify-center rounded-full bg-admin-danger text-[15px] font-medium text-white transition-opacity hover:opacity-90"
-                >
-                  Hapus
-                </button>
-              </form>
-            </>
-          )
-        }
+        successMessage={deleteTarget?.invoiceId ? "Tagihan dihapus." : "Pendaftaran dihapus."}
+        errorMessage={deleteTarget?.invoiceId ? "Gagal menghapus tagihan." : "Gagal menghapus pendaftaran."}
+        onConfirm={() => {
+          if (!deleteTarget) return;
+          const form = new FormData();
+          if (deleteTarget.invoiceId) form.set("invoiceId", String(deleteTarget.invoiceId));
+          else form.set("registrationId", String(deleteTarget.registration.id));
+          return deleteBillingItem(form);
+        }}
       />
     </div>
   );

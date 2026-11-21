@@ -26,7 +26,7 @@ Satu situs untuk Albana Speech Academy: calon peserta memahami program, melihat 
 | Misi | Pelatihan komunikasi dari basic hingga advance; meningkatkan kepercayaan diri dan performa komunikasi; pelatihan berbasis praktik nyata; mendukung budaya komunikasi profesional di organisasi. |
 | Bidang pelatihan | Public Speaking · Professional Presentation · MC & Event Communication · Moderator & Host Training · Leadership Communication · Service Excellence · Training of Trainer. |
 | Kerangka pengembangan | Fundamental (Build Confidence) → Professional (Effective Communication) → Advance (Stage Performance) → Expert (Speaker & Facilitator). |
-| Model belajar | 70% praktik dan simulasi · 20% coaching dan feedback · 10% konsep dan kerangka. |
+| Model belajar | 80% praktik dan simulasi · 20% coaching, konsep, dan feedback. |
 | Hasil yang dituju | Komunikasi kerja lebih efektif; SDM lebih percaya diri; presentasi lebih meyakinkan; representasi organisasi lebih profesional. |
 | Format | Public Training (jadwal dan kota sesuai penawaran) dan In House Training (lokasi, silabus, dan waktu menyesuaikan perusahaan). |
 | Trainer | Alan Albana (founder), Nurachman, Andhan Indah, Abo Priatna. |
@@ -142,7 +142,7 @@ Kebutuhan isi yang harus tersedia di situs. Naskah final ada di [konten beranda]
 | --- | --- | --- | --- | --- |
 | C-01 | Tentang lembaga: deskripsi, visi, misi. | Beranda, seksi Kredibilitas. | `academy` (belum punya kolom visi/misi) atau naskah statis. | Belum |
 | C-02 | Tujuh bidang pelatihan. | Beranda, seksi Kredibilitas, sebagai daftar keahlian — bukan kartu produk. | Naskah statis. | Belum |
-| C-03 | Model belajar 70/20/10 dan metode (experiential, simulasi, role play, coaching). | Beranda, seksi Kredibilitas (cara belajar). | `academy.teaching_method` atau naskah statis. | Terpasang |
+| C-03 | Model belajar 80/20 (80% praktik, 20% coaching, konsep & feedback) dan metode (experiential, simulasi, role play, coaching). | Beranda, seksi Kredibilitas (cara belajar). | `academy.teaching_method` atau naskah statis. | Terpasang |
 | C-04 | Kerangka empat tingkat Fundamental → Expert. | Beranda, pendamping model belajar. | Naskah statis. | Belum |
 | C-05 | Empat hasil yang dituju. | Hero (baris manfaat) dan halaman Inhouse. | Naskah statis. | Belum |
 | C-06 | Profil empat trainer: peran, pendidikan, sertifikasi, pengalaman. | Beranda seksi Trainer (ringkas); detail saat kartu dibuka. | `trainers` (`bio`, `expertise`, `photo_url`). | Sebagian — nama terisi, bio dan foto belum lengkap. |

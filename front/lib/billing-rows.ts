@@ -18,6 +18,7 @@ export type InvoicePaymentItem = {
 
 export type BillingInvoice = {
   id: number;
+  invoice_number: string;
   stage: string;
   subtotal_idr: number | string;
   unique_code: number | string;
@@ -55,6 +56,7 @@ export type BillingRegistration = {
 
 export type BillingRow = {
   invoiceId: number | null;
+  invoiceNumber: string | null;
   registration: BillingRegistration;
   stageLabel: string;
   totalIdr: number | null;
@@ -87,6 +89,7 @@ export function invoiceRows(registrations: readonly BillingRegistration[]): Bill
     if (!registration.academy_invoices.length) {
       rows.push({
         invoiceId: null,
+        invoiceNumber: null,
         registration,
         stageLabel: "—",
         totalIdr: null,
@@ -101,6 +104,7 @@ export function invoiceRows(registrations: readonly BillingRegistration[]): Bill
     for (const invoice of registration.academy_invoices) {
       rows.push({
         invoiceId: invoice.id,
+        invoiceNumber: invoice.invoice_number,
         registration,
         stageLabel: invoice.stage === "remaining" ? "Pelunasan" : "Awal",
         totalIdr: Number(invoice.total_idr),

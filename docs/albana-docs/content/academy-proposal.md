@@ -31,21 +31,17 @@
 - Role Play Session
 - Coaching & Feedback
 
-## (70 : 20 : 10 LEARNING MODEL)
+## (80 : 20 LEARNING MODEL)
 
-### 1. 70% Experiential Learning
+### 1. 80% Praktik & Simulasi (Experiential Learning)
 - Praktik langsung
 - Simulasi panggung
 - Role play MC, Speaker
 - Real case presentation
-### 2. 20% Coaching & Feedback
+### 2. 20% Coaching, Konsep & Feedback
 - Evaluasi performa individu
-- Peer review
-- Trainer feedback
-### 3. 10% Concept & Framework
-- Teori komunikasi profesional
-- Struktur speaking framework
-- Tools komunikasi praktis
+- Peer review & masukan trainer
+- Konsep komunikasi profesional, struktur speaking framework, dan tools komunikasi praktis
 ## Goals to Achieve
 1. *Komunikasi kerja lebih efektif*
 2. SDM lebih percaya diri

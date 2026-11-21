@@ -47,6 +47,8 @@ export function readMailConfig(env: Record<string, string | undefined>): MailCon
   const host = clean(env.SMTP_HOST) || "smtp.gmail.com";
   const secure = clean(env.SMTP_SECURE) !== "false";
   const replyTo = clean(env.EMAIL_REPLY_TO) || null;
+  // SMTP relays like Resend/Brevo log in with a non-email user, so the sender address is separate.
+  const fromAddress = clean(env.SMTP_FROM) || user;
 
   return {
     host,
@@ -54,7 +56,7 @@ export function readMailConfig(env: Record<string, string | undefined>): MailCon
     secure,
     user,
     pass,
-    from: `"Albana Speech Academy" <${user}>`,
+    from: `"Albana Speech Academy" <${fromAddress}>`,
     replyTo,
     siteUrl,
   };

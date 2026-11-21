@@ -1,13 +1,20 @@
-import { formatSessionDate, formatTimeRange } from "@/lib/format";
+import { cache } from "react";
+import { formatSessionDate, formatSessionIsoDate, formatTimeRange } from "@/lib/format";
 import { isAcceptingBatch } from "@/lib/registration";
 import { readPrograms } from "./catalog";
 import { academyRequest } from "./academy-api";
 import { readAddressLabel } from "./public-contacts";
 import { youtubeVideoId } from "@/lib/youtube";
 
+export type ProgramSessionDate = {
+  label: string;
+  isoDate: string;
+};
+
 export type ProgramBatchSummary = {
   name: string;
   dateLabels: string[];
+  sessionDates: ProgramSessionDate[];
   timeLabel: string;
   formatLabel: string;
   scheduleMode?: "per_session" | "start_only";
@@ -24,6 +31,8 @@ export type ProgramCard = {
   topics: string[];
   statusLabel: string;
   registrationUrl: string | null;
+  priceIdr?: number | null;
+  normalPriceIdr?: number | null;
   batch: ProgramBatchSummary | null;
 };
 
@@ -92,11 +101,21 @@ function readBatchSummary(
   const dpPercent = Number(program.dp_percent);
   const isStartOnly = sessions[0]?.startOnly === true;
   const totalSessions = isStartOnly ? (sessions[0].sessionCount ?? 4) : sessions.length;
+  const sessionDates: ProgramSessionDate[] = isStartOnly
+    ? [
+        {
+          label: `Mulai ${formatSessionDate(sessions[0].startsAt)}`,
+          isoDate: formatSessionIsoDate(sessions[0].startsAt),
+        },
+      ]
+    : sessions.map((session) => ({
+        label: formatSessionDate(session.startsAt),
+        isoDate: formatSessionIsoDate(session.startsAt),
+      }));
   return {
     name: asString(batch.title) ?? "Batch",
-    dateLabels: isStartOnly
-      ? [`Mulai ${formatSessionDate(sessions[0].startsAt)}`]
-      : sessions.map((session) => formatSessionDate(session.startsAt)),
+    dateLabels: sessionDates.map((item) => item.label),
+    sessionDates,
     timeLabel: formatTimeRange(sessions[0].startsAt, sessions[0].endsAt),
     formatLabel: `${totalSessions} pertemuan`,
     scheduleMode: isStartOnly ? "start_only" : "per_session",
@@ -115,6 +134,13 @@ function toCard(program: Record<string, unknown>, address: string): ProgramCard 
 
   const batch = pickBatch(asObjectArray(program.batches));
   const batchSummary = batch ? readBatchSummary(program, batch, address) : null;
+  const rawPriceIdr = Number(program.price_idr);
+  const rawNormalPriceIdr = Number(program.original_price_idr);
+  const priceIdr = Number.isSafeInteger(rawPriceIdr) && rawPriceIdr > 0 ? rawPriceIdr : null;
+  const normalPriceIdr =
+    priceIdr && Number.isSafeInteger(rawNormalPriceIdr) && rawNormalPriceIdr > priceIdr
+      ? rawNormalPriceIdr
+      : null;
 
   let statusText = "Jadwal menyusul";
   if (slug === "inhouse-training") statusText = "Konsultasi privat dengan tim Albana";
@@ -133,11 +159,13 @@ function toCard(program: Record<string, unknown>, address: string): ProgramCard 
     topics: readTopics(program.materials),
     statusLabel: statusText,
     registrationUrl,
+    priceIdr,
+    normalPriceIdr,
     batch: batchSummary,
   };
 }
 
-export async function readProgramShowcase(): Promise<ProgramShowcase> {
+export const readProgramShowcase = cache(async (): Promise<ProgramShowcase> => {
   try {
     const [programs, address] = await Promise.all([readPrograms(), readAddressLabel()]);
     const cards = asObjectArray(programs)
@@ -147,9 +175,9 @@ export async function readProgramShowcase(): Promise<ProgramShowcase> {
   } catch {
     return { status: "failed" };
   }
-}
+});
 
-export async function readProgramDetail(slug: string): Promise<ProgramDetail> {
+export const readProgramDetail = cache(async (slug: string): Promise<ProgramDetail> => {
   const showcase = await readProgramShowcase();
   if (showcase.status === "failed") return showcase;
 
@@ -167,4 +195,4 @@ export async function readProgramDetail(slug: string): Promise<ProgramDetail> {
     });
     return { status: "ready", card, media };
   } catch { return { status: "ready", card, media: [] }; }
-}
+});

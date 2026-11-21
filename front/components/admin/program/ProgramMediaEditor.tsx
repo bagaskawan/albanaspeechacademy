@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ImagePlus, Loader2, Pencil, Play, Plus, RefreshCw, Trash2, UploadCloud, X } from "lucide-react";
 import { toast } from "sonner";
-import { AdminSheet } from "@/components/admin/ui/AdminSheet";
+import { DeleteSheet } from "@/components/admin/ui/delete-sheet";
 import { UploadBlockingModal } from "@/components/admin/ui/UploadBlockingModal";
 import { AdminInput } from "@/components/admin/ui/form/controls";
 import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
@@ -316,20 +316,10 @@ export function ProgramMediaEditor({
     );
   }
 
-  function confirmMultiDeleteAction() {
-    if (selectedPhotoIds.length === 0) return;
-    const ids = [...selectedPhotoIds];
-    setConfirmMultiDelete(false);
-    startTransition(async () => {
-      const res = await removeMultipleProgramMedia(ids);
-      if (res.error) {
-        toast.error(res.error);
-        return;
-      }
-      setSelectedPhotoIds([]);
-      toast.success(`${ids.length} foto dihapus dari galeri dan penyimpanan.`);
-      router.refresh();
-    });
+  async function confirmMultiDeleteAction() {
+    const res = await removeMultipleProgramMedia([...selectedPhotoIds]);
+    if (!res.error) setSelectedPhotoIds([]);
+    return res;
   }
 
   function handleDrop(e: React.DragEvent<HTMLDivElement>) {
@@ -520,19 +510,9 @@ export function ProgramMediaEditor({
     });
   }
 
-  function confirmDelete() {
+  async function confirmDelete() {
     if (!deleteTarget) return;
-    const target = deleteTarget;
-    setDeleteTarget(null);
-    startTransition(async () => {
-      const res = await removeProgramMedia(target.id);
-      if (res.error) {
-        toast.error(res.error);
-        return;
-      }
-      toast.success(target.kind === "image" ? "Foto dihapus." : "Video dihapus.");
-      router.refresh();
-    });
+    return removeProgramMedia(deleteTarget.id);
   }
 
   return (
@@ -1087,75 +1067,34 @@ export function ProgramMediaEditor({
         )}
       </div>
 
-      <AdminSheet
+      <DeleteSheet
         open={deleteTarget !== null}
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-        tone="danger"
-        size="sm"
-        icon={<Trash2 aria-hidden="true" size={20} strokeWidth={1.5} />}
         title={deleteTarget?.kind === "image" ? "Hapus foto ini?" : `Hapus "${deleteTarget?.alt ?? "video"}"?`}
-        description="Tindakan ini tidak dapat dibatalkan."
-        footer={
-          <>
-            <button
-              type="button"
-              onClick={() => setDeleteTarget(null)}
-              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface"
-            >
-              Batal
-            </button>
-            <button
-              type="button"
-              onClick={confirmDelete}
-              disabled={isPending}
-              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full bg-admin-danger text-[15px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-            >
-              {isPending ? "Menghapus…" : "Hapus"}
-            </button>
-          </>
-        }
+        successMessage={deleteTarget?.kind === "image" ? "Foto dihapus." : "Video dihapus."}
+        onConfirm={confirmDelete}
       >
         <p className="text-[14px] text-admin-text-secondary">
           {deleteTarget?.kind === "image"
             ? "Foto akan dihapus dari galeri program dan penyimpanan."
             : "Tautan video YouTube akan dihapus dari dokumentasi program."}
         </p>
-      </AdminSheet>
+      </DeleteSheet>
 
-      <AdminSheet
+      <DeleteSheet
         open={confirmMultiDelete}
         onOpenChange={setConfirmMultiDelete}
-        tone="danger"
-        size="sm"
-        icon={<Trash2 aria-hidden="true" size={20} strokeWidth={1.5} />}
         title={`Hapus ${selectedPhotoIds.length} foto terpilih?`}
-        description="Tindakan ini tidak dapat dibatalkan."
-        footer={
-          <>
-            <button
-              type="button"
-              onClick={() => setConfirmMultiDelete(false)}
-              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface"
-            >
-              Batal
-            </button>
-            <button
-              type="button"
-              onClick={confirmMultiDeleteAction}
-              disabled={isPending}
-              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full bg-admin-danger text-[15px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-            >
-              {isPending ? "Menghapus…" : "Hapus semua"}
-            </button>
-          </>
-        }
+        confirmLabel="Hapus semua"
+        successMessage={`${selectedPhotoIds.length} foto dihapus dari galeri dan penyimpanan.`}
+        onConfirm={confirmMultiDeleteAction}
       >
         <p className="text-[14px] text-admin-text-secondary">
           Semua foto yang dipilih akan dihapus permanen dari galeri program dan penyimpanan.
         </p>
-      </AdminSheet>
+      </DeleteSheet>
 
       {!hideInlineSubmit && (
         <div className="border-t border-admin-line pt-5">

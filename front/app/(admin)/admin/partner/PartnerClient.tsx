@@ -9,6 +9,7 @@ import { TableToolbar, matchesQuery } from "@/components/admin/ui/table-toolbar"
 import { EmptyState } from "@/components/admin/ui/empty-state";
 import { useIsAdminSuper } from "@/components/admin/ui/row-actions";
 import { AdminSheet } from "@/components/admin/ui/AdminSheet";
+import { DeleteSheet } from "@/components/admin/ui/delete-sheet";
 import { FormDialog } from "@/components/admin/ui/form/FormDialog";
 import { UploadBlockingModal } from "@/components/admin/ui/UploadBlockingModal";
 import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
@@ -405,45 +406,12 @@ export function PartnerClient({ partners }: { partners: PartnerRow[] }) {
         )}
       </AdminSheet>
 
-      <AdminSheet
+      <DeleteSheet
         open={deleteTarget !== null}
         onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
-        size="sm"
-        tone="danger"
-        icon={<Trash2 aria-hidden="true" size={20} strokeWidth={1.5} />}
         title={`Hapus ${deleteTarget?.name || "partner"}?`}
-        description="Tindakan ini tidak dapat dibatalkan."
-        footer={
-          <>
-            <button
-              type="button"
-              onClick={() => setDeleteTarget(null)}
-              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface cursor-pointer"
-            >
-              Batal
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                if (!deleteTarget) return;
-                const target = deleteTarget;
-                setDeleteTarget(null);
-                startTransition(async () => {
-                  const res = await deletePartner(target.id);
-                  if (res.error) {
-                    toast.error(res.error);
-                    return;
-                  }
-                  toast.success(`${target.name || "Partner"} dihapus.`);
-                  router.refresh();
-                });
-              }}
-              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full bg-admin-danger text-[15px] font-medium text-white transition-opacity hover:opacity-90 cursor-pointer"
-            >
-              Hapus
-            </button>
-          </>
-        }
+        successMessage={`${deleteTarget?.name || "Partner"} dihapus.`}
+        onConfirm={() => (deleteTarget ? deletePartner(deleteTarget.id) : undefined)}
       />
 
       <UploadBlockingModal open={uploading} title="Mengunggah logo partner…" />

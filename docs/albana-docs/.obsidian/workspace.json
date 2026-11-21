@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "plans/2026-11-20-email-first-registration-qa-implementation-plan.md",
+                "file": "plans/2026-11-21-seo-geo-plan.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2026-11-20-email-first-registration-qa-implementation-plan"
+              "title": "2026-11-21-seo-geo-plan"
             }
           }
         ]
@@ -190,8 +190,10 @@
   },
   "active": "be150c2372e38cef",
   "lastOpenFiles": [
-    "README.md",
     "plans/2026-11-20-email-first-registration-qa-implementation-plan.md",
+    "plans/2026-11-21-seo-geo-plan.md",
+    "plans/2026-11-17-program-batch-bundling-implementation-plan.md",
+    "README.md",
     "implementation-plan/2026-11-11-admin-program-batch-artikel-dan-register.md",
     "archive/plans/assets/2026-11-11-step-2-after/batch-list.png",
     "archive/plans/assets/2026-11-11-step-2-after/batch-dialog.png",
@@ -231,8 +233,6 @@
     "content/home-page-content.md",
     "content/academy-proposal.md",
     "content",
-    "archive/legacy/user-flow.md",
-    "archive/legacy/technical-plan.md",
     "archive/legacy",
     "implementation-plan/assets/2026-11-11-step-2-after/batch-dialog.png",
     "implementation-plan/assets/2026-11-11-step-2-after/batch-list.png"

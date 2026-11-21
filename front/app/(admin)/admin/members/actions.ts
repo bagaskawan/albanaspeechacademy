@@ -205,7 +205,7 @@ export async function sendMemberCredentialsAction(
         });
 
         await transporter.sendMail({
-          from: `"Panggung Kreator" <${process.env.SMTP_USER}>`,
+          from: `"Panggung Kreator" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
           to: member.email.trim(),
           subject: "Kredensial Akses Akun - Panggung Kreator",
           html: emailHtml,

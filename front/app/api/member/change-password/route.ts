@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
         })
 
         const mailResult = await transporter.sendMail({
-          from: `"Panggung Kreator Security" <${process.env.SMTP_USER}>`,
+          from: `"Panggung Kreator Security" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
           to: targetEmail,
           subject: "🔐 Keamanan Akun: Password Panggung Kreator Berhasil Diubah",
           html: `

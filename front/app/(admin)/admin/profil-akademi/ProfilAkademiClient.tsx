@@ -97,7 +97,7 @@ export default function ProfilAkademiClient({ initialProfile }: ProfilAkademiCli
               rows={3}
               value={teachingMethod}
               onChange={(e) => setTeachingMethod(e.target.value)}
-              placeholder="70% praktik dan simulasi, 20% coaching dan feedback, 10% konsep dan kerangka."
+              placeholder="80% praktik dan simulasi, 20% coaching, konsep, dan feedback."
             />
           </Field>
 

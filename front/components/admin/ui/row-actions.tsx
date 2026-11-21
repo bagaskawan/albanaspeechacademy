@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { createContext, useContext, useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { Pencil, Trash2 } from "lucide-react";
-import { AdminSheet } from "./AdminSheet";
+import { DeleteSheet } from "./delete-sheet";
 import { rowActionClass, rowDangerActionClass } from "./data-table";
 
 // The shell knows the admin role once per request; row actions read it here instead of every page.
@@ -18,12 +16,11 @@ export function RowActions({ itemName, editHref, onEdit, onDelete, extra }: {
   itemName: string;
   editHref?: string;
   onEdit?: () => void;
-  /** Server actions may return `{ error }`; the template then toasts and refreshes the list. */
+  /** Returns `{ error }` on failure; DeleteSheet shows loading, toasts, and refreshes the list. */
   onDelete?: () => void | Promise<void | { error?: string }>;
   extra?: React.ReactNode;
 }) {
   const canDelete = useIsAdminSuper();
-  const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const editIcon = <Pencil aria-hidden="true" size={18} strokeWidth={1.5} />;
 
@@ -35,39 +32,12 @@ export function RowActions({ itemName, editHref, onEdit, onDelete, extra }: {
       <button type="button" onClick={() => setConfirming(true)} aria-label={`Hapus ${itemName}`} title="Hapus" className={rowDangerActionClass}>
         <Trash2 aria-hidden="true" size={18} strokeWidth={1.5} />
       </button>
-      <AdminSheet
+      <DeleteSheet
         open={confirming}
         onOpenChange={setConfirming}
-        size="sm"
-        tone="danger"
-        icon={<Trash2 aria-hidden="true" size={20} strokeWidth={1.5} />}
         title={`Hapus ${itemName}?`}
-        description="Tindakan ini tidak dapat dibatalkan."
-        footer={
-          <>
-            <button
-              type="button"
-              onClick={() => setConfirming(false)}
-              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full border border-admin-line-strong text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
-            >
-              Batal
-            </button>
-            <button
-              type="button"
-              onClick={async () => {
-                setConfirming(false);
-                const result = await onDelete();
-                if (!result) return;
-                if (result.error) { toast.error(result.error); return; }
-                toast.success(`${itemName} dihapus.`);
-                router.refresh();
-              }}
-              className="inline-flex h-12 w-full shrink-0 sm:w-auto sm:flex-1 items-center justify-center rounded-full bg-admin-danger text-[15px] font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
-            >
-              Hapus
-            </button>
-          </>
-        }
+        successMessage={`${itemName} dihapus.`}
+        onConfirm={onDelete}
       />
     </>}
   </div>;

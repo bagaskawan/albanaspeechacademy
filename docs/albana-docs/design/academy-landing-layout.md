@@ -20,7 +20,7 @@ Tujuh prioritas spesifikasi menjadi tujuh **bab**. Hero, penutup, dan footer mem
 | — | Header | — | Navigasi lengket | — | Putih |
 | 1 | **Manfaat training** | “Apakah saya bisa lebih percaya diri berbicara?” | 1A Hero · 1B Pita manfaat | `#beranda` | Putih |
 | 2 | **Program training** | “Materinya apa dan cocok untuk siapa?” | 2A Pilihan program · 2B Bukti proses | `#program` | Putih |
-| 3 | **Kredibilitas lembaga** | “Apakah lembaga ini terpercaya?” | 3A Tentang ASA · 3B Cara belajar 70/20/10 · 3C Pita klien | `#tentang` | Permukaan sekunder `#F3F7FC` |
+| 3 | **Kredibilitas lembaga** | “Apakah lembaga ini terpercaya?” | 3A Tentang ASA · 3B Cara belajar 80/20 · 3C Pita klien | `#tentang` | Permukaan sekunder `#F3F7FC` |
 | 4 | **Testimoni & hasil** | “Apakah peserta sebelumnya berkembang?” | 4A Testimoni · 4B Dokumentasi | `#hasil` | Putih |
 | 5 | **Trainer / mentor** | “Siapa yang akan mengajari saya?” | 5 Strip trainer | `#trainer` | Putih |
 | 6 | **Harga & jadwal** | “Berapa biayanya dan kapan mulai?” | 6 Panel jadwal per program | `#jadwal` | Permukaan sekunder |
@@ -187,21 +187,21 @@ Latar permukaan sekunder. Tiga seksi berurutan dalam satu bidang.
 
 Desktop 5 : 7. Tablet 3 : 5. Ponsel: potret (4:5, lebar penuh) lalu teks. Potret tidak sama dengan media hero. Tanpa potret, kolom teks melebar menjadi 8 kolom di tengah.
 
-### 3B Cara belajar 70/20/10
+### 3B Cara belajar 80/20
 
 ```text
 [ CARA BELAJAR ]  Kemampuan bicara tumbuh saat benar-benar dipraktikkan
-┌──────────────────────────────────────────────┬──────────────┬───────┐
-│ 70%                                          │ 20%          │ 10%   │
-│ Praktik & simulasi                           │ Coaching &   │ Konsep│
-│ praktik langsung · simulasi panggung ·       │ feedback     │       │
-│ role play · real case                        │              │       │
-└──────────────────────────────────────────────┴──────────────┴───────┘
+┌────────────────────────────────────────────────────┬────────────────┐
+│ 80%                                                │ 20%            │
+│ Praktik & simulasi                                 │ Coaching,      │
+│ praktik langsung · simulasi panggung ·             │ konsep &       │
+│ role play · real case                              │ feedback       │
+└────────────────────────────────────────────────────┴────────────────┘
  Fundamental ──→ Professional ──→ Advance ──→ Expert
 ```
 
-- Tiga bidang dengan **lebar sebanding 7 : 2 : 1** di desktop (kolom 8 · 2 · 2 agar teks 10% tetap terbaca), sehingga proporsi terlihat tanpa grafik. Bidang 70% memakai biru logo dengan teks putih; dua lainnya putih bergaris.
-- Tablet dan ponsel: tiga baris bertumpuk; proporsi ditunjukkan bilah `scaleX` setinggi 4 px di atas tiap baris.
+- Dua bidang untuk **80% praktik & simulasi** dan **20% coaching, konsep & feedback**, dengan proporsi bilah visual `scaleX` yang jelas.
+- Tablet dan ponsel: dua kartu/baris bertumpuk; proporsi ditunjukkan bilah `scaleX` di bawah angka.
 - Di bawahnya, kerangka empat tingkat sebagai satu baris berpanah (ponsel: daftar bernomor vertikal).
 - Tujuh bidang pelatihan tampil sebagai deret chip teks di bawah kerangka, berlabel “Bidang pelatihan” — bukan kartu.
 
@@ -334,7 +334,7 @@ Dua panel sejajar (6 : 6; bertumpuk di ponsel): **Public Training** → **Lihat 
 | Pita manfaat | 4 | 2×2 | 1 |
 | Program | 3 + panel | 2 + 1 + panel | 1 |
 | Tentang ASA | 5 : 7 | 3 : 5 | Potret lalu teks |
-| 70/20/10 | 8 · 2 · 2 | 3 baris | 3 baris |
+| 80/20 | 2 kolom | 2 kolom / tumpuk | 2 baris |
 | Testimoni | 6 · 3 · 3 | 8, lalu 4 · 4 | 1 |
 | Dokumentasi | Mosaik | Mosaik 8 kolom | 1 besar + grid 2 |
 | Trainer | 4 | 2×2 | Gulir *snap* |
@@ -353,7 +353,7 @@ Resep gerak lengkap — kosakata G1–G7, gerak dua arah saat gulir turun dan na
 | Pita manfaat, trainer, langkah | G6 deret horizontal, arah dibalik saat gulir naik |
 | Kepala tiap bab | G1 + G2 |
 | Isi seksi | G3, masuk searah gulir di kedua arah |
-| Bilah 70/20/10, garis tiga langkah | G5 terikat posisi gulir |
+| Bilah 80/20, garis tiga langkah | G5 terikat posisi gulir |
 | Dokumentasi | G4 bergantian arah masker |
 | Penutup | Bidang biru tua terbuka (G4), lalu G1 + G2 |
 

@@ -77,7 +77,18 @@ export function paymentProofMessage(d: {
   stageLabel: string;
   totalIdr: number;
 }): string {
-  return `Halo Admin Albana, saya ${d.fullName} mengirim bukti transfer untuk pendaftaran #${d.registrationId} (${d.offerTitle} – ${d.batchNames}), tagihan #${d.invoiceId} (${d.stageLabel}), total ${formatRupiah(d.totalIdr)}.`;
+  const program = d.batchNames ? `${d.offerTitle} – ${d.batchNames}` : d.offerTitle;
+  return [
+    "Halo Admin Albana, saya ingin mengirimkan bukti transfer dengan detail berikut:",
+    "",
+    `*Nama:* ${d.fullName}`,
+    `*Program:* ${program}`,
+    `*Pendaftaran:* #${d.registrationId}`,
+    `*Tagihan:* #${d.invoiceId} (${d.stageLabel})`,
+    `*Total Transfer:* ${formatRupiah(d.totalIdr)}`,
+    "",
+    "Mohon dibantu verifikasinya ya. Terima kasih!",
+  ].join("\n");
 }
 
 export function maskEmail(email: string): string {
@@ -160,12 +171,11 @@ export function paymentInstructionsEmail(d: InvoiceEmailData): RenderedEmail {
   const stageLabel = invoiceStageLabel(d.stage, d.paymentMethod);
   const programLine = `${d.offerTitle} – ${d.batchNames}`;
 
-  const actionButtons = renderActionButtons([
-    ...(d.whatsappUrl
+  const actionButtons = renderActionButtons(
+    d.whatsappUrl
       ? [{ href: d.whatsappUrl, label: "Kirim bukti ke WhatsApp Admin", variant: "whatsapp" as const }]
-      : []),
-    { href: d.receiptUrl, label: "Lihat halaman pembayaran", variant: "primary" as const },
-  ]);
+      : [],
+  );
 
   const html = wrapEmailHtml(
     subject,
@@ -204,8 +214,6 @@ export function paymentInstructionsEmail(d: InvoiceEmailData): RenderedEmail {
     "3. Kirim bukti transfer lewat WhatsApp admin.",
     "4. Admin akan memverifikasi pembayaranmu lalu mengirim email konfirmasi.",
     ...(d.whatsappUrl ? ["", `WhatsApp Admin: ${d.whatsappUrl}`] : []),
-    "",
-    `Lihat halaman pembayaran: ${d.receiptUrl}`,
     "",
     "Tautan berlaku 30 hari. Abaikan email ini jika kamu tidak merasa mendaftar.",
   ];
@@ -250,17 +258,17 @@ export function paymentConfirmedEmail(d: InvoiceEmailData): RenderedEmail {
       `DP sebesar ${formatRupiah(d.invoice.totalIdr)} untuk pendaftaran #${d.registrationId} (${programLine}) sudah kami terima. Tempat kelasmu sudah diamankan.`,
       ...(d.remaining
         ? [
-            "",
-            "Sisa pembayaran",
-            `Tagihan #${d.remaining.invoiceId} · Pelunasan`,
-            `Total transfer: ${formatRupiah(d.remaining.totalIdr)}`,
-            "",
-            "Rekening tujuan:",
-            `Bank: ${d.bank.bank}`,
-            `Nomor rekening: ${d.bank.accountNumber}`,
-            `Atas nama: ${d.bank.holder}`,
-            "Silakan transfer sisa pembayaran tepat hingga 3 digit terakhir sebelum sesi pertama dimulai.",
-          ]
+          "",
+          "Sisa pembayaran",
+          `Tagihan #${d.remaining.invoiceId} · Pelunasan`,
+          `Total transfer: ${formatRupiah(d.remaining.totalIdr)}`,
+          "",
+          "Rekening tujuan:",
+          `Bank: ${d.bank.bank}`,
+          `Nomor rekening: ${d.bank.accountNumber}`,
+          `Atas nama: ${d.bank.holder}`,
+          "Silakan transfer sisa pembayaran tepat hingga 3 digit terakhir sebelum sesi pertama dimulai.",
+        ]
         : []),
       ...(firstSession ? ["", `Sesi pertama: ${firstSession}`] : []),
       "",
@@ -274,8 +282,8 @@ export function paymentConfirmedEmail(d: InvoiceEmailData): RenderedEmail {
   const subject = `Pembayaran diterima – pendaftaran #${d.registrationId} terkonfirmasi`;
   const waButton = d.whatsappUrl
     ? renderActionButtons([
-        { href: d.whatsappUrl, label: "Hubungi Admin via WhatsApp", variant: "whatsapp" as const },
-      ])
+      { href: d.whatsappUrl, label: "Hubungi Admin via WhatsApp", variant: "whatsapp" as const },
+    ])
     : "";
 
   const html = wrapEmailHtml(
@@ -326,8 +334,8 @@ export function paymentRejectedEmail(d: InvoiceEmailData): RenderedEmail {
   const programLine = `${d.offerTitle} – ${d.batchNames}`;
   const waButton = d.whatsappUrl
     ? renderActionButtons([
-        { href: d.whatsappUrl, label: "Hubungi Admin via WhatsApp", variant: "whatsapp" as const },
-      ])
+      { href: d.whatsappUrl, label: "Hubungi Admin via WhatsApp", variant: "whatsapp" as const },
+    ])
     : "";
 
   const html = wrapEmailHtml(

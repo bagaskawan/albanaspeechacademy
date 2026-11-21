@@ -209,7 +209,7 @@ export async function recordAttendanceAction(eventId: string) {
           : "-";
 
         await transporter.sendMail({
-          from: `"Panggung Kreator" <${process.env.SMTP_USER}>`,
+          from: `"Panggung Kreator" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
           to: userEmail,
           subject: `Konfirmasi Kehadiran: ${event.title}`,
           html: `
@@ -357,7 +357,7 @@ export async function manualAttendanceAddAction(eventId: string, memberIds: stri
             const userName = m.stage_name || m.full_name || "Kreator";
 
             await transporter.sendMail({
-              from: `"Panggung Kreator" <${process.env.SMTP_USER}>`,
+              from: `"Panggung Kreator" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
               to: m.email,
               subject: `Konfirmasi Kehadiran: ${event.title}`,
               html: `
