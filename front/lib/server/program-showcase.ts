@@ -17,6 +17,7 @@ export type ProgramBatchSummary = {
   sessionDates: ProgramSessionDate[];
   timeLabel: string;
   formatLabel: string;
+  sessionCountKnown: boolean;
   scheduleMode?: "per_session" | "start_only";
   venueLabel: string;
   priceIdr: number | null;
@@ -118,6 +119,7 @@ function readBatchSummary(
     sessionDates,
     timeLabel: formatTimeRange(sessions[0].startsAt, sessions[0].endsAt),
     formatLabel: `${totalSessions} pertemuan`,
+    sessionCountKnown: !isStartOnly || sessions[0].sessionCount !== null,
     scheduleMode: isStartOnly ? "start_only" : "per_session",
     venueLabel: address,
     priceIdr: Number.isSafeInteger(priceIdr) && priceIdr > 0 ? priceIdr : null,

@@ -10,6 +10,7 @@ import { ease } from "@/lib/motion/tokens";
 
 const ACTIONS_ID = "admin-page-actions";
 const TITLE_ID = "admin-page-title";
+const BADGE_ID = "admin-page-badge";
 const noopSubscribe = () => () => { };
 
 /** Shell-level header (admin-ui-patterns §3.3): breadcrumb Grup ⟶ Modul, title, round-button slot. */
@@ -43,7 +44,10 @@ export function PageHeader({ group, module, isDetail, pathname }: { group: Admin
             </>
           ) : (
             <>
-              <h1 className="text-[20px] font-bold leading-[1.2] tracking-[-0.02em] sm:text-[24px] md:text-[28px]">{title}</h1>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1 className="text-[20px] font-bold leading-[1.2] tracking-[-0.02em] sm:text-[24px] md:text-[28px]">{title}</h1>
+                <span id={BADGE_ID} className="inline-flex items-center empty:hidden" />
+              </div>
               {description && <p className="mt-1 max-w-[60ch] text-[13px] leading-[1.5] text-admin-text-secondary sm:text-[14px]">{description}</p>}
             </>
           )}
@@ -81,5 +85,11 @@ export function PageAction({ href, onClick, icon, children }: { href?: string; o
 /** Detail pages name themselves in the breadcrumb (Grup ⟶ Modul ⟶ judul); falls back to "Detail". */
 export function AdminPageTitle({ children }: { children: React.ReactNode }) {
   const target = useSyncExternalStore(noopSubscribe, () => document.getElementById(TITLE_ID), () => null);
+  return target ? createPortal(children, target) : null;
+}
+
+/** Optional status badge (e.g. LIVE indicator) rendered beside the module heading. */
+export function AdminPageBadge({ children }: { children: React.ReactNode }) {
+  const target = useSyncExternalStore(noopSubscribe, () => document.getElementById(BADGE_ID), () => null);
   return target ? createPortal(children, target) : null;
 }

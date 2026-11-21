@@ -3,6 +3,7 @@ export type InvoiceStage = "initial" | "remaining";
 export type PaymentMethod = "full" | "dp";
 export type InvoiceAmounts = {
   invoiceId: number;
+  invoiceNumber?: string | null;
   subtotalIdr: number;
   uniqueCode: number;
   totalIdr: number;
@@ -71,6 +72,7 @@ export function invoiceStageLabel(
 export function paymentProofMessage(d: {
   registrationId: number;
   invoiceId: number;
+  invoiceNumber?: string | null;
   fullName: string;
   offerTitle: string;
   batchNames: string;
@@ -84,7 +86,7 @@ export function paymentProofMessage(d: {
     `*Nama:* ${d.fullName}`,
     `*Program:* ${program}`,
     `*Pendaftaran:* #${d.registrationId}`,
-    `*Tagihan:* #${d.invoiceId} (${d.stageLabel})`,
+    `*Tagihan:* ${d.invoiceNumber ?? `#${d.invoiceId}`} (${d.stageLabel})`,
     `*Total Transfer:* ${formatRupiah(d.totalIdr)}`,
     "",
     "Mohon dibantu verifikasinya ya. Terima kasih!",

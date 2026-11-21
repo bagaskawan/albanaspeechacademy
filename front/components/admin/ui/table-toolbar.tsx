@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Download, Loader2, Plus, Search, SlidersHorizontal } from "lucide-react";
+import { Download, Loader2, Plus, RefreshCw, Search, SlidersHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { AdminPageActions } from "@/components/admin/PageHeader";
 import {
@@ -16,13 +16,15 @@ const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-
 const roundTool = `relative inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-admin-surface text-admin-ink transition-colors hover:bg-admin-surface-muted ${focusRing}`;
 
 /** Table toolbar template (admin-ui-patterns §8.2): Cari · Saring · Ekspor · Tambah, fixed order, state in the URL. */
-export function TableToolbar({ search, filters = [], exportModule, exportDisabled = false, create }: {
+export function TableToolbar({ search, filters = [], exportModule, exportDisabled = false, create, onRefresh, refreshing = false }: {
   search?: { placeholder: string };
   filters?: ToolbarFilter[];
   exportModule?: string;
   /** True when the list shown (after search/filters) is empty: nothing to export. */
   exportDisabled?: boolean;
   create?: { label: string; href?: string; onClick?: () => void; icon?: React.ReactNode };
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -112,6 +114,19 @@ export function TableToolbar({ search, filters = [], exportModule, exportDisable
           <div className="hidden items-center gap-2 md:flex">
             {renderFilterMenu(roundTool)}
 
+            {onRefresh && (
+              <button
+                type="button"
+                onClick={onRefresh}
+                disabled={refreshing}
+                aria-label="Segarkan data"
+                title="Segarkan data"
+                className={`${roundTool} disabled:cursor-not-allowed disabled:opacity-60`}
+              >
+                <RefreshCw aria-hidden="true" size={17} strokeWidth={1.6} className={refreshing ? "animate-spin" : ""} />
+              </button>
+            )}
+
             {exportModule && <button type="button" onClick={() => void runExport()} disabled={exporting || exportDisabled} aria-label="Ekspor CSV"
               title={exportDisabled ? "Tidak ada data untuk diekspor" : "Ekspor CSV"}
               className={`inline-flex h-12 shrink-0 items-center gap-2 rounded-full border border-admin-line-strong px-5 text-[15px] font-medium text-admin-ink transition-colors hover:bg-admin-surface disabled:cursor-not-allowed disabled:border-admin-line disabled:text-admin-text-faint disabled:hover:bg-transparent ${focusRing}`}>
@@ -129,6 +144,18 @@ export function TableToolbar({ search, filters = [], exportModule, exportDisable
       {hasMobileActions && (
         <div className="fixed bottom-[max(20px,env(safe-area-inset-bottom))] left-1/2 z-40 flex w-max max-w-[calc(100vw-24px)] -translate-x-1/2 items-center gap-1.5 rounded-full bg-admin-ink p-1.5 shadow-[var(--admin-shadow-overlay)] md:hidden">
           {renderFilterMenu(dockIconClass)}
+          {onRefresh && (
+            <button
+              type="button"
+              onClick={onRefresh}
+              disabled={refreshing}
+              aria-label="Segarkan data"
+              title="Segarkan data"
+              className={dockIconClass}
+            >
+              <RefreshCw aria-hidden="true" size={17} strokeWidth={1.6} className={refreshing ? "animate-spin" : ""} />
+            </button>
+          )}
           {exportModule && (
             <button
               type="button"

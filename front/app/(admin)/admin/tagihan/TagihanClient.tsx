@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Eye, MessageCircle, Receipt, Trash2 } from "lucide-react";
+import { useState, useTransition } from "react";
+import { CheckCircle2, Eye, MessageCircle, Receipt, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { InvoiceCard, whatsappParticipantHref } from "@/components/admin/billing/InvoiceCard";
 import { AdminSheet } from "@/components/admin/ui/AdminSheet";
 import { DeleteSheet } from "@/components/admin/ui/delete-sheet";
@@ -48,6 +49,16 @@ function sortedBatchNames(items: readonly { batch_slug: string }[]): string {
     .join(" + ");
 }
 
+type ConfirmTarget = {
+  invoiceId: number;
+  invoiceNumber: string;
+  participantName: string;
+  offerTitle: string;
+  stageLabel: string;
+  totalIdr: number;
+  closeDetailAfter?: boolean;
+};
+
 export default function TagihanClient({
   rows,
   searching,
@@ -57,6 +68,29 @@ export default function TagihanClient({
 }) {
   const [selected, setSelected] = useState<BillingRegistration | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<BillingRow | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<ConfirmTarget | null>(null);
+  const [confirmPending, startConfirm] = useTransition();
+
+  const handleConfirmPayment = () => {
+    if (!confirmTarget) return;
+    const target = confirmTarget;
+    startConfirm(async () => {
+      try {
+        const formData = new FormData();
+        formData.set("invoiceId", String(target.invoiceId));
+        formData.set("decision", "verified");
+        formData.set("receivedIdr", String(target.totalIdr));
+        await resolveInvoice(formData);
+        setConfirmTarget(null);
+        if (target.closeDetailAfter) setSelected(null);
+        toast.success(`Pembayaran ${target.participantName} berhasil dikonfirmasi.`);
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Gagal mengonfirmasi tagihan.",
+        );
+      }
+    });
+  };
 
   return (
     <div className="space-y-6 pb-24 md:pb-0">
@@ -119,17 +153,22 @@ export default function TagihanClient({
                     </p>
                     <div className="flex items-center gap-1.5">
                       {row.invoiceId !== null && row.status === "pending" && row.totalIdr !== null && (
-                        <form action={resolveInvoice} className="inline-flex">
-                          <input type="hidden" name="invoiceId" value={row.invoiceId} />
-                          <input type="hidden" name="decision" value="verified" />
-                          <input type="hidden" name="receivedIdr" value={row.totalIdr} />
-                          <button
-                            type="submit"
-                            className="inline-flex h-9 items-center rounded-full bg-admin-ink px-3.5 text-[13px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft"
-                          >
-                            Konfirmasi
-                          </button>
-                        </form>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setConfirmTarget({
+                              invoiceId: row.invoiceId!,
+                              invoiceNumber: row.invoiceNumber ?? `#${row.invoiceId}`,
+                              participantName: row.registration.full_name,
+                              offerTitle: row.registration.offer_title,
+                              stageLabel: row.stageLabel,
+                              totalIdr: row.totalIdr!,
+                            })
+                          }
+                          className="inline-flex h-9 cursor-pointer items-center rounded-full bg-admin-ink px-3.5 text-[13px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft"
+                        >
+                          Konfirmasi
+                        </button>
                       )}
                       <button
                         type="button"
@@ -203,17 +242,22 @@ export default function TagihanClient({
                       <td className="whitespace-nowrap text-right">
                         <div className="inline-flex items-center justify-end gap-1.5">
                           {row.invoiceId !== null && row.status === "pending" && row.totalIdr !== null && (
-                            <form action={resolveInvoice} className="inline-flex">
-                              <input type="hidden" name="invoiceId" value={row.invoiceId} />
-                              <input type="hidden" name="decision" value="verified" />
-                              <input type="hidden" name="receivedIdr" value={row.totalIdr} />
-                              <button
-                                type="submit"
-                                className="inline-flex h-9 cursor-pointer items-center rounded-full bg-admin-ink px-3.5 text-[13px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
-                              >
-                                Konfirmasi
-                              </button>
-                            </form>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setConfirmTarget({
+                                  invoiceId: row.invoiceId!,
+                                  invoiceNumber: row.invoiceNumber ?? `#${row.invoiceId}`,
+                                  participantName: row.registration.full_name,
+                                  offerTitle: row.registration.offer_title,
+                                  stageLabel: row.stageLabel,
+                                  totalIdr: row.totalIdr!,
+                                })
+                              }
+                              className="inline-flex h-9 cursor-pointer items-center rounded-full bg-admin-ink px-3.5 text-[13px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
+                            >
+                              Konfirmasi
+                            </button>
                           )}
                           <button
                             type="button"
@@ -271,23 +315,28 @@ export default function TagihanClient({
                       </a>
                     )}
                     {pendingInvoice && (
-                      <form
-                        action={async (formData) => {
-                          await resolveInvoice(formData);
-                          setSelected(null);
-                        }}
-                        className="flex-1"
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setConfirmTarget({
+                            invoiceId: pendingInvoice.id,
+                            invoiceNumber: pendingInvoice.invoice_number ?? `#${pendingInvoice.id}`,
+                            participantName: selected.full_name,
+                            offerTitle: selected.offer_title,
+                            stageLabel:
+                              pendingInvoice.stage === "remaining"
+                                ? "Pelunasan"
+                                : selected.payment_method === "dp"
+                                  ? "DP"
+                                  : "Lunas",
+                            totalIdr: Number(pendingInvoice.total_idr),
+                            closeDetailAfter: true,
+                          })
+                        }
+                        className="inline-flex h-11 flex-1 cursor-pointer items-center justify-center rounded-full bg-admin-ink text-[14px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft"
                       >
-                        <input type="hidden" name="invoiceId" value={pendingInvoice.id} />
-                        <input type="hidden" name="decision" value="verified" />
-                        <input type="hidden" name="receivedIdr" value={Number(pendingInvoice.total_idr)} />
-                        <button
-                          type="submit"
-                          className="inline-flex h-11 w-full items-center justify-center rounded-full bg-admin-ink text-[14px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft"
-                        >
-                          Konfirmasi
-                        </button>
-                      </form>
+                        Konfirmasi
+                      </button>
                     )}
                   </div>
                 )}
@@ -347,6 +396,66 @@ export default function TagihanClient({
               )}
             </div>
           </div>
+        )}
+      </AdminSheet>
+
+      <AdminSheet
+        open={confirmTarget !== null}
+        onOpenChange={(open) => {
+          if (!open && !confirmPending) setConfirmTarget(null);
+        }}
+        size="sm"
+        icon={<CheckCircle2 aria-hidden="true" size={20} strokeWidth={1.5} />}
+        title="Konfirmasi pembayaran?"
+        description="Pastikan dana sudah masuk ke rekening sesuai total tagihan sebelum memverifikasi."
+        footer={
+          <>
+            <button
+              type="button"
+              disabled={confirmPending}
+              onClick={() => setConfirmTarget(null)}
+              className="inline-flex h-11 flex-1 items-center justify-center rounded-full border border-admin-line-strong text-[14px] font-medium text-admin-ink transition-colors hover:bg-admin-surface disabled:opacity-50"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              disabled={confirmPending}
+              onClick={handleConfirmPayment}
+              className="inline-flex h-11 flex-1 cursor-pointer items-center justify-center rounded-full bg-admin-ink text-[14px] font-medium text-admin-on-ink transition-colors hover:bg-admin-ink-soft disabled:opacity-50"
+            >
+              {confirmPending ? "Memverifikasi…" : "Ya, Konfirmasi"}
+            </button>
+          </>
+        }
+      >
+        {confirmTarget && (
+          <dl className="space-y-2.5 rounded-[20px] border border-admin-line bg-admin-surface p-4 text-[13px]">
+            <div className="flex items-start justify-between gap-3">
+              <dt className="text-admin-text-secondary">Peserta</dt>
+              <dd className="text-right font-semibold text-admin-ink">
+                {confirmTarget.participantName}
+              </dd>
+            </div>
+            <div className="flex items-start justify-between gap-3">
+              <dt className="text-admin-text-secondary">Program</dt>
+              <dd className="text-right font-medium text-admin-ink">
+                {confirmTarget.offerTitle}
+              </dd>
+            </div>
+            <div className="flex items-start justify-between gap-3">
+              <dt className="text-admin-text-secondary">Tagihan</dt>
+              <dd className="text-right font-mono font-medium text-admin-ink">
+                {confirmTarget.invoiceNumber} · {confirmTarget.stageLabel}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-3 border-t border-admin-line pt-2.5 text-[14px]">
+              <dt className="font-medium text-admin-ink">Total transfer</dt>
+              <dd className="font-mono font-bold tabular-nums text-admin-ink">
+                {rupiah(confirmTarget.totalIdr)}
+              </dd>
+            </div>
+          </dl>
         )}
       </AdminSheet>
 

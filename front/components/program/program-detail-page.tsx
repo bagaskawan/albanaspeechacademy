@@ -191,14 +191,16 @@ export function ProgramDetailPage({
                         {card.batch.name}
                       </dd>
                     </div>
-                    <div className="py-3">
-                      <dt className="eyebrow dark:text-slate-300">
-                        Jumlah sesi
-                      </dt>
-                      <dd className="mt-1 tabular-nums text-[var(--tone-ink)]">
-                        {card.batch.formatLabel}
-                      </dd>
-                    </div>
+                    {card.batch.sessionCountKnown ? (
+                      <div className="py-3">
+                        <dt className="eyebrow dark:text-slate-300">
+                          Jumlah sesi
+                        </dt>
+                        <dd className="mt-1 tabular-nums text-[var(--tone-ink)]">
+                          {card.batch.formatLabel}
+                        </dd>
+                      </div>
+                    ) : null}
                     <div className="py-3">
                       <dt className="eyebrow dark:text-slate-300">Tanggal</dt>
                       <dd className="mt-1">
@@ -215,7 +217,7 @@ export function ProgramDetailPage({
                             </li>
                           ))}
                         </ul>
-                        {card.batch.scheduleMode === "start_only" ? (
+                        {card.batch.scheduleMode === "start_only" && card.batch.sessionCountKnown ? (
                           <p className="mt-1 text-xs text-muted">
                             Total {card.batch.formatLabel} sesuai jadwal batch.
                           </p>

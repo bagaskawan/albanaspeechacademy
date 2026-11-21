@@ -113,6 +113,16 @@ test("payment proof message names participant and program", () => {
   assert.ok(msg.includes("#41"));
   assert.ok(msg.includes("#77"));
   assert.ok(msg.includes(idr(1_300_123)));
+  assert.ok(paymentProofMessage({
+    registrationId: 41,
+    invoiceId: 77,
+    invoiceNumber: "ASA-2026-001",
+    fullName: "Budi Santoso",
+    offerTitle: "Public Speaking Series",
+    batchNames: "Batch 3",
+    stageLabel: "Pembayaran lunas",
+    totalIdr: 1_300_123,
+  }).includes("*Tagihan:* ASA-2026-001"));
 });
 
 test("rejected payment email notifies participant and escapes html", () => {

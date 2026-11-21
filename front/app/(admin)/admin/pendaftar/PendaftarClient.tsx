@@ -1,420 +1,1075 @@
 "use client";
 
-import React, { useState } from "react";
-import { Eye, ExternalLink, MessageCircle, Search } from "lucide-react";
-import { Modal, ModalSection } from "@/components/ui/Modal";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import {
+  AlertCircle,
+  Check,
+  Copy,
+  Eye,
+  FileText,
+  MessageCircle,
+  Trash2,
+  User,
+  Users,
+} from "lucide-react";
+import { toast } from "sonner";
+import { AdminPageBadge } from "@/components/admin/PageHeader";
+import { AdminSheet } from "@/components/admin/ui/AdminSheet";
+import { DeleteSheet } from "@/components/admin/ui/delete-sheet";
+import {
+  DataTable,
+  StatusChip,
+  rowActionClass,
+} from "@/components/admin/ui/data-table";
+import { EmptyState } from "@/components/admin/ui/empty-state";
+import { TableToolbar } from "@/components/admin/ui/table-toolbar";
+import { createClient } from "@/lib/supabase/client";
+import { deleteRegistration } from "./actions";
 
-type Registration = {
+export type PendaftarInvoice = {
   id: number;
-  batch_slug: string;
-  full_name: string;
-  whatsapp: string;
-  email: string;
-  nickname: string | null;
-  domicile: string;
-  gender: string;
-  age: number;
-  profession: string;
-  institution: string;
-  socials: string[] | null;
-  social_other: string | null;
-  social_name: string | null;
-  prior_experience: boolean;
-  goal: string;
-  challenge: string;
-  source: string;
-  source_other: string | null;
-  attendance: string;
-  payment_method: string;
-  price_idr_at_signup: number;
-  initial_transfer_idr: number;
-  remaining_after_transfer_idr: number;
-  received_at: string;
-  batches?: {
-    title?: string;
-    programs?: { title?: string };
-  } | null;
+  invoice_number: string | null;
+  stage: string;
+  status: string;
+  subtotal_idr: number | string;
+  unique_code: number | string;
+  total_idr: number | string;
+  received_idr: number | string | null;
 };
 
-const rupiah = (value: unknown) => {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return "—";
+export type PendaftarAnswers = {
+  nickname?: string | null;
+  domicile?: string | null;
+  professionCategory?: string | null;
+  profession?: string | null;
+  institution?: string | null;
+  age?: number | null;
+  gender?: string | null;
+  priorExperience?: boolean | null;
+  attendance?: string | null;
+  source?: string | null;
+  sourceOther?: string | null;
+  socials?: string[] | null;
+  socialOther?: string | null;
+  socialName?: string | null;
+  instagram?: string | null;
+  tiktok?: string | null;
+  youtube?: string | null;
+  linkedin?: string | null;
+  goal?: string | null;
+  challenge?: string | null;
+};
+
+export type PendaftarRegistrationItem = {
+  batch_slug: string;
+  batches?: { title: string | null } | { title: string | null }[] | null;
+};
+
+export type PendaftarRecord = {
+  id: number;
+  full_name: string;
+  email: string;
+  whatsapp: string;
+  offer_title: string;
+  offer_slug: string | null;
+  primary_batch_slug: string | null;
+  payment_method: string;
+  price_idr_at_signup: number | string;
+  dp_percent_at_signup: number | null;
+  received_at: string;
+  answers: PendaftarAnswers | null;
+  academy_registration_items: PendaftarRegistrationItem[] | null;
+  academy_invoices: PendaftarInvoice[] | null;
+};
+
+const formatJoinDate = (iso: string) => {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone: "Asia/Jakarta",
+  }).format(date);
+};
+
+const formatJoinDateLong = (iso: string) => {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Asia/Jakarta",
+  }).format(date);
+};
+
+const rupiah = (value: number | string | null | undefined) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return "—";
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     maximumFractionDigits: 0,
-  }).format(number);
+  }).format(num);
 };
 
-const dateTime = (value: unknown) => {
-  if (!value) return "—";
-  const date = new Date(String(value));
-  return Number.isNaN(date.getTime())
-    ? String(value)
-    : date.toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
-};
-
-const dateOnly = (value: unknown) => {
-  if (!value) return "—";
-  const date = new Date(String(value));
-  return Number.isNaN(date.getTime())
-    ? String(value)
-    : date.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
-};
-
-const text = (value: unknown) => {
-  if (value === null || value === undefined || value === "") return "—";
-  if (typeof value === "boolean") return value ? "Ya" : "Tidak";
-  if (Array.isArray(value)) return value.length ? value.join(", ") : "—";
-  return String(value);
-};
-
-const paymentOptions: Record<string, string> = {
-  full: "Transfer lunas",
-  dp20: "DP 20%",
-};
-
-const attendanceLabel = (value: unknown) =>
-  value === "yes" ? "Ya, siap hadir penuh" : value === "maybe" ? "Mungkin" : text(value);
-
-const waLink = (whatsapp: string) => `https://wa.me/${String(whatsapp).replace(/[^0-9]/g, "")}`;
-
-const formatWhatsapp = (value: unknown) => {
-  const digits = String(value ?? "").replace(/[^0-9]/g, "").replace(/^62/, "0");
+const formatWhatsapp = (value: string | null | undefined) => {
+  const digits = String(value ?? "")
+    .replace(/\D/g, "")
+    .replace(/^62/, "0");
   if (!digits) return "—";
   const parts = digits.match(/^(\d{4})(\d{4})(\d+)$/);
   return parts ? `${parts[1]}-${parts[2]}-${parts[3]}` : digits;
 };
 
-export default function PendaftarClient({ initialRows }: { initialRows: Registration[] }) {
-  const [rows] = useState(initialRows);
-  const [detailRow, setDetailRow] = useState<Registration | null>(null);
-  const [search, setSearch] = useState("");
-  const [programFilter, setProgramFilter] = useState("all");
-  const [batchFilter, setBatchFilter] = useState("all");
+const whatsappHref = (value: string | null | undefined): string | null => {
+  const digits = String(value ?? "").replace(/\D/g, "");
+  if (!digits) return null;
+  const normalized = digits.startsWith("0") ? `62${digits.slice(1)}` : digits;
+  return `https://wa.me/${normalized}`;
+};
 
-  const programOptions = Array.from(
-    new Set(rows.map((row) => row.batches?.programs?.title).filter((title): title is string => !!title))
-  ).sort();
-  const batchOptions = Array.from(
-    new Set(rows.map((row) => row.batches?.title).filter((title): title is string => !!title))
-  ).sort();
+const SOURCE_LABELS: Record<string, string> = {
+  instagram: "Instagram",
+  whatsapp: "WhatsApp",
+  referral: "Rekomendasi teman / kenalan",
+  other: "Lainnya",
+};
 
-  const filteredRows = rows.filter((row) => {
-    const query = search.trim().toLowerCase();
-    const matchesSearch =
-      !query ||
-      [row.full_name, row.email, row.whatsapp].some((value) =>
-        String(value ?? "").toLowerCase().includes(query)
-      );
-    const matchesProgram =
-      programFilter === "all" || row.batches?.programs?.title === programFilter;
-    const matchesBatch = batchFilter === "all" || row.batches?.title === batchFilter;
-    return matchesSearch && matchesProgram && matchesBatch;
-  });
+const ATTENDANCE_LABELS: Record<string, string> = {
+  yes: "Ya, siap hadir penuh",
+  maybe: "Mungkin / menyesuaikan",
+};
 
-  return (
-    <div className="w-full space-y-5">
-      <div>
-        <h1 className="text-lg font-black tracking-wider text-text-primary uppercase">Data Pendaftar</h1>
-        <p className="text-xs text-text-secondary mt-0.5">
-          Pendaftar terbaru di atas. Buka detail untuk membaca seluruh jawaban dan mencocokkan bukti transfer.
-        </p>
-      </div>
+const INVOICE_STATUS_MAP = {
+  verified: { tone: "mint", label: "Terverifikasi" },
+  pending: { tone: "peach", label: "Menunggu" },
+  rejected: { tone: "rose", label: "Ditolak" },
+} as const;
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-text-muted">
-            <Search className="w-3.5 h-3.5" />
-          </span>
-          <input
-            type="text"
-            aria-label="Cari pendaftar"
-            placeholder="Cari nama, email, nomor WA..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-9 bg-bg-well/70 border border-border-default rounded-full pl-9 pr-4 text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-text-primary font-medium transition-colors"
-          />
-        </div>
-        <div className="grid grid-cols-2 sm:flex gap-2 sm:gap-3">
-          <div className="sm:w-48">
-            <Select value={programFilter} onValueChange={setProgramFilter}>
-              <SelectTrigger className="w-full h-9 rounded-full px-3 text-xs font-medium bg-bg-well/70 border-border-default">
-                <SelectValue placeholder="Semua Program" />
-              </SelectTrigger>
-              <SelectContent className="bg-bg-card border-border-default">
-                <SelectItem value="all">Semua Program</SelectItem>
-                {programOptions.map((title) => (
-                  <SelectItem key={title} value={title}>{title}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="sm:w-48">
-            <Select value={batchFilter} onValueChange={setBatchFilter}>
-              <SelectTrigger className="w-full h-9 rounded-full px-3 text-xs font-medium bg-bg-well/70 border-border-default">
-                <SelectValue placeholder="Semua Batch" />
-              </SelectTrigger>
-              <SelectContent className="bg-bg-card border-border-default">
-                <SelectItem value="all">Semua Batch</SelectItem>
-                {batchOptions.map((title) => (
-                  <SelectItem key={title} value={title}>{title}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
+type ProgramColorStyle = {
+  badge: string;
+  dot: string;
+  filterActive: string;
+  countText: string;
+};
 
-      {rows.length === 0 ? (
-        <div className="bg-bg-card border border-border-default border-dashed rounded-2xl p-10 text-center">
-          <p className="text-xs font-semibold text-text-secondary">Belum ada pendaftar.</p>
-        </div>
-      ) : (
-        <>
-          <div className="hidden md:block bg-bg-card border border-border-default/70 rounded-2xl overflow-hidden shadow-xs">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-[11px]">
-                <thead>
-                  <tr className="text-zinc-650 dark:text-zinc-400 font-semibold border-b border-border-default/70 bg-bg-well/50">
-                    <th className="py-3.5 px-3.5 border-r border-border-default/60 uppercase tracking-wider font-bold">Nama Peserta</th>
-                    <th className="py-3.5 px-3.5 border-r border-border-default/60 uppercase tracking-wider font-bold">Program</th>
-                    <th className="py-3.5 px-3.5 border-r border-border-default/60 uppercase tracking-wider font-bold">WhatsApp</th>
-                    <th className="py-3.5 px-3.5 border-r border-border-default/60 uppercase tracking-wider font-bold">Biaya</th>
-                    <th className="py-3.5 px-3.5 border-r border-border-default/60 uppercase tracking-wider font-bold">Status</th>
-                    <th className="py-3.5 px-3.5 border-r border-border-default/60 uppercase tracking-wider font-bold whitespace-nowrap">Tgl Masuk</th>
-                    <th className="py-3.5 px-3.5 text-center uppercase tracking-wider font-bold">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border-default/40">
-                  {filteredRows.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="p-8 text-center text-text-muted">
-                        Tidak ada pendaftar ditemukan.
-                      </td>
-                    </tr>
-                  ) : filteredRows.map((row) => {
-                    const batch = row.batches ?? {};
-                    const program = batch.programs ?? {};
-                    return (
-                      <tr key={row.id} className="group hover:bg-bg-well/30 transition-colors">
-                        <td className="py-3.5 px-3.5">
-                          <div className="font-bold text-text-primary">{row.full_name}</div>
-                        </td>
-                        <td className="py-3.5 px-3.5 text-text-secondary font-normal">
-                          <div className="text-text-primary font-medium truncate max-w-[140px]" title={program.title ?? "—"}>
-                            {program.title ?? "—"}
-                          </div>
-                          <div className="text-[10px] mt-0.5 truncate max-w-[140px]" title={batch.title ?? "—"}>
-                            {batch.title ?? "—"}
-                          </div>
-                        </td>
-                        <td className="py-3.5 px-3.5 text-text-secondary font-normal font-mono whitespace-nowrap">{formatWhatsapp(row.whatsapp)}</td>
-                        <td className="py-3.5 px-3.5 text-text-secondary font-normal font-mono whitespace-nowrap">{rupiah(row.price_idr_at_signup)}</td>
-                        <td className="py-3.5 px-3.5">
-                          <StatusBadge method={row.payment_method} />
-                        </td>
-                        <td className="py-3.5 px-3.5 text-text-secondary font-normal whitespace-nowrap">{dateOnly(row.received_at)}</td>
-                        <td className="py-3.5 px-3.5 text-center">
-                          <div className="flex justify-center gap-1">
-                            <button
-                              onClick={() => setDetailRow(row)}
-                              className="p-1.5 rounded-full border border-border-default bg-bg-well hover:bg-bg-page text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
-                              title="Lihat Detail"
-                            >
-                              <Eye size={14} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
+const PROGRAM_PALETTE: ProgramColorStyle[] = [
+  {
+    badge:
+      "bg-sky-100/90 text-sky-800 border-sky-200 dark:bg-sky-950/60 dark:text-sky-200 dark:border-sky-800/60",
+    dot: "bg-sky-500",
+    filterActive:
+      "bg-[#e0f2fe] text-[#0369a1] border border-[#bae6fd] shadow-2xs dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800",
+    countText: "text-[#0369a1] dark:text-sky-300",
+  },
+  {
+    badge:
+      "bg-admin-lilac-soft text-admin-lilac-ink border-admin-lilac-dot/30",
+    dot: "bg-admin-lilac-dot",
+    filterActive:
+      "bg-admin-lilac-soft text-admin-lilac-ink border border-admin-lilac-dot/40 shadow-2xs",
+    countText: "text-admin-lilac-ink",
+  },
+  {
+    badge:
+      "bg-admin-peach-soft text-admin-peach-ink border-admin-peach-dot/30",
+    dot: "bg-admin-peach-dot",
+    filterActive:
+      "bg-admin-peach-soft text-admin-peach-ink border border-admin-peach-dot/40 shadow-2xs",
+    countText: "text-admin-peach-ink",
+  },
+  {
+    badge:
+      "bg-admin-mint-soft text-admin-mint-ink border-admin-mint-dot/30",
+    dot: "bg-admin-mint-dot",
+    filterActive:
+      "bg-admin-mint-soft text-admin-mint-ink border border-admin-mint-dot/40 shadow-2xs",
+    countText: "text-admin-mint-ink",
+  },
+  {
+    badge:
+      "bg-admin-rose-soft text-admin-rose-ink border-admin-rose-dot/30",
+    dot: "bg-admin-rose-dot",
+    filterActive:
+      "bg-admin-rose-soft text-admin-rose-ink border border-admin-rose-dot/40 shadow-2xs",
+    countText: "text-admin-rose-ink",
+  },
+];
 
-          <div className="md:hidden space-y-4">
-            {filteredRows.length === 0 ? (
-              <div className="bg-bg-card border border-border-default border-dashed rounded-2xl p-8 text-center">
-                <p className="text-xs font-semibold text-text-secondary">Tidak ada pendaftar ditemukan.</p>
-              </div>
-            ) : filteredRows.map((row) => {
-              const batch = row.batches ?? {};
-              const program = batch.programs ?? {};
-              return (
-                <div key={row.id} className="bg-bg-card border border-border-default/70 rounded-2xl p-4 space-y-3 shadow-xs">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-sm font-black text-text-primary truncate">{row.full_name}</p>
-                      <p className="text-[11px] text-text-secondary mt-0.5 truncate">
-                        {program.title ?? "—"} · {batch.title ?? "—"}
-                      </p>
-                    </div>
-                    <div className="shrink-0">
-                      <StatusBadge method={row.payment_method} />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-[11px]">
-                    <div className="min-w-0">
-                      <p className="text-text-muted">Email</p>
-                      <p className="text-text-primary truncate">{row.email || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="text-text-muted">WhatsApp</p>
-                      <p className="text-text-primary font-mono">{formatWhatsapp(row.whatsapp)}</p>
-                    </div>
-                    <div>
-                      <p className="text-text-muted">Biaya</p>
-                      <p className="text-text-primary font-mono">{rupiah(row.price_idr_at_signup)}</p>
-                    </div>
-                    <div>
-                      <p className="text-text-muted">Tgl Masuk</p>
-                      <p className="text-text-primary">{dateOnly(row.received_at)}</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                    <button
-                      onClick={() => setDetailRow(row)}
-                      className="h-8 px-2.5 rounded-xl bg-bg-well border border-border-default text-[11px] font-semibold text-text-primary hover:bg-bg-page flex items-center gap-1.5 whitespace-nowrap shrink-0 transition-colors cursor-pointer"
-                    >
-                      <Eye size={13} /> Detail
-                    </button>
-                    <a
-                      href={waLink(row.whatsapp)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="h-8 px-2.5 rounded-xl bg-admin-mint-soft border border-admin-mint-dot/30 text-[11px] font-semibold text-admin-mint-ink hover:bg-admin-mint-soft flex items-center gap-1.5 whitespace-nowrap shrink-0 transition-colors"
-                    >
-                      <MessageCircle size={13} /> WhatsApp
-                    </a>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </>
-      )}
+const DEFAULT_PROGRAMS = [
+  "Public Speaking Series",
+  "Public Speaking for Speakers",
+  "Sertifikasi Pembicara Profesional",
+];
 
-      <Modal
-        isOpen={!!detailRow}
-        onClose={() => setDetailRow(null)}
-        maxWidth="max-w-lg"
-        icon={(detailRow?.full_name || "P")[0].toUpperCase()}
-        title={detailRow?.full_name}
-        subtitle={detailRow ? `${detailRow.email} · ${detailRow.batches?.programs?.title ?? "—"}` : undefined}
-        footer={
-          <div className="flex gap-2.5 w-full">
-            <button
-              onClick={() => setDetailRow(null)}
-              className="h-10 px-4 text-xs font-bold rounded-xl text-text-secondary bg-bg-well hover:bg-bg-well/80 border border-border-default transition-colors w-full cursor-pointer text-center"
-            >
-              Tutup
-            </button>
-            {detailRow?.whatsapp && (
-              <a
-                href={waLink(detailRow.whatsapp)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="h-10 px-4 text-xs font-bold rounded-xl text-white bg-zinc-900 hover:bg-zinc-800 dark:text-zinc-900 dark:hover:bg-yellow-200 transition-colors w-full flex justify-center items-center gap-2 cursor-pointer text-center"
-              >
-                <span>Kirim WhatsApp</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            )}
-          </div>
-        }
-      >
-        {detailRow && (
-          <div className="flex flex-col gap-3 text-xs">
-            <ModalSection title="Informasi Personal">
-              <div className="space-y-2">
-                <InfoRow label="Nama Panggilan" value={text(detailRow.nickname)} />
-                <InfoRow label="Domisili" value={text(detailRow.domicile)} />
-                <InfoRow label="Jenis Kelamin" value={text(detailRow.gender)} />
-                <InfoRow label="Usia" value={text(detailRow.age)} />
-                <InfoRow label="Pekerjaan" value={text(detailRow.profession)} />
-                <InfoRow label="Instansi" value={text(detailRow.institution)} />
-                <InfoRow
-                  label="Tgl Terdaftar"
-                  value={new Date(detailRow.received_at).toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                />
-              </div>
-            </ModalSection>
-
-            <ModalSection title="Kontak & Sosial Media">
-              <div className="space-y-2">
-                <InfoRow label="No. WhatsApp" value={<span className="font-mono">{formatWhatsapp(detailRow.whatsapp)}</span>} />
-                <InfoRow label="Email" value={detailRow.email || "-"} />
-                {detailRow.socials?.length ? <InfoRow label="Platform sosial" value={text(detailRow.socials)} /> : null}
-                <InfoRow label="Media sosial" value={text(detailRow.social_name)} />
-                {detailRow.social_other ? <InfoRow label="Sosial lainnya" value={detailRow.social_other} /> : null}
-              </div>
-            </ModalSection>
-
-            <ModalSection title="Program & Pembayaran">
-              <div className="space-y-2">
-                <InfoRow label="Program" value={detailRow.batches?.programs?.title ?? "—"} />
-                <InfoRow label="Batch" value={detailRow.batches?.title ?? detailRow.batch_slug} />
-                <InfoRow label="Biaya" value={<span className="font-mono">{rupiah(detailRow.price_idr_at_signup)}</span>} />
-                <InfoRow label="Metode" value={paymentOptions[String(detailRow.payment_method)] ?? text(detailRow.payment_method)} />
-                <InfoRow label="Transfer Awal" value={<span className="font-mono">{rupiah(detailRow.initial_transfer_idr)}</span>} />
-                <InfoRow label="Sisa" value={<span className="font-mono">{rupiah(detailRow.remaining_after_transfer_idr)}</span>} />
-              </div>
-            </ModalSection>
-
-            <ModalSection title="Jawaban Form">
-              <div className="space-y-2">
-                <InfoRow label="Pernah Pelatihan" value={text(detailRow.prior_experience)} />
-                <InfoRow label="Sumber Informasi" value={text(detailRow.source)} />
-                <InfoRow label="Sumber Lainnya" value={text(detailRow.source_other)} />
-                <InfoRow label="Kesediaan Jadwal" value={attendanceLabel(detailRow.attendance)} />
-                <InfoRow label="Waktu Masuk" value={dateTime(detailRow.received_at)} />
-              </div>
-              <div className="mt-3 space-y-2 border-t border-border-default/60 pt-3">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted">Tujuan Mengikuti Program</p>
-                  <p className="text-xs text-text-primary whitespace-pre-wrap mt-1">{text(detailRow.goal)}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted">Tantangan Terbesar</p>
-                  <p className="text-xs text-text-primary whitespace-pre-wrap mt-1">{text(detailRow.challenge)}</p>
-                </div>
-              </div>
-            </ModalSection>
-          </div>
-        )}
-      </Modal>
-    </div>
-  );
+function getProgramBadgeStyle(offerTitle: string, offerSlug: string | null): ProgramColorStyle {
+  const normalized = offerTitle.toLowerCase();
+  if (offerSlug || normalized.includes("paket") || normalized.includes("+")) {
+    return PROGRAM_PALETTE[3]; // Mint — Paket Bundling
+  }
+  if (normalized.includes("series")) {
+    return PROGRAM_PALETTE[0]; // Sky Blue — Public Speaking Series
+  }
+  if (normalized.includes("speaker")) {
+    return PROGRAM_PALETTE[1]; // Lilac — Public Speaking for Speakers
+  }
+  if (normalized.includes("sertifikasi") || normalized.includes("bnsp")) {
+    return PROGRAM_PALETTE[2]; // Peach/Amber — Sertifikasi
+  }
+  let hash = 0;
+  for (let i = 0; i < normalized.length; i += 1) {
+    hash = (hash * 31 + normalized.charCodeAt(i)) >>> 0;
+  }
+  return PROGRAM_PALETTE[hash % PROGRAM_PALETTE.length];
 }
 
-function StatusBadge({ method }: { method: string }) {
-  const styles =
-    method === "full"
-      ? "bg-admin-mint-soft text-admin-mint-ink border-admin-mint-dot/30"
-      : method === "dp20"
-        ? "bg-admin-rose-soft text-admin-danger border-admin-rose-dot/30"
-        : "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-500/20";
-  const dot = method === "full" ? "bg-admin-mint-dot" : method === "dp20" ? "bg-red-500" : "bg-zinc-400";
+function ProgramBadge({
+  title,
+  offerSlug,
+}: {
+  title: string;
+  offerSlug: string | null;
+}) {
+  const style = getProgramBadgeStyle(title, offerSlug);
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold border uppercase tracking-wider whitespace-nowrap ${styles}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-      {method === "full" ? "Lunas" : method === "dp20" ? "DP 20%" : text(method)}
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold tracking-wide whitespace-nowrap ${style.badge}`}
+    >
+      <span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${style.dot}`} />
+      <span className="truncate max-w-[200px]" title={title}>
+        {title}
+      </span>
     </span>
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
+function formatSlugFallback(slug: string): string {
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function getBatchList(row: PendaftarRecord): string {
+  const items = row.academy_registration_items ?? [];
+  if (items.length > 0) {
+    return [...items]
+      .sort((a, b) => a.batch_slug.localeCompare(b.batch_slug))
+      .map((item) => {
+        const batchObj = Array.isArray(item.batches) ? item.batches[0] : item.batches;
+        return batchObj?.title?.trim() || formatSlugFallback(item.batch_slug);
+      })
+      .join(" + ");
+  }
+  return row.primary_batch_slug ? formatSlugFallback(row.primary_batch_slug) : "—";
+}
+
+function getPaymentSummary(row: PendaftarRecord) {
+  const invoices = row.academy_invoices ?? [];
+  const remainingPending = invoices.find(
+    (inv) => inv.stage === "remaining" && inv.status !== "verified",
+  );
+  const isInstallment = row.payment_method === "dp" && Boolean(remainingPending);
+  return {
+    invoices: [...invoices].sort((a, b) => a.id - b.id),
+    isInstallment,
+    remainingAmount: remainingPending ? Number(remainingPending.total_idr) : 0,
+  };
+}
+
+function getSocialPills(answers: PendaftarAnswers | null): { label: string; value: string }[] {
+  if (!answers) return [];
+  const pills: { label: string; value: string }[] = [];
+  if (answers.instagram?.trim()) pills.push({ label: "Instagram", value: answers.instagram.trim() });
+  if (answers.tiktok?.trim()) pills.push({ label: "TikTok", value: answers.tiktok.trim() });
+  if (answers.youtube?.trim()) pills.push({ label: "YouTube", value: answers.youtube.trim() });
+  if (answers.linkedin?.trim()) pills.push({ label: "LinkedIn", value: answers.linkedin.trim() });
+  if (pills.length === 0 && answers.socialName?.trim()) {
+    const platform = answers.socials?.length ? answers.socials.join(", ") : "Media Sosial";
+    pills.push({ label: platform, value: answers.socialName.trim() });
+  }
+  if (answers.socialOther?.trim()) {
+    pills.push({ label: "Lainnya", value: answers.socialOther.trim() });
+  }
+  return pills;
+}
+
+function buildTextRecap(row: PendaftarRecord): string {
+  const a = row.answers ?? {};
+  const payment = getPaymentSummary(row);
+  const socials = getSocialPills(row.answers);
+  const lines = [
+    `REKAP PENDAFTAR #${row.id} — ${row.full_name}`,
+    `Tgl Bergabung: ${formatJoinDateLong(row.received_at)}`,
+    "",
+    "INFORMASI PERSONAL",
+    `- Nama Panggilan: ${a.nickname || "—"}`,
+    `- Jenis Kelamin / Usia: ${a.gender || "—"} · ${a.age ? `${a.age} tahun` : "—"}`,
+    `- Domisili: ${a.domicile || "—"}`,
+    `- Pekerjaan: ${a.profession || "—"}${a.professionCategory ? ` (${a.professionCategory})` : ""}`,
+    `- Instansi: ${a.institution || "—"}`,
+    "",
+    "KONTAK & SOSIAL MEDIA",
+    `- WhatsApp: ${formatWhatsapp(row.whatsapp)}`,
+    `- Email: ${row.email}`,
+    ...(socials.length ? socials.map((s) => `- ${s.label}: ${s.value}`) : []),
+    "",
+    "PROGRAM & PEMBAYARAN",
+    `- Program: ${row.offer_title}`,
+    `- Batch: ${getBatchList(row)}`,
+    `- Biaya Program: ${rupiah(row.price_idr_at_signup)}`,
+    `- Metode: ${row.payment_method === "dp" ? `DP ${row.dp_percent_at_signup ?? 20}%` : "Transfer lunas"}`,
+    `- Status: ${payment.isInstallment ? `DP · Nyicil (Sisa ${rupiah(payment.remainingAmount)})` : "Lunas"}`,
+    "",
+    "JAWABAN PENDAFTARAN",
+    `- Pernah Pelatihan: ${a.priorExperience === true ? "Ya" : a.priorExperience === false ? "Tidak" : "—"}`,
+    `- Kesediaan Hadir: ${a.attendance ? (ATTENDANCE_LABELS[a.attendance] ?? a.attendance) : "—"}`,
+    `- Sumber Informasi: ${a.source === "other" && a.sourceOther ? a.sourceOther : a.source ? (SOURCE_LABELS[a.source] ?? a.source) : "—"}`,
+    `- Tujuan: ${a.goal || "—"}`,
+    ...(a.challenge ? [`- Tantangan Utama: ${a.challenge}`] : []),
+  ];
+  return lines.join("\n");
+}
+
+function DetailCard({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="flex justify-between items-center gap-3">
-      <span className="text-text-muted font-medium shrink-0">{label}:</span>
-      <span className="font-semibold text-text-primary text-right break-words">{value}</span>
+    <section className="rounded-[20px] border border-admin-line bg-admin-canvas p-4 sm:p-5">
+      <h3 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-admin-text-secondary">
+        {icon}
+        <span>{title}</span>
+      </h3>
+      <div className="mt-3.5">{children}</div>
+    </section>
+  );
+}
+
+function InfoRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4 py-1.5 text-[13px] sm:text-[14px]">
+      <span className="shrink-0 text-admin-text-secondary">{label}:</span>
+      <span className="min-w-0 text-right font-medium text-admin-ink break-words">
+        {value}
+      </span>
+    </div>
+  );
+}
+
+export default function PendaftarClient({
+  rows,
+  searching,
+}: {
+  rows: PendaftarRecord[];
+  searching: boolean;
+}) {
+  const router = useRouter();
+  const [selected, setSelected] = useState<PendaftarRecord | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<PendaftarRecord | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [programFilter, setProgramFilter] = useState<string>("all");
+  const [isRefreshing, startRefresh] = useTransition();
+
+  // Real-time Supabase subscription for live registrant & invoice verification updates
+  useEffect(() => {
+    const supabase = createClient();
+    let refreshTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    const debouncedRefresh = () => {
+      if (refreshTimeout) clearTimeout(refreshTimeout);
+      refreshTimeout = setTimeout(() => {
+        startRefresh(() => {
+          router.refresh();
+        });
+      }, 700);
+    };
+
+    const channel = supabase
+      .channel("admin_pendaftar_realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "academy_registrations" },
+        debouncedRefresh,
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "academy_invoices" },
+        debouncedRefresh,
+      )
+      .subscribe();
+
+    return () => {
+      if (refreshTimeout) clearTimeout(refreshTimeout);
+      supabase.removeChannel(channel);
+    };
+  }, [router]);
+
+  // Auto-sync when returning to the tab after >20s
+  useEffect(() => {
+    let lastSyncTime = Date.now();
+    const handleSync = () => {
+      if (document.visibilityState === "visible" && Date.now() - lastSyncTime > 20000) {
+        lastSyncTime = Date.now();
+        startRefresh(() => {
+          router.refresh();
+        });
+      }
+    };
+
+    window.addEventListener("focus", handleSync);
+    document.addEventListener("visibilitychange", handleSync);
+    return () => {
+      window.removeEventListener("focus", handleSync);
+      document.removeEventListener("visibilitychange", handleSync);
+    };
+  }, [router]);
+
+  const handleManualRefresh = () => {
+    startRefresh(() => {
+      router.refresh();
+    });
+  };
+
+  const programFilters = useMemo(() => {
+    const counts = new Map<string, { title: string; offerSlug: string | null; count: number }>();
+    for (const name of DEFAULT_PROGRAMS) {
+      counts.set(name, { title: name, offerSlug: null, count: 0 });
+    }
+    for (const row of rows) {
+      const existing = counts.get(row.offer_title);
+      if (existing) {
+        existing.count += 1;
+        if (!existing.offerSlug && row.offer_slug) existing.offerSlug = row.offer_slug;
+      } else {
+        counts.set(row.offer_title, {
+          title: row.offer_title,
+          offerSlug: row.offer_slug,
+          count: 1,
+        });
+      }
+    }
+    return Array.from(counts.values());
+  }, [rows]);
+
+  const filteredRows = useMemo(() => {
+    if (programFilter === "all") return rows;
+    return rows.filter((row) => row.offer_title === programFilter);
+  }, [rows, programFilter]);
+
+  const handleCopyRecap = async () => {
+    if (!selected) return;
+    try {
+      await navigator.clipboard.writeText(buildTextRecap(selected));
+      setCopied(true);
+      toast.success("Rekap pendaftar disalin.");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Gagal menyalin rekap.");
+    }
+  };
+
+  const liveBadge = (
+    <AdminPageBadge>
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-emerald-700 select-none dark:text-emerald-300">
+        <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+        LIVE
+      </span>
+    </AdminPageBadge>
+  );
+
+  const toolbar = (
+    <TableToolbar
+      search={{ placeholder: "Cari nama, email, nomor WA…" }}
+      exportModule="pendaftar"
+      exportDisabled={filteredRows.length === 0}
+      onRefresh={handleManualRefresh}
+      refreshing={isRefreshing}
+    />
+  );
+
+  const filterBar = (
+    <div className="flex items-center gap-1.5 overflow-x-auto rounded-2xl border border-admin-line bg-admin-surface p-1.5 no-scrollbar">
+      <button
+        type="button"
+        onClick={() => setProgramFilter("all")}
+        className={`inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2 text-[12px] font-semibold transition-all select-none ${
+          programFilter === "all"
+            ? "border border-[#bae6fd] bg-[#e0f2fe] text-[#0369a1] shadow-2xs dark:border-sky-800 dark:bg-sky-950/60 dark:text-sky-300"
+            : "text-admin-text-secondary hover:bg-admin-surface-muted hover:text-admin-ink"
+        }`}
+      >
+        <Users className="size-3.5 shrink-0" aria-hidden="true" />
+        <span>Semua</span>
+        <span className="rounded-full bg-admin-canvas px-2 py-0.5 text-[11px] font-bold tabular-nums text-[#0369a1] shadow-2xs dark:text-sky-300">
+          {rows.length}
+        </span>
+      </button>
+
+      {programFilters.map((item) => {
+        const style = getProgramBadgeStyle(item.title, item.offerSlug);
+        const active = programFilter === item.title;
+        return (
+          <button
+            key={item.title}
+            type="button"
+            onClick={() => setProgramFilter(item.title)}
+            className={`inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2 text-[12px] font-semibold transition-all select-none ${
+              active
+                ? style.filterActive
+                : "text-admin-text-secondary hover:bg-admin-surface-muted hover:text-admin-ink"
+            }`}
+          >
+            <span aria-hidden="true" className={`size-2 shrink-0 rounded-full ${style.dot}`} />
+            <span>{item.title}</span>
+            <span
+              className={`rounded-full bg-admin-canvas px-2 py-0.5 text-[11px] font-bold tabular-nums shadow-2xs ${style.countText}`}
+            >
+              {item.count}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  if (rows.length === 0) {
+    return (
+      <div className="space-y-5">
+        {liveBadge}
+        {toolbar}
+        {filterBar}
+        {searching ? (
+          <EmptyState
+            searching
+            title="Tidak ada pendaftar yang cocok"
+            description="Coba nama, email, atau nomor WhatsApp lain."
+          />
+        ) : (
+          <EmptyState
+            title="Belum ada pendaftar terverifikasi"
+            description="Pendaftar muncul di sini setelah tagihan awalnya diverifikasi di Tagihan."
+          />
+        )}
+      </div>
+    );
+  }
+
+  const detailPayment = selected ? getPaymentSummary(selected) : null;
+  const detailAnswers = selected?.answers ?? null;
+  const detailSocials = selected ? getSocialPills(selected.answers) : [];
+  const detailWaHref = selected ? whatsappHref(selected.whatsapp) : null;
+
+  return (
+    <div className="space-y-5 pb-24 md:pb-0">
+      {liveBadge}
+      {toolbar}
+      {filterBar}
+
+      {filteredRows.length === 0 ? (
+        <EmptyState
+          searching
+          title="Tidak ada pendaftar untuk program ini"
+          description="Pilih filter program lain atau klik Semua untuk melihat seluruh pendaftar."
+        />
+      ) : (
+        <>
+          {/* Mobile cards */}
+          <div className="space-y-3.5 md:hidden">
+            {filteredRows.map((item) => {
+          const initial = (item.full_name || "P").trim()[0]?.toUpperCase() ?? "P";
+          const wa = whatsappHref(item.whatsapp);
+          return (
+            <article
+              key={`m-${item.id}`}
+              className="rounded-[24px] border border-admin-line bg-admin-canvas p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-admin-surface text-[14px] font-semibold text-admin-ink">
+                    {initial}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-[14px] font-semibold text-admin-ink">
+                      {item.full_name}
+                    </p>
+                    <p className="truncate text-[12px] text-admin-text-secondary">
+                      {item.email}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelected(item)}
+                  aria-label={`Lihat detail ${item.full_name}`}
+                  title="Lihat Detail"
+                  className={rowActionClass}
+                >
+                  <Eye aria-hidden="true" size={18} strokeWidth={1.5} />
+                </button>
+              </div>
+
+              <div className="mt-3.5 flex flex-wrap items-center gap-2">
+                <ProgramBadge title={item.offer_title} offerSlug={item.offer_slug} />
+              </div>
+
+              <dl className="mt-3.5 grid grid-cols-2 gap-3 border-t border-admin-line pt-3 text-[12px]">
+                <div>
+                  <dt className="text-admin-text-secondary">Batch</dt>
+                  <dd className="mt-0.5 font-medium text-admin-ink">
+                    {getBatchList(item)}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-admin-text-secondary">WhatsApp</dt>
+                  <dd className="mt-0.5 font-sans font-medium tabular-nums text-admin-ink">
+                    {formatWhatsapp(item.whatsapp)}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-admin-text-secondary">Tgl Bergabung</dt>
+                  <dd className="mt-0.5 font-medium text-admin-ink">
+                    {formatJoinDate(item.received_at)}
+                  </dd>
+                </div>
+              </dl>
+
+              <div className="mt-3.5 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelected(item)}
+                  className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-full border border-admin-line-strong text-[13px] font-medium text-admin-ink transition-colors hover:bg-admin-surface"
+                >
+                  <Eye size={15} aria-hidden="true" />
+                  Detail
+                </button>
+                {wa && (
+                  <a
+                    href={wa}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-full bg-[#25D366] text-[13px] font-medium text-white transition-colors hover:bg-[#1ebe57]"
+                  >
+                    <MessageCircle size={15} aria-hidden="true" />
+                    WhatsApp
+                  </a>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block">
+        <DataTable caption="Pendaftar Albana" minWidth={920}>
+          <thead>
+            <tr>
+              <th scope="col">Nama</th>
+              <th scope="col">Email</th>
+              <th scope="col">WhatsApp</th>
+              <th scope="col">Program</th>
+              <th scope="col">Batch</th>
+              <th scope="col">Tgl Bergabung</th>
+              <th scope="col" className="text-right">
+                Aksi
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredRows.map((item) => {
+              const initial = (item.full_name || "P").trim()[0]?.toUpperCase() ?? "P";
+              return (
+                <tr key={item.id}>
+                  <td className="max-w-[220px]">
+                    <div className="flex items-center gap-3">
+                      <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-admin-surface text-[13px] font-semibold text-admin-ink">
+                        {initial}
+                      </span>
+                      <p className="min-w-0 truncate font-medium text-admin-ink" title={item.full_name}>
+                        {item.full_name}
+                      </p>
+                    </div>
+                  </td>
+                  <td className="max-w-[220px] truncate text-admin-text-secondary" title={item.email}>
+                    {item.email}
+                  </td>
+                  <td className="whitespace-nowrap font-sans text-[14px] tabular-nums text-admin-ink">
+                    {formatWhatsapp(item.whatsapp)}
+                  </td>
+                  <td>
+                    <ProgramBadge title={item.offer_title} offerSlug={item.offer_slug} />
+                  </td>
+                  <td className="whitespace-nowrap text-admin-ink">
+                    {getBatchList(item)}
+                  </td>
+                  <td className="whitespace-nowrap text-admin-text-secondary">
+                    {formatJoinDate(item.received_at)}
+                  </td>
+                  <td className="whitespace-nowrap text-right">
+                    <button
+                      type="button"
+                      onClick={() => setSelected(item)}
+                      aria-label={`Lihat detail ${item.full_name}`}
+                      title="Lihat Detail"
+                      className={rowActionClass}
+                    >
+                      <Eye aria-hidden="true" size={18} strokeWidth={1.5} />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </DataTable>
+      </div>
+      </>
+      )}
+
+      {/* Detail modal / sheet */}
+      <AdminSheet
+        open={selected !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelected(null);
+            setCopied(false);
+          }
+        }}
+        size="lg"
+        icon={
+          <span className="text-[16px] font-semibold">
+            {selected ? (selected.full_name || "P").trim()[0]?.toUpperCase() : "P"}
+          </span>
+        }
+        title={selected?.full_name ?? "Detail Pendaftar"}
+        description={
+          selected
+            ? `#${selected.id} · ${selected.email}`
+            : undefined
+        }
+        footer={
+          selected ? (
+            <div className="flex w-full flex-col-reverse gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+              <button
+                type="button"
+                onClick={() => setSelected(null)}
+                className="inline-flex h-11 items-center justify-center rounded-full border border-admin-line-strong px-6 text-[14px] font-medium text-admin-ink transition-colors hover:bg-admin-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
+              >
+                Tutup
+              </button>
+              <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
+                <button
+                  type="button"
+                  onClick={handleCopyRecap}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-admin-line-strong px-5 text-[14px] font-medium text-admin-ink transition-colors hover:bg-admin-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
+                >
+                  {copied ? (
+                    <Check size={16} aria-hidden="true" />
+                  ) : (
+                    <Copy size={16} aria-hidden="true" />
+                  )}
+                  <span>{copied ? "Tersalin" : "Salin Rekap Teks"}</span>
+                </button>
+                {detailWaHref && (
+                  <a
+                    href={detailWaHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 text-[14px] font-medium text-white transition-colors hover:bg-[#1ebe57]"
+                  >
+                    <MessageCircle size={16} aria-hidden="true" />
+                    <span>WhatsApp</span>
+                  </a>
+                )}
+              </div>
+            </div>
+          ) : null
+        }
+      >
+        {selected && detailPayment && (
+          <div className="space-y-4">
+            <DetailCard
+              title="Informasi Personal"
+              icon={<User size={14} aria-hidden="true" />}
+            >
+              <div className="divide-y divide-admin-line/60">
+                <InfoRow label="Nama Lengkap" value={selected.full_name} />
+                <InfoRow label="Nama Panggilan" value={detailAnswers?.nickname || "—"} />
+                <InfoRow
+                  label="Jenis Kelamin & Usia"
+                  value={
+                    detailAnswers?.gender || detailAnswers?.age
+                      ? [
+                          detailAnswers?.gender,
+                          detailAnswers?.age ? `${detailAnswers.age} tahun` : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")
+                      : "—"
+                  }
+                />
+                <InfoRow label="Domisili" value={detailAnswers?.domicile || "—"} />
+                <InfoRow
+                  label="Pekerjaan"
+                  value={
+                    detailAnswers?.profession
+                      ? `${detailAnswers.profession}${
+                          detailAnswers.professionCategory
+                            ? ` (${detailAnswers.professionCategory})`
+                            : ""
+                        }`
+                      : "—"
+                  }
+                />
+                <InfoRow label="Instansi" value={detailAnswers?.institution || "—"} />
+                <InfoRow
+                  label="Tgl Bergabung"
+                  value={formatJoinDateLong(selected.received_at)}
+                />
+              </div>
+            </DetailCard>
+
+            <DetailCard title="Kontak & Sosial Media">
+              <div className="divide-y divide-admin-line/60">
+                <InfoRow
+                  label="No. WhatsApp"
+                  value={
+                    <span className="font-sans tabular-nums">
+                      {formatWhatsapp(selected.whatsapp)}
+                    </span>
+                  }
+                />
+                <InfoRow label="Email" value={selected.email} />
+              </div>
+              {detailSocials.length > 0 && (
+                <div className="mt-3 border-t border-admin-line/60 pt-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-admin-text-secondary">
+                    Media Sosial
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {detailSocials.map((item) => (
+                      <span
+                        key={`${item.label}-${item.value}`}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-admin-line bg-admin-surface px-3 py-1 text-[12px] text-admin-ink"
+                      >
+                        <span className="font-semibold text-admin-text-secondary">
+                          {item.label}:
+                        </span>
+                        <span>{item.value}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </DetailCard>
+
+            <DetailCard title="Program & Pembayaran">
+              <div className="divide-y divide-admin-line/60">
+                <InfoRow
+                  label="Program"
+                  value={
+                    <ProgramBadge
+                      title={selected.offer_title}
+                      offerSlug={selected.offer_slug}
+                    />
+                  }
+                />
+                <InfoRow label="Batch" value={getBatchList(selected)} />
+                <InfoRow
+                  label="Status Pembayaran"
+                  value={
+                    detailPayment.isInstallment ? (
+                      <div className="flex flex-col items-end gap-1">
+                        <StatusChip tone="lilac">DP · Nyicil</StatusChip>
+                        <span className="text-[12px] text-admin-text-secondary">
+                          Sisa {rupiah(detailPayment.remainingAmount)}
+                        </span>
+                      </div>
+                    ) : (
+                      <StatusChip tone="mint">Lunas</StatusChip>
+                    )
+                  }
+                />
+                <InfoRow
+                  label="Metode Pembayaran"
+                  value={
+                    selected.payment_method === "dp"
+                      ? `DP ${selected.dp_percent_at_signup ?? 20}%`
+                      : "Transfer lunas"
+                  }
+                />
+                <InfoRow
+                  label="Biaya Program"
+                  value={
+                    <span className="font-mono tabular-nums">
+                      {rupiah(selected.price_idr_at_signup)}
+                    </span>
+                  }
+                />
+              </div>
+
+              {detailPayment.invoices.length > 0 && (
+                <div className="mt-3.5 space-y-2 border-t border-admin-line/60 pt-3.5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-admin-text-secondary">
+                    Rincian Tagihan
+                  </p>
+                  {detailPayment.invoices.map((inv) => {
+                    const st =
+                      inv.status in INVOICE_STATUS_MAP
+                        ? INVOICE_STATUS_MAP[inv.status as keyof typeof INVOICE_STATUS_MAP]
+                        : { tone: "neutral" as const, label: inv.status };
+                    return (
+                      <div
+                        key={inv.id}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-admin-line bg-admin-surface px-3.5 py-2.5 text-[13px]"
+                      >
+                        <div>
+                          <p className="font-mono text-[12px] font-semibold text-admin-ink">
+                            {inv.invoice_number ?? `#${inv.id}`}
+                          </p>
+                          <p className="text-[12px] text-admin-text-secondary">
+                            {inv.stage === "remaining" ? "Pelunasan" : "Pembayaran awal"}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2.5">
+                          <span className="font-mono font-semibold tabular-nums text-admin-ink">
+                            {rupiah(inv.total_idr)}
+                          </span>
+                          <StatusChip tone={st.tone}>{st.label}</StatusChip>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </DetailCard>
+
+            <DetailCard
+              title="Jawaban Form Pendaftaran"
+              icon={<FileText size={14} aria-hidden="true" />}
+            >
+              <div className="divide-y divide-admin-line/60">
+                <InfoRow
+                  label="Pernah Ikut Pelatihan"
+                  value={
+                    detailAnswers?.priorExperience === true
+                      ? "Ya"
+                      : detailAnswers?.priorExperience === false
+                        ? "Tidak"
+                        : "—"
+                  }
+                />
+                <InfoRow
+                  label="Kesediaan Hadir"
+                  value={
+                    detailAnswers?.attendance
+                      ? (ATTENDANCE_LABELS[detailAnswers.attendance] ??
+                          detailAnswers.attendance)
+                      : "—"
+                  }
+                />
+                <InfoRow
+                  label="Sumber Informasi"
+                  value={
+                    detailAnswers?.source === "other" && detailAnswers?.sourceOther
+                      ? detailAnswers.sourceOther
+                      : detailAnswers?.source
+                        ? (SOURCE_LABELS[detailAnswers.source] ?? detailAnswers.source)
+                        : "—"
+                  }
+                />
+              </div>
+
+              <div className="mt-3.5 space-y-2.5">
+                <div className="rounded-2xl border border-admin-line bg-admin-surface p-3.5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-admin-text-secondary">
+                    Tujuan Mengikuti Program
+                  </p>
+                  <p className="mt-1.5 whitespace-pre-wrap text-[13px] leading-relaxed text-admin-ink">
+                    {detailAnswers?.goal || "—"}
+                  </p>
+                </div>
+
+                {detailAnswers?.challenge && (
+                  <div className="rounded-2xl border border-admin-line bg-admin-surface p-3.5">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-admin-text-secondary">
+                      Tantangan / Kendala Utama
+                    </p>
+                    <p className="mt-1.5 whitespace-pre-wrap text-[13px] leading-relaxed text-admin-ink">
+                      {detailAnswers.challenge}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </DetailCard>
+
+            <section className="rounded-[20px] border border-admin-rose-dot/40 bg-admin-rose-soft/60 p-4 sm:p-5">
+              <div className="flex items-start gap-2.5">
+                <AlertCircle
+                  size={18}
+                  aria-hidden="true"
+                  className="mt-0.5 shrink-0 text-admin-danger"
+                />
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-[13px] font-semibold text-admin-danger sm:text-[14px]">
+                    Peringatan: Tindakan Berbahaya (Hapus Pendaftar)
+                  </h3>
+                  <p className="mt-1 text-[12px] leading-relaxed text-admin-rose-ink sm:text-[13px]">
+                    Menghapus pendaftar ini akan menghapus seluruh data pendaftaran,
+                    jawaban form, dan riwayat tagihan terkait secara permanen.
+                    Tindakan ini tidak dapat dibatalkan.
+                  </p>
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setDeleteTarget(selected)}
+                      className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-admin-danger px-5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink"
+                    >
+                      <Trash2 size={15} aria-hidden="true" />
+                      <span>Hapus Pendaftar</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
+      </AdminSheet>
+
+      <DeleteSheet
+        open={deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title={`Hapus pendaftar ${deleteTarget?.full_name ?? ""}?`}
+        description="Seluruh data pendaftaran, jawaban form, dan tagihan terkait akan dihapus permanen. Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Ya, Hapus"
+        successMessage="Data pendaftar berhasil dihapus."
+        errorMessage="Gagal menghapus data pendaftar."
+        onConfirm={async () => {
+          if (!deleteTarget) return;
+          await deleteRegistration(deleteTarget.id);
+        }}
+        onSuccess={() => {
+          setSelected(null);
+          setCopied(false);
+        }}
+      />
     </div>
   );
 }

@@ -260,6 +260,7 @@ export async function deliverInvoiceEmail(
         const waText = useProofMessage
           ? paymentProofMessage({
               registrationId: registration.id,
+              invoiceId: amounts.invoiceId,
               invoiceNumber: amounts.invoiceNumber,
               fullName: registration.full_name,
               offerTitle: registration.offer_title,

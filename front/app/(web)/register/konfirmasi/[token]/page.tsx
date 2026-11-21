@@ -110,6 +110,7 @@ export default async function ConfirmationPage({
     whatsappHref += `?text=${encodeURIComponent(
       paymentProofMessage({
         registrationId: id,
+        invoiceId: invoice.id,
         invoiceNumber: invoice.invoice_number,
         fullName: registration.full_name,
         offerTitle: registration.offer_title,

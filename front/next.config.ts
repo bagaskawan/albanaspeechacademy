@@ -1,6 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [{
+      source: "/program/basic-to-advance",
+      destination: "/program/public-speaking-for-speakers",
+      permanent: true,
+    }];
+  },
   images: {
     qualities: [75, 85, 90],
     formats: ["image/avif", "image/webp"],
