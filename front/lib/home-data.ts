@@ -58,5 +58,6 @@ export type HomeData = {
   };
   testimonials: HomeTestimonial[];
   moments: HomeMedia[];
+  breaks: HomeMedia[][];
   legality: HomeLegality;
 };

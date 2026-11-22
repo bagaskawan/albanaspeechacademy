@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "plans/2026-11-21-seo-geo-plan.md",
+                "file": "plans/2026-11-22-article-feature-plan.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2026-11-21-seo-geo-plan"
+              "title": "2026-11-22-article-feature-plan"
             }
           }
         ]
@@ -190,8 +190,11 @@
   },
   "active": "be150c2372e38cef",
   "lastOpenFiles": [
-    "plans/2026-11-20-email-first-registration-qa-implementation-plan.md",
+    "plans/2026-11-22-landing-photo-breaks.md",
+    "plans/2026-11-18-hostinger-migration-gallery-email-implementation-plan.md",
+    "plans/2026-11-22-article-feature-plan.md",
     "plans/2026-11-21-seo-geo-plan.md",
+    "plans/2026-11-20-email-first-registration-qa-implementation-plan.md",
     "plans/2026-11-17-program-batch-bundling-implementation-plan.md",
     "README.md",
     "implementation-plan/2026-11-11-admin-program-batch-artikel-dan-register.md",
@@ -229,9 +232,6 @@
     "plans/2026-11-13-status-and-next-steps.md",
     "plans/2026-11-13-staged-llm-prompt-strategy.md",
     "plans",
-    "design/admin-design-system.md",
-    "content/home-page-content.md",
-    "content/academy-proposal.md",
     "content",
     "archive/legacy",
     "implementation-plan/assets/2026-11-11-step-2-after/batch-dialog.png",

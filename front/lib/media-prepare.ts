@@ -3,6 +3,105 @@ import sharp from "sharp";
 export const MAX_IMAGE_SOURCE = 10 * 1024 * 1024;
 export const MAX_IMAGE_OUTPUT = 5 * 1024 * 1024;
 export const MAX_VIDEO_SOURCE = 25 * 1024 * 1024;
+export const MAX_ARTICLE_IMAGE_PIXELS = 40_000_000;
+
+export type ArticleImageProfile = "thumbnail" | "inline";
+
+export type PreparedArticleImage = {
+  bytes: Buffer;
+  contentType: "image/webp";
+  width: number;
+  height: number;
+};
+
+const ARTICLE_IMAGE_LIMITS: Record<
+  ArticleImageProfile,
+  { maxWidth: number; maxHeight: number; softBytes: number; hardBytes: number }
+> = {
+  thumbnail: { maxWidth: 480, maxHeight: 360, softBytes: 120 * 1024, hardBytes: 240 * 1024 },
+  inline: { maxWidth: 1600, maxHeight: 2400, softBytes: 500 * 1024, hardBytes: 900 * 1024 },
+};
+
+export async function prepareArticleImage(
+  bytes: Buffer,
+  profile: ArticleImageProfile,
+): Promise<PreparedArticleImage> {
+  if (!bytes.length || bytes.length > MAX_IMAGE_SOURCE) {
+    throw new Error("Ukuran gambar melebihi 10 MB. Pilih file lain.");
+  }
+
+  let metadata: sharp.Metadata;
+  try {
+    metadata = await sharp(bytes, { failOn: "error", limitInputPixels: MAX_ARTICLE_IMAGE_PIXELS }).metadata();
+  } catch {
+    throw new Error("Berkas gambar rusak, terlalu besar (maks. 40 MP), atau formatnya tidak didukung.");
+  }
+
+  if (!metadata.format || !["jpeg", "png", "webp"].includes(metadata.format) || (metadata.pages ?? 1) > 1) {
+    throw new Error("Gunakan gambar JPEG, PNG, atau WebP statis.");
+  }
+
+  const swapped = Boolean(metadata.orientation && metadata.orientation >= 5 && metadata.orientation <= 8);
+  const srcWidth = swapped ? metadata.height : metadata.width;
+  const srcHeight = swapped ? metadata.width : metadata.height;
+  if (!srcWidth || !srcHeight) {
+    throw new Error("Dimensi gambar tidak dapat dibaca.");
+  }
+  if (srcWidth * srcHeight > MAX_ARTICLE_IMAGE_PIXELS) {
+    throw new Error("Resolusi gambar melebihi 40 megapiksel. Pilih file lain.");
+  }
+
+  const spec = ARTICLE_IMAGE_LIMITS[profile];
+  let targetWidth = spec.maxWidth;
+  let targetHeight = spec.maxHeight;
+  if (profile === "thumbnail" && (srcWidth < spec.maxWidth || srcHeight < spec.maxHeight)) {
+    const scale = Math.min(srcWidth / 4, srcHeight / 3);
+    targetWidth = Math.max(1, Math.floor(scale * 4));
+    targetHeight = Math.max(1, Math.floor(scale * 3));
+  }
+
+  let lastResult: { data: Buffer; info: sharp.OutputInfo } | null = null;
+  for (const quality of [85, 82, 78]) {
+    let pipeline = sharp(bytes, { failOn: "error", limitInputPixels: MAX_ARTICLE_IMAGE_PIXELS })
+      .rotate()
+      .toColorspace("srgb");
+
+    if (profile === "thumbnail") {
+      pipeline = pipeline.resize(targetWidth, targetHeight, {
+        fit: "cover",
+        position: "centre",
+        withoutEnlargement: true,
+      });
+    } else {
+      pipeline = pipeline.resize(spec.maxWidth, spec.maxHeight, {
+        fit: "inside",
+        withoutEnlargement: true,
+      });
+    }
+
+    const result = await pipeline.webp({ quality, effort: 4 }).toBuffer({ resolveWithObject: true });
+    lastResult = result;
+    if (result.data.length <= spec.softBytes) {
+      return {
+        bytes: result.data,
+        contentType: "image/webp",
+        width: result.info.width,
+        height: result.info.height,
+      };
+    }
+  }
+
+  if (lastResult && lastResult.data.length <= spec.hardBytes) {
+    return {
+      bytes: lastResult.data,
+      contentType: "image/webp",
+      width: lastResult.info.width,
+      height: lastResult.info.height,
+    };
+  }
+
+  throw new Error("Ukuran gambar masih terlalu besar setelah dioptimalkan. Pilih file gambar lain.");
+}
 
 export async function prepareImage(bytes: Buffer, minWidth: number, minHeight: number): Promise<Buffer> {
   if (!bytes.length || bytes.length > MAX_IMAGE_SOURCE) throw new Error("Gambar harus berukuran maksimal 10 MiB.");

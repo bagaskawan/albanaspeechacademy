@@ -13,12 +13,6 @@ const fields: CmsField[] = [
     placeholder: "Tarik & lepas beberapa foto ke sini, atau klik untuk memilih",
     help: "Bisa pilih banyak file sekaligus (JPEG, PNG, WebP · maks. 10 MiB/foto). Semua resolusi & orientasi diperbolehkan.",
   },
-  {
-    name: "title",
-    label: "Keterangan gambar (opsional)",
-    required: false,
-    help: "Opsional. Jika dikosongkan, foto tetap tersimpan tanpa keterangan.",
-  },
 ];
 
 export default async function GaleriPage() {
@@ -36,7 +30,6 @@ export default async function GaleriPage() {
       fields={fields}
       initialRows={data ?? []}
       displayField="title"
-      searchPlaceholder="Cari gambar…"
       createLabel="Tambah gambar"
       emptyText="Tidak ada gambar yang ditemukan."
       modalSize="lg"

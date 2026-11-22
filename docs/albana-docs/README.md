@@ -22,6 +22,8 @@ Mulai dari dokumen berikut. Skema database diperbarui setelah pembersihan 15 Nov
 - [Spesifikasi revisi website](project/website-revision-specification.md) — kebutuhan revisi terkini.
 - [Audit rilis 13 November](project/2026-11-13-release-audit.md) — prioritas, risiko, dan gerbang rilis.
 - [Implementation plan redesign dan restrukturisasi](plans/2026-11-16-redesign-restructure-implementation-plan.md) — **urutan kerja aktif**: 9 fase bernomor dengan checklist untuk database, pendaftaran, admin, landing page, pembersihan, QA, dan rilis.
+- [Implementation plan pemisah foto galeri beranda](plans/2026-11-22-landing-photo-breaks.md) — 4 foto galeri dipatok per ID sebagai jeda di 3 titik (dalam BenefitBand dan antarsection), statis, tanpa foto ganda, rapi di mobile dan desktop.
+- [Implementation plan Artikel CMS dan publik](plans/2026-11-22-article-feature-plan.md) — editor BlockNote, daftar CMS, halaman baca, optimasi gambar, dan spesifikasi UI/UX responsif gaya Medium.
 - [Rencana implementasi 13 November](plans/2026-11-13-website-revision-implementation-plan.md) — urutan lama; digantikan rencana 16 November untuk pekerjaan redesign.
 - [Status dan langkah berikutnya](plans/2026-11-13-status-and-next-steps.md) — kondisi pengerjaan yang tercatat.
 - [Strategi prompt bertahap](plans/2026-11-13-staged-llm-prompt-strategy.md) — panduan pengerjaan bertahap.

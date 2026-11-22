@@ -1,17 +1,20 @@
 import type { ReactNode } from "react";
 import {
+  extractArticleImageId,
   normalizeArticleBlocks,
   safeArticleHref,
   type ArticleBlock,
   type ArticleInline,
 } from "@/lib/article-blocks";
+import type { ArticleImageDimensions } from "@/lib/server/public-articles";
+import { ArticleInlineImage } from "./article-inline-image";
 
 const inlineStyles: Record<string, string> = {
   bold: "font-semibold",
   italic: "italic",
   underline: "underline underline-offset-2",
   strike: "line-through",
-  code: "rounded bg-bg-well px-1 py-0.5 font-mono text-[0.9em]",
+  code: "rounded bg-[#F3F7FC] px-1 py-0.5 font-mono text-[0.9em]",
 };
 
 function StyledText({ node }: { node: Extract<ArticleInline, { type: "text" }> }) {
@@ -26,32 +29,24 @@ function renderInline(content: ArticleInline[] | undefined): ReactNode {
   return (content ?? []).map((node, index) => {
     if (node.type === "text") return <StyledText key={index} node={node} />;
     return (
-      <a key={index} href={safeArticleHref(node.href) ?? undefined} className="underline underline-offset-4" rel="noopener noreferrer">
+      <a key={index} href={safeArticleHref(node.href) ?? undefined} rel="noopener noreferrer">
         {renderInline(node.content)}
       </a>
     );
   });
 }
 
-const headingClass: Record<number, string> = {
-  1: "font-display text-3xl font-semibold",
-  2: "font-display text-2xl font-semibold",
-  3: "font-display text-xl font-semibold",
-  4: "font-display text-lg font-semibold",
-  5: "font-display text-base font-semibold",
-  6: "font-display text-base font-semibold",
-};
-
-const headingTag: Record<number, "h2" | "h3" | "h4" | "h5" | "h6"> = {
+const headingTag: Record<number, "h2" | "h3" | "h4"> = {
   1: "h2",
   2: "h3",
   3: "h4",
-  4: "h5",
-  5: "h6",
-  6: "h6",
 };
 
-function renderBlocks(blocks: ArticleBlock[]): ReactNode {
+function renderBlocks(
+  blocks: ArticleBlock[],
+  dimensions: Record<string, ArticleImageDimensions>,
+  seenFirstImage: { value: boolean },
+): ReactNode {
   const output: ReactNode[] = [];
   for (let index = 0; index < blocks.length; index += 1) {
     const block = blocks[index];
@@ -66,20 +61,20 @@ function renderBlocks(blocks: ArticleBlock[]): ReactNode {
       index -= 1;
       output.push(
         listType === "numberedListItem" ? (
-          <ol key={`list-${index}`} className="list-decimal space-y-2 pl-6">
+          <ol key={`list-${index}`}>
             {items.map((item, itemIndex) => (
               <li key={itemIndex}>
                 {renderInline(item.content)}
-                {item.children?.length ? renderBlocks(item.children) : null}
+                {item.children?.length ? renderBlocks(item.children, dimensions, seenFirstImage) : null}
               </li>
             ))}
           </ol>
         ) : (
-          <ul key={`list-${index}`} className="list-disc space-y-2 pl-6">
+          <ul key={`list-${index}`}>
             {items.map((item, itemIndex) => (
               <li key={itemIndex}>
                 {renderInline(item.content)}
-                {item.children?.length ? renderBlocks(item.children) : null}
+                {item.children?.length ? renderBlocks(item.children, dimensions, seenFirstImage) : null}
               </li>
             ))}
           </ul>
@@ -88,19 +83,39 @@ function renderBlocks(blocks: ArticleBlock[]): ReactNode {
       continue;
     }
 
-    if (block.type === "heading") {
-      const level = block.props?.level ?? 1;
-      const Tag = headingTag[level] ?? "h2";
+    if (block.type === "image" && block.props && "url" in block.props) {
+      const id = extractArticleImageId(block.props.url);
+      const dims = (id && dimensions[id]) || { width: 1600, height: 900 };
+      const alt = block.props.alt?.trim() || "";
+      const caption = block.props.caption?.trim() || "";
+      const isFirst = !seenFirstImage.value;
+      seenFirstImage.value = true;
+      const eager = isFirst && index < 3;
+
       output.push(
-        <Tag key={index} className={headingClass[level] ?? headingClass[1]}>
-          {renderInline(block.content)}
-        </Tag>,
+        <figure key={`img-${index}`} className="-mx-4 w-[calc(100%+2rem)] max-w-none md:mx-0 md:w-full">
+          <ArticleInlineImage
+            src={block.props.url}
+            alt={alt}
+            width={dims.width}
+            height={dims.height}
+            eager={eager}
+          />
+          {caption ? <figcaption className="px-4 md:px-0">{caption}</figcaption> : null}
+        </figure>,
       );
+      continue;
+    }
+
+    if (block.type === "heading") {
+      const rawLevel = block.props && "level" in block.props ? (block.props.level ?? 1) : 1;
+      const Tag = headingTag[rawLevel] ?? "h2";
+      output.push(<Tag key={index}>{renderInline(block.content)}</Tag>);
     } else if (block.type === "quote") {
       output.push(
-        <blockquote key={index} className="border-l-2 border-rule pl-5 text-muted italic">
+        <blockquote key={index}>
           {renderInline(block.content)}
-          {block.children?.length ? renderBlocks(block.children) : null}
+          {block.children?.length ? renderBlocks(block.children, dimensions, seenFirstImage) : null}
         </blockquote>,
       );
     } else {
@@ -111,7 +126,9 @@ function renderBlocks(blocks: ArticleBlock[]): ReactNode {
       );
     }
 
-    if (block.children?.length) output.push(<div key={`children-${index}`}>{renderBlocks(block.children)}</div>);
+    if (block.children?.length) {
+      output.push(<div key={`children-${index}`}>{renderBlocks(block.children, dimensions, seenFirstImage)}</div>);
+    }
   }
   return output;
 }
@@ -124,28 +141,39 @@ function LegacyBody({ body }: { body: string }) {
         const lines = block.split("\n");
         const heading = /^(#{1,3})\s+(.+)$/.exec(block);
         if (heading && lines.length === 1) {
-          const className = "font-display text-2xl font-semibold";
-          return heading[1].length === 1 ? (
-            <h2 className={className} key={index}>{heading[2]}</h2>
-          ) : (
-            <h3 className={className} key={index}>{heading[2]}</h3>
-          );
+          return heading[1].length === 1 ? <h2 key={index}>{heading[2]}</h2> : <h3 key={index}>{heading[2]}</h3>;
         }
         if (lines.every((line) => /^-\s+/.test(line))) {
           return (
-            <ul className="list-disc space-y-2 pl-6" key={index}>
-              {lines.map((line, position) => <li key={position}>{line.slice(2)}</li>)}
+            <ul key={index}>
+              {lines.map((line, position) => (
+                <li key={position}>{line.slice(2)}</li>
+              ))}
             </ul>
           );
         }
-        return <p className="whitespace-pre-wrap" key={index}>{block}</p>;
+        return (
+          <p className="whitespace-pre-wrap" key={index}>
+            {block}
+          </p>
+        );
       })}
     </>
   );
 }
 
-export function ArticleBody({ body, blocks }: { body: string; blocks?: unknown }) {
+export function ArticleBody({
+  body,
+  blocks,
+  dimensions = {},
+}: {
+  body: string;
+  blocks?: unknown;
+  dimensions?: Record<string, ArticleImageDimensions>;
+}) {
   const normalized = normalizeArticleBlocks(blocks);
-  const content = normalized.blocks?.length ? renderBlocks(normalized.blocks) : <LegacyBody body={body} />;
-  return <div className="mt-10 space-y-6 text-lg leading-[1.65] break-words">{content}</div>;
+  const content = normalized.blocks?.length
+    ? renderBlocks(normalized.blocks, dimensions, { value: false })
+    : <LegacyBody body={body} />;
+  return <div className="article-prose mt-8">{content}</div>;
 }

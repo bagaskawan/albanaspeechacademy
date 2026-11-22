@@ -136,26 +136,32 @@ export async function ScheduleSection({
                       </p>
                     </div>
 
-                    <div className="col-span-4 flex flex-col justify-between gap-4 border-t border-[var(--tone-rule)] pt-4 sm:col-span-8 lg:col-span-3 lg:items-end lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6">
-                      <span className="type-micro hidden h-5 items-center rounded-xs bg-[var(--tone-sun)] px-1.5 text-[var(--tone-on-sun)] lg:inline-flex">
+                    <div className="col-span-4 flex flex-col justify-center gap-3 border-t border-[var(--tone-rule)] pt-4 sm:col-span-8 lg:col-span-3 lg:items-end lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6">
+                      <span className="type-micro hidden h-5 items-center rounded-xs bg-[var(--tone-sun)] px-2 text-[var(--tone-on-sun)] lg:inline-flex">
                         {card.statusLabel}
                       </span>
 
-                      <div className="w-full lg:w-auto">
+                      <div className="flex w-full flex-col gap-2 lg:items-end">
                         {card.registrationUrl ? (
-                          <Link href={card.registrationUrl} className="button-primary w-full justify-center">
+                          <Link href={card.registrationUrl} className="button-primary w-full justify-center lg:w-full">
                             Daftar kelas ini
                           </Link>
                         ) : whatsapp ? (
                           <a
                             href={whatsapp}
-                            className="button-primary w-full justify-center"
+                            className="button-primary w-full justify-center lg:w-full"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
                             Tanya admin
                           </a>
                         ) : null}
+                        <Link
+                          href={`/program/${encodeURIComponent(card.slug)}`}
+                          className="type-small inline-flex min-h-9 items-center justify-center text-[var(--tone-muted)] underline underline-offset-4 transition-colors hover:text-[var(--tone-ink)]"
+                        >
+                          Lihat detail program
+                        </Link>
                       </div>
                     </div>
                   </article>

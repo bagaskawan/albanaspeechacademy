@@ -1,4 +1,6 @@
 import { CountUp } from "@/components/ui/count-up";
+import type { HomeMedia } from "@/lib/home-data";
+import { PhotoBreak } from "./photo-break";
 import { SectionIntro } from "./section-intro";
 import { Accent } from "./ui/accent";
 
@@ -10,7 +12,7 @@ const benefits = [
 ] as const;
 
 /** Bab 01 · alasan berlatih. Angka hanya dari data atau naskah bersumber. */
-export function BenefitBand({ programCount }: { programCount: number }) {
+export function BenefitBand({ programCount, photos }: { programCount: number; photos: HomeMedia[] }) {
   const facts: Array<{
     key: string;
     label: string;
@@ -55,6 +57,8 @@ export function BenefitBand({ programCount }: { programCount: number }) {
             </div>
           ))}
         </dl>
+
+        <PhotoBreak photos={photos} />
 
         <ol className="grid grid-cols-1 border border-[var(--tone-rule)] sm:grid-cols-2 lg:grid-cols-4">
           {benefits.map(([strong, rest], index) => {

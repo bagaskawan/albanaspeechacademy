@@ -5,7 +5,6 @@ import type { HomeProgram } from "@/lib/home-data";
 import { BentoGallery } from "./bento-gallery";
 import { SkeletonImage } from "./skeleton-image";
 import { VideoBreak } from "./video-break";
-import { MoreLink } from "./ui/more-link";
 
 const copy: Record<string, { audience: string; story: string; topics: string[] }> = {
   "public-speaking-series": {
@@ -130,32 +129,60 @@ export function ProgramStorySection({ program, index }: { program: HomeProgram; 
               </div>
             )}
 
-            <div className="flex flex-col justify-between gap-4 rounded-xs bg-[var(--tone-tile)] p-4 sm:flex-row sm:items-center sm:p-6">
-              <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-3.5 rounded-xs border border-[var(--tone-rule)] bg-[var(--tone-tile)] p-4 sm:p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--tone-rule)] pb-3">
                 <p className="type-label text-[var(--tone-muted)]">Batch terdekat</p>
                 {card.batch ? (
-                  <>
-                    <p className="type-body font-medium">{card.batch.name}</p>
-                    <p className="type-small tabular-nums text-[var(--tone-muted)]">
-                      {card.batch.scheduleMode === "start_only"
-                        ? `${card.batch.dateLabels[0]} · ${card.batch.formatLabel}`
-                        : card.batch.dateLabels.join(" · ")}
-                    </p>
-                  </>
-                ) : (
-                  <p className="type-body">Jadwal menyusul</p>
-                )}
-                {bundleNote ? <p className="type-small text-[var(--tone-accent)]">{bundleNote}</p> : null}
+                  <span className="type-micro inline-flex h-5 items-center rounded-xs bg-[var(--tone-sun)] px-2 text-[var(--tone-on-sun)]">
+                    {card.statusLabel}
+                  </span>
+                ) : null}
               </div>
 
-              <div className="shrink-0">
-                {card.registrationUrl ? (
-                  <Link className="button-primary w-full justify-center sm:w-auto" href={card.registrationUrl}>
-                    Daftar
-                  </Link>
-                ) : (
-                  <MoreLink href={`/program/${encodeURIComponent(card.slug)}`}>Detail</MoreLink>
-                )}
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0 flex flex-col gap-0.5">
+                  {card.batch ? (
+                    <>
+                      <p className="type-body font-semibold text-[var(--tone-ink)]">{card.batch.name}</p>
+                      <p className="type-small tabular-nums text-[var(--tone-muted)]">
+                        {card.batch.scheduleMode === "start_only"
+                          ? `${card.batch.dateLabels[0]} · ${card.batch.formatLabel}`
+                          : card.batch.dateLabels.join(" · ")}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="type-body text-[var(--tone-ink)]">Jadwal menyusul</p>
+                  )}
+                  {bundleNote ? <p className="type-small text-[var(--tone-accent)]">{bundleNote}</p> : null}
+                </div>
+
+                <div className="flex shrink-0 flex-wrap items-center gap-2.5">
+                  {card.registrationUrl ? (
+                    <>
+                      <Link
+                        className="button-secondary flex-1 justify-center sm:flex-none"
+                        href={`/program/${encodeURIComponent(card.slug)}`}
+                      >
+                        Detail program
+                      </Link>
+                      <Link
+                        className="button-primary flex-1 justify-center sm:flex-none"
+                        href={card.registrationUrl}
+                      >
+                        <span>Daftar kelas</span>
+                        <span aria-hidden="true">→</span>
+                      </Link>
+                    </>
+                  ) : (
+                    <Link
+                      className="button-secondary w-full justify-center sm:w-auto"
+                      href={`/program/${encodeURIComponent(card.slug)}`}
+                    >
+                      <span>Detail program</span>
+                      <span aria-hidden="true">→</span>
+                    </Link>
+                  )}
+                </div>
               </div>
             </div>
           </div>

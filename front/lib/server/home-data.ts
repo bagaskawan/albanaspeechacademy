@@ -1,8 +1,15 @@
 import "server-only";
 import type { HomeData, HomeMedia, HomeProgram } from "@/lib/home-data";
-import { buildMoments, nextBatchOf, pickHeroPhoto, toHomeMedia } from "@/lib/home-derive";
+import { buildMoments, nextBatchOf, pickBreakPhotos, pickHeroPhoto, toHomeMedia } from "@/lib/home-derive";
 import { academyRequest } from "./academy-api";
-import { readContentGallery, readInhouseGallery, readLegality, readPartners, readTestimonials } from "./home-sources";
+import {
+  CONTENT_GALLERY_ID_OFFSET,
+  readContentGallery,
+  readInhouseGallery,
+  readLegality,
+  readPartners,
+  readTestimonials,
+} from "./home-sources";
 import { type ProgramGallery, readProgramGalleries } from "./program-galleries";
 import { type ProgramCard, readProgramShowcase } from "./program-showcase";
 import { contactHref, readPublishedContacts } from "./public-contacts";
@@ -57,6 +64,9 @@ function galleryToHomeMedia(gallery?: ProgramGallery): HomeMedia[] {
 const HERO_PHOTO_URL =
   "https://clgjsekfnexmanjdxmqy.supabase.co/storage/v1/object/public/gallery/1794985211629-bswi9olg.webp";
 
+// ID tabel gallery. Slot urut sesuai beranda: band, mobil sebelum Program, deret Program, mobil sebelum Testimoni, setelah Testimoni, mobil sebelum Penutup.
+const BREAK_PHOTO_IDS: number[][] = [[18], [19], [24, 27, 32], [30], [28], [22]];
+
 export async function readHomeData(): Promise<HomeData> {
   const [
     showcase,
@@ -107,7 +117,11 @@ export async function readHomeData(): Promise<HomeData> {
       poster: null,
       alt: "Dokumentasi Albana Speech Academy",
     };
-  const moments = buildMoments([], contentGallery, [heroPhoto.id]);
+  const breaks = pickBreakPhotos(
+    contentGallery,
+    BREAK_PHOTO_IDS.map((slot) => slot.map((id) => CONTENT_GALLERY_ID_OFFSET + id)),
+  );
+  const moments = buildMoments([], contentGallery, [heroPhoto.id, ...breaks.flat().map((photo) => photo.id)]);
 
   return {
     hero: {
@@ -124,6 +138,7 @@ export async function readHomeData(): Promise<HomeData> {
     },
     testimonials,
     moments,
+    breaks,
     legality,
   };
 }

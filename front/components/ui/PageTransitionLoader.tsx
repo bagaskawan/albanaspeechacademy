@@ -56,6 +56,8 @@ export default function PageTransitionLoader() {
             }
             document.body.style.overflow = "";
             isNavigatingRef.current = false;
+            delete document.documentElement.dataset.pageTransitioning;
+            window.dispatchEvent(new CustomEvent("page:transition-end"));
           },
         });
       }, 350);
@@ -109,6 +111,7 @@ export default function PageTransitionLoader() {
         e.preventDefault();
 
         isNavigatingRef.current = true;
+        document.documentElement.dataset.pageTransitioning = "true";
         document.body.style.overflow = "hidden";
 
         if (overlayRef.current) {

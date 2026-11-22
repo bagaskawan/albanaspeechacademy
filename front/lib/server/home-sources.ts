@@ -49,8 +49,10 @@ export function readInhouseGallery(): Promise<HomeMedia[]> {
   return readGalleryTable("inhouse_gallery", 100000, "Dokumentasi Inhouse Training");
 }
 
+export const CONTENT_GALLERY_ID_OFFSET = 200000;
+
 export function readContentGallery(): Promise<HomeMedia[]> {
-  return readGalleryTable("gallery", 200000, "Dokumentasi Albana Speech Academy");
+  return readGalleryTable("gallery", CONTENT_GALLERY_ID_OFFSET, "Dokumentasi Albana Speech Academy");
 }
 
 export async function readPartners(): Promise<HomePartner[]> {

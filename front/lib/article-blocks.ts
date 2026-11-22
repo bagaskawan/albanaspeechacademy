@@ -2,21 +2,43 @@ export type ArticleInline =
   | { type: "text"; text: string; styles?: Record<string, boolean> }
   | { type: "link"; href: string; content: ArticleInline[] };
 
-export type ArticleBlockType = "paragraph" | "heading" | "bulletListItem" | "numberedListItem" | "quote";
+export type ArticleBlockType = "paragraph" | "heading" | "bulletListItem" | "numberedListItem" | "quote" | "image";
+
+export type ArticleImageProps = {
+  url: string;
+  alt?: string;
+  caption?: string;
+};
 
 export type ArticleBlock = {
   type: ArticleBlockType;
-  props?: { level?: 1 | 2 | 3 | 4 | 5 | 6 };
+  props?: { level?: 1 | 2 | 3 | 4 | 5 | 6 } | ArticleImageProps;
   content?: ArticleInline[];
   children?: ArticleBlock[];
 };
 
-const BLOCK_TYPES: ArticleBlockType[] = ["paragraph", "heading", "bulletListItem", "numberedListItem", "quote"];
+const BLOCK_TYPES: ArticleBlockType[] = ["paragraph", "heading", "bulletListItem", "numberedListItem", "quote", "image"];
 const STYLE_KEYS = ["bold", "italic", "underline", "strike", "code"];
 const MAX_DEPTH = 4;
 const MAX_BLOCKS = 1000;
 const MAX_TITLE = 200;
 const MAX_EXCERPT = 400;
+export const MAX_IMAGE_ALT = 250;
+export const MAX_IMAGE_CAPTION = 500;
+
+const ARTICLE_IMAGE_URL_PATTERN =
+  /^\/api\/article-images\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+
+export function extractArticleImageId(url: unknown): string | null {
+  if (typeof url !== "string") return null;
+  const match = ARTICLE_IMAGE_URL_PATTERN.exec(url.trim());
+  return match ? match[1].toLowerCase() : null;
+}
+
+export function canonicalArticleImageUrl(url: unknown): string | null {
+  const id = extractArticleImageId(url);
+  return id ? `/api/article-images/${id}` : null;
+}
 
 /** Only absolute web and mail links reach the public article renderer. */
 export function safeArticleHref(value: unknown): string | null {
@@ -75,6 +97,21 @@ function normalizeBlocks(value: unknown, depth: number): ArticleBlock[] | null {
       const level = (item.props as Record<string, unknown> | undefined)?.level;
       if (typeof level !== "number" || level < 1 || level > 6 || !Number.isInteger(level)) return null;
       blocks.push({ type, props: { level: level as 1 | 2 | 3 | 4 | 5 | 6 }, content, children });
+    } else if (type === "image") {
+      const rawProps = (item.props ?? {}) as Record<string, unknown>;
+      const url = canonicalArticleImageUrl(rawProps.url);
+      if (!url) return null;
+      const alt = typeof rawProps.alt === "string" ? rawProps.alt.trim().slice(0, MAX_IMAGE_ALT) : "";
+      const caption = typeof rawProps.caption === "string" ? rawProps.caption.trim().slice(0, MAX_IMAGE_CAPTION) : "";
+      blocks.push({
+        type,
+        props: {
+          url,
+          ...(alt ? { alt } : {}),
+          ...(caption ? { caption } : {}),
+        },
+        children,
+      });
     } else {
       blocks.push({ type, content, children });
     }
@@ -128,8 +165,13 @@ export function deriveExcerpt(blocks: ArticleBlock[]): string {
 export function articleBlocksToText(blocks: ArticleBlock[]): string {
   const lines: string[] = [];
   for (const block of blocks) {
+    if (block.type === "image") {
+      if (block.children?.length) lines.push(articleBlocksToText(block.children));
+      continue;
+    }
     const text = inlineText(block.content);
-    if (block.type === "heading") lines.push(`${"#".repeat(Math.min(block.props?.level ?? 1, 3))} ${text}`);
+    const level = block.type === "heading" && block.props && "level" in block.props ? (block.props.level ?? 1) : 1;
+    if (block.type === "heading") lines.push(`${"#".repeat(Math.min(level, 3))} ${text}`);
     else if (block.type === "bulletListItem") lines.push(`- ${text}`);
     else if (block.type === "numberedListItem") lines.push(`1. ${text}`);
     else if (block.type === "quote") lines.push(`> ${text}`);
@@ -137,6 +179,37 @@ export function articleBlocksToText(blocks: ArticleBlock[]): string {
     if (block.children?.length) lines.push(articleBlocksToText(block.children));
   }
   return lines.join("\n\n").trim();
+}
+
+export function collectArticleImageIds(blocks: ArticleBlock[]): string[] {
+  const seen = new Set<string>();
+  const walk = (list: ArticleBlock[]) => {
+    for (const block of list) {
+      if (block.type === "image" && block.props && "url" in block.props) {
+        const id = extractArticleImageId(block.props.url);
+        if (id) seen.add(id);
+      }
+      if (block.children?.length) walk(block.children);
+    }
+  };
+  walk(blocks);
+  return [...seen];
+}
+
+export function hasMissingImageAlt(blocks: ArticleBlock[]): boolean {
+  for (const block of blocks) {
+    if (block.type === "image") {
+      const alt = block.props && "alt" in block.props ? block.props.alt : undefined;
+      if (typeof alt !== "string" || !alt.trim() || alt.trim().length > MAX_IMAGE_ALT) return true;
+    }
+    if (block.children?.length && hasMissingImageAlt(block.children)) return true;
+  }
+  return false;
+}
+
+export function readingMinutes(body: string): number {
+  const words = body.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.ceil(words / 200));
 }
 
 /** Converts the legacy text/Markdown body so old articles open in the block editor. */

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildMoments, nextBatchOf, pickHeroPhoto, toHomeMedia } from "./home-derive.ts";
+import { buildMoments, nextBatchOf, pickBreakPhotos, pickHeroPhoto, toHomeMedia } from "./home-derive.ts";
 
 function img(id, src = `/api/media/${id}`) {
   return { id, kind: "image", src, poster: null, alt: `Foto ${id}` };
@@ -154,4 +154,26 @@ test("nextBatchOf memilih tanggal paling awal di antara kartu yang dibuka", () =
     nextBatchOf(cards.map((c) => ({ ...c, registrationUrl: null }))),
     null,
   );
+});
+
+test("pickBreakPhotos mengikuti urutan slot, bukan urutan galeri", () => {
+  const gallery = [img(25), img(24), img(23), img(22), img(21)];
+  const picked = pickBreakPhotos(gallery, [[25], [24, 23], [22]]);
+  assert.deepEqual(picked.map((slot) => slot.map((m) => m.id)), [[25], [24, 23], [22]]);
+  assert.deepEqual(pickBreakPhotos(gallery, [[23, 24]])[0].map((m) => m.id), [23, 24]);
+});
+
+test("pickBreakPhotos membuang ID yang hilang dari galeri", () => {
+  const gallery = [img(25), img(23), img(22)];
+  assert.deepEqual(
+    pickBreakPhotos(gallery, [[25], [24, 23], [22]]).map((slot) => slot.map((m) => m.id)),
+    [[25], [23], [22]],
+  );
+  assert.deepEqual(pickBreakPhotos([], [[25], [24]]), [[], []]);
+});
+
+test("buildMoments mengecualikan ID pemisah dan hero", () => {
+  const gallery = [33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22].map((id) => img(id));
+  const moments = buildMoments([], gallery, [26, 25, 24, 23, 22]);
+  assert.deepEqual(moments.map((m) => m.id), [33, 32, 31, 30, 29, 28, 27]);
 });

@@ -229,6 +229,50 @@ export function HomeScroll() {
           return;
         }
 
+        if (kind === "frame") {
+          if (reduced) return;
+          const inner = element.querySelector<HTMLElement>("[data-frame-inner]");
+          if (!inner) return;
+          const desktop = finePointer && !compact;
+          const pair = Array.from(element.parentElement?.children ?? []).filter((child) => child.getAttribute("data-motion") === "frame");
+          const delay = pair.indexOf(element) * 0.12;
+          const finalScale = desktop ? 1.08 : 1;
+
+          if (element.getBoundingClientRect().top < window.innerHeight * 0.92) {
+            gsap.set(inner, { scale: finalScale });
+          } else {
+            gsap.set(element, { autoAlpha: 0, yPercent: 8 });
+            gsap.set(inner, { scale: desktop ? 1.16 : 1.06 });
+            const settle = () => {
+              gsap.killTweensOf(element);
+              gsap.killTweensOf(inner, "scale");
+              gsap.set(element, { autoAlpha: 1, yPercent: 0 });
+              gsap.set(inner, { scale: finalScale });
+            };
+            triggers.push(ScrollTrigger.create({
+              trigger: element,
+              start: "top 85%",
+              onEnter: () => {
+                gsap.to(element, { autoAlpha: 1, yPercent: 0, delay, duration: desktop ? 1.1 : 0.8, ease: desktop ? "expo.out" : "power3.out", overwrite: "auto" });
+                gsap.to(inner, { scale: finalScale, delay, duration: desktop ? 1.4 : 1, ease: "expo.out", overwrite: "auto" });
+              },
+              onLeave: settle,
+              onLeaveBack: settle,
+            }));
+          }
+
+          if (desktop) {
+            triggers.push(ScrollTrigger.create({
+              trigger: element,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 0.6,
+              animation: gsap.fromTo(inner, { yPercent: -3 }, { yPercent: 3, ease: "none" }),
+            }));
+          }
+          return;
+        }
+
         // "chapter" diperlakukan sebagai judul; elemen di dalam pembungkus bergerak ikut induknya.
         const reveal = (kind === "chapter" ? "heading" : kind) as RevealKind;
         if (!REVEAL_KINDS.includes(reveal) || reduced) return;
@@ -289,6 +333,10 @@ export function HomeScroll() {
       document.querySelectorAll<HTMLElement>("main [data-motion]").forEach((element) => {
         gsap.killTweensOf(element);
         gsap.set(element, { clearProps: "transform,opacity,visibility" });
+      });
+      document.querySelectorAll<HTMLElement>("main [data-frame-inner]").forEach((element) => {
+        gsap.killTweensOf(element);
+        gsap.set(element, { clearProps: "transform" });
       });
     };
   }, []);

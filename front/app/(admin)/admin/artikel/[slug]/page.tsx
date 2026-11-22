@@ -10,7 +10,7 @@ export default async function ArtikelEditPage({ params }: { params: Promise<{ sl
   const supabase = await requireAdminMember();
   const { data, error } = await supabase
     .from("articles")
-    .select("slug,title,body,body_blocks,published,published_at,updated_at")
+    .select("slug,title,body,body_blocks,published,published_at,updated_at,thumbnail_image_id")
     .eq("slug", slug)
     .maybeSingle();
 
@@ -28,6 +28,7 @@ export default async function ArtikelEditPage({ params }: { params: Promise<{ sl
 
   return (
     <ArticleEditor
+      isSuperAdmin={supabase.adminUser.role === "adminsuper"}
       article={{
         slug: data.slug,
         title: data.title,
@@ -35,6 +36,7 @@ export default async function ArtikelEditPage({ params }: { params: Promise<{ sl
         publishedAt: data.published_at,
         updatedAt: data.updated_at,
         blocks,
+        thumbnailImageId: data.thumbnail_image_id ?? null,
       }}
     />
   );

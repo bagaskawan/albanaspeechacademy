@@ -316,11 +316,11 @@ export function ProgramDetailPage({
             )}
           </aside>
 
-          <div className="min-w-0 max-w-[65ch] space-y-12 lg:col-start-1 lg:row-start-2">
+          <div className="min-w-0 space-y-12 lg:col-start-1 lg:row-start-2">
             {hasAudience && editorial ? (
               <section
                 aria-labelledby="audience-title"
-                className="border-t border-rule pt-8 dark:border-white/15"
+                className="max-w-[65ch] border-t border-rule pt-8 dark:border-white/15"
               >
                 <h2
                   id="audience-title"
@@ -348,7 +348,7 @@ export function ProgramDetailPage({
             {hasLearning ? (
               <section
                 aria-labelledby="curriculum-title"
-                className="border-t border-rule pt-8 dark:border-white/15"
+                className="max-w-[65ch] border-t border-rule pt-8 dark:border-white/15"
               >
                 <h2
                   id="curriculum-title"
@@ -507,45 +507,58 @@ export function ProgramDetailPage({
                 >
                   Dokumentasi
                 </h2>
-                <div className="mt-5 grid gap-5 sm:grid-cols-2">
-                  {media.map((item) => (
-                    <figure
-                      key={item.id}
-                      className="overflow-hidden border border-rule bg-card dark:border-white/15"
-                    >
-                      <div className="aspect-video w-full bg-surface dark:bg-slate-900">
-                        {item.kind === "image" ? (
+
+                {media.some((item) => item.kind === "video") ? (
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    {media
+                      .filter((item) => item.kind === "video")
+                      .map((item) => (
+                        <div
+                          key={item.id}
+                          className="aspect-video w-full overflow-hidden border border-rule bg-surface dark:border-white/15 dark:bg-slate-900"
+                        >
+                          {item.youtubeId ? (
+                            <iframe
+                              src={item.src}
+                              title={item.alt}
+                              loading="lazy"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                              allowFullScreen
+                              className="h-full w-full border-0"
+                            />
+                          ) : (
+                            <video
+                              src={item.src}
+                              controls
+                              preload="metadata"
+                              aria-label={item.alt}
+                              className="h-full w-full"
+                            />
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                ) : null}
+
+                {media.some((item) => item.kind === "image") ? (
+                  <div className="mt-5 columns-2 gap-3 space-y-3 sm:columns-3">
+                    {media
+                      .filter((item) => item.kind === "image")
+                      .map((item) => (
+                        <div
+                          key={item.id}
+                          className="break-inside-avoid overflow-hidden border border-rule bg-card dark:border-white/15"
+                        >
                           <img
                             src={item.src}
                             alt={item.alt}
                             loading="lazy"
-                            className="h-full w-full object-cover"
+                            className="block h-auto w-full object-cover"
                           />
-                        ) : item.youtubeId ? (
-                          <iframe
-                            src={item.src}
-                            title={item.alt}
-                            loading="lazy"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowFullScreen
-                            className="h-full w-full border-0"
-                          />
-                        ) : (
-                          <video
-                            src={item.src}
-                            controls
-                            preload="metadata"
-                            aria-label={item.alt}
-                            className="h-full w-full"
-                          />
-                        )}
-                      </div>
-                      <figcaption className="p-3 text-sm text-muted">
-                        {item.alt}
-                      </figcaption>
-                    </figure>
-                  ))}
-                </div>
+                        </div>
+                      ))}
+                  </div>
+                ) : null}
               </section>
             ) : null}
           </div>

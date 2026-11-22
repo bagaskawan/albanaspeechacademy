@@ -169,3 +169,65 @@ export function buildProgramJsonLd({
     ],
   };
 }
+
+export function deriveArticleSeoDescription(excerpt: string | null | undefined, body: string | null | undefined): string {
+  const cleanExcerpt = (excerpt ?? "").replace(/\s+/g, " ").trim();
+  if (cleanExcerpt) return cleanExcerpt.slice(0, 200);
+  const cleanBody = (body ?? "").replace(/[#>*_`[\]()-]/g, " ").replace(/\s+/g, " ").trim();
+  return cleanBody.slice(0, 160) || HOME_DESCRIPTION;
+}
+
+export function buildArticleSeoImage(thumbnailImageId: string | null | undefined) {
+  if (thumbnailImageId) {
+    return {
+      url: `${SITE_URL}/api/article-images/${thumbnailImageId}`,
+      width: 480,
+      height: 360,
+    };
+  }
+  return {
+    url: `${SITE_URL}${HOME_OG_IMAGE.url}`,
+    width: HOME_OG_IMAGE.width,
+    height: HOME_OG_IMAGE.height,
+  };
+}
+
+export function buildArticleJsonLd({
+  slug,
+  title,
+  description,
+  publishedAt,
+  updatedAt,
+  thumbnailImageId,
+}: {
+  slug: string;
+  title: string;
+  description: string;
+  publishedAt: string | null;
+  updatedAt?: string | null;
+  thumbnailImageId?: string | null;
+}) {
+  const pageUrl = `${SITE_URL}/artikel/${encodeURIComponent(slug)}`;
+  const imageUrl = thumbnailImageId ? `${SITE_URL}/api/article-images/${thumbnailImageId}` : null;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "@id": `${pageUrl}#article`,
+    headline: title,
+    description,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": pageUrl,
+    },
+    inLanguage: "id-ID",
+    publisher: {
+      "@type": "EducationalOrganization",
+      "@id": `${SITE_URL}/#academy`,
+      name: SITE_NAME,
+    },
+    ...(publishedAt ? { datePublished: publishedAt } : {}),
+    ...(updatedAt ? { dateModified: updatedAt } : {}),
+    ...(imageUrl ? { image: imageUrl } : {}),
+  };
+}

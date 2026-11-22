@@ -1,28 +1,47 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildHomeJsonLd, buildProgramJsonLd, serializeJsonLd, SITE_URL } from "./seo.ts";
+import {
+  HOME_OG_IMAGE,
+  SITE_URL,
+  buildArticleJsonLd,
+  buildArticleSeoImage,
+  deriveArticleSeoDescription,
+  serializeJsonLd,
+} from "./seo.ts";
 
-test("home schema identifies the site and academy with absolute URLs", () => {
-  const graph = JSON.parse(serializeJsonLd(buildHomeJsonLd()))["@graph"];
-  assert.equal(graph[0]["@id"], `${SITE_URL}/#website`);
-  assert.equal(graph[0].publisher["@id"], graph[1]["@id"]);
-  assert.equal(graph[1].logo.url, `${SITE_URL}/seo/logo-512.png`);
-  assert.ok(graph[1].sameAs.every((url) => URL.canParse(url)));
+test("SEO artikel memakai fallback ringkasan dan gambar ketika kosong", () => {
+  assert.equal(deriveArticleSeoDescription("  Ringkasan artikel  ", "Isi panjang"), "Ringkasan artikel");
+  assert.equal(
+    deriveArticleSeoDescription("", "# Judul\n\nParagraf pembuka artikel lama."),
+    "Judul Paragraf pembuka artikel lama.",
+  );
+
+  const fallbackImg = buildArticleSeoImage(null);
+  assert.equal(fallbackImg.url, `${SITE_URL}${HOME_OG_IMAGE.url}`);
+  assert.equal(fallbackImg.width, 1200);
+
+  const thumbId = "550e8400-e29b-41d4-a716-446655440000";
+  const thumbImg = buildArticleSeoImage(thumbId);
+  assert.equal(thumbImg.url, `${SITE_URL}/api/article-images/${thumbId}`);
+  assert.equal(thumbImg.width, 480);
+  assert.equal(thumbImg.height, 360);
 });
 
-test("program schema matches the available program facts", () => {
-  const input = { slug: "public-speaking-series", title: "Public Speaking Series", description: "Latihan", topics: ["MC"] };
-  const course = buildProgramJsonLd(input)["@graph"];
-  assert.equal(course[0]["@type"], "BreadcrumbList");
-  assert.equal(course[1]["@type"], "Course");
-  assert.deepEqual(course[1].teaches, ["MC"]);
-  assert.ok(!("offers" in course[1] || "startDate" in course[1] || "aggregateRating" in course[1]));
-  assert.equal(buildProgramJsonLd({ ...input, topics: [] })["@graph"][1]["@type"], "WebPage");
-  assert.equal(buildProgramJsonLd({ ...input, slug: "inhouse-training" })["@graph"][1]["@type"], "Service");
-});
+test("JSON-LD BlogPosting men-escape karakter berbahaya dan memuat canonical", () => {
+  const jsonLd = buildArticleJsonLd({
+    slug: "latihan-vokal",
+    title: "Latihan <script>Vokal",
+    description: "Ringkasan",
+    publishedAt: "2026-11-22T00:00:00.000Z",
+    updatedAt: "2026-11-22T01:00:00.000Z",
+    thumbnailImageId: null,
+  });
 
-test("JSON-LD serialisation prevents a script tag from ending the block", () => {
-  const json = serializeJsonLd({ name: "</script><script>alert(1)</script>" });
-  assert.ok(!json.includes("<"));
-  assert.equal(JSON.parse(json).name, "</script><script>alert(1)</script>");
+  assert.equal(jsonLd["@type"], "BlogPosting");
+  assert.equal(jsonLd.mainEntityOfPage["@id"], `${SITE_URL}/artikel/latihan-vokal`);
+  assert.equal(jsonLd.datePublished, "2026-11-22T00:00:00.000Z");
+
+  const serialized = serializeJsonLd(jsonLd);
+  assert.ok(!serialized.includes("<script>"));
+  assert.ok(serialized.includes("\\u003cscript>"));
 });

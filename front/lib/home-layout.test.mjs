@@ -26,6 +26,7 @@ const HOME_FILES = [
   "components/home/registration-steps-section.tsx",
   "components/home/closing-section.tsx",
   "components/home/testimonial-slider.tsx",
+  "components/home/photo-break.tsx",
   "components/register/register-page.tsx",
   "components/register/registration-choice.tsx",
   "components/register/registration-form.tsx",

@@ -1,7 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { academyBillingClient } from "@/lib/server/academy-billing";
-import { createBlurDataUrl, MAX_IMAGE_SOURCE, MAX_VIDEO_SOURCE, prepareImage, readMp4Resolution } from "@/lib/media-prepare";
+import {
+  createBlurDataUrl,
+  MAX_IMAGE_SOURCE,
+  MAX_VIDEO_SOURCE,
+  prepareArticleImage,
+  prepareImage,
+  readMp4Resolution,
+} from "@/lib/media-prepare";
 import { photoLimitError, programBucket } from "@/lib/program-media";
 import { deleteStorageFiles, parseStorageUrl } from "@/lib/supabase/storage-cleanup";
 
@@ -37,15 +44,84 @@ export async function POST(request: Request) {
   const file = form.get("file");
   if (!(file instanceof File)) return json({ error: "Pilih berkas gambar atau MP4." }, 422);
   const rawPurpose = form.get("purpose");
-  const purpose = rawPurpose === "landing" ? "landing" : rawPurpose === "legality" ? "legality" : "program";
+  const purpose =
+    rawPurpose === "landing"
+      ? "landing"
+      : rawPurpose === "legality"
+        ? "legality"
+        : rawPurpose === "article"
+          ? "article"
+          : "program";
   const isVideo = file.type === "video/mp4";
-  if ((purpose === "landing" || purpose === "legality") && isVideo) return json({ error: "Gambar diperlukan untuk halaman ini." }, 422);
-  if (file.size < 1 || file.size > (isVideo ? MAX_VIDEO_SOURCE : MAX_IMAGE_SOURCE)) {
-    return json({ error: isVideo ? "MP4 maksimal 25 MiB. Kecilkan sebelum mengunggah." : "Gambar sumber maksimal 10 MiB." }, 413);
+  if ((purpose === "landing" || purpose === "legality" || purpose === "article") && isVideo) {
+    return json({ error: purpose === "article" ? "Gunakan gambar JPEG, PNG, atau WebP." : "Gambar diperlukan untuk halaman ini." }, 422);
   }
-  if (!isVideo && !["image/jpeg", "image/png", "image/webp"].includes(file.type)) return json({ error: "Gunakan JPEG, PNG, atau WebP." }, 422);
+  if (file.size < 1 || file.size > (isVideo ? MAX_VIDEO_SOURCE : MAX_IMAGE_SOURCE)) {
+    return json({
+      error: isVideo
+        ? "MP4 maksimal 25 MiB. Kecilkan sebelum mengunggah."
+        : purpose === "article"
+          ? "Ukuran gambar melebihi 10 MB. Pilih file lain."
+          : "Gambar sumber maksimal 10 MiB.",
+    }, 413);
+  }
+  if (!isVideo && !["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    return json({ error: "Gunakan JPEG, PNG, atau WebP." }, 422);
+  }
 
   try {
+    if (purpose === "article") {
+      const rawProfile = form.get("profile");
+      if (rawProfile !== "thumbnail" && rawProfile !== "inline") {
+        return json({ error: "Profil gambar artikel tidak valid." }, 422);
+      }
+      const source = Buffer.from(await file.arrayBuffer());
+      const prepared = await prepareArticleImage(source, rawProfile);
+      const storage = academyBillingClient();
+      const id = randomUUID();
+      const key = `${rawProfile}/${id}.webp`;
+
+      const { error: insertErr } = await storage.from("article_images").insert({
+        id,
+        uploader_id: user.id,
+        profile: rawProfile,
+        object_key: key,
+        mime_type: prepared.contentType,
+        width: prepared.width,
+        height: prepared.height,
+        byte_size: prepared.bytes.length,
+        ready_at: null,
+      });
+      if (insertErr) throw insertErr;
+
+      const { error: uploadError } = await storage.storage
+        .from("article-images")
+        .upload(key, prepared.bytes, { contentType: prepared.contentType, upsert: false, cacheControl: "3600" });
+      if (uploadError) {
+        await storage.from("article_images").delete().eq("id", id);
+        throw uploadError;
+      }
+
+      const { error: readyErr } = await storage
+        .from("article_images")
+        .update({ ready_at: new Date().toISOString() })
+        .eq("id", id);
+      if (readyErr) {
+        await storage.storage.from("article-images").remove([key]).catch(() => {});
+        throw readyErr;
+      }
+
+      return json(
+        {
+          id,
+          url: `/api/article-images/${id}`,
+          width: prepared.width,
+          height: prepared.height,
+        },
+        201,
+      );
+    }
+
     const min = await minimums();
     const source = Buffer.from(await file.arrayBuffer());
     let bytes: Buffer = source;

@@ -63,3 +63,12 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+## Implementation Plans (Albana)
+
+Saat diminta membuat implementation plan, gunakan skill `superpowers:writing-plans`, tetapi simpan hasilnya di `docs/albana-docs/plans/` (bukan `docs/superpowers/plans/`).
+
+- **Nama berkas:** `YYYY-MM-DD-<topik>.md`. Gunakan tanggal hari ini. Topik memakai kebab-case huruf kecil, tanpa spasi.
+- **Isi:** ikuti format header dan struktur task dari `writing-plans` (Goal, Architecture, Tech Stack, lalu task bernomor dengan langkah dan verifikasi).
+- **Indeks:** setelah berkas dibuat, tambahkan tautannya ke `docs/albana-docs/README.md` jika indeks dokumentasi memuat daftar plan.
+- Tulis plan dalam bahasa yang sama dengan dokumen proyek lain di `docs/albana-docs/` (Bahasa Indonesia).

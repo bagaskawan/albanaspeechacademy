@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, m } from "motion/react";
 import { Dialog } from "radix-ui";
 import {
-  Award, BookOpen, Building2, CalendarRange, ChevronDown, Film, Handshake, Images, Landmark, LayoutDashboard,
+  Award, BookOpen, Building2, CalendarRange, ChevronDown, Film, Globe, Handshake, Images, Landmark, LayoutDashboard,
   LogOut, Menu, Mic, Newspaper, PanelLeft, Phone, Settings, Quote, ReceiptText, UserRound, Users, type LucideIcon,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
@@ -147,6 +147,9 @@ function AccountMenu({ account, role }: { account: string | null; role: string }
       </DropdownMenuLabel>
       <DropdownMenuSeparator className="mx-2 bg-admin-line" />
       <div className="py-1">
+        <DropdownMenuItem asChild className={menuItem}>
+          <Link href="/" target="_blank"><Globe aria-hidden="true" size={18} strokeWidth={1.5} /> Halaman Utama</Link>
+        </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
           <Link href="/admin/settings"><Settings aria-hidden="true" size={18} strokeWidth={1.5} /> Pengaturan</Link>
         </DropdownMenuItem>

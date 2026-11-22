@@ -186,6 +186,21 @@ function displayRowTitle(fields: CmsField[], displayField: string, row: Row) {
   return field ? displayValue(field, row) : String(row[displayField] ?? "—");
 }
 
+function useMasonryColumnCount() {
+  const [cols, setCols] = useState(4);
+  useEffect(() => {
+    const update = () => {
+      if (window.innerWidth >= 1024) setCols(4);
+      else if (window.innerWidth >= 640) setCols(3);
+      else setCols(2);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  return cols;
+}
+
 function initialFormState(fields: CmsField[], row: Row | null): Row {
   const state: Row = {};
   for (const field of fields) {
@@ -246,6 +261,7 @@ export default function CmsCollectionClient({
   const tableFields = groupField ? fields.filter((field) => field.name !== groupField.name) : fields;
 
   const [rows, setRows] = useState<Row[]>(initialRows);
+  const masonryCols = useMasonryColumnCount();
   const [activeGroup, setActiveGroup] = useState(initialGroup && groups.includes(initialGroup) ? initialGroup : groups[0] ?? "");
   const [isFormOpen, setIsFormOpen] = useState(Boolean(openCreateInitially));
   const [editingRow, setEditingRow] = useState<Row | null>(null);
@@ -332,12 +348,13 @@ export default function CmsCollectionClient({
 
   const stageGalleryFiles = (field: CmsField, selected: File[]) => {
     if (!multiGallery || selected.length === 0) return;
-    const acceptedTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+    const acceptedTypes = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
     const valid: File[] = [];
     const errors: string[] = [];
 
     for (const file of selected) {
-      if (!acceptedTypes.has(file.type)) {
+      const hasValidExt = /\.(jpe?g|png|webp)$/i.test(file.name);
+      if (!acceptedTypes.has(file.type) && !(file.type === "" && hasValidExt)) {
         errors.push(`${file.name}: Gunakan JPEG, PNG, atau WebP.`);
         continue;
       }
@@ -1132,20 +1149,66 @@ export default function CmsCollectionClient({
             />
 
             {editingRow && editPreviewUrl ? (
-              <div className="space-y-3">
-                <div className="relative mx-auto w-fit max-w-full overflow-hidden rounded-2xl border border-admin-line bg-admin-surface">
+              <div className="space-y-2.5">
+                <div
+                  onDragOver={(event) => {
+                    event.preventDefault();
+                    if (!isSaving) setGalleryDragging(true);
+                  }}
+                  onDragLeave={() => setGalleryDragging(false)}
+                  onDrop={(event) => {
+                    event.preventDefault();
+                    setGalleryDragging(false);
+                    const dropped = Array.from(event.dataTransfer.files ?? []);
+                    if (dropped.length > 0 && !isSaving) {
+                      stageGalleryFiles(field, dropped);
+                    }
+                  }}
+                  className={`relative mx-auto w-fit max-w-full overflow-hidden rounded-2xl bg-admin-surface transition-all ${
+                    galleryDragging
+                      ? "border-2 border-dashed border-admin-ink ring-2 ring-admin-ink/20"
+                      : "border border-admin-line"
+                  }`}
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={editPreviewUrl} alt="" className="block max-h-[340px] w-auto max-w-full object-contain" />
-                </div>
-                <div className="flex justify-center">
+                  {galleryDragging && (
+                    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/55 px-4 text-center backdrop-blur-[2px]">
+                      <span className="rounded-full bg-white/95 px-4 py-1.5 text-[13px] font-semibold text-admin-ink shadow">
+                        Lepas foto untuk mengganti
+                      </span>
+                    </div>
+                  )}
+                  {stagedReplacementUrl && (
+                    <>
+                      <span className="absolute left-2.5 top-2.5 z-10 rounded-full bg-admin-canvas/90 px-2.5 py-0.5 text-[11px] font-medium text-admin-ink shadow-xs">
+                        Belum disimpan
+                      </span>
+                      <button
+                        type="button"
+                        disabled={isSaving}
+                        onClick={clearStagedGallery}
+                        aria-label="Batalkan penggantian foto"
+                        title="Kembalikan foto awal"
+                        className="absolute right-2.5 top-2.5 z-10 inline-flex size-8 items-center justify-center rounded-full bg-admin-canvas/90 text-admin-danger shadow-sm transition-colors hover:bg-admin-rose-soft disabled:opacity-50 cursor-pointer"
+                      >
+                        <X aria-hidden="true" size={15} />
+                      </button>
+                    </>
+                  )}
                   <label
-                    htmlFor={inputId}
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-admin-line-strong bg-admin-canvas px-4 text-[13px] font-medium text-admin-ink transition-colors hover:bg-admin-surface cursor-pointer"
+                    htmlFor={isSaving ? undefined : inputId}
+                    className={`absolute bottom-3 left-1/2 z-10 inline-flex h-9 -translate-x-1/2 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-black/70 px-4 text-[13px] font-medium text-white shadow-md backdrop-blur-sm transition-colors hover:bg-black/85 ${
+                      isSaving ? "pointer-events-none opacity-60" : "cursor-pointer"
+                    }`}
                   >
                     <ImageIcon aria-hidden="true" size={15} />
                     <span>Ganti foto</span>
                   </label>
                 </div>
+                <p className="text-center text-[12px] text-admin-text-secondary">
+                  Tarik & lepas foto baru ke atas gambar atau klik Ganti foto. Perubahan baru diunggah saat klik Simpan.
+                </p>
               </div>
             ) : (
               <label
@@ -1546,7 +1609,17 @@ export default function CmsCollectionClient({
         title={`Hapus ${title}?`}
         description={
           deleteTarget
-            ? `Hapus "${displayRowTitle(fields, displayField, deleteTarget)}"? Tindakan ini permanen.`
+            ? (() => {
+                const hasDisplayField = tableFields.some(
+                  (field) => field.name === displayField && field.type !== "gallery"
+                );
+                const name = hasDisplayField ? displayRowTitle(fields, displayField, deleteTarget) : "";
+                return name && name !== "—"
+                  ? `Hapus "${name}"? Tindakan ini permanen.`
+                  : bento
+                    ? "Hapus foto ini? Tindakan ini permanen."
+                    : "Hapus item ini? Tindakan ini permanen.";
+              })()
             : ""
         }
         footer={
@@ -1658,55 +1731,79 @@ export default function CmsCollectionClient({
           </div>
         )
       ) : bento ? (
-        visibleRows.length === 0 ? emptyState : (
-          <div className="columns-2 gap-3 sm:columns-3 lg:columns-4">
-            {visibleRows.map((row) => {
-              const imageField = tableFields.find((field) => field.type === "gallery");
-              const imageUrl = imageField ? String(row[imageField.name] ?? "") : "";
-              const label = displayRowTitle(fields, displayField, row);
-              return (
-                <div
-                  key={String(row[primaryKey])}
-                  className="group relative mb-3 break-inside-avoid overflow-hidden rounded-2xl border border-border-default bg-bg-well/40"
-                >
-                  {imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={imageUrl}
-                      alt=""
-                      className="block h-auto w-full transition-transform duration-300 group-hover:scale-[1.02]"
-                    />
-                  ) : (
-                    <div className="flex h-40 items-center justify-center text-text-muted">
-                      <ImageIcon size={28} />
-                    </div>
-                  )}
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                  <button
-                    type="button"
-                    onClick={() => openEdit(row)}
-                    aria-label={`Ubah ${label}`}
-                    className="absolute inset-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80"
-                  />
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3">
-                    <p className="line-clamp-2 text-[11px] font-bold leading-snug text-white drop-shadow">
-                      {label === "—" ? "Tanpa nama" : label}
-                    </p>
-                  </div>
-                  {canDelete && <button
-                    type="button"
-                    onClick={() => setDeleteTarget(row)}
-                    title="Hapus"
-                    aria-label={`Hapus ${label}`}
-                    className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white opacity-100 md:opacity-0 backdrop-blur transition-opacity hover:bg-red-600 focus:opacity-100 md:group-hover:opacity-100 cursor-pointer"
-                  >
-                    <Trash2 size={14} />
-                  </button>}
+        visibleRows.length === 0 ? emptyState : (() => {
+          const activeCols = Math.max(1, Math.min(masonryCols, visibleRows.length));
+          const columns = Array.from({ length: activeCols }, (_, colIndex) =>
+            visibleRows.filter((_, rowIndex) => rowIndex % activeCols === colIndex)
+          );
+          const hasDisplayField = tableFields.some(
+            (field) => field.name === displayField && field.type !== "gallery"
+          );
+          return (
+            <div
+              className="grid items-start gap-3"
+              style={{ gridTemplateColumns: `repeat(${activeCols}, minmax(0, 1fr))` }}
+            >
+              {columns.map((colRows, colIndex) => (
+                <div key={colIndex} className="flex flex-col gap-3">
+                  {colRows.map((row) => {
+                    const imageField = tableFields.find((field) => field.type === "gallery");
+                    const imageUrl = imageField ? String(row[imageField.name] ?? "") : "";
+                    const label = displayRowTitle(fields, displayField, row);
+                    const showLabel = hasDisplayField && label !== "—" && label !== "";
+                    const actionLabel = showLabel ? label : "foto";
+                    return (
+                      <div
+                        key={String(row[primaryKey])}
+                        className="group relative overflow-hidden rounded-2xl border border-border-default bg-bg-well/40"
+                      >
+                        {imageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={imageUrl}
+                            alt=""
+                            className="block h-auto w-full transition-transform duration-300 group-hover:scale-[1.02]"
+                          />
+                        ) : (
+                          <div className="flex h-40 items-center justify-center text-text-muted">
+                            <ImageIcon size={28} />
+                          </div>
+                        )}
+                        {showLabel && (
+                          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => openEdit(row)}
+                          aria-label={`Ubah ${actionLabel}`}
+                          className="absolute inset-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80"
+                        />
+                        {showLabel && (
+                          <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3">
+                            <p className="line-clamp-2 text-[11px] font-bold leading-snug text-white drop-shadow">
+                              {label}
+                            </p>
+                          </div>
+                        )}
+                        {canDelete && (
+                          <button
+                            type="button"
+                            onClick={() => setDeleteTarget(row)}
+                            title="Hapus"
+                            aria-label={`Hapus ${actionLabel}`}
+                            className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white opacity-100 md:opacity-0 backdrop-blur transition-opacity hover:bg-red-600 focus:opacity-100 md:group-hover:opacity-100 cursor-pointer"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
-        )
+              ))}
+            </div>
+          );
+        })()
       ) : (
         <>
       {visibleRows.length === 0 && emptyState}

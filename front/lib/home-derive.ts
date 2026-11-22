@@ -81,6 +81,16 @@ export function buildMoments(
   return result;
 }
 
+export function pickBreakPhotos(gallery: HomeMedia[], slots: number[][]): HomeMedia[][] {
+  const byId = new Map(gallery.map((item) => [item.id, item]));
+  return slots.map((slot) =>
+    slot.flatMap((id) => {
+      const item = byId.get(id);
+      return item ? [item] : [];
+    }),
+  );
+}
+
 export function nextBatchOf(cards: ProgramCard[]): HomeData["hero"]["nextBatch"] {
   let best: { card: ProgramCard; firstDate: string; timestamp: number } | null = null;
   for (const card of cards) {

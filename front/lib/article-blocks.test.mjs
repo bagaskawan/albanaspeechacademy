@@ -3,9 +3,12 @@ import test from "node:test";
 import {
   articleBlocksToText,
   articleHasText,
+  collectArticleImageIds,
   deriveExcerpt,
+  hasMissingImageAlt,
   legacyBodyToBlocks,
   normalizeArticleBlocks,
+  readingMinutes,
   safeArticleHref,
   splitTitleBlock,
   titleBlock,
@@ -65,4 +68,37 @@ test("baris pertama menjadi judul dan sisa blok menjadi isi", () => {
   assert.deepEqual(splitTitleBlock(withSeed), split);
   assert.deepEqual(splitTitleBlock([]), { title: "", blocks: [] });
   assert.equal(deriveExcerpt([{ type: "paragraph", content: [] }]), "");
+});
+
+test("blok gambar internal dinormalisasi, base64 ditolak, alt & readingMinutes diperiksa", () => {
+  const validId = "550e8400-e29b-41d4-a716-446655440000";
+  const withImage = normalizeArticleBlocks([
+    { type: "paragraph", content: [{ type: "text", text: "Paragraf pembuka." }] },
+    {
+      type: "image",
+      props: {
+        url: `/api/article-images/${validId.toUpperCase()}`,
+        alt: "  Peserta berlatih berbicara  ",
+        caption: "Sesi praktik",
+      },
+    },
+  ]);
+  assert.equal(withImage.error, null);
+  assert.equal(withImage.blocks?.[1]?.props && "url" in withImage.blocks[1].props ? withImage.blocks[1].props.url : "", `/api/article-images/${validId}`);
+  assert.deepEqual(collectArticleImageIds(withImage.blocks ?? []), [validId]);
+  assert.equal(hasMissingImageAlt(withImage.blocks ?? []), false);
+  assert.equal(articleBlocksToText(withImage.blocks ?? []), "Paragraf pembuka.");
+
+  // Base64 / data URI ditolak
+  assert.ok(normalizeArticleBlocks([{ type: "image", props: { url: "data:image/png;base64,AAAA" } }]).error);
+
+  // Alt kosong terdeteksi untuk validasi terbit
+  const missingAlt = normalizeArticleBlocks([{ type: "image", props: { url: `/api/article-images/${validId}` } }]);
+  assert.equal(missingAlt.error, null);
+  assert.equal(hasMissingImageAlt(missingAlt.blocks ?? []), true);
+
+  // Waktu baca: minimal 1 menit, pembulatan ke atas per 200 kata
+  assert.equal(readingMinutes(""), 1);
+  assert.equal(readingMinutes("kata ".repeat(200)), 1);
+  assert.equal(readingMinutes("kata ".repeat(201)), 2);
 });
