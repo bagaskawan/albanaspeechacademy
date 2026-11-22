@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import { HOME_DESCRIPTION, HOME_TITLE, SITE_ICON, SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Albana Speech Academy",
-  description: "Platform Public Speaking & Komunikasi",
+  metadataBase: new URL(SITE_URL),
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
   icons: {
-    icon: "/images/Albana-Speech-Academy-Logo-White.png",
+    icon: [SITE_ICON],
   },
 };
 
