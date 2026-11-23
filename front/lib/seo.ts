@@ -32,6 +32,7 @@ export function buildHomeJsonLd() {
         "@type": "WebSite",
         "@id": `${SITE_URL}/#website`,
         name: SITE_NAME,
+        alternateName: ["ASA", "albanaspeechacademy"],
         url: `${SITE_URL}/`,
         inLanguage: "id-ID",
         publisher: {
@@ -62,8 +63,12 @@ export function buildHomeJsonLd() {
           streetAddress: "Jl. Diponegoro No. 61",
           addressLocality: "Bandung",
           addressRegion: "Jawa Barat",
+          postalCode: "40123",
           addressCountry: "ID",
         },
+        // Keep identical to the contact shown in the footer and Google Business Profile.
+        telephone: "+62-857-1779-7637",
+        email: "asaalbana91@gmail.com",
         sameAs: [OFFICIAL_INSTAGRAM_URL],
       },
     ],

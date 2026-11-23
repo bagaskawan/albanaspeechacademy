@@ -42,7 +42,7 @@ export async function HomePage() {
         <ProgramChapter programs={data.programs} inhouse={data.inhouse} />
         <PhotoBreak photos={programTrio} tone="canvas" />
         <AboutSection moments={data.moments} />
-        <LearningMethodChapter moments={data.moments} />
+        <LearningMethodChapter />
         <PhotoBreak photos={mobileBeforeTestimonial} tone="canvas" mobileOnly />
         <TestimonialChapter testimonials={data.testimonials} />
         <PhotoBreak photos={afterTestimonial} tone="canvas" />

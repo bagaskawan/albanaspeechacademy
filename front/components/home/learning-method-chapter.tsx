@@ -1,4 +1,3 @@
-import type { HomeMedia } from "@/lib/home-data";
 import { SectionIntro } from "./section-intro";
 import { SkeletonImage } from "./skeleton-image";
 import { Accent } from "./ui/accent";
@@ -9,12 +8,14 @@ const approaches = [
     title: "Praktik & simulasi",
     description: "Praktik langsung, simulasi panggung, role play MC dan pembicara, serta presentasi kasus nyata.",
     caption: "Praktik di depan peserta lain",
+    imageSrc: "https://clgjsekfnexmanjdxmqy.supabase.co/storage/v1/object/public/gallery/1795330084102-lnok62px.webp",
   },
   {
     value: 20,
     title: "Coaching, konsep & feedback",
     description: "Evaluasi performa pribadi, masukan langsung dari trainer, dan kerangka komunikasi yang merapikan pesan.",
     caption: "Masukan langsung dari trainer",
+    imageSrc: "https://clgjsekfnexmanjdxmqy.supabase.co/storage/v1/object/public/gallery/1795330086013-7ld4dytp.webp",
   },
 ] as const;
 
@@ -25,7 +26,7 @@ const levels = [
   ["Expert", "pembicara dan fasilitator"],
 ] as const;
 
-export function LearningMethodChapter({ moments }: { moments: HomeMedia[] }) {
+export function LearningMethodChapter() {
   return (
     <section id="cara-ngajar" className="tone-canvas home-section" aria-labelledby="cara-ngajar-title">
       <div className="home-container home-stack-head">
@@ -41,9 +42,7 @@ export function LearningMethodChapter({ moments }: { moments: HomeMedia[] }) {
         />
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {approaches.map((item, index) => {
-            const photo = moments[index];
-            return (
+          {approaches.map((item) => (
               <article
                 key={item.value}
                 data-motion="rise"
@@ -64,17 +63,14 @@ export function LearningMethodChapter({ moments }: { moments: HomeMedia[] }) {
                   <p className="type-body mt-2 text-[var(--tone-muted)] text-pretty">{item.description}</p>
                 </div>
 
-                {photo ? (
-                  <figure className="mt-auto">
-                    <div data-motion="media" className="relative aspect-[16/10] overflow-hidden rounded-xs bg-[var(--tone-tile)]">
-                      <SkeletonImage src={photo.src} alt="" fill sizes="(min-width: 768px) 45vw, 90vw" className="object-cover" />
-                    </div>
-                    <figcaption className="type-small mt-2 text-[var(--tone-muted)]">{item.caption}</figcaption>
-                  </figure>
-                ) : null}
+                <figure className="mt-auto">
+                  <div data-motion="media" className="relative aspect-[16/10] overflow-hidden rounded-xs bg-[var(--tone-tile)]">
+                    <SkeletonImage src={item.imageSrc} alt={item.caption} fill sizes="(min-width: 768px) 45vw, 90vw" className="object-cover" />
+                  </div>
+                  <figcaption className="type-small mt-2 text-[var(--tone-muted)]">{item.caption}</figcaption>
+                </figure>
               </article>
-            );
-          })}
+          ))}
         </div>
 
         <div>
