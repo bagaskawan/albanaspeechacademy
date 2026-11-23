@@ -17,9 +17,8 @@ function revalidate() {
 }
 
 /**
- * Batch hanya menyimpan nama, jadwal, dan sakelar buka. `is_active` tidak pernah
- * dikirim: trigger `batches_single_open` menyamakannya dengan `registration_open`
- * dan menutup batch lain pada program yang sama.
+ * Batch hanya menyimpan nama, jadwal, dan sakelar buka. `is_active` disamakan
+ * dengan `registration_open` oleh trigger; beberapa batch dapat dibuka bersamaan.
  */
 export async function saveBatch(input: {
   slug: string | null;
@@ -48,6 +47,31 @@ export async function saveBatch(input: {
         .eq("slug", input.slug).eq("program_slug", input.programSlug)
     : await supabase.from("batches").insert({ program_slug: input.programSlug, title, sessions, registration_open: input.open });
   if (error) return { error: "Batch belum bisa disimpan. Periksa nama dan jadwalnya." };
+  revalidate();
+  return {};
+}
+
+export async function toggleBatchOpen(input: {
+  slug: string;
+  programSlug: string;
+  open: boolean;
+}): Promise<{ error?: string }> {
+  const supabase = await requireAdminMember();
+  if (!PUBLIC_TRAINING.includes(input.programSlug)) return { error: "Program tidak valid." };
+
+  if (input.open) {
+    const { data: program } = await supabase.from("programs").select("price_idr").eq("slug", input.programSlug).maybeSingle();
+    if (!program || !(Number(program.price_idr) > 0)) {
+      return { error: "Isi biaya program dulu sebelum membuka pendaftaran." };
+    }
+  }
+
+  const { error } = await supabase
+    .from("batches")
+    .update({ registration_open: input.open })
+    .eq("slug", input.slug)
+    .eq("program_slug", input.programSlug);
+  if (error) return { error: "Status batch belum bisa diubah." };
   revalidate();
   return {};
 }

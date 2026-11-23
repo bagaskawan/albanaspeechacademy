@@ -108,18 +108,11 @@ export function sessionCountOf(sessions: readonly SessionInput[]): number {
   return sessions.length;
 }
 
-// Status dihitung, tidak disimpan: selesai bila sesi terakhir sudah berakhir.
+// Status mengikuti sakelar registration_open admin, tidak otomatis tertutup oleh tanggal.
 export function batchStatus(
-  batch: { registration_open: boolean; sessions: unknown },
-  nowMs: number,
+  batch: { registration_open: boolean; sessions?: unknown },
+  _nowMs?: number,
 ): BatchStatus {
-  const ends = (Array.isArray(batch.sessions) ? batch.sessions : [])
-    .map((session) =>
-      session && typeof session === "object"
-        ? wibMs(String((session as Record<string, unknown>).ends_at ?? ""))
-        : Number.NaN,
-    )
-    .filter((value) => Number.isFinite(value));
-  if (ends.length && Math.max(...ends) <= nowMs) return "done";
+  void _nowMs;
   return batch.registration_open ? "open" : "closed";
 }

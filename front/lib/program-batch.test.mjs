@@ -38,13 +38,13 @@ test("waktu tanpa zona dibaca sebagai WIB", () => {
   assert.ok(Number.isNaN(wibMs("bukan tanggal")));
 });
 
-test("status batch: dibuka, ditutup, selesai setelah sesi terakhir berakhir", () => {
+test("status batch mengikuti registration_open meski tanggal sesi sudah lewat", () => {
   const sessions = [{ starts_at: "2026-11-21T09:00", ends_at: "2026-11-21T12:00" }, { starts_at: "2026-12-12T09:00", ends_at: "2026-12-12T12:00" }];
   const before = Date.UTC(2026, 11, 12, 4, 59); // 11.59 WIB
   const after = Date.UTC(2026, 11, 12, 5, 1);   // 12.01 WIB
   assert.equal(batchStatus({ registration_open: true, sessions }, before), "open");
   assert.equal(batchStatus({ registration_open: false, sessions }, before), "closed");
-  assert.equal(batchStatus({ registration_open: true, sessions }, after), "done");
+  assert.equal(batchStatus({ registration_open: true, sessions }, after), "open");
   assert.equal(batchStatus({ registration_open: false, sessions: [] }, after), "closed");
 });
 

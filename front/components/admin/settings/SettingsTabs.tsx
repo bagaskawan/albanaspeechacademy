@@ -60,7 +60,7 @@ export function SettingsTabs({ tabs, panels, initialTab }: { tabs: SettingsTab[]
           </Link>
           <div className="min-w-0">
             <h1 className="text-[24px] font-semibold leading-tight tracking-[-0.02em] sm:text-[28px] md:text-[32px]">Pengaturan</h1>
-            <p className="mt-1 text-[14px] text-admin-text-secondary md:text-[15px]">Kanal kontak, rekening pembayaran, program, dan legalitas.</p>
+            <p className="mt-1 text-[14px] text-admin-text-secondary md:text-[15px]">Informasi akun, kanal kontak, rekening pembayaran, dan legalitas.</p>
           </div>
         </div>
         <div className="flex items-center gap-3">

@@ -46,7 +46,7 @@ export async function AboutSection({ moments }: { moments: HomeMedia[] }) {
             </div>
             {detail ? (
               <div data-motion="media" className="relative hidden aspect-[4/3] w-2/3 overflow-hidden rounded-xs bg-[var(--tone-tile)] lg:block">
-                <SkeletonImage fill src={detail.src} alt={detail.alt} sizes="20vw" className="object-cover" />
+                <SkeletonImage fill src={detail.src} alt={detail.alt} sizes="(min-width: 1024px) 25vw, 50vw" className="object-cover" />
               </div>
             ) : null}
           </div>

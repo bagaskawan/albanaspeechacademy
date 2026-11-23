@@ -13,7 +13,7 @@ import { RowActions } from "@/components/admin/ui/row-actions";
 import { formatRupiah } from "@/lib/format";
 import { CERTIFICATION_SLUG, SERIES_SLUG, SPEAKER_SLUG, bundleAddOn, bundlePriceValid } from "@/lib/bundle";
 import { batchStatus, fromStoredSessions, nextBatchName, sessionCountOf, type SessionInput } from "@/lib/program-batch";
-import { deleteBatch, saveBatch, saveBundle } from "@/app/(admin)/admin/program/actions";
+import { deleteBatch, saveBatch, saveBundle, toggleBatchOpen } from "@/app/(admin)/admin/program/actions";
 import { SessionRows } from "./SessionRows";
 
 export type BoardProgram = {
@@ -119,6 +119,24 @@ export function ProgramBatchBoard({ programs, batches, bundle, inhouse, nowMs }:
     });
   }
 
+  function handleToggleStatus(program: BoardProgram, batch: BoardBatch) {
+    const nextOpen = !batch.registration_open;
+    setError(null);
+    startTransition(async () => {
+      const result = await toggleBatchOpen({
+        slug: batch.slug,
+        programSlug: program.slug,
+        open: nextOpen,
+      });
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(nextOpen ? `${batch.title} dibuka.` : `${batch.title} ditutup.`);
+      router.refresh();
+    });
+  }
+
   function submitBatch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!batchDraft) return;
@@ -186,7 +204,20 @@ export function ProgramBatchBoard({ programs, batches, bundle, inhouse, nowMs }:
             : rows.map(({ batch, sessions, status }) => (
               <div key={batch.slug} className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3">
                 <p className="min-w-0 flex-1 truncate text-[14px] font-medium text-admin-ink" title={batch.title}>{batch.title}</p>
-                <StatusChip tone={STATUS[status].tone}>{STATUS[status].label}</StatusChip>
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={() => handleToggleStatus(program, batch)}
+                  aria-label={
+                    batch.registration_open
+                      ? `Tutup pendaftaran ${batch.title}`
+                      : `Buka pendaftaran ${batch.title}`
+                  }
+                  title={batch.registration_open ? "Klik untuk menutup" : "Klik untuk membuka"}
+                  className="cursor-pointer rounded-full transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <StatusChip tone={STATUS[status].tone}>{STATUS[status].label}</StatusChip>
+                </button>
                 <p className="order-last w-full text-[13px] text-admin-text-secondary sm:order-none sm:w-auto">
                   {sessionCountOf(sessions)} sesi · mulai {dateLabel(sessions[0]?.date ?? "")}
                 </p>

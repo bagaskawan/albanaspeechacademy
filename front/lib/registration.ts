@@ -60,7 +60,7 @@ export const ACCEPTING_STATUSES = new Set(["open", "running_open"]);
 export function isAcceptingBatch(batch: Record<string, unknown>): boolean {
   if (typeof batch.accepting_registrations === "boolean") return batch.accepting_registrations;
   if (typeof batch.registration_open === "boolean") {
-    return batch.registration_open && firstSessionStart(batch) > Date.now();
+    return batch.registration_open;
   }
   return typeof batch.status === "string" && ACCEPTING_STATUSES.has(batch.status);
 }

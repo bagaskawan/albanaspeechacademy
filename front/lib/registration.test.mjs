@@ -25,8 +25,9 @@ test("pickAcceptingBatch memilih sesi paling awal di antara yang menerima", () =
   assert.equal(picked.slug, "a");
 });
 
-test("batch yang sesi pertamanya sudah mulai (WIB) tidak menerima pendaftaran", (t) => {
+test("batch dengan registration_open=true tetap menerima pendaftaran meski tanggal mulai sudah lewat", (t) => {
   t.mock.timers.enable({ apis: ["Date"], now: Date.UTC(2026, 10, 22, 2, 0) }); // 09.00 WIB
   const batch = { registration_open: true, sessions: [{ starts_at: "2026-11-22T08:30", ends_at: "2026-11-22T18:00" }] };
-  assert.equal(isAcceptingBatch(batch), false);
+  assert.equal(isAcceptingBatch(batch), true);
+  assert.equal(isAcceptingBatch({ ...batch, registration_open: false }), false);
 });

@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { formatSessionDate, formatSessionIsoDate, formatTimeRange } from "@/lib/format";
-import { isAcceptingBatch } from "@/lib/registration";
+import { isAcceptingBatch, pickAcceptingBatch } from "@/lib/registration";
 import { readPrograms } from "./catalog";
 import { academyRequest } from "./academy-api";
 import { readAddressLabel } from "./public-contacts";
@@ -59,7 +59,7 @@ function asObjectArray(value: unknown): Record<string, unknown>[] {
 // The active batch is the one shown publicly; fall back to the batch that is
 // accepting registrations when the active flag is absent.
 function pickBatch(batches: Record<string, unknown>[]): Record<string, unknown> | null {
-  return batches.find((batch) => batch.is_active === true) ?? batches.find(isAcceptingBatch) ?? batches[0] ?? null;
+  return pickAcceptingBatch(batches) ?? batches.find((batch) => batch.is_active === true) ?? batches[0] ?? null;
 }
 
 function statusLabel(batch: Record<string, unknown>): string {

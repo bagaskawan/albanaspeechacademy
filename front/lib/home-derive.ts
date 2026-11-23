@@ -35,7 +35,7 @@ export function toHomeMedia(item: ProgramMediaItem): HomeMedia {
     kind: item.kind,
     src: item.src,
     poster: item.kind === "video" && item.youtubeId
-      ? `https://i.ytimg.com/vi/${item.youtubeId}/hqdefault.jpg`
+      ? `https://i.ytimg.com/vi/${item.youtubeId}/maxresdefault.jpg`
       : null,
     alt: item.alt,
     ...(item.blurDataURL ? { blurDataURL: item.blurDataURL } : {}),

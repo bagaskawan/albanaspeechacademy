@@ -34,7 +34,7 @@ test("toHomeMedia memetakan video YouTube dan foto storage", () => {
     alt: "Video kelas",
     youtubeId: "dQw4w9WgXcQ",
   });
-  assert.equal(video.poster, "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg");
+  assert.equal(video.poster, "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg");
   assert.equal(video.kind, "video");
 
   const photo = toHomeMedia({

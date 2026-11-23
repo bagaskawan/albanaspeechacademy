@@ -14,7 +14,7 @@ import { RowActions } from "@/components/admin/ui/row-actions";
 import { FormDialog } from "@/components/admin/ui/form/FormDialog";
 import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
 import { AdminInput, AdminTextarea, CheckboxCard, PercentInput, PriceInput } from "@/components/admin/ui/form/controls";
-import { deleteBatch, saveBatch, saveBundle } from "@/app/(admin)/admin/program/actions";
+import { deleteBatch, saveBatch, saveBundle, toggleBatchOpen } from "@/app/(admin)/admin/program/actions";
 import { useIsAdminSuper } from "@/components/admin/ui/row-actions";
 import { CERTIFICATION_SLUG, SPEAKER_SLUG, bundleAddOn, bundlePriceValid } from "@/lib/bundle";
 import { formatRupiah } from "@/lib/format";
@@ -124,6 +124,24 @@ export function ProgramDetailBoard({
     });
   }
 
+  function handleToggleStatus(batch: BoardBatch) {
+    const nextOpen = !batch.registration_open;
+    setError(null);
+    startTransition(async () => {
+      const result = await toggleBatchOpen({
+        slug: batch.slug,
+        programSlug: program.slug,
+        open: nextOpen,
+      });
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(nextOpen ? `${batch.title} dibuka.` : `${batch.title} ditutup.`);
+      router.refresh();
+    });
+  }
+
   function submitBatch(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!batchDraft) return;
@@ -207,11 +225,13 @@ export function ProgramDetailBoard({
               Batch Aktif
             </p>
             <p className="mt-1 truncate text-[16px] font-semibold text-admin-ink">
-              {openRow ? openRow.batch.title : "Belum dibuka"}
+              {openCount > 1 ? `${openCount} Batch Dibuka` : openRow ? openRow.batch.title : "Belum dibuka"}
             </p>
             <p className="mt-0.5 text-[12px] text-admin-text-secondary">
               {openRow
-                ? `${sessionCountOf(openRow.sessions)} sesi · mulai ${dateLabel(openRow.sessions[0]?.date ?? "")}`
+                ? openCount > 1
+                  ? `Terbaru ${openRow.batch.title} · mulai ${dateLabel(openRow.sessions[0]?.date ?? "")}`
+                  : `${sessionCountOf(openRow.sessions)} sesi · mulai ${dateLabel(openRow.sessions[0]?.date ?? "")}`
                 : "Buka salah satu batch agar bisa didaftar"}
             </p>
           </div>
@@ -382,7 +402,20 @@ export function ProgramDetailBoard({
                   <span className="inline-flex h-7 items-center rounded-full bg-admin-surface px-3 font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-admin-text-secondary">
                     {program.title}
                   </span>
-                  <StatusChip tone={STATUS[status].tone}>{STATUS[status].label}</StatusChip>
+                  <button
+                    type="button"
+                    disabled={pending}
+                    onClick={() => handleToggleStatus(batch)}
+                    aria-label={
+                      batch.registration_open
+                        ? `Tutup pendaftaran ${batch.title}`
+                        : `Buka pendaftaran ${batch.title}`
+                    }
+                    title={batch.registration_open ? "Klik untuk menutup" : "Klik untuk membuka"}
+                    className="cursor-pointer rounded-full transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <StatusChip tone={STATUS[status].tone}>{STATUS[status].label}</StatusChip>
+                  </button>
                 </div>
 
                 <div className="mt-4 flex items-end justify-between gap-3">
@@ -461,7 +494,20 @@ export function ProgramDetailBoard({
                       {batch.title}
                     </td>
                     <td>
-                      <StatusChip tone={STATUS[status].tone}>{STATUS[status].label}</StatusChip>
+                      <button
+                    type="button"
+                    disabled={pending}
+                    onClick={() => handleToggleStatus(batch)}
+                    aria-label={
+                      batch.registration_open
+                        ? `Tutup pendaftaran ${batch.title}`
+                        : `Buka pendaftaran ${batch.title}`
+                    }
+                    title={batch.registration_open ? "Klik untuk menutup" : "Klik untuk membuka"}
+                    className="cursor-pointer rounded-full transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <StatusChip tone={STATUS[status].tone}>{STATUS[status].label}</StatusChip>
+                  </button>
                     </td>
                     <td className="text-admin-text-secondary">
                       {dateLabel(sessions[0]?.date ?? "")}
