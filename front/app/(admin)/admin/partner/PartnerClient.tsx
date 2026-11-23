@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { compressImage } from "@/lib/file-compress";
 import { TableToolbar, matchesQuery } from "@/components/admin/ui/table-toolbar";
 import { EmptyState } from "@/components/admin/ui/empty-state";
-import { useIsAdminSuper } from "@/components/admin/ui/row-actions";
 import { AdminSheet } from "@/components/admin/ui/AdminSheet";
 import { DeleteSheet } from "@/components/admin/ui/delete-sheet";
 import { FormDialog } from "@/components/admin/ui/form/FormDialog";
@@ -25,7 +24,6 @@ export type PartnerRow = {
 
 export function PartnerClient({ partners }: { partners: PartnerRow[] }) {
   const router = useRouter();
-  const canDelete = useIsAdminSuper();
   const query = useSearchParams().get("q") ?? "";
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<PartnerRow | null>(null);
@@ -196,17 +194,15 @@ export function PartnerClient({ partners }: { partners: PartnerRow[] }) {
                       <Building2 size={32} />
                     </div>
                   )}
-                  {canDelete && (
-                    <button
-                      type="button"
-                      onClick={() => setDeleteTarget(partner)}
-                      aria-label={`Hapus ${label}`}
-                      title="Hapus"
-                      className="absolute right-3 top-3 inline-flex size-9 items-center justify-center rounded-full bg-admin-canvas/90 text-admin-danger shadow-sm transition-colors hover:bg-admin-rose-soft cursor-pointer"
-                    >
-                      <Trash2 aria-hidden="true" size={16} />
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => setDeleteTarget(partner)}
+                    aria-label={`Hapus ${label}`}
+                    title="Hapus"
+                    className="absolute right-3 top-3 inline-flex size-9 items-center justify-center rounded-full bg-admin-canvas/90 text-admin-danger shadow-sm transition-colors hover:bg-admin-rose-soft cursor-pointer"
+                  >
+                    <Trash2 aria-hidden="true" size={16} />
+                  </button>
                   <div className="absolute inset-x-0 bottom-0 flex items-center justify-end gap-2 bg-gradient-to-t from-black/65 via-black/25 to-transparent px-3 pb-3 pt-8">
                     <button
                       type="button"

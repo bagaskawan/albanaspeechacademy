@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { logAdminActivity } from "@/lib/server/admin-activity";
 import { requireAdminMember } from "@/lib/server/admin-guard";
 
 export type ActionState = {
@@ -35,6 +36,7 @@ export async function saveBankAccount(formData: FormData): Promise<ActionState> 
       }
     }
 
+    let savedId = id ?? null;
     if (id) {
       const { error } = await supabase
         .from("bank_accounts")
@@ -45,17 +47,30 @@ export async function saveBankAccount(formData: FormData): Promise<ActionState> 
         return { success: false, error: error.message };
       }
     } else {
-      const { error } = await supabase
+      const { data: inserted, error } = await supabase
         .from("bank_accounts")
-        .insert([{ bank, account_number, holder, active }]);
+        .insert([{ bank, account_number, holder, active }])
+        .select("id")
+        .single();
 
       if (error) {
         return { success: false, error: error.message };
       }
+      savedId = inserted?.id ?? null;
     }
 
-    revalidatePath("/admin/rekening");
+    const label = `${bank} (${account_number})`;
+    await logAdminActivity({
+      actor: supabase.adminUser,
+      action: id ? "update" : "create",
+      module: "rekening",
+      entityId: savedId,
+      entityLabel: label,
+      summary: id ? `Memperbarui rekening ${label}` : `Menambahkan rekening ${label}`,
+      metadata: { active },
+    });
 
+    revalidatePath("/admin/rekening");
     revalidatePath("/admin/settings");
     return { success: true };
   } catch (err: unknown) {
@@ -66,6 +81,12 @@ export async function saveBankAccount(formData: FormData): Promise<ActionState> 
 export async function activateBankAccount(id: number): Promise<ActionState> {
   try {
     const supabase = await requireAdminMember();
+
+    const { data: target } = await supabase
+      .from("bank_accounts")
+      .select("bank, account_number")
+      .eq("id", id)
+      .maybeSingle();
 
     // 1. Deactivate all active accounts
     const { error: deactivateError } = await supabase
@@ -87,8 +108,18 @@ export async function activateBankAccount(id: number): Promise<ActionState> {
       return { success: false, error: activateError.message };
     }
 
-    revalidatePath("/admin/rekening");
+    const label = target ? `${target.bank} (${target.account_number})` : `Rekening #${id}`;
+    await logAdminActivity({
+      actor: supabase.adminUser,
+      action: "status",
+      module: "rekening",
+      entityId: id,
+      entityLabel: label,
+      summary: `Mengaktifkan rekening ${label}`,
+      metadata: { active: true },
+    });
 
+    revalidatePath("/admin/rekening");
     revalidatePath("/admin/settings");
     return { success: true };
   } catch (err: unknown) {
@@ -98,7 +129,13 @@ export async function activateBankAccount(id: number): Promise<ActionState> {
 
 export async function deleteBankAccount(id: number): Promise<ActionState> {
   try {
-    const supabase = await requireAdminMember("adminsuper");
+    const supabase = await requireAdminMember();
+
+    const { data: target } = await supabase
+      .from("bank_accounts")
+      .select("bank, account_number")
+      .eq("id", id)
+      .maybeSingle();
 
     const { error } = await supabase
       .from("bank_accounts")
@@ -109,8 +146,17 @@ export async function deleteBankAccount(id: number): Promise<ActionState> {
       return { success: false, error: error.message };
     }
 
-    revalidatePath("/admin/rekening");
+    const label = target ? `${target.bank} (${target.account_number})` : `Rekening #${id}`;
+    await logAdminActivity({
+      actor: supabase.adminUser,
+      action: "delete",
+      module: "rekening",
+      entityId: id,
+      entityLabel: label,
+      summary: `Menghapus rekening ${label}`,
+    });
 
+    revalidatePath("/admin/rekening");
     revalidatePath("/admin/settings");
     return { success: true };
   } catch (err: unknown) {

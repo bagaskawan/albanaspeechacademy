@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
 import { DeleteSheet } from "@/components/admin/ui/delete-sheet";
-import { useIsAdminSuper } from "@/components/admin/ui/row-actions";
 
 export function MobileArticleRowActions({
   slug,
@@ -17,7 +16,6 @@ export function MobileArticleRowActions({
   published: boolean;
   onDelete: () => Promise<{ error?: string }>;
 }) {
-  const canDelete = useIsAdminSuper();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -68,32 +66,28 @@ export function MobileArticleRowActions({
                   Lihat publik
                 </Link>
               ) : null}
-              {canDelete ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSheetOpen(false);
-                    setConfirmDelete(true);
-                  }}
-                  className="flex min-h-[44px] w-full items-center rounded-md px-3 text-left text-sm font-medium text-admin-rose-ink hover:bg-admin-surface"
-                >
-                  Hapus
-                </button>
-              ) : null}
+              <button
+                type="button"
+                onClick={() => {
+                  setSheetOpen(false);
+                  setConfirmDelete(true);
+                }}
+                className="flex min-h-[44px] w-full items-center rounded-md px-3 text-left text-sm font-medium text-admin-rose-ink hover:bg-admin-surface"
+              >
+                Hapus
+              </button>
             </div>
           </div>
         </div>
       ) : null}
 
-      {canDelete ? (
-        <DeleteSheet
-          open={confirmDelete}
-          onOpenChange={setConfirmDelete}
-          title={`Hapus ${title}?`}
-          successMessage={`${title} dihapus.`}
-          onConfirm={onDelete}
-        />
-      ) : null}
+      <DeleteSheet
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        title={`Hapus ${title}?`}
+        successMessage={`${title} dihapus.`}
+        onConfirm={onDelete}
+      />
     </>
   );
 }

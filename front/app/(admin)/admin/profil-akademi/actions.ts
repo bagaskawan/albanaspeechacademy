@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { logAdminActivity } from "@/lib/server/admin-activity";
 import { requireAdminMember } from "@/lib/server/admin-guard";
 
 export async function saveAcademyProfile(formData: FormData) {
@@ -23,6 +24,14 @@ export async function saveAcademyProfile(formData: FormData) {
     if (error) {
       return { success: false, error: error.message };
     }
+
+    await logAdminActivity({
+      actor: supabase.adminUser,
+      action: "update",
+      module: "profil-akademi",
+      entityLabel: name,
+      summary: `Memperbarui profil akademi "${name}"`,
+    });
 
     revalidatePath("/admin/profil-akademi");
 

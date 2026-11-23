@@ -28,7 +28,7 @@ export default async function ArtikelEditPage({ params }: { params: Promise<{ sl
 
   return (
     <ArticleEditor
-      isSuperAdmin={supabase.adminUser.role === "adminsuper"}
+      isSuperAdmin={true}
       article={{
         slug: data.slug,
         title: data.title,

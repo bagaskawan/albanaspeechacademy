@@ -11,7 +11,7 @@ const AdminRoleContext = createContext<string | null>(null);
 export const AdminRoleProvider = AdminRoleContext.Provider;
 export const useIsAdminSuper = () => useContext(AdminRoleContext) === "adminsuper";
 
-/** Row action template (admin-ui-patterns §8.2): optional extra pill · ✎ Ubah · 🗑 Hapus (adminsuper only, confirmed). */
+/** Row action template (admin-ui-patterns §8.2): optional extra pill · ✎ Ubah · 🗑 Hapus (confirmed). */
 export function RowActions({ itemName, editHref, onEdit, onDelete, extra }: {
   itemName: string;
   editHref?: string;
@@ -20,7 +20,6 @@ export function RowActions({ itemName, editHref, onEdit, onDelete, extra }: {
   onDelete?: () => void | Promise<void | { error?: string }>;
   extra?: React.ReactNode;
 }) {
-  const canDelete = useIsAdminSuper();
   const [confirming, setConfirming] = useState(false);
   const editIcon = <Pencil aria-hidden="true" size={18} strokeWidth={1.5} />;
 
@@ -28,7 +27,7 @@ export function RowActions({ itemName, editHref, onEdit, onDelete, extra }: {
     {extra}
     {editHref && <Link href={editHref} aria-label={`Ubah ${itemName}`} title="Ubah" className={rowActionClass}>{editIcon}</Link>}
     {onEdit && <button type="button" onClick={onEdit} aria-label={`Ubah ${itemName}`} title="Ubah" className={rowActionClass}>{editIcon}</button>}
-    {onDelete && canDelete && <>
+    {onDelete && <>
       <button type="button" onClick={() => setConfirming(true)} aria-label={`Hapus ${itemName}`} title="Hapus" className={rowDangerActionClass}>
         <Trash2 aria-hidden="true" size={18} strokeWidth={1.5} />
       </button>

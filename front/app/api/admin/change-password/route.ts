@@ -1,6 +1,7 @@
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { academyBillingClient } from "@/lib/server/academy-billing";
+import { logAdminActivity } from "@/lib/server/admin-activity";
 import { createClient } from "@/lib/supabase/server";
 import { getCookieDomain } from "@/lib/utils/url";
 
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
 
   const { data: admin } = await session
     .from("admin_users")
-    .select("user_id")
+    .select("user_id, role, username")
     .eq("user_id", user.id)
     .maybeSingle();
   if (!admin) return json({ error: "Akses admin diperlukan." }, 403);
@@ -114,6 +115,19 @@ export async function POST(request: NextRequest) {
   if (updateError) {
     return json({ error: "Password belum bisa diperbarui. Coba lagi." }, 500);
   }
+
+  await logAdminActivity({
+    actor: {
+      user_id: admin.user_id,
+      username: admin.username ?? null,
+      role: admin.role,
+    },
+    action: "password",
+    module: "akun",
+    entityId: user.id,
+    entityLabel: admin.username ?? email,
+    summary: `Mengubah password akun admin "${admin.username ?? email}"`,
+  });
 
   // Cabut seluruh sesi agar pengguna wajib masuk ulang dengan password baru.
   await session.auth.signOut({ scope: "global" }).catch(() => {});

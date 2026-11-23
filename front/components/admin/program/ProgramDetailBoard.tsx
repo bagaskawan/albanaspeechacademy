@@ -15,7 +15,6 @@ import { FormDialog } from "@/components/admin/ui/form/FormDialog";
 import { Field, FieldGrid } from "@/components/admin/ui/form/fields";
 import { AdminInput, AdminTextarea, CheckboxCard, PercentInput, PriceInput } from "@/components/admin/ui/form/controls";
 import { deleteBatch, saveBatch, saveBundle, toggleBatchOpen } from "@/app/(admin)/admin/program/actions";
-import { useIsAdminSuper } from "@/components/admin/ui/row-actions";
 import { CERTIFICATION_SLUG, SPEAKER_SLUG, bundleAddOn, bundlePriceValid } from "@/lib/bundle";
 import { formatRupiah } from "@/lib/format";
 import { batchStatus, fromStoredSessions, nextBatchName, sessionCountOf, type SessionInput } from "@/lib/program-batch";
@@ -66,7 +65,6 @@ export function ProgramDetailBoard({
   autoOpenAddBatch?: boolean;
 }) {
   const router = useRouter();
-  const isAdminSuper = useIsAdminSuper();
   const [pending, startTransition] = useTransition();
   const [batchToDelete, setBatchToDelete] = useState<BoardBatch | null>(null);
   const [query, setQuery] = useState("");
@@ -487,17 +485,15 @@ export function ProgramDetailBoard({
                     >
                       <Pencil aria-hidden="true" size={16} strokeWidth={1.5} />
                     </button>
-                    {isAdminSuper && (
-                      <button
-                        type="button"
-                        onClick={() => setBatchToDelete(batch)}
-                        aria-label={`Hapus batch ${batch.title}`}
-                        title="Hapus batch"
-                        className="inline-flex size-9 items-center justify-center rounded-full border border-admin-line bg-admin-canvas text-admin-danger transition-colors hover:bg-admin-rose-soft disabled:opacity-50"
-                      >
-                        <Trash2 aria-hidden="true" size={16} strokeWidth={1.5} />
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => setBatchToDelete(batch)}
+                      aria-label={`Hapus batch ${batch.title}`}
+                      title="Hapus batch"
+                      className="inline-flex size-9 items-center justify-center rounded-full border border-admin-line bg-admin-canvas text-admin-danger transition-colors hover:bg-admin-rose-soft disabled:opacity-50"
+                    >
+                      <Trash2 aria-hidden="true" size={16} strokeWidth={1.5} />
+                    </button>
                   </div>
                 </div>
               </article>

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { logAdminActivity } from "@/lib/server/admin-activity";
 import { requireAdminMember } from "@/lib/server/admin-guard";
 
 export type ContactFormData = {
@@ -35,6 +36,14 @@ export async function saveContacts(formData: FormData) {
         return { success: false, error: `Gagal menyimpan ${channel.kind}: ${error.message}` };
       }
     }
+
+    await logAdminActivity({
+      actor: supabase.adminUser,
+      action: "update",
+      module: "kontak",
+      entityLabel: "Kanal Kontak",
+      summary: "Memperbarui kanal kontak resmi akademi",
+    });
 
     revalidatePath("/admin/kontak");
 

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdminMember } from "@/lib/server/admin-guard";
 import { academyBillingClient } from "@/lib/server/academy-billing";
+import { logAdminActivity } from "@/lib/server/admin-activity";
 import { BUNDLE_SLUG, CERTIFICATION_SLUG, INHOUSE_SLUG, SERIES_SLUG, SPEAKER_SLUG, bundlePriceValid } from "@/lib/bundle";
 import { toStoredSessions, validateSessions, type SessionInput } from "@/lib/program-batch";
 import { videoLimitError, programBucket } from "@/lib/program-media";
@@ -91,6 +92,18 @@ export async function saveBatch(input: {
     }
   }
 
+  await logAdminActivity({
+    actor: supabase.adminUser,
+    action: input.slug ? "update" : "create",
+    module: "program",
+    entityId: input.slug ?? input.programSlug,
+    entityLabel: title,
+    summary: input.slug
+      ? `Memperbarui batch "${title}" pada program ${input.programSlug}`
+      : `Menambahkan batch "${title}" pada program ${input.programSlug}`,
+    metadata: { programSlug: input.programSlug, open: input.open },
+  });
+
   revalidate();
   return {};
 }
@@ -116,22 +129,48 @@ export async function toggleBatchOpen(input: {
     .eq("slug", input.slug)
     .eq("program_slug", input.programSlug);
   if (error) return { error: "Status batch belum bisa diubah." };
+
+  await logAdminActivity({
+    actor: supabase.adminUser,
+    action: "status",
+    module: "program",
+    entityId: input.slug,
+    entityLabel: input.slug,
+    summary: `${input.open ? "Membuka" : "Menutup"} pendaftaran batch "${input.slug}" (${input.programSlug})`,
+    metadata: { programSlug: input.programSlug, open: input.open },
+  });
+
   revalidate();
   return {};
 }
 
 export async function deleteBatch(slug: string): Promise<{ error?: string }> {
-  // Hapus hanya untuk adminsuper, seperti deletePartner dan deleteArticleAction;
-  // tombolnya memang disembunyikan di UI, tetapi aksi server tetap harus memeriksa.
-  const supabase = await requireAdminMember("adminsuper");
+  const supabase = await requireAdminMember();
   // Menghapus batch berpendaftar akan memutus butir pendaftaran dan tagihannya.
   const { count, error: countError } = await academyBillingClient()
     .from("academy_registration_items").select("registration_id", { count: "exact", head: true }).eq("batch_slug", slug);
   if (countError) return { error: "Pendaftar batch ini belum bisa diperiksa." };
   if ((count ?? 0) > 0) return { error: "Batch yang sudah punya pendaftar tidak bisa dihapus." };
 
+  const { data: existing } = await supabase
+    .from("batches")
+    .select("title, program_slug")
+    .eq("slug", slug)
+    .maybeSingle();
+
   const { error } = await supabase.from("batches").delete().eq("slug", slug);
   if (error) return { error: "Batch belum bisa dihapus." };
+
+  const label = existing?.title?.trim() || slug;
+  await logAdminActivity({
+    actor: supabase.adminUser,
+    action: "delete",
+    module: "program",
+    entityId: slug,
+    entityLabel: label,
+    summary: `Menghapus batch "${label}"${existing?.program_slug ? ` (${existing.program_slug})` : ""}`,
+  });
+
   revalidate();
   return {};
 }
@@ -143,7 +182,7 @@ export async function saveBundle(input: {
   dpPercent: number | null;
   description: string;
 }): Promise<{ error?: string }> {
-  await requireAdminMember();
+  const supabase = await requireAdminMember();
   const client = academyBillingClient();
   if (!Number.isSafeInteger(input.priceIdr) || input.priceIdr <= 0) return { error: "Harga paket wajib diisi." };
   if (input.dpPercent !== null && (!Number.isInteger(input.dpPercent) || input.dpPercent < 1 || input.dpPercent > 99)) {
@@ -177,6 +216,17 @@ export async function saveBundle(input: {
     updated_at: new Date().toISOString(),
   }, { onConflict: "slug" });
   if (error) return { error: "Paket belum bisa disimpan." };
+
+  await logAdminActivity({
+    actor: supabase.adminUser,
+    action: "update",
+    module: "program",
+    entityId: BUNDLE_SLUG,
+    entityLabel: "Paket Speaker + Sertifikasi",
+    summary: `Memperbarui Paket Speaker + Sertifikasi (${input.active ? "aktif" : "nonaktif"}, Rp ${input.priceIdr.toLocaleString("id-ID")})`,
+    metadata: { active: input.active, priceIdr: input.priceIdr },
+  });
+
   revalidate();
   return {};
 }
@@ -213,7 +263,7 @@ export async function addProgramVideo(input: {
   url: string;
   title?: string;
 }): Promise<{ error?: string }> {
-  await requireAdminMember();
+  const supabase = await requireAdminMember();
   if (!ALL_PROGRAMS.includes(input.programSlug)) return { error: "Program tidak valid." };
   const url = input.url.trim();
   const videoId = youtubeVideoId(url);
@@ -234,17 +284,31 @@ export async function addProgramVideo(input: {
   const limitErr = videoLimitError(count ?? 0);
   if (limitErr) return { error: limitErr };
 
-  const { error } = await client.from("media_assets").insert({
-    provider: "youtube",
-    kind: "video",
-    object_key: url,
-    alt_text: title,
-    program_slug: input.programSlug,
-    batch_slug: null,
-    published: true,
-    consent_at: new Date().toISOString(),
-  });
+  const { data: inserted, error } = await client
+    .from("media_assets")
+    .insert({
+      provider: "youtube",
+      kind: "video",
+      object_key: url,
+      alt_text: title,
+      program_slug: input.programSlug,
+      batch_slug: null,
+      published: true,
+      consent_at: new Date().toISOString(),
+    })
+    .select("id")
+    .single();
   if (error) return { error: "Video belum bisa ditambahkan." };
+
+  await logAdminActivity({
+    actor: supabase.adminUser,
+    action: "create",
+    module: "program",
+    entityId: inserted?.id ?? null,
+    entityLabel: title,
+    summary: `Menambahkan video dokumentasi "${title}" (${input.programSlug})`,
+  });
+
   revalidate();
   return {};
 }
@@ -254,7 +318,7 @@ export async function updateProgramVideo(input: {
   url: string;
   title?: string;
 }): Promise<{ error?: string }> {
-  await requireAdminMember();
+  const supabase = await requireAdminMember();
   if (!Number.isInteger(input.id) || input.id <= 0) return { error: "Video tidak valid." };
   const url = input.url.trim();
   const videoId = youtubeVideoId(url);
@@ -268,7 +332,7 @@ export async function updateProgramVideo(input: {
   const client = academyBillingClient();
   const { data: existing, error: findError } = await client
     .from("media_assets")
-    .select("id, kind")
+    .select("id, kind, program_slug")
     .eq("id", input.id)
     .maybeSingle();
   if (findError || !existing || existing.kind !== "video") {
@@ -284,17 +348,27 @@ export async function updateProgramVideo(input: {
     })
     .eq("id", input.id);
   if (error) return { error: "Perubahan video belum bisa disimpan." };
+
+  await logAdminActivity({
+    actor: supabase.adminUser,
+    action: "update",
+    module: "program",
+    entityId: input.id,
+    entityLabel: title,
+    summary: `Memperbarui video dokumentasi "${title}"${existing.program_slug ? ` (${existing.program_slug})` : ""}`,
+  });
+
   revalidate();
   return {};
 }
 
 export async function removeProgramMedia(id: number): Promise<{ error?: string }> {
-  await requireAdminMember("adminsuper");
+  const supabase = await requireAdminMember();
   if (!Number.isInteger(id) || id <= 0) return { error: "Media tidak valid." };
   const client = academyBillingClient();
   const { data: row, error: readError } = await client
     .from("media_assets")
-    .select("id, provider, object_key, program_slug")
+    .select("id, provider, kind, object_key, alt_text, program_slug")
     .eq("id", id)
     .maybeSingle();
   if (readError || !row) return { error: "Media tidak ditemukan." };
@@ -308,12 +382,23 @@ export async function removeProgramMedia(id: number): Promise<{ error?: string }
   }
   const { error } = await client.from("media_assets").delete().eq("id", id);
   if (error) return { error: "Media belum bisa dihapus." };
+
+  const label = row.alt_text?.trim() || `${row.kind === "video" ? "Video" : "Media"} #${id}`;
+  await logAdminActivity({
+    actor: supabase.adminUser,
+    action: "delete",
+    module: "program",
+    entityId: id,
+    entityLabel: label,
+    summary: `Menghapus ${row.kind === "video" ? "video" : "foto"} program "${label}" (${row.program_slug})`,
+  });
+
   revalidate();
   return {};
 }
 
 export async function removeMultipleProgramMedia(ids: number[]): Promise<{ error?: string }> {
-  await requireAdminMember("adminsuper");
+  const supabase = await requireAdminMember();
   const validIds = Array.from(new Set(ids.filter((id) => Number.isInteger(id) && id > 0)));
   if (validIds.length === 0) return { error: "Pilih media yang akan dihapus." };
 
@@ -342,6 +427,17 @@ export async function removeMultipleProgramMedia(ids: number[]): Promise<{ error
 
   const { error } = await client.from("media_assets").delete().in("id", validIds);
   if (error) return { error: "Media belum bisa dihapus." };
+
+  await logAdminActivity({
+    actor: supabase.adminUser,
+    action: "delete",
+    module: "program",
+    entityId: validIds.join(","),
+    entityLabel: `${rows.length} media`,
+    summary: `Menghapus ${rows.length} media dokumentasi program (${rows[0]?.program_slug ?? "program"})`,
+    metadata: { count: rows.length },
+  });
+
   revalidate();
   return {};
 }

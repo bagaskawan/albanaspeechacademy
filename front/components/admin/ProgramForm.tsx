@@ -116,6 +116,18 @@ export default function ProgramForm({ initialData }: { initialData: ProgramRow }
       return;
     }
 
+    void fetch("/api/admin/activity", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "update",
+        module: "program",
+        entityId: initialData.slug,
+        entityLabel: formData.title.trim(),
+        summary: `Memperbarui detail program "${formData.title.trim()}"`,
+      }),
+    }).catch(() => {});
+
     setIsSubmitting(false);
 
     const backHref = isInhouse ? "/admin/galeri" : `/admin/program/${initialData.slug}`;

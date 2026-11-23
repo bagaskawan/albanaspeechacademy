@@ -4,22 +4,26 @@
 export type AdminNavIcon =
   | "dashboard" | "users" | "receipt" | "book" | "speaker" | "certificate" | "calendar" | "trainer"
   | "article" | "media" | "gallery" | "quote" | "partner"
-  | "academy" | "contact" | "bank";
+  | "academy" | "contact" | "bank" | "shield" | "activity";
 
 export type AdminNavModule = {
   label: string; href: string; icon: AdminNavIcon; description: string;
   /** Reachable page (title, breadcrumb) that is not a sidebar item, e.g. /admin/settings from the account menu. */
   hidden?: boolean;
+  /** Visible and accessible only to role === "adminsuper". */
+  superAdminOnly?: boolean;
 };
 
 export type AdminNavGroup = {
-  id: "dashboard" | "pendaftaran" | "public-training" | "inhouse-training" | "konten" | "pengaturan";
+  id: "dashboard" | "pendaftaran" | "public-training" | "inhouse-training" | "konten" | "pengaturan" | "admin-setup";
   label: string;
   href: string;
   icon: AdminNavIcon;
   modules: AdminNavModule[];
   /** Hide group from sidebar while keeping title/breadcrumb resolution. */
   sidebarHidden?: boolean;
+  /** Visible and accessible only to role === "adminsuper". */
+  superAdminOnly?: boolean;
   /** Page description for groups that are a page themselves (Dashboard). */
   description?: string;
 };
@@ -65,6 +69,12 @@ export const adminNavGroups: AdminNavGroup[] = [
       { label: "Kontak", href: "/admin/kontak", icon: "contact", description: "Kanal kontak resmi yang tampil di situs publik." },
       { label: "Rekening", href: "/admin/rekening", icon: "bank", description: "Rekening tujuan transfer tagihan pendaftaran. Hanya satu yang aktif." },
       { label: "Pengaturan", href: "/admin/settings", icon: "academy", description: "Profil akademi, kanal kontak, dan rekening pembayaran dalam satu tempat.", hidden: true },
+    ],
+  },
+  {
+    id: "admin-setup", label: "Admin Setup", href: "/admin/user-activity", icon: "shield", superAdminOnly: true,
+    modules: [
+      { label: "User Activity", href: "/admin/user-activity", icon: "activity", description: "Riwayat aktivitas CRUD admin di seluruh modul CMS.", superAdminOnly: true },
     ],
   },
 ];

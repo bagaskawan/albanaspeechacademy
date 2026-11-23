@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdminMember } from "@/lib/server/admin-guard";
 import { academyBillingClient } from "@/lib/server/academy-billing";
+import { logAdminActivity } from "@/lib/server/admin-activity";
 import { deleteStorageFiles, getRemovedStorageUrls } from "@/lib/supabase/storage-cleanup";
 
 export type AcademyLegality = {
@@ -49,6 +50,14 @@ export async function saveAcademyLegality(payload: AcademyLegality) {
     if (removedUrls.length > 0) {
       await deleteStorageFiles(academyBillingClient(), removedUrls).catch(() => {});
     }
+
+    await logAdminActivity({
+      actor: supabase.adminUser,
+      action: "update",
+      module: "pengaturan",
+      entityLabel: "Legalitas Akademi",
+      summary: "Memperbarui dokumen legalitas akademi",
+    });
 
     revalidatePath("/admin/settings");
     revalidatePath("/");

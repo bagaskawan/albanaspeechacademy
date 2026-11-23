@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { academyBillingClient } from "@/lib/server/academy-billing";
+import { logAdminActivity, type AdminActivityActor } from "@/lib/server/admin-activity";
+import { requireAdminMember } from "@/lib/server/admin-guard";
 import {
   articleBlocksToText,
   articleHasText,
@@ -57,27 +59,37 @@ function mapRpcFailure(data: SaveRpcRow | null, fallback: string): SaveArticleRe
   return { ok: false, error: fallback };
 }
 
-async function requireAdminActor() {
+async function requireAdminActor(): Promise<
+  | { error: string; actor: null }
+  | { error: null; actor: AdminActivityActor }
+> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Sesi admin tidak ditemukan. Muat ulang halaman." as const, userId: null };
+  if (!user) return { error: "Sesi admin tidak ditemukan. Muat ulang halaman.", actor: null };
 
   const { data: admin } = await supabase
     .from("admin_users")
-    .select("user_id")
+    .select("user_id, role, username")
     .eq("user_id", user.id)
     .maybeSingle();
-  if (!admin) return { error: "Halaman ini hanya untuk admin." as const, userId: null };
+  if (!admin) return { error: "Halaman ini hanya untuk admin.", actor: null };
 
-  return { error: null, userId: user.id };
+  return {
+    error: null,
+    actor: {
+      user_id: admin.user_id,
+      username: admin.username ?? null,
+      role: admin.role,
+    },
+  };
 }
 
 export async function saveArticleAction(input: SaveArticleInput): Promise<SaveArticleResult> {
-  const actor = await requireAdminActor();
-  if (actor.error || !actor.userId) {
-    return { ok: false, error: actor.error ?? "Akses admin diperlukan." };
+  const auth = await requireAdminActor();
+  if (auth.error || !auth.actor) {
+    return { ok: false, error: auth.error ?? "Akses admin diperlukan." };
   }
 
   const normalized = normalizeArticleBlocks(input.blocks);
@@ -116,7 +128,7 @@ export async function saveArticleAction(input: SaveArticleInput): Promise<SaveAr
     p_expected_updated_at: input.expectedUpdatedAt,
     p_thumbnail_image_id: thumbnailImageId ? thumbnailImageId.toLowerCase() : null,
     p_inline_image_ids: inlineImageIds,
-    p_actor_id: actor.userId,
+    p_actor_id: auth.actor.user_id,
   });
 
   if (error) {
@@ -128,6 +140,18 @@ export async function saveArticleAction(input: SaveArticleInput): Promise<SaveAr
   if (!row?.ok || !row.slug || !row.updated_at) {
     return mapRpcFailure(row, "Perubahan artikel gagal disimpan. Periksa isian dan coba lagi.");
   }
+
+  await logAdminActivity({
+    actor: auth.actor,
+    action: slug ? "update" : "create",
+    module: "artikel",
+    entityId: row.slug,
+    entityLabel: title,
+    summary: slug
+      ? `Memperbarui artikel "${title}" (${input.publish ? "terbit" : "draf"})`
+      : `Membuat artikel baru "${title}" (${input.publish ? "terbit" : "draf"})`,
+    metadata: { publish: input.publish },
+  });
 
   revalidatePath("/artikel");
   revalidatePath(`/artikel/${row.slug}`);
@@ -146,11 +170,12 @@ export async function unpublishArticleAction(
   slug: string,
   expectedUpdatedAt: string | null,
 ): Promise<SaveArticleResult> {
-  const actor = await requireAdminActor();
-  if (actor.error) return { ok: false, error: actor.error };
+  const auth = await requireAdminActor();
+  if (auth.error || !auth.actor) return { ok: false, error: auth.error ?? "Akses admin diperlukan." };
   if (!SLUG_PATTERN.test(slug)) return { ok: false, error: "Slug artikel tidak valid." };
 
   const service = academyBillingClient();
+  const { data: existing } = await service.from("articles").select("title").eq("slug", slug).maybeSingle();
   const { data, error } = await service.rpc("set_article_published_status", {
     p_slug: slug,
     p_publish: false,
@@ -167,6 +192,17 @@ export async function unpublishArticleAction(
     return mapRpcFailure(row, "Artikel gagal ditarik dari publik. Coba lagi.");
   }
 
+  const label = existing?.title?.trim() || row.slug;
+  await logAdminActivity({
+    actor: auth.actor,
+    action: "status",
+    module: "artikel",
+    entityId: row.slug,
+    entityLabel: label,
+    summary: `Menarik artikel "${label}" dari publik (draf)`,
+    metadata: { publish: false },
+  });
+
   revalidatePath("/artikel");
   revalidatePath(`/artikel/${row.slug}`);
   revalidatePath("/admin/artikel");
@@ -180,15 +216,25 @@ export async function unpublishArticleAction(
   };
 }
 
-/** Row delete from the article list (plan 3.17). RLS also limits deletes to adminsuper. */
+/** Row delete from the article list (available for all admins). */
 export async function deleteArticleAction(slug: string): Promise<{ error?: string }> {
-  const { requireAdminMember } = await import("@/lib/server/admin-guard");
-  await requireAdminMember("adminsuper");
+  const supabase = await requireAdminMember();
   if (!SLUG_PATTERN.test(slug)) return { error: "Artikel tidak dikenal." };
 
   const service = academyBillingClient();
+  const { data: existing } = await service.from("articles").select("title").eq("slug", slug).maybeSingle();
   const { data: deleted, error } = await service.rpc("delete_article_with_images", { p_slug: slug });
   if (error || !deleted) return { error: "Artikel gagal dihapus." };
+
+  const label = existing?.title?.trim() || slug;
+  await logAdminActivity({
+    actor: supabase.adminUser,
+    action: "delete",
+    module: "artikel",
+    entityId: slug,
+    entityLabel: label,
+    summary: `Menghapus artikel "${label}"`,
+  });
 
   revalidatePath("/admin/artikel");
   revalidatePath("/artikel");

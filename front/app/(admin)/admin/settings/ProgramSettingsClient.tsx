@@ -96,6 +96,17 @@ function SingleProgramEditor({
       setError(saveError.message);
       return;
     }
+    void fetch("/api/admin/activity", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "update",
+        module: "program",
+        entityId: program.slug,
+        entityLabel: title.trim(),
+        summary: `Memperbarui detail program "${title.trim()}"`,
+      }),
+    }).catch(() => {});
     toast.success(`Detail ${title.trim()} disimpan.`);
     router.refresh();
   }

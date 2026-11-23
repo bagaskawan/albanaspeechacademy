@@ -3,10 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { requireAdminMember } from "@/lib/server/admin-guard";
 import { academyBillingClient } from "@/lib/server/academy-billing";
+import { logAdminActivity } from "@/lib/server/admin-activity";
 import { deleteStorageFile } from "@/lib/supabase/storage-cleanup";
 
 export async function savePartner(form: FormData): Promise<{ error?: string }> {
-  await requireAdminMember();
+  const supabase = await requireAdminMember();
   const name = String(form.get("name") ?? "").trim();
   const logo = String(form.get("logo") ?? "").trim();
   if (!name && !logo) return { error: "Isi nama partner atau unggah logo partner." };
@@ -27,14 +28,32 @@ export async function savePartner(form: FormData): Promise<{ error?: string }> {
   }
 
   // Partners are published immediately upon save.
-  const { error } = id
-    ? await table.update({ name, logo_url: logo || null, published: true }).eq("id", id)
-    : await table.insert({ name, logo_url: logo || null, sort_order: 0, published: true });
-  if (error) return { error: "Partner gagal disimpan." };
+  let savedId = id;
+  if (id) {
+    const { error } = await table.update({ name, logo_url: logo || null, published: true }).eq("id", id);
+    if (error) return { error: "Partner gagal disimpan." };
+  } else {
+    const { data: inserted, error } = await table
+      .insert({ name, logo_url: logo || null, sort_order: 0, published: true })
+      .select("id")
+      .single();
+    if (error) return { error: "Partner gagal disimpan." };
+    savedId = inserted?.id ?? 0;
+  }
 
   if (oldLogoUrl && oldLogoUrl !== (logo || null)) {
     await deleteStorageFile(client, oldLogoUrl).catch(() => {});
   }
+
+  const label = name || "Partner tanpa nama";
+  await logAdminActivity({
+    actor: supabase.adminUser,
+    action: id ? "update" : "create",
+    module: "partner",
+    entityId: savedId || null,
+    entityLabel: label,
+    summary: id ? `Memperbarui partner "${label}"` : `Menambahkan partner "${label}"`,
+  });
 
   revalidatePath("/admin/partner");
   revalidatePath("/admin/program");
@@ -44,15 +63,26 @@ export async function savePartner(form: FormData): Promise<{ error?: string }> {
 }
 
 export async function deletePartner(id: number): Promise<{ error?: string }> {
-  await requireAdminMember("adminsuper");
+  const supabase = await requireAdminMember();
   if (!Number.isSafeInteger(id) || id < 1) return { error: "Partner tidak valid." };
   const client = academyBillingClient();
-  const { data: existing } = await client.from("academy_partners").select("logo_url").eq("id", id).maybeSingle();
+  const { data: existing } = await client.from("academy_partners").select("name, logo_url").eq("id", id).maybeSingle();
   const { error } = await client.from("academy_partners").delete().eq("id", id);
   if (error) return { error: "Partner gagal dihapus." };
   if (existing?.logo_url) {
     await deleteStorageFile(client, existing.logo_url).catch(() => {});
   }
+
+  const label = existing?.name?.trim() || "Partner tanpa nama";
+  await logAdminActivity({
+    actor: supabase.adminUser,
+    action: "delete",
+    module: "partner",
+    entityId: id,
+    entityLabel: label,
+    summary: `Menghapus partner "${label}"`,
+  });
+
   revalidatePath("/admin/partner");
   revalidatePath("/admin/program");
   revalidatePath("/program/inhouse-training");
@@ -61,12 +91,26 @@ export async function deletePartner(id: number): Promise<{ error?: string }> {
 }
 
 export async function togglePartner(form: FormData) {
-  await requireAdminMember();
+  const supabase = await requireAdminMember();
   const id = Number(form.get("id"));
   if (!Number.isSafeInteger(id) || id < 1) throw new Error("Partner tidak valid.");
   const published = form.get("published") === "true";
-  const { error } = await academyBillingClient().from("academy_partners").update({ published }).eq("id", id);
+  const client = academyBillingClient();
+  const { data: existing } = await client.from("academy_partners").select("name").eq("id", id).maybeSingle();
+  const { error } = await client.from("academy_partners").update({ published }).eq("id", id);
   if (error) throw new Error("Status partner gagal disimpan.");
+
+  const label = existing?.name?.trim() || "Partner tanpa nama";
+  await logAdminActivity({
+    actor: supabase.adminUser,
+    action: "status",
+    module: "partner",
+    entityId: id,
+    entityLabel: label,
+    summary: `${published ? "Menampilkan" : "Menyembunyikan"} partner "${label}"`,
+    metadata: { published },
+  });
+
   revalidatePath("/admin/partner");
   revalidatePath("/program/inhouse-training");
   revalidatePath("/", "layout");

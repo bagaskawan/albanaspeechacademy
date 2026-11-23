@@ -6,8 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, m } from "motion/react";
 import { Dialog } from "radix-ui";
 import {
-  Award, BookOpen, Building2, CalendarRange, ChevronDown, Film, Globe, Handshake, Images, Landmark, LayoutDashboard,
-  LogOut, Menu, Mic, Newspaper, PanelLeft, Phone, Settings, Quote, ReceiptText, UserRound, Users, type LucideIcon,
+  Activity, Award, BookOpen, Building2, CalendarRange, ChevronDown, Film, Globe, Handshake, Images, Landmark, LayoutDashboard,
+  LogOut, Menu, Mic, Newspaper, PanelLeft, Phone, Settings, ShieldCheck, Quote, ReceiptText, UserRound, Users, type LucideIcon,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { PageHeader } from "@/components/admin/PageHeader";
@@ -23,7 +23,7 @@ import { createClient } from "@/lib/supabase/client";
 const icons: Record<AdminNavIcon, LucideIcon> = {
   dashboard: LayoutDashboard, users: Users, receipt: ReceiptText, book: BookOpen, speaker: Mic, certificate: Award,
   calendar: CalendarRange, trainer: UserRound, article: Newspaper, media: Film, gallery: Images, quote: Quote,
-  partner: Handshake, academy: Building2, contact: Phone, bank: Landmark,
+  partner: Handshake, academy: Building2, contact: Phone, bank: Landmark, shield: ShieldCheck, activity: Activity,
 };
 
 const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-ink";
@@ -166,6 +166,7 @@ export function AdminShell({ children, pendingInvoices, verifiedRegistrants, acc
     activeHref: nav.module?.href ?? (pathname === "/admin" ? "/admin" : undefined),
     pendingInvoices: liveCounts.pendingInvoices,
     verifiedRegistrants: liveCounts.verifiedRegistrants,
+    isAdminSuper: role === "adminsuper",
     closed,
     toggleGroup,
   };
@@ -259,13 +260,14 @@ type SidebarProps = {
   activeHref?: string;
   pendingInvoices: number;
   verifiedRegistrants: number;
+  isAdminSuper: boolean;
   closed: Record<string, boolean>;
   toggleGroup: (id: string) => void;
   onNavigate?: () => void;
   onToggleCompact?: () => void;
 };
 
-function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInvoices, verifiedRegistrants, closed, toggleGroup, onNavigate, onToggleCompact }: SidebarProps) {
+function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInvoices, verifiedRegistrants, isAdminSuper, closed, toggleGroup, onNavigate, onToggleCompact }: SidebarProps) {
   // "auto" is compact only between 1024 and 1279 px, decided in CSS so the first paint is right.
   // Labels use max-xl:sr-only, never not-sr-only: that utility sets position: static and drops the
   // label under the absolutely positioned active pill (the "invisible active label" bug).
@@ -275,7 +277,7 @@ function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInv
   const onlyFull = mode === "full" ? "" : mode === "compact" ? "hidden" : "max-xl:hidden";
   const compactish = mode !== "full";
   const [dashboard, ...allGroups] = adminNavGroups;
-  const groups = allGroups.filter((group) => !group.sidebarHidden);
+  const groups = allGroups.filter((group) => !group.sidebarHidden && (!group.superAdminOnly || isAdminSuper));
 
   return <div className={`flex h-full ${width} flex-col rounded-[var(--admin-radius-card)] bg-admin-surface`}>
     <nav aria-label="Navigasi CMS" className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
@@ -304,7 +306,7 @@ function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInv
               animate={{ height: "auto", opacity: 1, transition: { duration: 0.2, ease: ease.out } }}
               exit={{ height: 0, opacity: 0, transition: { duration: 0.16, ease: ease.out } }}
             >
-              {group.modules.filter((item) => !item.hidden).map((item) => {
+              {group.modules.filter((item) => !item.hidden && (!item.superAdminOnly || isAdminSuper)).map((item) => {
                 const isTagihan = item.href === "/admin/tagihan";
                 const isPendaftar = item.href === "/admin/pendaftar";
                 const badge = isTagihan ? pendingInvoices : isPendaftar ? verifiedRegistrants : 0;

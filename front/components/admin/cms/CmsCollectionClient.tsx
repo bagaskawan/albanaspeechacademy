@@ -16,7 +16,7 @@ import { AdminInput, AdminSelect, AdminTextarea, PriceInput } from "@/components
 import { DatePicker } from "@/components/ui/DatePicker";
 import { TimePicker } from "@/components/ui/TimePicker";
 import { TableToolbar, matchesQuery, type ToolbarFilter } from "@/components/admin/ui/table-toolbar";
-import { RowActions, useIsAdminSuper } from "@/components/admin/ui/row-actions";
+import { RowActions } from "@/components/admin/ui/row-actions";
 import { EmptyState } from "@/components/admin/ui/empty-state";
 import { useSearchParams } from "next/navigation";
 import { DataTable } from "@/components/admin/ui/data-table";
@@ -503,7 +503,7 @@ export default function CmsCollectionClient({
   const params = useSearchParams();
   const query = params.get("q") ?? "";
   const formId = useId();
-  const canDelete = useIsAdminSuper();
+  const canDelete = true;
   const visibleRows = rows.filter((row) =>
     (!groupField || String(row[groupField.name]) === activeGroup)
     && matchesQuery(row[displayField], query)
@@ -558,6 +558,36 @@ export default function CmsCollectionClient({
       delete next[field.name];
       return next;
     });
+  };
+
+  const cmsModuleName =
+    table === "inhouse_gallery"
+      ? "inhouse-galeri"
+      : table === "gallery"
+        ? "galeri"
+        : table === "testimonials"
+          ? "testimoni"
+          : table === "trainers"
+            ? "trainer"
+            : table;
+
+  const recordCmsActivity = (entry: {
+    action: "create" | "update" | "delete" | "status";
+    entityId?: string | number | null;
+    entityLabel?: string | null;
+    summary: string;
+  }) => {
+    void fetch("/api/admin/activity", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: entry.action,
+        module: cmsModuleName,
+        entityId: entry.entityId ?? null,
+        entityLabel: entry.entityLabel ?? null,
+        summary: entry.summary,
+      }),
+    }).catch(() => {});
   };
 
   const announce = (message: string) => {
@@ -712,6 +742,12 @@ export default function CmsCollectionClient({
           clearStagedGallery();
           setMultiUploadProgress(null);
           await refresh();
+          const uploadedLabel = payload[displayField] ? String(payload[displayField]) : `${total} foto`;
+          recordCmsActivity({
+            action: "create",
+            entityLabel: uploadedLabel,
+            summary: `Mengunggah ${total} foto ke ${title}`,
+          });
           toast.success(`${total} foto berhasil diunggah ke galeri.`);
           announce(`${total} foto berhasil diunggah ke galeri.`);
           setIsFormOpen(false);
@@ -769,6 +805,17 @@ export default function CmsCollectionClient({
       clearStagedGallery();
       sessionUploadedUrlsRef.current.clear();
       await refresh();
+      const labelValue = payload[displayField] ?? editingRow?.[displayField];
+      const entityLabel = labelValue ? String(labelValue) : title;
+      const entityIdValue = editingRow?.[primaryKey];
+      recordCmsActivity({
+        action: editingRow ? "update" : "create",
+        entityId: entityIdValue !== undefined && entityIdValue !== null ? String(entityIdValue) : null,
+        entityLabel,
+        summary: editingRow
+          ? `Memperbarui ${title.toLowerCase()} "${entityLabel}"`
+          : `Menambahkan ${title.toLowerCase()} "${entityLabel}"`,
+      });
       const message = editingRow ? "Perubahan tersimpan." : "Data ditambahkan.";
       toast.success(message);
       announce(message);
@@ -802,6 +849,13 @@ export default function CmsCollectionClient({
       }
 
       await refresh();
+      const deletedLabel = row[displayField] ? String(row[displayField]) : String(row[primaryKey] ?? "");
+      recordCmsActivity({
+        action: "delete",
+        entityId: row[primaryKey] !== undefined && row[primaryKey] !== null ? String(row[primaryKey]) : null,
+        entityLabel: deletedLabel || null,
+        summary: `Menghapus ${title.toLowerCase()}${deletedLabel ? ` "${deletedLabel}"` : ""}`,
+      });
       announce("Data berhasil dihapus.");
     } catch (err) {
       // RowActions' DeleteSheet toasts this and keeps the dialog open.
@@ -823,6 +877,13 @@ export default function CmsCollectionClient({
         .eq(primaryKey, row[primaryKey]);
       if (updateError) throw updateError;
       await refresh();
+      const activatedLabel = row[displayField] ? String(row[displayField]) : key;
+      recordCmsActivity({
+        action: "status",
+        entityId: key,
+        entityLabel: activatedLabel,
+        summary: `Mengaktifkan ${title.toLowerCase()} "${activatedLabel}"`,
+      });
       toast.success(`${title} diaktifkan.`);
       announce(`${title} diaktifkan.`);
     } catch (err) {

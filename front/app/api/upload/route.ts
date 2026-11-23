@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { academyBillingClient } from "@/lib/server/academy-billing";
+import { logAdminActivity } from "@/lib/server/admin-activity";
 import {
   createBlurDataUrl,
   MAX_IMAGE_SOURCE,
@@ -35,7 +36,7 @@ export async function POST(request: Request) {
   const session = await createClient();
   const { data: { user } } = await session.auth.getUser();
   if (!user) return json({ error: "Masuk sebagai admin terlebih dahulu." }, 401);
-  const { data: admin } = await session.from("admin_users").select("user_id").eq("user_id", user.id).maybeSingle();
+  const { data: admin } = await session.from("admin_users").select("user_id, role, username").eq("user_id", user.id).maybeSingle();
   if (!admin) return json({ error: "Akses admin diperlukan." }, 403);
 
   let form: FormData;
@@ -210,6 +211,18 @@ export async function POST(request: Request) {
           await storage.storage.from("academy-media").remove([existingAsset.object_key]).catch(() => {});
         }
       }
+      await logAdminActivity({
+        actor: {
+          user_id: admin.user_id,
+          username: admin.username ?? null,
+          role: admin.role,
+        },
+        action: "update",
+        module: "program",
+        entityId: existingAsset.id,
+        entityLabel: altText || existingAsset.alt_text || `Media #${existingAsset.id}`,
+        summary: `Mengganti foto dokumentasi program (${programSlug})`,
+      });
       return json({ assetId: existingAsset.id, url: `/api/media/${existingAsset.id}?t=${Date.now()}` }, 200);
     }
 
@@ -219,6 +232,18 @@ export async function POST(request: Request) {
       await storage.storage.from(bucket).remove([key]);
       throw error ?? new Error("Metadata media tidak tersimpan.");
     }
+    await logAdminActivity({
+      actor: {
+        user_id: admin.user_id,
+        username: admin.username ?? null,
+        role: admin.role,
+      },
+      action: "create",
+      module: "program",
+      entityId: data.id,
+      entityLabel: altText || `Media #${data.id}`,
+      summary: `Mengunggah foto dokumentasi program (${programSlug})`,
+    });
     return json({ assetId: data.id, url: `/api/media/${data.id}` }, 201);
   } catch (error) {
     if (error instanceof Error && /gambar|resolusi|format/i.test(error.message)) return json({ error: error.message }, 422);
@@ -238,7 +263,7 @@ export async function DELETE(request: Request) {
   const session = await createClient();
   const { data: { user } } = await session.auth.getUser();
   if (!user) return json({ error: "Masuk sebagai admin terlebih dahulu." }, 401);
-  const { data: admin } = await session.from("admin_users").select("user_id").eq("user_id", user.id).maybeSingle();
+  const { data: admin } = await session.from("admin_users").select("user_id, role, username").eq("user_id", user.id).maybeSingle();
   if (!admin) return json({ error: "Akses admin diperlukan." }, 403);
 
   const body = (await request.json().catch(() => null)) as { urls?: unknown } | null;

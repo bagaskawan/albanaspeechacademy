@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { parseRupiahInput } from "@/lib/billing";
 import { MAX_IMAGE_SOURCE, prepareImage } from "@/lib/media-prepare";
 import { academyBillingClient } from "@/lib/server/academy-billing";
+import { logAdminActivity } from "@/lib/server/admin-activity";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
   if (!user) return json({ error: "Masuk sebagai admin terlebih dahulu." }, 401);
   const { data: admin } = await session
     .from("admin_users")
-    .select("user_id")
+    .select("user_id, role, username")
     .eq("user_id", user.id)
     .maybeSingle();
   if (!admin) return json({ error: "Akses admin diperlukan." }, 403);
@@ -110,6 +111,20 @@ export async function POST(request: Request) {
       }
       return json({ error: "Data catatan transfer tidak valid." }, 422);
     }
+
+    await logAdminActivity({
+      actor: {
+        user_id: admin.user_id,
+        username: admin.username ?? null,
+        role: admin.role,
+      },
+      action: "create",
+      module: "tagihan",
+      entityId: rawInvoiceId,
+      entityLabel: `Tagihan #${rawInvoiceId}`,
+      summary: `Mencatat transfer Rp ${amount.toLocaleString("id-ID")} untuk tagihan #${rawInvoiceId}`,
+      metadata: { amount, paymentId: result.paymentId },
+    });
 
     return json(
       {

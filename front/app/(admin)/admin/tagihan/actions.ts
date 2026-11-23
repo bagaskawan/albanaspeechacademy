@@ -5,6 +5,7 @@ import { after } from "next/server";
 import { parseRupiahInput } from "@/lib/billing";
 import type { EmailKind } from "@/lib/registration-email";
 import { academyBillingClient } from "@/lib/server/academy-billing";
+import { logAdminActivity } from "@/lib/server/admin-activity";
 import { requireAdminMember } from "@/lib/server/admin-guard";
 import { deliverInvoiceEmail } from "@/lib/server/registration-mail";
 
@@ -42,6 +43,19 @@ export async function resolveInvoice(form: FormData): Promise<void> {
   if (error || data?.status !== "resolved") {
     throw new Error("Tagihan sudah berubah atau verifikasi gagal.");
   }
+
+  await logAdminActivity({
+    actor: admin.adminUser,
+    action: decision === "verified" ? "verify" : "reject",
+    module: "tagihan",
+    entityId: id,
+    entityLabel: `Tagihan #${id}`,
+    summary:
+      decision === "verified"
+        ? `Memverifikasi pembayaran tagihan #${id}${receivedIdr !== null ? ` sebesar Rp ${receivedIdr.toLocaleString("id-ID")}` : ""}`
+        : `Menolak pembayaran tagihan #${id}`,
+    metadata: { decision, receivedIdr },
+  });
 
   if (decision === "verified") {
     after(() => deliverInvoiceEmail(id, "payment_confirmed"));
@@ -96,11 +110,20 @@ export async function voidInvoicePayment(form: FormData): Promise<void> {
     throw new Error("Catatan sudah dibatalkan atau tagihan sudah diproses.");
   }
 
+  await logAdminActivity({
+    actor: admin.adminUser,
+    action: "delete",
+    module: "tagihan",
+    entityId: paymentId,
+    entityLabel: `Pembayaran #${paymentId}`,
+    summary: `Membatalkan catatan transfer pembayaran #${paymentId}`,
+  });
+
   revalidatePath("/admin/tagihan");
 }
 
 export async function deleteBillingItem(form: FormData): Promise<void> {
-  await requireAdminMember();
+  const admin = await requireAdminMember();
 
   const rawInvoiceId = form.get("invoiceId");
   const rawRegistrationId = form.get("registrationId");
@@ -113,7 +136,7 @@ export async function deleteBillingItem(form: FormData): Promise<void> {
     }
     const { data: targetInv } = await client
       .from("academy_invoices")
-      .select("registration_id")
+      .select("registration_id, invoice_number")
       .eq("id", invoiceId)
       .maybeSingle();
 
@@ -129,6 +152,16 @@ export async function deleteBillingItem(form: FormData): Promise<void> {
         await client.from("academy_registrations").delete().eq("id", targetInv.registration_id);
       }
     }
+
+    const label = targetInv?.invoice_number || `Tagihan #${invoiceId}`;
+    await logAdminActivity({
+      actor: admin.adminUser,
+      action: "delete",
+      module: "tagihan",
+      entityId: invoiceId,
+      entityLabel: label,
+      summary: `Menghapus tagihan "${label}"`,
+    });
   } else if (rawRegistrationId) {
     const registrationId = Number(rawRegistrationId);
     if (!Number.isSafeInteger(registrationId) || registrationId < 1) {
@@ -136,6 +169,15 @@ export async function deleteBillingItem(form: FormData): Promise<void> {
     }
     const { error } = await client.from("academy_registrations").delete().eq("id", registrationId);
     if (error) throw new Error("Gagal menghapus pendaftaran.");
+
+    await logAdminActivity({
+      actor: admin.adminUser,
+      action: "delete",
+      module: "tagihan",
+      entityId: registrationId,
+      entityLabel: `Pendaftaran #${registrationId}`,
+      summary: `Menghapus data pendaftaran #${registrationId} dari daftar tagihan`,
+    });
   } else {
     throw new Error("Data yang akan dihapus tidak valid.");
   }
