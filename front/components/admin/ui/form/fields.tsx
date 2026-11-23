@@ -33,7 +33,7 @@ export function Field({ label, htmlFor, required = false, hint, error, span = "f
     <Label htmlFor={htmlFor} className="text-[13px] font-medium text-admin-ink">
       {label}{required && <span aria-hidden="true" className="text-admin-danger">*</span>}
     </Label>
-    <div className={span === "narrow" ? "max-w-[160px]" : undefined}>{children}</div>
+    <div className={span === "narrow" ? "min-w-0 max-w-[160px]" : "min-w-0"}>{children}</div>
     {error
       ? <p role="alert" className="min-h-5 text-[12px] text-admin-danger">{error}</p>
       : hint && <p className="text-[12px] text-admin-text-secondary">{hint}</p>}

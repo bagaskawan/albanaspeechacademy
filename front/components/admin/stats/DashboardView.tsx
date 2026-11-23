@@ -32,8 +32,8 @@ function Chip({ tone, children }: { tone: "butter" | "peach" | "mint" | "rose" |
 function Sparkline({ values }: { values: number[] }) {
   if (values.length < 2 || values.every((value) => value === 0)) return null;
   const max = Math.max(...values);
-  const points = values.map((value, index) => `${(index / (values.length - 1)) * 140},${44 - (value / max) * 40}`).join(" ");
-  return <svg aria-hidden="true" viewBox="0 0 140 48" className="h-12 w-[140px] shrink-0 overflow-visible">
+  const points = values.map((value, index) => `${(index / (values.length - 1)) * 100},${36 - (value / max) * 32}`).join(" ");
+  return <svg aria-hidden="true" viewBox="0 0 100 40" className="h-10 w-[88px] shrink-0 overflow-visible sm:w-[100px]">
     <polyline points={points} fill="none" stroke="var(--admin-butter-dot)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>;
 }
@@ -41,8 +41,8 @@ function Sparkline({ values }: { values: number[] }) {
 function StatCard({ value, label, chip, spark, href }: { value: React.ReactNode; label: string; chip?: React.ReactNode; spark?: number[]; href?: string }) {
   return <section className={`${card} flex min-h-[188px] flex-col justify-between gap-4`}>
     <div>
-      <div className="flex items-start justify-between gap-3">
-        <p className="min-w-0 truncate text-[32px] font-normal leading-none tracking-[-0.02em] sm:text-[40px] md:text-[48px]">{value}</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <p className="min-w-0 text-[28px] font-normal leading-none tracking-[-0.02em] sm:text-[34px] xl:text-[40px]">{value}</p>
         {spark ? <Sparkline values={spark} /> : href && <OpenLink href={href} label={label} />}
       </div>
       <h2 className="mt-3 text-[15px] text-admin-text-secondary">{label}</h2>
@@ -101,8 +101,7 @@ function actionItems(stats: DashboardStats, agenda: CalendarSession[], now: numb
 }
 
 export function DashboardView({ stats, agenda, filtered, now, tones }: { stats: DashboardStats; agenda: CalendarSession[]; filtered: boolean; now: number; tones: ProgramTones }) {
-  const { registrations, verified, pending, settlement, trend, topBatches, composition, perProgram } = stats;
-  const settlementDelta = settlement.current - settlement.previous;
+  const { registrations, verified, pending, trend, topBatches, composition, perProgram } = stats;
   const profile = [composition.gender, composition.experience, composition.payment];
   const profileN = Math.min(...profile.map((group) => group.n));
   const actions = actionItems(stats, agenda, now);
@@ -122,7 +121,7 @@ export function DashboardView({ stats, agenda, filtered, now, tones }: { stats: 
       </li>)}</ul>
     </section>}
 
-    <div className="grid gap-[var(--admin-gap-card)] sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-[var(--admin-gap-card)] md:grid-cols-3">
       <StatCard value={registrations.current.toLocaleString("id-ID")} label="Pendaftar" spark={registrations.daily}
         chip={<p className="flex flex-wrap items-center gap-2 text-[13px] text-admin-text-secondary"><Chip tone="butter">{registrations.delta >= 0 ? "+" : ""}{registrations.delta}</Chip>dibanding {periodWord[stats.period]}</p>} />
       <StatCard value={<Rupiah value={verified.current} />} label="Pembayaran terverifikasi" spark={verified.daily}
@@ -130,7 +129,7 @@ export function DashboardView({ stats, agenda, filtered, now, tones }: { stats: 
       <section className={`${card} flex min-h-[188px] flex-col justify-between gap-4 !bg-admin-ink text-admin-on-ink`}>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[32px] font-normal leading-none tracking-[-0.02em] sm:text-[40px] md:text-[48px]">{pending.count}</p>
+            <p className="text-[28px] font-normal leading-none tracking-[-0.02em] sm:text-[34px] xl:text-[40px]">{pending.count}</p>
             <h2 className="mt-3 text-[15px] opacity-70">Tagihan menunggu · <Rupiah value={pending.total} className="[&>span:last-child]:text-current [&>span:last-child]:opacity-60" /></h2>
           </div>
           <OpenLink href="/admin/tagihan?status=pending" label="tagihan menunggu" inverse />
@@ -140,8 +139,6 @@ export function DashboardView({ stats, agenda, filtered, now, tones }: { stats: 
           {pending.remainingCount > 0 && <p className="text-[13px] opacity-70">{pending.remainingCount} pelunasan · <Rupiah value={pending.remainingTotal} className="[&>span:last-child]:text-current [&>span:last-child]:opacity-60" /></p>}
         </div>
       </section>
-      <StatCard value={`${settlement.current}%`} label="Tingkat pelunasan"
-        chip={<p className="flex flex-wrap items-center gap-2 text-[13px] text-admin-text-secondary"><Chip tone={settlementDelta >= 0 ? "mint" : "rose"}>{settlementDelta >= 0 ? "+" : ""}{settlementDelta} poin</Chip>{stats.openBatches} batch dibuka</p>} />
     </div>
 
     <div className="grid gap-[var(--admin-gap-card)] xl:grid-cols-3">

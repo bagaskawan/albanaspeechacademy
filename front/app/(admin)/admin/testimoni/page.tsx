@@ -6,8 +6,8 @@ export const dynamic = "force-dynamic";
 
 const fields: CmsField[] = [
   { name: "photo_url", label: "Foto pemberi testimoni", type: "gallery", bucket: "testimonials", help: "Gunakan foto yang sudah mendapat izin publikasi. Jika kosong, otomatis memakai inisial 2 huruf." },
-  { name: "attribution", label: "Nama pemberi testimoni", type: "registrant", linkedRoleField: "role_label", required: true, help: "Pilih dari data pendaftar; program dan batch otomatis terhubung." },
-  { name: "quote", label: "Kutipan", type: "textarea", required: true, minWords: 30, maxWords: 40 },
+  { name: "attribution", label: "Nama pemberi testimoni", type: "registrant", linkedRoleField: "role_label", required: true, help: "Pilih dari data pendaftar atau isi nama secara manual." },
+  { name: "quote", label: "Kutipan", type: "textarea", required: true, minWords: 40, maxWords: 50 },
   { name: "role_label", label: "Program & Batch", hiddenInForm: true },
 ];
 

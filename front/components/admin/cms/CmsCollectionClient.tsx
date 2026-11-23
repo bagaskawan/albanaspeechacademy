@@ -282,6 +282,7 @@ export default function CmsCollectionClient({
   const [stagedSingleFiles, setStagedSingleFiles] = useState<Record<string, { file: File; previewUrl: string }>>({});
   const stagedSingleRef = useRef<Record<string, { file: File; previewUrl: string }>>({});
   const [multiUploadProgress, setMultiUploadProgress] = useState<{ current: number; total: number } | null>(null);
+  const [registrantManualMode, setRegistrantManualMode] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     stagedGalleryRef.current = stagedGalleryFiles;
@@ -514,6 +515,7 @@ export default function CmsCollectionClient({
 
   const openCreate = () => {
     clearStagedGallery();
+    setRegistrantManualMode({});
     setEditingRow(null);
     setForm({
       ...initialFormState(fields, null),
@@ -527,6 +529,7 @@ export default function CmsCollectionClient({
 
   const openEdit = (row: Row) => {
     clearStagedGallery();
+    setRegistrantManualMode({});
     setEditingRow(row);
     setForm(initialFormState(fields, row));
     setError(null);
@@ -1025,47 +1028,134 @@ export default function CmsCollectionClient({
       const matched = list.find(
         (item) => item.name === currentName && (!currentRole || item.roleLabel === currentRole),
       ) ?? list.find((item) => item.name === currentName);
-      const selectValue = matched ? matched.id : currentName ? `__custom__:${currentName}` : "";
-      const options = [
-        ...(currentName && !matched
-          ? [{ value: `__custom__:${currentName}`, label: currentRole ? `${currentName} (${currentRole})` : currentName }]
-          : []),
-        ...list.map((item) => ({
-          value: item.id,
-          label: item.roleLabel ? `${item.name} (${item.roleLabel})` : item.name,
-        })),
-      ];
+      const isManual = registrantManualMode[field.name] ?? (Boolean(currentName) && !matched);
+      const selectValue = matched ? matched.id : "";
+
+      const nameCount = new Map<string, number>();
+      for (const item of list) {
+        nameCount.set(item.name, (nameCount.get(item.name) ?? 0) + 1);
+      }
+      const options = list.map((item) => ({
+        value: item.id,
+        label:
+          (nameCount.get(item.name) ?? 0) > 1 && item.roleLabel
+            ? `${item.name} · ${item.roleLabel}`
+            : item.name,
+      }));
+
+      const roleFieldDef = roleField ? fields.find((f) => f.name === roleField) : undefined;
+      const roleLabelText = roleFieldDef?.label ?? "Program & Batch";
 
       return (
-        <Field
-          {...fieldProps}
-          hint={currentRole ? `Program & batch: ${currentRole}` : field.help}
-        >
-          <AdminSelect
-            id={id}
-            value={selectValue}
-            placeholder={list.length === 0 ? "Belum ada data pendaftar" : "Pilih pendaftar…"}
-            onValueChange={(nextId) => {
-              const selected = list.find((item) => item.id === nextId);
-              if (selected) {
-                setForm((prev) => ({
-                  ...prev,
-                  [field.name]: selected.name,
-                  ...(roleField ? { [roleField]: selected.roleLabel } : {}),
-                }));
-                setFieldErrors((prev) => {
-                  if (!prev[field.name]) return prev;
-                  const next = { ...prev };
-                  delete next[field.name];
-                  return next;
-                });
+        <div className="min-w-0 space-y-4">
+          <Field {...fieldProps}>
+            <div className="min-w-0 space-y-2.5">
+              <div className="inline-flex rounded-full border border-admin-line bg-admin-surface p-0.5 text-[12px]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRegistrantManualMode((prev) => ({ ...prev, [field.name]: false }));
+                    if (matched && roleField) {
+                      setForm((prev) => ({ ...prev, [roleField]: matched.roleLabel }));
+                    }
+                  }}
+                  className={`cursor-pointer rounded-full px-3 py-1 font-medium transition-colors ${
+                    !isManual
+                      ? "bg-admin-ink text-admin-on-ink"
+                      : "text-admin-text-secondary hover:text-admin-ink"
+                  }`}
+                >
+                  Pilih pendaftar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRegistrantManualMode((prev) => ({ ...prev, [field.name]: true }));
+                  }}
+                  className={`cursor-pointer rounded-full px-3 py-1 font-medium transition-colors ${
+                    isManual
+                      ? "bg-admin-ink text-admin-on-ink"
+                      : "text-admin-text-secondary hover:text-admin-ink"
+                  }`}
+                >
+                  Isi manual
+                </button>
+              </div>
+
+              {isManual ? (
+                <AdminInput
+                  id={id}
+                  type="text"
+                  required={field.required}
+                  aria-required={field.required ? "true" : undefined}
+                  aria-invalid={error ? true : undefined}
+                  placeholder="Masukkan nama pemberi testimoni"
+                  value={currentName}
+                  onChange={(event) => setValue(field, event.target.value)}
+                />
+              ) : (
+                <AdminSelect
+                  id={id}
+                  value={selectValue}
+                  placeholder={list.length === 0 ? "Belum ada data pendaftar" : "Pilih pendaftar…"}
+                  onValueChange={(nextId) => {
+                    const selected = list.find((item) => item.id === nextId);
+                    if (selected) {
+                      setForm((prev) => ({
+                        ...prev,
+                        [field.name]: selected.name,
+                        ...(roleField ? { [roleField]: selected.roleLabel } : {}),
+                      }));
+                      setFieldErrors((prev) => {
+                        if (!prev[field.name]) return prev;
+                        const next = { ...prev };
+                        delete next[field.name];
+                        return next;
+                      });
+                    }
+                  }}
+                  options={options}
+                  required={field.required}
+                  aria-invalid={error ? true : undefined}
+                />
+              )}
+            </div>
+          </Field>
+
+          {roleField && (
+            <Field
+              label={roleLabelText}
+              htmlFor={`${id}-role`}
+              hint={
+                !isManual
+                  ? "Terisi otomatis dari data pendaftar (read-only)."
+                  : "Opsional. Contoh: Public Speaking Series · Batch 11."
               }
-            }}
-            options={options}
-            required={field.required}
-            aria-invalid={error ? true : undefined}
-          />
-        </Field>
+            >
+              <AdminInput
+                id={`${id}-role`}
+                type="text"
+                value={currentRole}
+                readOnly={!isManual}
+                placeholder={
+                  !isManual
+                    ? "Otomatis terisi setelah memilih pendaftar"
+                    : "Contoh: Public Speaking Series · Batch 11"
+                }
+                className={
+                  !isManual
+                    ? "cursor-default bg-admin-surface-muted/70 text-admin-text-secondary hover:border-admin-line focus-visible:bg-admin-surface-muted/70"
+                    : undefined
+                }
+                onChange={
+                  isManual
+                    ? (event) => setForm((prev) => ({ ...prev, [roleField]: event.target.value }))
+                    : undefined
+                }
+              />
+            </Field>
+          )}
+        </div>
       );
     }
 

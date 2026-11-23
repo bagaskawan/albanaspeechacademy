@@ -53,14 +53,14 @@ export function AdminSelect({
         id={id}
         aria-required={required ? "true" : undefined}
         aria-invalid={ariaInvalid}
-        className={cn(adminFieldClass, "justify-between")}
+        className={cn(adminFieldClass, "min-w-0 justify-between overflow-hidden [&>span]:min-w-0 [&>span]:truncate")}
       >
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent className="rounded-[20px]">
+      <SelectContent className="max-w-[var(--radix-select-trigger-width)] rounded-[20px]">
         {options.map((option) => (
-          <SelectItem key={option.value} value={option.value} className="h-10 text-sm">
-            {option.label}
+          <SelectItem key={option.value} value={option.value} className="min-h-10 text-sm">
+            <span className="block truncate">{option.label}</span>
           </SelectItem>
         ))}
       </SelectContent>

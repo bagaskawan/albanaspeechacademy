@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { AnimatePresence, m, useDragControls } from "motion/react";
 import { Dialog } from "radix-ui";
 import { X } from "lucide-react";
@@ -43,6 +43,53 @@ export function AdminSheet({
 }) {
   const sheet = useIsSheet();
   const drag = useDragControls();
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const popperOpenOnPointerDownRef = useRef(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onCapturePointerDown = () => {
+      const hasOpenPopper = Boolean(
+        document.querySelector(
+          '[data-slot="select-content"][data-state="open"], [data-slot="popover-content"][data-state="open"]',
+        ),
+      );
+      popperOpenOnPointerDownRef.current = hasOpenPopper;
+      if (hasOpenPopper) {
+        window.setTimeout(() => {
+          popperOpenOnPointerDownRef.current = false;
+        }, 0);
+      }
+    };
+    window.addEventListener("pointerdown", onCapturePointerDown, true);
+    return () => {
+      window.removeEventListener("pointerdown", onCapturePointerDown, true);
+      popperOpenOnPointerDownRef.current = false;
+    };
+  }, [open]);
+
+  function shouldBlockOutsideDismiss(event: {
+    target: EventTarget | null;
+    detail?: { originalEvent?: Event };
+  }): boolean {
+    if (popperOpenOnPointerDownRef.current) return true;
+    const target = event.target as HTMLElement | null;
+    if (
+      target?.closest?.('[data-slot="select-content"], [data-slot="popover-content"], [data-radix-popper-content-wrapper]') ||
+      document.querySelector('[data-slot="select-content"][data-state="open"], [data-slot="popover-content"][data-state="open"]')
+    ) {
+      return true;
+    }
+    const orig = event.detail?.originalEvent;
+    if (orig && "clientX" in orig && "clientY" in orig && contentRef.current) {
+      const { clientX, clientY } = orig as PointerEvent;
+      const rect = contentRef.current.getBoundingClientRect();
+      if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -61,18 +108,20 @@ export function AdminSheet({
               <Dialog.Content
                 asChild
                 forceMount
+                onPointerDownOutside={(event) => {
+                  if (shouldBlockOutsideDismiss(event)) {
+                    event.preventDefault();
+                  }
+                }}
                 onInteractOutside={(event) => {
-                  const target = event.target as HTMLElement | null;
-                  if (
-                    target?.closest?.('[data-slot="select-content"], [data-slot="popover-content"], [data-radix-popper-content-wrapper]') ||
-                    document.querySelector('[data-slot="select-content"][data-state="open"], [data-slot="popover-content"][data-state="open"]')
-                  ) {
+                  if (shouldBlockOutsideDismiss(event)) {
                     event.preventDefault();
                   }
                 }}
                 {...(description ? {} : { "aria-describedby": undefined })}
               >
                 <m.div
+                  ref={contentRef}
                   className={`pointer-events-auto flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[28px] bg-admin-canvas shadow-[var(--admin-shadow-overlay)] sm:max-h-[min(760px,calc(100dvh-48px))] sm:rounded-[32px] ${widths[size]}`}
                   initial={sheet ? { y: "100%" } : { opacity: 0, y: 24, scale: 0.96 }}
                   animate={sheet ? { y: 0, transition: { duration: 0.32, ease: ease.out } } : { opacity: 1, y: 0, scale: 1, transition: { duration: 0.28, ease: ease.out } }}
