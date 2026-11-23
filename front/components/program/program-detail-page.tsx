@@ -4,6 +4,7 @@ import { Container } from "@/components/layout/container";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { RetryButton } from "@/components/ui/retry-button";
+import { ProgramMediaGallery } from "@/components/program/program-media-gallery";
 import { formatRupiah } from "@/lib/format";
 import { getProgramEditorial, resolveProgramTopics } from "@/lib/program-editorial";
 import type { ProgramCard } from "@/lib/server/program-showcase";
@@ -13,6 +14,7 @@ export type ProgramMediaItem = {
   kind: "image" | "video";
   src: string;
   alt: string;
+  blurDataURL?: string | null;
   youtubeId: string | null;
 };
 
@@ -540,25 +542,10 @@ export function ProgramDetailPage({
                   </div>
                 ) : null}
 
-                {media.some((item) => item.kind === "image") ? (
-                  <div className="mt-5 columns-2 gap-3 space-y-3 sm:columns-3">
-                    {media
-                      .filter((item) => item.kind === "image")
-                      .map((item) => (
-                        <div
-                          key={item.id}
-                          className="break-inside-avoid overflow-hidden border border-rule bg-card dark:border-white/15"
-                        >
-                          <img
-                            src={item.src}
-                            alt={item.alt}
-                            loading="lazy"
-                            className="block h-auto w-full object-cover"
-                          />
-                        </div>
-                      ))}
-                  </div>
-                ) : null}
+                <ProgramMediaGallery
+                  images={media.filter((item) => item.kind === "image")}
+                  programTitle={card.title}
+                />
               </section>
             ) : null}
           </div>

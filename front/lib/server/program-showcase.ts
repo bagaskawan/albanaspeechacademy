@@ -43,7 +43,7 @@ export type ProgramShowcase =
   | { status: "failed" };
 
 export type ProgramDetail =
-  | { status: "ready"; card: ProgramCard; media: { id: number; kind: "image" | "video"; src: string; alt: string; youtubeId: string | null }[] }
+  | { status: "ready"; card: ProgramCard; media: { id: number; kind: "image" | "video"; src: string; alt: string; youtubeId: string | null; blurDataURL?: string | null }[] }
   | { status: "missing" }
   | { status: "failed" };
 
@@ -188,14 +188,17 @@ export const readProgramDetail = cache(async (slug: string): Promise<ProgramDeta
   const card = showcase.cards.find((program) => program.slug === slug);
   if (!card) return { status: "missing" };
   try {
-    const rows = await academyRequest(`media_assets?select=id,provider,kind,object_key,alt_text&program_slug=eq.${encodeURIComponent(slug)}&published=eq.true&order=created_at.desc`);
+    const rows = await academyRequest(`media_assets?select=id,provider,kind,object_key,alt_text,blur_data_url&program_slug=eq.${encodeURIComponent(slug)}&published=eq.true&order=created_at.desc`);
     const media = asObjectArray(rows).flatMap((item) => {
       const id = Number(item.id);
       const kind = item.kind === "image" || item.kind === "video" ? item.kind : null;
       const provider = item.provider;
       const youtubeId = provider === "youtube" && typeof item.object_key === "string" ? youtubeVideoId(item.object_key) : null;
       const src = provider === "supabase_storage" ? `/api/media/${id}` : youtubeId ? `https://www.youtube-nocookie.com/embed/${youtubeId}` : null;
-      return Number.isSafeInteger(id) && id > 0 && kind && src ? [{ id, kind: kind as "image" | "video", src, alt: asString(item.alt_text) ?? card.title, youtubeId }] : [];
+      const blur = typeof item.blur_data_url === "string" && item.blur_data_url.startsWith("data:image/") ? item.blur_data_url : null;
+      return Number.isSafeInteger(id) && id > 0 && kind && src
+        ? [{ id, kind: kind as "image" | "video", src, alt: asString(item.alt_text) ?? card.title, youtubeId, ...(blur ? { blurDataURL: blur } : {}) }]
+        : [];
     });
     return { status: "ready", card, media };
   } catch { return { status: "ready", card, media: [] }; }
