@@ -269,8 +269,8 @@ export async function deliverInvoiceEmail(
               totalIdr: amounts.totalIdr,
             })
           : kind === "payment_rejected"
-            ? `Halo Admin Albana, saya ${registration.full_name} (pendaftaran #${registration.id}, tagihan ${amounts.invoiceNumber}) ingin menanyakan penolakan tagihan.`
-            : `Halo Admin Albana, saya ${registration.full_name} (pendaftaran #${registration.id}).`;
+            ? `Halo Admin Albana, saya ${registration.full_name} (tagihan ${amounts.invoiceNumber}) ingin menanyakan penolakan tagihan.`
+            : `Halo Admin Albana, saya ${registration.full_name} peserta ${registration.offer_title}${batchNames ? ` – ${batchNames}` : ""}.`;
         whatsappUrl = `${baseWa}?text=${encodeURIComponent(waText)}`;
       }
     } catch {

@@ -85,7 +85,6 @@ export function paymentProofMessage(d: {
     "",
     `*Nama:* ${d.fullName}`,
     `*Program:* ${program}`,
-    `*Pendaftaran:* #${d.registrationId}`,
     `*Tagihan:* ${d.invoiceNumber ?? `#${d.invoiceId}`} (${d.stageLabel})`,
     `*Total Transfer:* ${formatRupiah(d.totalIdr)}`,
     "",
@@ -169,7 +168,7 @@ function renderActionButtons(
 }
 
 export function paymentInstructionsEmail(d: InvoiceEmailData): RenderedEmail {
-  const subject = `Instruksi pembayaran pendaftaran #${d.registrationId} – Albana Speech Academy`;
+  const subject = "Instruksi pembayaran pendaftaran – Albana Speech Academy";
   const stageLabel = invoiceStageLabel(d.stage, d.paymentMethod);
   const programLine = `${d.offerTitle} – ${d.batchNames}`;
 
@@ -230,7 +229,7 @@ export function paymentConfirmedEmail(d: InvoiceEmailData): RenderedEmail {
   const firstSession = formatWibSchedule(d.firstSessionAt);
 
   if (isDpInitial) {
-    const subject = `DP diterima – pendaftaran #${d.registrationId}`;
+    const subject = "DP diterima – Albana Speech Academy";
     const remainingBlockHtml = d.remaining
       ? `<p style="margin:16px 0 6px;font-weight:600;">Sisa pembayaran</p>
          ${renderAmountsTable("Pelunasan", d.remaining)}
@@ -247,7 +246,7 @@ export function paymentConfirmedEmail(d: InvoiceEmailData): RenderedEmail {
     const html = wrapEmailHtml(
       subject,
       `<p style="margin:0 0 12px;">Halo ${escapeHtml(d.fullName)},</p>
-      <p style="margin:0 0 14px;">DP sebesar <strong>${escapeHtml(formatRupiah(d.invoice.totalIdr))}</strong> untuk pendaftaran <strong>#${d.registrationId}</strong> (${escapeHtml(programLine)}) sudah kami terima. Tempat kelasmu sudah diamankan.</p>
+      <p style="margin:0 0 14px;">DP sebesar <strong>${escapeHtml(formatRupiah(d.invoice.totalIdr))}</strong> untuk <strong>${escapeHtml(programLine)}</strong> sudah kami terima. Tempat kelasmu sudah diamankan.</p>
       ${remainingBlockHtml}
       ${firstSession ? `<p style="margin:12px 0;font-size:14px;">Sesi pertama: <strong>${escapeHtml(firstSession)}</strong></p>` : ""}
       ${actionButtons}`,
@@ -257,7 +256,7 @@ export function paymentConfirmedEmail(d: InvoiceEmailData): RenderedEmail {
     const textLines = [
       `Halo ${d.fullName},`,
       "",
-      `DP sebesar ${formatRupiah(d.invoice.totalIdr)} untuk pendaftaran #${d.registrationId} (${programLine}) sudah kami terima. Tempat kelasmu sudah diamankan.`,
+      `DP sebesar ${formatRupiah(d.invoice.totalIdr)} untuk ${programLine} sudah kami terima. Tempat kelasmu sudah diamankan.`,
       ...(d.remaining
         ? [
           "",
@@ -281,7 +280,7 @@ export function paymentConfirmedEmail(d: InvoiceEmailData): RenderedEmail {
     return { subject, html, text: textLines.join("\n") };
   }
 
-  const subject = `Pembayaran diterima – pendaftaran #${d.registrationId} terkonfirmasi`;
+  const subject = "Pembayaran diterima – pendaftaran terkonfirmasi";
   const waButton = d.whatsappUrl
     ? renderActionButtons([
       { href: d.whatsappUrl, label: "Hubungi Admin via WhatsApp", variant: "whatsapp" as const },
@@ -291,15 +290,14 @@ export function paymentConfirmedEmail(d: InvoiceEmailData): RenderedEmail {
   const html = wrapEmailHtml(
     subject,
     `<p style="margin:0 0 12px;">Halo ${escapeHtml(d.fullName)},</p>
-    <p style="margin:0 0 14px;">${escapeHtml(stageLabel)} sebesar <strong>${escapeHtml(formatRupiah(d.invoice.totalIdr))}</strong> untuk pendaftaran <strong>#${d.registrationId}</strong> sudah kami terima. Kepesertaanmu di <strong>${escapeHtml(programLine)}</strong> terkonfirmasi.</p>
+    <p style="margin:0 0 14px;">${escapeHtml(stageLabel)} sebesar <strong>${escapeHtml(formatRupiah(d.invoice.totalIdr))}</strong> sudah kami terima. Kepesertaanmu di <strong>${escapeHtml(programLine)}</strong> terkonfirmasi.</p>
     <p style="margin:16px 0 6px;font-weight:600;">Langkah selanjutnya:</p>
     <ol style="margin:0 0 16px;padding-left:20px;font-size:14px;">
       ${firstSession ? `<li>Sesi pertama dijadwalkan pada <strong>${escapeHtml(firstSession)}</strong>.</li>` : ""}
       <li>Admin akan mengundangmu ke grup WhatsApp kelas melalui nomor yang kamu daftarkan.</li>
       <li>Hubungi admin lewat WhatsApp bila ada pertanyaan.</li>
     </ol>
-    ${waButton}
-    <p style="margin:16px 0 0;font-size:13px;"><a href="${escapeHtml(d.receiptUrl)}" style="color:#1f2421;">Lihat ringkasan pendaftaran</a></p>`,
+    ${waButton}`,
     d.logoUrl,
   );
 
@@ -318,20 +316,18 @@ export function paymentConfirmedEmail(d: InvoiceEmailData): RenderedEmail {
   const textLines = [
     `Halo ${d.fullName},`,
     "",
-    `${stageLabel} sebesar ${formatRupiah(d.invoice.totalIdr)} untuk pendaftaran #${d.registrationId} sudah kami terima. Kepesertaanmu di ${programLine} terkonfirmasi.`,
+    `${stageLabel} sebesar ${formatRupiah(d.invoice.totalIdr)} sudah kami terima. Kepesertaanmu di ${programLine} terkonfirmasi.`,
     "",
     "Langkah selanjutnya:",
     ...nextStepsText,
     ...(d.whatsappUrl ? ["", `WhatsApp Admin: ${d.whatsappUrl}`] : []),
-    "",
-    `Lihat ringkasan pendaftaran: ${d.receiptUrl}`,
   ];
 
   return { subject, html, text: textLines.join("\n") };
 }
 
 export function paymentRejectedEmail(d: InvoiceEmailData): RenderedEmail {
-  const subject = `Tagihan #${d.invoice.invoiceId} perlu ditinjau ulang – pendaftaran #${d.registrationId}`;
+  const subject = `Tagihan #${d.invoice.invoiceId} perlu ditinjau ulang – Albana Speech Academy`;
   const stageLabel = invoiceStageLabel(d.stage, d.paymentMethod);
   const programLine = `${d.offerTitle} – ${d.batchNames}`;
   const waButton = d.whatsappUrl
@@ -343,7 +339,7 @@ export function paymentRejectedEmail(d: InvoiceEmailData): RenderedEmail {
   const html = wrapEmailHtml(
     subject,
     `<p style="margin:0 0 12px;">Halo ${escapeHtml(d.fullName)},</p>
-    <p style="margin:0 0 14px;">Tagihan <strong>#${d.invoice.invoiceId}</strong> (${escapeHtml(stageLabel)}) sebesar <strong>${escapeHtml(formatRupiah(d.invoice.totalIdr))}</strong> untuk pendaftaran <strong>#${d.registrationId}</strong> (${escapeHtml(programLine)}) belum dapat kami verifikasi (ditolak).</p>
+    <p style="margin:0 0 14px;">Tagihan <strong>#${d.invoice.invoiceId}</strong> (${escapeHtml(stageLabel)}) sebesar <strong>${escapeHtml(formatRupiah(d.invoice.totalIdr))}</strong> untuk <strong>${escapeHtml(programLine)}</strong> belum dapat kami verifikasi (ditolak).</p>
     <p style="margin:0 0 14px;font-size:14px;">Silakan hubungi admin melalui WhatsApp untuk konfirmasi atau penyelesaian pembayaran, atau periksa status tagihan pada halaman pembayaran.</p>
     ${waButton}
     <p style="margin:14px 0 0;font-size:13px;"><a href="${escapeHtml(d.receiptUrl)}" style="color:#1f2421;">Lihat halaman pembayaran</a></p>`,
@@ -353,7 +349,7 @@ export function paymentRejectedEmail(d: InvoiceEmailData): RenderedEmail {
   const textLines = [
     `Halo ${d.fullName},`,
     "",
-    `Tagihan #${d.invoice.invoiceId} (${stageLabel}) sebesar ${formatRupiah(d.invoice.totalIdr)} untuk pendaftaran #${d.registrationId} (${programLine}) belum dapat kami verifikasi (ditolak).`,
+    `Tagihan #${d.invoice.invoiceId} (${stageLabel}) sebesar ${formatRupiah(d.invoice.totalIdr)} untuk ${programLine} belum dapat kami verifikasi (ditolak).`,
     "",
     "Silakan hubungi admin melalui WhatsApp untuk konfirmasi atau penyelesaian pembayaran, atau periksa status tagihan pada halaman pembayaran.",
     ...(d.whatsappUrl ? ["", `WhatsApp Admin: ${d.whatsappUrl}`] : []),
