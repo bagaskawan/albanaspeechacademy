@@ -1,5 +1,6 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { DomicileField } from "@/components/register/domicile-field";
 import { RadioGroup, TextArea, TextField } from "@/components/ui/field";
 import { formatRupiah } from "@/lib/format";
@@ -200,24 +201,39 @@ export function RegistrationStepFields({
       </dl>
       <div>
         <label
-          className={`flex min-h-12 cursor-pointer items-start gap-3 rounded-xs border p-4 transition-colors ${errors.consent
+          htmlFor="consent"
+          className={`flex min-h-12 cursor-pointer items-start gap-3.5 rounded-xs border p-4 transition-colors ${errors.consent
             ? "border-danger bg-[var(--tone-bg)]"
             : values.consent
-              ? "border-[var(--tone-ink)] bg-[var(--tone-tile)]"
-              : "border-[var(--tone-rule)] bg-[var(--tone-bg)]"
+              ? "border-[var(--tone-accent)] bg-[var(--tone-tile)]"
+              : "border-[var(--tone-rule)] bg-[var(--tone-bg)] hover:border-[var(--tone-ink)]/40"
             }`}
         >
-          <input
-            id="consent"
-            name="consent"
-            type="checkbox"
-            required
-            checked={values.consent}
-            onChange={(event) => onUpdate("consent", event.target.checked)}
-            aria-invalid={errors.consent ? true : undefined}
-            aria-describedby={errors.consent ? "consent-error" : undefined}
-            className="mt-1 size-4 shrink-0 accent-accent"
-          />
+          <span className="relative mt-0.5 inline-flex size-5 shrink-0 items-center justify-center">
+            <input
+              id="consent"
+              name="consent"
+              type="checkbox"
+              required
+              checked={values.consent}
+              onChange={(event) => onUpdate("consent", event.target.checked)}
+              aria-invalid={errors.consent ? true : undefined}
+              aria-describedby={errors.consent ? "consent-error" : undefined}
+              className="peer sr-only"
+            />
+            <span
+              aria-hidden="true"
+              className={`flex size-5 items-center justify-center rounded-[4px] border-2 transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--tone-accent)] ${
+                values.consent
+                  ? "border-[var(--tone-accent)] bg-[var(--tone-accent)] text-[var(--tone-bg)]"
+                  : errors.consent
+                    ? "border-danger bg-[var(--tone-bg)] text-transparent"
+                    : "border-[var(--tone-ink)]/55 bg-[var(--tone-bg)] text-transparent"
+              }`}
+            >
+              <Check className="size-3.5 stroke-[3]" />
+            </span>
+          </span>
           <span className="type-small leading-relaxed text-[var(--tone-ink)]">
             Saya setuju data yang saya isi dipakai Albana Speech Academy untuk menindaklanjuti
             pendaftaran ini.

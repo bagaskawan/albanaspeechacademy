@@ -4,7 +4,7 @@ import { readProgramShowcase } from "@/lib/server/program-showcase";
 import { contactHref, readPublishedContacts } from "@/lib/server/public-contacts";
 import { RetryButton } from "@/components/ui/retry-button";
 import { SectionIntro } from "./section-intro";
-import { SkeletonImage } from "./skeleton-image";
+import { ScheduleThumb } from "./schedule-thumb";
 import { Accent } from "./ui/accent";
 import { Tile } from "./ui/tile";
 
@@ -47,48 +47,48 @@ export async function ScheduleSection({
             <RetryButton />
           </Tile>
         ) : cards.length ? (
-          <div className="grid gap-2">
+          <div className="grid gap-3">
             {cards.map((card, cardIndex) => {
-              const thumb =
+              const flyerUrl = card.batch?.flyerUrl ?? null;
+              const fallbackThumb =
                 (programs === "failed"
                   ? undefined
                   : programs
                     .find((program) => program.card.slug === card.slug)
                     ?.media.find((item) => item.kind === "image")) ??
                 moments[4 + cardIndex];
+              const thumbSrc = flyerUrl ?? fallbackThumb?.src ?? null;
+              const thumbAlt = flyerUrl
+                ? `Flyer ${card.title} · ${card.batch!.name}`
+                : fallbackThumb?.alt ?? card.title;
+              const isFlyer = Boolean(flyerUrl);
 
               return (
                 <Tile key={card.slug} tone="tile">
-                  <article data-motion="rise" className="home-grid gap-y-4 lg:gap-y-6">
-                    {thumb ? (
+                  <article data-motion="rise" className="home-grid items-center gap-y-5 lg:gap-y-6">
+                    {thumbSrc ? (
                       <div className="col-span-4 sm:col-span-8 lg:col-span-3">
-                        <div
-                          data-motion="media"
-                          className="relative aspect-video overflow-hidden rounded-xs bg-[var(--tone-bg)]"
-                        >
-                          <SkeletonImage
-                            src={thumb.src}
-                            alt={thumb.alt}
-                            fill
-                            sizes="(min-width: 1024px) 18rem, 90vw"
-                            className="object-cover"
-                          />
-                        </div>
+                        <ScheduleThumb
+                          src={thumbSrc}
+                          alt={thumbAlt}
+                          title={`${card.title} · ${card.batch!.name}`}
+                          isFlyer={isFlyer}
+                        />
                       </div>
                     ) : null}
 
                     <div
-                      className={`col-span-4 flex flex-col gap-4 sm:col-span-8 ${thumb ? "lg:col-span-6" : "lg:col-span-9"
+                      className={`col-span-4 flex flex-col justify-center gap-4 sm:col-span-8 ${thumbSrc ? "lg:col-span-6" : "lg:col-span-9"
                         }`}
                     >
                       <div>
-                        <div className="flex items-center justify-between gap-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
                           <p className="eyebrow text-[var(--tone-muted)]">Program</p>
-                          <span className="type-micro inline-flex h-5 shrink-0 items-center rounded-xs bg-[var(--tone-sun)] px-1.5 text-[var(--tone-on-sun)] lg:hidden">
+                          <span className="type-micro inline-flex h-5 shrink-0 items-center rounded-xs bg-[var(--tone-sun)] px-2 text-[var(--tone-on-sun)]">
                             {card.statusLabel}
                           </span>
                         </div>
-                        <h3 className="type-title mt-1">
+                        <h3 className="type-title mt-1.5">
                           {card.title} · {card.batch!.name}
                         </h3>
                       </div>
@@ -136,33 +136,27 @@ export async function ScheduleSection({
                       </p>
                     </div>
 
-                    <div className="col-span-4 flex flex-col justify-center gap-3 border-t border-[var(--tone-rule)] pt-4 sm:col-span-8 lg:col-span-3 lg:items-end lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6">
-                      <span className="type-micro hidden h-5 items-center rounded-xs bg-[var(--tone-sun)] px-2 text-[var(--tone-on-sun)] lg:inline-flex">
-                        {card.statusLabel}
-                      </span>
-
-                      <div className="flex w-full flex-col gap-2 lg:items-end">
-                        {card.registrationUrl ? (
-                          <Link href={card.registrationUrl} className="button-primary w-full justify-center lg:w-full">
-                            Daftar kelas ini
-                          </Link>
-                        ) : whatsapp ? (
-                          <a
-                            href={whatsapp}
-                            className="button-primary w-full justify-center lg:w-full"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Tanya admin
-                          </a>
-                        ) : null}
-                        <Link
-                          href={`/program/${encodeURIComponent(card.slug)}`}
-                          className="type-small inline-flex min-h-9 items-center justify-center text-[var(--tone-muted)] underline underline-offset-4 transition-colors hover:text-[var(--tone-ink)]"
-                        >
-                          Lihat detail program
+                    <div className="col-span-4 flex flex-col justify-center gap-2.5 border-t border-[var(--tone-rule)] pt-4 sm:col-span-8 lg:col-span-3 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6">
+                      {card.registrationUrl ? (
+                        <Link href={card.registrationUrl} className="button-primary w-full justify-center">
+                          Daftar kelas ini
                         </Link>
-                      </div>
+                      ) : whatsapp ? (
+                        <a
+                          href={whatsapp}
+                          className="button-primary w-full justify-center"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Tanya admin
+                        </a>
+                      ) : null}
+                      <Link
+                        href={`/program/${encodeURIComponent(card.slug)}`}
+                        className="button-secondary w-full justify-center bg-transparent"
+                      >
+                        Lihat detail program
+                      </Link>
                     </div>
                   </article>
                 </Tile>

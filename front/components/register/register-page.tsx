@@ -103,7 +103,7 @@ export async function RegisterPage({
   }
 
   return (
-    <main id="main-content" className="tone-mist min-h-screen py-8 lg:py-16">
+    <main id="main-content" className="tone-mist min-h-screen pt-8 pb-24 lg:py-16">
       <div className="home-container">
         <h1 className="sr-only">Pendaftaran kelas</h1>
         <RegistrationState selection={selection} offer={offer} />

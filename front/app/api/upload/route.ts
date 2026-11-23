@@ -47,13 +47,15 @@ export async function POST(request: Request) {
   const purpose =
     rawPurpose === "landing"
       ? "landing"
-      : rawPurpose === "legality"
-        ? "legality"
-        : rawPurpose === "article"
-          ? "article"
-          : "program";
+      : rawPurpose === "flyer"
+        ? "flyer"
+        : rawPurpose === "legality"
+          ? "legality"
+          : rawPurpose === "article"
+            ? "article"
+            : "program";
   const isVideo = file.type === "video/mp4";
-  if ((purpose === "landing" || purpose === "legality" || purpose === "article") && isVideo) {
+  if ((purpose === "landing" || purpose === "flyer" || purpose === "legality" || purpose === "article") && isVideo) {
     return json({ error: purpose === "article" ? "Gunakan gambar JPEG, PNG, atau WebP." : "Gambar diperlukan untuk halaman ini." }, 422);
   }
   if (file.size < 1 || file.size > (isVideo ? MAX_VIDEO_SOURCE : MAX_IMAGE_SOURCE)) {
@@ -146,7 +148,7 @@ export async function POST(request: Request) {
     const altText = purpose === "program" ? String(form.get("altText") ?? "").trim() : "";
     const rawReplaceId = purpose === "program" ? String(form.get("replaceAssetId") ?? "").trim() : "";
     const replaceAssetId = rawReplaceId ? Number(rawReplaceId) : null;
-    const bucket = purpose === "landing" ? "gallery" : purpose === "legality" ? "legality" : programBucket(programSlug);
+    const bucket = purpose === "landing" || purpose === "flyer" ? "gallery" : purpose === "legality" ? "legality" : programBucket(programSlug);
 
     let existingAsset: { id: number; object_key: string | null; alt_text: string | null; program_slug: string | null; kind: string; provider: string } | null = null;
 
@@ -179,11 +181,11 @@ export async function POST(request: Request) {
       }
     }
 
-    const keyPrefix = purpose === "landing" ? "landing" : purpose === "legality" ? "legality" : "albana";
+    const keyPrefix = purpose === "landing" ? "landing" : purpose === "flyer" ? "flyers" : purpose === "legality" ? "legality" : "albana";
     const key = `${keyPrefix}/${randomUUID()}.${isVideo ? "mp4" : "webp"}`;
     const { error: uploadError } = await storage.storage.from(bucket).upload(key, bytes, { contentType, upsert: false, cacheControl: "3600" });
     if (uploadError) throw uploadError;
-    if (purpose === "landing" || purpose === "legality") {
+    if (purpose === "landing" || purpose === "flyer" || purpose === "legality") {
       return json({ url: storage.storage.from(bucket).getPublicUrl(key).data.publicUrl }, 200);
     }
 

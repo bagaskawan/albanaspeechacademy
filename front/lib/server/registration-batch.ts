@@ -75,6 +75,7 @@ function toRegistrationBatch(
 
   const isStartOnly = sessions[0].startOnly;
   const totalSessions = isStartOnly ? (sessions[0].sessionCount ?? 4) : sessions.length;
+  const batchAddress = asString(batch.address) ?? address;
 
   return {
     programSlug,
@@ -89,7 +90,7 @@ function toRegistrationBatch(
           sequence: session.sequence,
           dateLabel: formatSessionDate(session.startsAt),
         })),
-    venue: { name: address, address },
+    venue: { name: batchAddress, address: batchAddress },
     formKind,
     formCopy,
     priceIdr,

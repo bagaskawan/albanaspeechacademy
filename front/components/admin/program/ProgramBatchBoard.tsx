@@ -14,6 +14,7 @@ import { formatRupiah } from "@/lib/format";
 import { CERTIFICATION_SLUG, SERIES_SLUG, SPEAKER_SLUG, bundleAddOn, bundlePriceValid } from "@/lib/bundle";
 import { batchStatus, fromStoredSessions, nextBatchName, sessionCountOf, type SessionInput } from "@/lib/program-batch";
 import { deleteBatch, saveBatch, saveBundle, toggleBatchOpen } from "@/app/(admin)/admin/program/actions";
+import { BatchFlyerField } from "./BatchFlyerField";
 import { SessionRows } from "./SessionRows";
 
 export type BoardProgram = {
@@ -30,6 +31,8 @@ export type BoardBatch = {
   title: string;
   registration_open: boolean;
   sessions: unknown;
+  address?: string | null;
+  flyer_url?: string | null;
 };
 export type BoardBundle = {
   active: boolean;
@@ -45,6 +48,8 @@ type BatchDraft = {
   title: string;
   placeholder: string;
   sessions: SessionInput[];
+  address: string;
+  flyerUrl: string;
   open: boolean;
 };
 type BundleDraft = { active: boolean; price: string; dp: string; description: string };
@@ -101,6 +106,8 @@ export function ProgramBatchBoard({ programs, batches, bundle, inhouse, nowMs }:
       title: "",
       placeholder: nextBatchName(batches.filter((batch) => batch.program_slug === program.slug).map((batch) => batch.title)),
       sessions: [{ date: "", start: "", end: "" }],
+      address: "",
+      flyerUrl: "",
       open: false,
     });
   }
@@ -115,6 +122,8 @@ export function ProgramBatchBoard({ programs, batches, bundle, inhouse, nowMs }:
       title: batch.title,
       placeholder: batch.title,
       sessions: sessions.length ? sessions : [{ date: "", start: "", end: "" }],
+      address: batch.address ?? "",
+      flyerUrl: batch.flyer_url ?? "",
       open: batch.registration_open,
     });
   }
@@ -147,6 +156,8 @@ export function ProgramBatchBoard({ programs, batches, bundle, inhouse, nowMs }:
         programSlug: batchDraft.programSlug,
         title: batchDraft.title,
         sessions: batchDraft.sessions,
+        address: batchDraft.address,
+        flyerUrl: batchDraft.flyerUrl,
         open: batchDraft.open,
       });
       if (result.error) { setError(result.error); return; }
@@ -349,13 +360,32 @@ export function ProgramBatchBoard({ programs, batches, bundle, inhouse, nowMs }:
             <SessionRows sessions={batchDraft.sessions} onChange={(sessions) => setBatchDraft({ ...batchDraft, sessions })} />
           </div>
         </Field>
+        <Field label="Alamat pelaksanaan" htmlFor="batch-address" hint="Opsional. Kosongkan untuk otomatis memakai alamat dari menu Kontak.">
+          <AdminInput
+            id="batch-address"
+            type="text"
+            maxLength={300}
+            placeholder="Kosongkan untuk memakai alamat default Kontak"
+            value={batchDraft.address}
+            onChange={(event) => setBatchDraft({ ...batchDraft, address: event.target.value })}
+          />
+        </Field>
+        <Field label="Flyer batch" htmlFor="batch-flyer">
+          <div id="batch-flyer">
+            <BatchFlyerField
+              value={batchDraft.flyerUrl}
+              onChange={(flyerUrl) => setBatchDraft({ ...batchDraft, flyerUrl })}
+              disabled={pending}
+            />
+          </div>
+        </Field>
         <CheckboxCard
           id="batch-open"
           checked={batchDraft.open}
           onCheckedChange={(open) => setBatchDraft({ ...batchDraft, open })}
           tone="mint"
           title="Buka pendaftaran"
-          description="Membuka batch ini menutup pendaftaran batch lain di program yang sama."
+          description="Peserta dapat mendaftar pada batch ini. Beberapa batch dapat dibuka bersamaan."
         />
         {error && <p role="alert" className="text-[13px] text-admin-danger">{error}</p>}
       </FieldGrid>}

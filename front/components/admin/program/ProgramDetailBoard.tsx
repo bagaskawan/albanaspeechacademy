@@ -21,6 +21,7 @@ import { formatRupiah } from "@/lib/format";
 import { batchStatus, fromStoredSessions, nextBatchName, sessionCountOf, type SessionInput } from "@/lib/program-batch";
 import type { ProgramMediaItem } from "@/lib/program-media";
 import { ProgramMediaEditor } from "./ProgramMediaEditor";
+import { BatchFlyerField } from "./BatchFlyerField";
 import { SessionRows } from "./SessionRows";
 import type { BoardBatch, BoardBundle, BoardProgram } from "./ProgramBatchBoard";
 
@@ -49,6 +50,7 @@ export function ProgramDetailBoard({
   certificationPrice,
   bothProgramsHaveOpenBatch,
   media,
+  defaultAddress = "",
   nowMs,
 }: {
   program: ProgramDetail;
@@ -58,6 +60,7 @@ export function ProgramDetailBoard({
   certificationPrice: number;
   bothProgramsHaveOpenBatch: boolean;
   media: ProgramMediaItem[];
+  defaultAddress?: string;
   nowMs: number;
 }) {
   const router = useRouter();
@@ -77,6 +80,8 @@ export function ProgramDetailBoard({
     title: string;
     placeholder: string;
     sessions: SessionInput[];
+    address: string;
+    flyerUrl: string;
     open: boolean;
   } | null>(null);
   const [bundleDraft, setBundleDraft] = useState<{
@@ -108,6 +113,8 @@ export function ProgramDetailBoard({
       title: "",
       placeholder: nextBatchName(batches.map((b) => b.title)),
       sessions: [{ date: "", start: "", end: "" }],
+      address: "",
+      flyerUrl: "",
       open: false,
     });
   }
@@ -120,6 +127,8 @@ export function ProgramDetailBoard({
       title: batch.title,
       placeholder: batch.title,
       sessions: sessions.length ? sessions : [{ date: "", start: "", end: "" }],
+      address: batch.address ?? "",
+      flyerUrl: batch.flyer_url ?? "",
       open: batch.registration_open,
     });
   }
@@ -152,6 +161,8 @@ export function ProgramDetailBoard({
         programSlug: program.slug,
         title: batchDraft.title,
         sessions: batchDraft.sessions,
+        address: batchDraft.address,
+        flyerUrl: batchDraft.flyerUrl,
         open: batchDraft.open,
       });
       if (result.error) { setError(result.error); return; }
@@ -491,7 +502,24 @@ export function ProgramDetailBoard({
                 {visibleRows.map(({ batch, sessions, status }) => (
                   <tr key={batch.slug}>
                     <td className="font-medium text-admin-ink">
-                      {batch.title}
+                      <div className="flex items-center gap-3">
+                        {batch.flyer_url && (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={batch.flyer_url}
+                            alt={`Flyer ${batch.title}`}
+                            className="h-11 w-9 shrink-0 rounded-[8px] border border-admin-line bg-admin-surface object-cover"
+                          />
+                        )}
+                        <div className="min-w-0">
+                          <p className="truncate">{batch.title}</p>
+                          {batch.address?.trim() && (
+                            <p className="mt-0.5 max-w-[260px] truncate text-[12px] font-normal text-admin-text-secondary">
+                              {batch.address}
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     </td>
                     <td>
                       <button
@@ -590,6 +618,31 @@ export function ProgramDetailBoard({
               </div>
             </div>
 
+            <div className="rounded-[20px] border border-admin-line bg-admin-surface px-4 py-3">
+              <p className="text-[12px] text-admin-text-secondary">Alamat pelaksanaan</p>
+              <p className="mt-1 text-[13px] font-medium text-admin-ink">
+                {detailBatch.batch.address?.trim()
+                  ? detailBatch.batch.address
+                  : defaultAddress
+                    ? `${defaultAddress} (mengikuti Kontak)`
+                    : "Mengikuti alamat Kontak"}
+              </p>
+            </div>
+
+            {detailBatch.batch.flyer_url && (
+              <div className="space-y-2">
+                <p className="text-[13px] font-medium text-admin-ink">Flyer batch</p>
+                <div className="overflow-hidden rounded-[20px] border border-admin-line bg-admin-surface p-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={detailBatch.batch.flyer_url}
+                    alt={`Flyer ${detailBatch.batch.title}`}
+                    className="mx-auto max-h-80 w-auto rounded-[14px] object-contain"
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <p className="text-[13px] font-medium text-admin-ink">Jadwal sesi (WIB)</p>
               {detailBatch.sessions.length === 0 ? (
@@ -641,13 +694,40 @@ export function ProgramDetailBoard({
                 <SessionRows sessions={batchDraft.sessions} onChange={(sessions) => setBatchDraft({ ...batchDraft, sessions })} />
               </div>
             </Field>
+            <Field
+              label="Alamat pelaksanaan"
+              htmlFor="batch-address"
+              hint={
+                defaultAddress
+                  ? `Opsional. Kosongkan untuk memakai alamat Kontak (${defaultAddress}).`
+                  : "Opsional. Kosongkan untuk otomatis memakai alamat dari menu Kontak."
+              }
+            >
+              <AdminInput
+                id="batch-address"
+                type="text"
+                maxLength={300}
+                placeholder={defaultAddress || "Kosongkan untuk memakai alamat Kontak"}
+                value={batchDraft.address}
+                onChange={(e) => setBatchDraft({ ...batchDraft, address: e.target.value })}
+              />
+            </Field>
+            <Field label="Flyer batch" htmlFor="batch-flyer">
+              <div id="batch-flyer">
+                <BatchFlyerField
+                  value={batchDraft.flyerUrl}
+                  onChange={(flyerUrl) => setBatchDraft({ ...batchDraft, flyerUrl })}
+                  disabled={pending}
+                />
+              </div>
+            </Field>
             <CheckboxCard
               id="batch-open"
               checked={batchDraft.open}
               onCheckedChange={(open) => setBatchDraft({ ...batchDraft, open })}
               tone="mint"
               title="Buka pendaftaran"
-              description="Membuka batch ini menutup pendaftaran batch lain di program yang sama."
+              description="Peserta dapat mendaftar pada batch ini. Beberapa batch dapat dibuka bersamaan."
             />
             {error && <p role="alert" className="text-[13px] text-admin-danger">{error}</p>}
           </FieldGrid>

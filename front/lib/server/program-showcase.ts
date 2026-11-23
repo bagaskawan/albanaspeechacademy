@@ -20,6 +20,7 @@ export type ProgramBatchSummary = {
   sessionCountKnown: boolean;
   scheduleMode?: "per_session" | "start_only";
   venueLabel: string;
+  flyerUrl?: string | null;
   priceIdr: number | null;
   normalPriceIdr: number | null;
   dpPercent: number | null;
@@ -121,7 +122,8 @@ function readBatchSummary(
     formatLabel: `${totalSessions} pertemuan`,
     sessionCountKnown: !isStartOnly || sessions[0].sessionCount !== null,
     scheduleMode: isStartOnly ? "start_only" : "per_session",
-    venueLabel: address,
+    venueLabel: asString(batch.address) ?? address,
+    flyerUrl: asString(batch.flyer_url),
     priceIdr: Number.isSafeInteger(priceIdr) && priceIdr > 0 ? priceIdr : null,
     normalPriceIdr: Number.isSafeInteger(normalPriceIdr) && normalPriceIdr > priceIdr ? normalPriceIdr : null,
     dpPercent: Number.isInteger(dpPercent) && dpPercent > 0 ? dpPercent : null,

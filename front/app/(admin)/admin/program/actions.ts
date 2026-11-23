@@ -6,6 +6,7 @@ import { academyBillingClient } from "@/lib/server/academy-billing";
 import { BUNDLE_SLUG, CERTIFICATION_SLUG, INHOUSE_SLUG, SERIES_SLUG, SPEAKER_SLUG, bundlePriceValid } from "@/lib/bundle";
 import { toStoredSessions, validateSessions, type SessionInput } from "@/lib/program-batch";
 import { videoLimitError, programBucket } from "@/lib/program-media";
+import { deleteStorageFiles, parseStorageUrl } from "@/lib/supabase/storage-cleanup";
 import { youtubeVideoId } from "@/lib/youtube";
 
 const PUBLIC_TRAINING: readonly string[] = [SERIES_SLUG, SPEAKER_SLUG, CERTIFICATION_SLUG];
@@ -26,6 +27,8 @@ export async function saveBatch(input: {
   title: string;
   sessions: SessionInput[];
   open: boolean;
+  address?: string | null;
+  flyerUrl?: string | null;
 }): Promise<{ error?: string }> {
   const supabase = await requireAdminMember();
   if (!PUBLIC_TRAINING.includes(input.programSlug)) return { error: "Program tidak valid." };
@@ -34,6 +37,23 @@ export async function saveBatch(input: {
   const sessionError = validateSessions(input.sessions);
   if (sessionError) return { error: sessionError };
 
+  const rawAddress = typeof input.address === "string" ? input.address.trim() : "";
+  if (rawAddress.length > 300) return { error: "Alamat maksimal 300 karakter." };
+  const address = rawAddress || null;
+
+  const rawFlyer = typeof input.flyerUrl === "string" ? input.flyerUrl.trim() : "";
+  let flyerUrl: string | null = null;
+  if (rawFlyer) {
+    if (rawFlyer.length > 1000) return { error: "Tautan flyer terlalu panjang." };
+    try {
+      const parsed = new URL(rawFlyer);
+      if (parsed.protocol !== "https:") return { error: "Tautan flyer tidak valid." };
+      flyerUrl = parsed.toString();
+    } catch {
+      return { error: "Tautan flyer tidak valid." };
+    }
+  }
+
   if (input.open) {
     const { data: program } = await supabase.from("programs").select("price_idr").eq("slug", input.programSlug).maybeSingle();
     if (!program || !(Number(program.price_idr) > 0)) {
@@ -41,12 +61,36 @@ export async function saveBatch(input: {
     }
   }
 
+  let previousFlyer: string | null = null;
+  if (input.slug) {
+    const { data: existing } = await supabase
+      .from("batches")
+      .select("flyer_url")
+      .eq("slug", input.slug)
+      .eq("program_slug", input.programSlug)
+      .maybeSingle();
+    previousFlyer = typeof existing?.flyer_url === "string" ? existing.flyer_url : null;
+  }
+
   const sessions = toStoredSessions(input.sessions);
   const { error } = input.slug
-    ? await supabase.from("batches").update({ title, sessions, registration_open: input.open })
-        .eq("slug", input.slug).eq("program_slug", input.programSlug)
-    : await supabase.from("batches").insert({ program_slug: input.programSlug, title, sessions, registration_open: input.open });
+    ? await supabase
+        .from("batches")
+        .update({ title, sessions, registration_open: input.open, address, flyer_url: flyerUrl })
+        .eq("slug", input.slug)
+        .eq("program_slug", input.programSlug)
+    : await supabase
+        .from("batches")
+        .insert({ program_slug: input.programSlug, title, sessions, registration_open: input.open, address, flyer_url: flyerUrl });
   if (error) return { error: "Batch belum bisa disimpan. Periksa nama dan jadwalnya." };
+
+  if (previousFlyer && previousFlyer !== flyerUrl) {
+    const parsedOld = parseStorageUrl(previousFlyer);
+    if (parsedOld && parsedOld.bucket === "gallery" && parsedOld.path.startsWith("flyers/")) {
+      await deleteStorageFiles(academyBillingClient(), [previousFlyer]).catch(() => {});
+    }
+  }
+
   revalidate();
   return {};
 }
