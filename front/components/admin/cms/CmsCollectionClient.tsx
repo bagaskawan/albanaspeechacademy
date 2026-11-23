@@ -624,9 +624,12 @@ export default function CmsCollectionClient({
         const min = field.minWords ?? 0;
         const max = field.maxWords ?? Number.POSITIVE_INFINITY;
         if (words < min || words > max) {
-          errors[field.name] = field.maxWords
-            ? `${field.label} harus ${min}–${field.maxWords} kata (saat ini ${words} kata).`
-            : `${field.label} minimal ${min} kata (saat ini ${words} kata).`;
+          errors[field.name] =
+            field.minWords && field.maxWords
+              ? `${field.label} harus ${min}–${field.maxWords} kata (saat ini ${words} kata).`
+              : field.maxWords
+                ? `${field.label} maksimal ${field.maxWords} kata (saat ini ${words} kata).`
+                : `${field.label} minimal ${min} kata (saat ini ${words} kata).`;
         }
       }
 
@@ -1515,7 +1518,11 @@ export default function CmsCollectionClient({
                   : "text-admin-text-secondary"
               }`}
             >
-              {words} kata · {field.minWords ?? 0}–{field.maxWords} kata
+              {field.minWords && field.maxWords
+                ? `${words} kata · ${field.minWords}–${field.maxWords} kata`
+                : field.maxWords
+                  ? `${words} / ${field.maxWords} kata (maksimal ${field.maxWords} kata)`
+                  : `${words} kata · minimal ${field.minWords} kata`}
             </p>
           )}
         </div>
