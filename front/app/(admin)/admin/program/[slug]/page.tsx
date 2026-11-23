@@ -77,8 +77,14 @@ async function loadProgramBoard(slug: string) {
   };
 }
 
-export default async function ProgramSlugPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+export default async function ProgramSlugPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ addBatch?: string }>;
+}) {
+  const [{ slug }, { addBatch }] = await Promise.all([params, searchParams]);
   if (slug === INHOUSE_SLUG) {
     redirect(`/admin/program/${INHOUSE_SLUG}/edit`);
   }
@@ -89,5 +95,5 @@ export default async function ProgramSlugPage({ params }: { params: Promise<{ sl
   const board = await loadProgramBoard(slug);
   if (!board) return notFound();
 
-  return <ProgramDetailBoard {...board} />;
+  return <ProgramDetailBoard {...board} autoOpenAddBatch={addBatch === "1"} />;
 }

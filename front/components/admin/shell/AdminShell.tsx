@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, m } from "motion/react";
 import { Dialog } from "radix-ui";
 import {
@@ -44,10 +44,19 @@ function store(key: string, value: unknown) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* private mode: keep in memory only */ }
 }
 
-type ShellProps = { children: React.ReactNode; pendingInvoices: number; account: string | null; role: string };
+type ShellProps = {
+  children: React.ReactNode;
+  pendingInvoices: number;
+  verifiedRegistrants: number;
+  account: string | null;
+  role: string;
+};
 
-export function AdminShell({ children, pendingInvoices, account, role }: ShellProps) {
+const LIVE_COUNT_POLL_MS = 8000;
+
+export function AdminShell({ children, pendingInvoices, verifiedRegistrants, account, role }: ShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const nav = resolveAdminNav(pathname);
   // Settings is a focused full-width screen with its own header and a home button (no sidebar).
   const standalone = pathname === "/admin/settings" || pathname.startsWith("/admin/settings/");
@@ -55,6 +64,81 @@ export function AdminShell({ children, pendingInvoices, account, role }: ShellPr
   // null = follow the breakpoint (compact 1024–1279, full ≥ 1280); read after hydration.
   const [compact, setCompact] = useState<boolean | null>(null);
   const [closed, setClosed] = useState<Record<string, boolean>>({});
+  const [liveCounts, setLiveCounts] = useState({ pendingInvoices, verifiedRegistrants });
+  const prevCountsRef = useRef({ pendingInvoices, verifiedRegistrants });
+  const pathnameRef = useRef(pathname);
+
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLiveCounts({ pendingInvoices, verifiedRegistrants });
+    prevCountsRef.current = { pendingInvoices, verifiedRegistrants };
+  }, [pendingInvoices, verifiedRegistrants]);
+
+  useEffect(() => {
+    let active = true;
+    let controller: AbortController | null = null;
+
+    async function pollCounts() {
+      if (!active || document.visibilityState !== "visible") return;
+      controller?.abort();
+      controller = new AbortController();
+      try {
+        const res = await fetch("/api/admin/live-counts", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        if (!res.ok || !active) return;
+        const data = (await res.json()) as {
+          pendingInvoices?: unknown;
+          verifiedRegistrants?: unknown;
+        };
+        const nextPending =
+          typeof data.pendingInvoices === "number" ? data.pendingInvoices : prevCountsRef.current.pendingInvoices;
+        const nextVerified =
+          typeof data.verifiedRegistrants === "number"
+            ? data.verifiedRegistrants
+            : prevCountsRef.current.verifiedRegistrants;
+
+        if (
+          nextPending !== prevCountsRef.current.pendingInvoices ||
+          nextVerified !== prevCountsRef.current.verifiedRegistrants
+        ) {
+          prevCountsRef.current = { pendingInvoices: nextPending, verifiedRegistrants: nextVerified };
+          setLiveCounts({ pendingInvoices: nextPending, verifiedRegistrants: nextVerified });
+          const currentPath = pathnameRef.current;
+          if (currentPath === "/admin" || currentPath === "/admin/tagihan" || currentPath === "/admin/pendaftar") {
+            router.refresh();
+          }
+        }
+      } catch {
+        // Ignore transient network errors or aborts during polling.
+      }
+    }
+
+    const interval = window.setInterval(() => {
+      void pollCounts();
+    }, LIVE_COUNT_POLL_MS);
+
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === "visible") {
+        void pollCounts();
+      }
+    };
+    window.addEventListener("focus", handleVisibilityOrFocus);
+    document.addEventListener("visibilitychange", handleVisibilityOrFocus);
+
+    return () => {
+      active = false;
+      controller?.abort();
+      window.clearInterval(interval);
+      window.removeEventListener("focus", handleVisibilityOrFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
+    };
+  }, [router]);
 
   useEffect(() => {
     // Restoring per-viewer preferences after hydration avoids a server/client mismatch.
@@ -77,7 +161,14 @@ export function AdminShell({ children, pendingInvoices, account, role }: ShellPr
     store(COMPACT_KEY, !isCompactNow);
   }
 
-  const sidebarProps = { activeGroupId: nav.group.id, activeHref: nav.module?.href ?? (pathname === "/admin" ? "/admin" : undefined), pendingInvoices, closed, toggleGroup };
+  const sidebarProps = {
+    activeGroupId: nav.group.id,
+    activeHref: nav.module?.href ?? (pathname === "/admin" ? "/admin" : undefined),
+    pendingInvoices: liveCounts.pendingInvoices,
+    verifiedRegistrants: liveCounts.verifiedRegistrants,
+    closed,
+    toggleGroup,
+  };
 
   return <AdminRoleProvider value={role}><TooltipProvider delayDuration={200}>
     <div className="min-h-screen text-admin-ink">
@@ -167,13 +258,14 @@ type SidebarProps = {
   activeGroupId: AdminNavGroup["id"];
   activeHref?: string;
   pendingInvoices: number;
+  verifiedRegistrants: number;
   closed: Record<string, boolean>;
   toggleGroup: (id: string) => void;
   onNavigate?: () => void;
   onToggleCompact?: () => void;
 };
 
-function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInvoices, closed, toggleGroup, onNavigate, onToggleCompact }: SidebarProps) {
+function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInvoices, verifiedRegistrants, closed, toggleGroup, onNavigate, onToggleCompact }: SidebarProps) {
   // "auto" is compact only between 1024 and 1279 px, decided in CSS so the first paint is right.
   // Labels use max-xl:sr-only, never not-sr-only: that utility sets position: static and drops the
   // label under the absolutely positioned active pill (the "invisible active label" bug).
@@ -187,7 +279,7 @@ function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInv
 
   return <div className={`flex h-full ${width} flex-col rounded-[var(--admin-radius-card)] bg-admin-surface`}>
     <nav aria-label="Navigasi CMS" className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
-      <NavItem item={{ ...dashboard, description: "" }} active={activeHref === dashboard.href} layoutGroup={layoutGroup} labelClass={label} tooltip={compactish} onNavigate={onNavigate} />
+      <NavItem item={{ ...dashboard, description: "" }} active={activeHref === dashboard.href} layoutGroup={layoutGroup} labelClass={label} onlyFull={onlyFull} onlyCompact={onlyCompact} tooltip={compactish} onNavigate={onNavigate} />
       {groups.map((group) => {
         const isOpen = group.id === activeGroupId || !closed[group.id];
         const showGroupBadge = group.id === "pendaftaran" && !isOpen && pendingInvoices > 0;
@@ -200,7 +292,7 @@ function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInv
             disabled={group.id === activeGroupId}
             className={`mb-1 flex h-8 w-full items-center justify-between rounded-full px-3 text-[12px] font-medium text-admin-text-secondary hover:text-admin-ink disabled:cursor-default disabled:hover:text-admin-text-secondary ${focusRing} ${onlyFull}`}
           >
-            <span className="flex items-center gap-2">{group.label}{showGroupBadge && <Badge count={pendingInvoices} />}</span>
+            <span className="flex items-center gap-2">{group.label}{showGroupBadge && <Badge count={pendingInvoices} srLabel="tagihan menunggu verifikasi" />}</span>
             <ChevronDown aria-hidden="true" size={16} strokeWidth={1.5} className={`transition-transform duration-200 ${isOpen ? "" : "-rotate-90"}`} />
           </button>
           {/* Compact rails show every item; collapsing only applies to the labelled sidebar. */}
@@ -212,10 +304,28 @@ function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInv
               animate={{ height: "auto", opacity: 1, transition: { duration: 0.2, ease: ease.out } }}
               exit={{ height: 0, opacity: 0, transition: { duration: 0.16, ease: ease.out } }}
             >
-              {group.modules.filter((item) => !item.hidden).map((item) => <li key={item.href} className={!isOpen ? onlyCompact : undefined}>
-                <NavItem item={item} active={item.href === activeHref} layoutGroup={layoutGroup} labelClass={label} tooltip={compactish} onNavigate={onNavigate}
-                  badge={item.href === "/admin/tagihan" && pendingInvoices > 0 ? pendingInvoices : 0} />
-              </li>)}
+              {group.modules.filter((item) => !item.hidden).map((item) => {
+                const isTagihan = item.href === "/admin/tagihan";
+                const isPendaftar = item.href === "/admin/pendaftar";
+                const badge = isTagihan ? pendingInvoices : isPendaftar ? verifiedRegistrants : 0;
+                const badgeTone = isPendaftar ? "neutral" : "peach";
+                const srLabel = isPendaftar ? "pendaftar terverifikasi" : "tagihan menunggu verifikasi";
+                return <li key={item.href} className={!isOpen ? onlyCompact : undefined}>
+                  <NavItem
+                    item={item}
+                    active={item.href === activeHref}
+                    layoutGroup={layoutGroup}
+                    labelClass={label}
+                    onlyFull={onlyFull}
+                    onlyCompact={onlyCompact}
+                    tooltip={compactish}
+                    onNavigate={onNavigate}
+                    badge={badge}
+                    badgeTone={badgeTone}
+                    srLabel={srLabel}
+                  />
+                </li>;
+              })}
             </m.ul>}
           </AnimatePresence>
         </div>;
@@ -232,8 +342,30 @@ function SidebarPanel({ mode, layoutGroup, activeGroupId, activeHref, pendingInv
   </div>;
 }
 
-function NavItem({ item, active, layoutGroup, labelClass, tooltip, badge = 0, onNavigate }: {
-  item: AdminNavModule; active: boolean; layoutGroup: string; labelClass: string; tooltip: boolean; badge?: number; onNavigate?: () => void;
+function NavItem({
+  item,
+  active,
+  layoutGroup,
+  labelClass,
+  onlyFull,
+  onlyCompact,
+  tooltip,
+  badge = 0,
+  badgeTone = "peach",
+  srLabel = "tagihan menunggu verifikasi",
+  onNavigate,
+}: {
+  item: AdminNavModule;
+  active: boolean;
+  layoutGroup: string;
+  labelClass: string;
+  onlyFull: string;
+  onlyCompact: string;
+  tooltip: boolean;
+  badge?: number;
+  badgeTone?: "peach" | "neutral";
+  srLabel?: string;
+  onNavigate?: () => void;
 }) {
   const Icon = icons[item.icon];
   const tone = active ? "text-admin-on-ink" : "text-admin-ink";
@@ -246,18 +378,51 @@ function NavItem({ item, active, layoutGroup, labelClass, tooltip, badge = 0, on
     {active && <m.span layoutId={`admin-nav-active-${layoutGroup}`} className="absolute inset-0 rounded-full bg-admin-ink" transition={{ duration: 0.28, ease: ease.inOut }} />}
     <Icon aria-hidden="true" size={18} strokeWidth={1.5} className={`relative z-[1] shrink-0 ${tone}`} />
     <span className={`relative z-[1] truncate ${tone} ${labelClass}`}>{item.label}</span>
-    {badge > 0 && <span className="relative z-[1] ml-auto"><Badge count={badge} /></span>}
+    {badge > 0 && (
+      <>
+        <span className={`relative z-[1] ml-auto ${onlyFull}`}>
+          <Badge count={badge} tone={badgeTone} active={active} srLabel={srLabel} />
+        </span>
+        <span className={`pointer-events-none absolute -top-0.5 -right-0.5 z-[2] ${onlyCompact}`}>
+          <Badge count={badge} tone={badgeTone} active={active} compact srLabel={srLabel} />
+        </span>
+      </>
+    )}
   </Link>;
   if (!tooltip) return link;
   return <Tooltip>
     <TooltipTrigger asChild>{link}</TooltipTrigger>
-    <TooltipContent side="right" className="xl:hidden">{item.label}</TooltipContent>
+    <TooltipContent side="right" className="xl:hidden">
+      {badge > 0 ? `${item.label} (${badge})` : item.label}
+    </TooltipContent>
   </Tooltip>;
 }
 
-function Badge({ count }: { count: number }) {
-  return <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-admin-peach-dot px-1.5 text-[12px] font-medium leading-none text-[#0b0b0b]">
+function Badge({
+  count,
+  tone = "peach",
+  active = false,
+  compact = false,
+  srLabel = "tagihan menunggu verifikasi",
+}: {
+  count: number;
+  tone?: "peach" | "neutral";
+  active?: boolean;
+  compact?: boolean;
+  srLabel?: string;
+}) {
+  const colorClass =
+    tone === "neutral"
+      ? active
+        ? "bg-admin-on-ink/15 text-admin-on-ink"
+        : "border border-admin-line-strong bg-admin-canvas text-admin-ink"
+      : "bg-admin-peach-dot text-[#0b0b0b]";
+  const sizeClass = compact
+    ? "h-[18px] min-w-[18px] px-1 text-[10px] ring-2 ring-admin-surface"
+    : "h-5 min-w-5 px-1.5 text-[12px]";
+
+  return <span className={`inline-flex items-center justify-center rounded-full font-medium leading-none tabular-nums ${sizeClass} ${colorClass}`}>
     <span aria-hidden="true">{count > 99 ? "99+" : count}</span>
-    <span className="sr-only">{count} tagihan menunggu verifikasi</span>
+    <span className="sr-only">{count} {srLabel}</span>
   </span>;
 }

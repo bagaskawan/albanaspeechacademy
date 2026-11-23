@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { isAlbanaPath } from "./albana-routes.ts";
 
 test("rute Albana tetap tersedia", () => {
-  for (const path of ["/", "/login", "/sitemap.xml", "/robots.txt", "/register/public-speaking", "/program/inhouse-training", "/admin", "/admin/program/public-speaking-series/edit", "/admin/pendaftar", "/api/registrations", "/api/upload", "/api/media/12", "/api/article-images/550e8400-e29b-41d4-a716-446655440000", "/api/admin/invoice-payments", "/api/admin/invoice-payments/1/proof", "/api/admin/change-password", "/api/admin/export/pendaftar", "/admin/rekening", "/admin/kontak", "/admin/profil-akademi", "/admin/settings", "/admin/galeri", "/admin/partner"]) {
+  for (const path of ["/", "/login", "/sitemap.xml", "/robots.txt", "/register/public-speaking", "/program/inhouse-training", "/admin", "/admin/program/public-speaking-series/edit", "/admin/pendaftar", "/api/registrations", "/api/upload", "/api/media/12", "/api/article-images/550e8400-e29b-41d4-a716-446655440000", "/api/admin/invoice-payments", "/api/admin/invoice-payments/1/proof", "/api/admin/change-password", "/api/admin/live-counts", "/api/admin/export/pendaftar", "/admin/rekening", "/admin/kontak", "/admin/profil-akademi", "/admin/settings", "/admin/galeri", "/admin/partner"]) {
     assert.equal(isAlbanaPath(path), true, path);
   }
 });

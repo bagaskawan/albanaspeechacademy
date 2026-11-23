@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Banknote, Calendar, CalendarPlus, Eye, Images, Layers, Package, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -52,6 +52,7 @@ export function ProgramDetailBoard({
   media,
   defaultAddress = "",
   nowMs,
+  autoOpenAddBatch = false,
 }: {
   program: ProgramDetail;
   batches: BoardBatch[];
@@ -62,6 +63,7 @@ export function ProgramDetailBoard({
   media: ProgramMediaItem[];
   defaultAddress?: string;
   nowMs: number;
+  autoOpenAddBatch?: boolean;
 }) {
   const router = useRouter();
   const isAdminSuper = useIsAdminSuper();
@@ -83,13 +85,31 @@ export function ProgramDetailBoard({
     address: string;
     flyerUrl: string;
     open: boolean;
-  } | null>(null);
+  } | null>(() =>
+    autoOpenAddBatch
+      ? {
+          slug: null,
+          title: "",
+          placeholder: nextBatchName(batches.map((b) => b.title)),
+          sessions: [{ date: "", start: "", end: "" }],
+          address: "",
+          flyerUrl: "",
+          open: false,
+        }
+      : null,
+  );
   const [bundleDraft, setBundleDraft] = useState<{
     active: boolean;
     price: string;
     dp: string;
     description: string;
   } | null>(null);
+
+  useEffect(() => {
+    if (autoOpenAddBatch) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, [autoOpenAddBatch]);
 
   const supportsBundle = program.slug === SPEAKER_SLUG || program.slug === CERTIFICATION_SLUG;
   const rows = batches

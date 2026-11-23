@@ -1,6 +1,8 @@
 import { DashboardView } from "@/components/admin/stats/DashboardView";
 import { DashboardFilters } from "@/components/admin/stats/DashboardFilters";
+import { AddBatchButton } from "@/components/admin/stats/AddBatchButton";
 import { PeriodSwitch } from "@/components/admin/stats/PeriodSwitch";
+import { CERTIFICATION_SLUG, SERIES_SLUG, SPEAKER_SLUG } from "@/lib/bundle";
 import { requireAdminMember } from "@/lib/server/admin-guard";
 import { academyBillingClient } from "@/lib/server/academy-billing";
 import { buildDashboardStats, fetchFrom, parsePeriod, type DashboardInput } from "@/lib/server/admin-dashboard";
@@ -68,9 +70,12 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
 
   const agendaBatches = batchRows.filter((row) => (!program || row.program_slug === program) && (!batch || row.slug === batch));
   const agenda = calendarSessions(agendaBatches, programRows, now, new Date(now.getTime() + 14 * 86_400_000), now);
+  const publicPrograms = [SERIES_SLUG, SPEAKER_SLUG, CERTIFICATION_SLUG]
+    .map((slug) => programRows.find((row) => row.slug === slug))
+    .filter((row): row is { slug: string; title: string } => Boolean(row));
 
   return <>
-    <PeriodSwitch value={period} />
+    <PeriodSwitch value={period} action={<AddBatchButton programs={publicPrograms} />} />
     <DashboardFilters
       programs={programRows}
       batches={batchRows.map(({ slug, title, program_slug }) => ({ slug, title, program_slug }))}

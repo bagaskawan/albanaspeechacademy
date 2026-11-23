@@ -54,4 +54,24 @@ test("site url falls back like checkout-actions and never to localhost in produc
   assert.equal(readMailConfig({ ...base, NODE_ENV: "development" }).siteUrl, "http://localhost:3000");
   assert.equal(readMailConfig({ ...base, NODE_ENV: "production" }), null);
   assert.equal(readMailConfig({ ...base, NODE_ENV: "production", SITE_URL: "http://albanaspeechacademy.com" }), null);
+  assert.equal(
+    readMailConfig({
+      ...base,
+      NODE_ENV: "production",
+      VERCEL_ENV: "production",
+      VERCEL_PROJECT_PRODUCTION_URL: "albanaspeechacademy.com",
+      VERCEL_URL: "albana-preview.vercel.app",
+    }).siteUrl,
+    "https://albanaspeechacademy.com",
+  );
+  assert.equal(
+    readMailConfig({
+      ...base,
+      NODE_ENV: "production",
+      VERCEL_ENV: "preview",
+      VERCEL_PROJECT_PRODUCTION_URL: "albanaspeechacademy.com",
+      VERCEL_URL: "albana-preview.vercel.app",
+    }).siteUrl,
+    "https://albana-preview.vercel.app",
+  );
 });

@@ -20,12 +20,22 @@ function parsePort(raw: string): number | null {
   return Number.isSafeInteger(port) && port >= 1 && port <= 65535 ? port : null;
 }
 
+function vercelSiteUrl(env: Record<string, string | undefined>): string {
+  const host =
+    clean(env.VERCEL_ENV) === "production"
+      ? clean(env.VERCEL_PROJECT_PRODUCTION_URL) || clean(env.VERCEL_URL)
+      : clean(env.VERCEL_URL) || clean(env.VERCEL_PROJECT_PRODUCTION_URL);
+  if (!host) return "";
+  return host.startsWith("http://") || host.startsWith("https://") ? host : `https://${host}`;
+}
+
 function resolveSiteUrl(env: Record<string, string | undefined>): string | null {
   const isProd = clean(env.NODE_ENV) === "production";
   const raw =
     clean(env.SITE_URL) ||
     clean(env.NEXT_PUBLIC_SITE_URL) ||
     clean(env.NEXT_PUBLIC_APP_URL) ||
+    vercelSiteUrl(env) ||
     (isProd ? "" : "http://localhost:3000");
   if (!raw) return null;
   const normalized = raw.replace(/\/+$/, "");
